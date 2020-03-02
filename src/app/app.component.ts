@@ -1,8 +1,22 @@
 import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute, Params, RoutesRecognized } from '@angular/router';
 
 import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
+
+import { Observable, empty } from 'rxjs';
+import { Subscription } from 'rxjs';
+import { switchMap, filter } from 'rxjs/operators';
+import { of } from 'rxjs'
+
+import { AuthService, User } from '../auth/shared/services/auth/auth.service';
+import { ProfileService, Profile } from '../auth/shared/services/profile/profile.service';
+import { TeamsService, Team } from './shared/services/teams/teams.service';
+import { GroupsService, Group } from './shared/services/groups/groups.service';
+
+import { Store } from 'src/store';
+import { MembersService, Member } from './shared/services/members/members.service';
 
 @Component({
   selector: 'app-root',
@@ -10,45 +24,67 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit {
+  user$: Observable<User>;
+  profile$: Observable<Profile>;
+  teams$: Observable<Team[]>;
+  team$: Observable<Team>;
+  groups$: Observable<Group[]>;
+  authSub: Subscription;
+  profileSub: Subscription;
+  teamsSub: Subscription;
+  groupsSub: Subscription;
+  membersSub: Subscription;
+  teamId: string;
+  lastId: string;
+  page: string;
+  loggedIn: boolean;
   public selectedIndex = 0;
   public appPages = [
     {
-      title: 'Inbox',
-      url: '/folder/Inbox',
-      icon: 'mail'
+      title: 'Dashboard',
+      icon: 'grid'
     },
     {
-      title: 'Outbox',
-      url: '/folder/Outbox',
-      icon: 'paper-plane'
+      title: 'Calendar',
+      icon: 'calendar'
     },
     {
-      title: 'Favorites',
-      url: '/folder/Favorites',
-      icon: 'heart'
+      title: 'Messages',
+      icon: 'chatbubbles'
     },
     {
-      title: 'Archived',
-      url: '/folder/Archived',
-      icon: 'archive'
+      title: 'Files',
+      icon: 'document'
     },
     {
-      title: 'Trash',
-      url: '/folder/Trash',
-      icon: 'trash'
+      title: 'Notes',
+      icon: 'newspaper'
     },
     {
-      title: 'Spam',
-      url: '/folder/Spam',
-      icon: 'warning'
+      title: 'Team',
+      icon: 'people'
+    },
+    {
+      title: 'Child',
+      icon: 'happy'
+    },
+    {
+      title: 'Resources',
+      icon: 'help-buoy'
     }
   ];
-  public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
 
   constructor(
+    private store: Store,
     private platform: Platform,
     private splashScreen: SplashScreen,
-    private statusBar: StatusBar
+    private statusBar: StatusBar,
+    private router: Router,
+    private authService: AuthService,
+    private profileService: ProfileService,
+    private teamsService: TeamsService,
+    private groupsService: GroupsService,
+    private membersService: MembersService
   ) {
     this.initializeApp();
   }
@@ -61,9 +97,55 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    const path = window.location.pathname.split('folder/')[1];
+    this.user$ = this.store.select<User>('user');
+    this.profile$ = this.store.select<Profile>('profile');
+    this.teams$ = this.store.select<Team[]>('teams');
+    this.authSub = this.authService.auth$.subscribe();
+    this.authService.userAuth.onAuthStateChanged(user => {
+      this.profileSub = this.profileService.profileObservable(user.uid).subscribe();
+      this.teamsSub = this.teamsService.teamsObservable(user.uid).subscribe();
+    })
+    const path = window.location.pathname.split('Teams/:id/')[1];
     if (path !== undefined) {
       this.selectedIndex = this.appPages.findIndex(page => page.title.toLowerCase() === path.toLowerCase());
     }
+    this.router.events.subscribe(val => {
+      if (val instanceof RoutesRecognized) {
+        this.teamId = val.state.root.firstChild.params['id'];
+        if (this.teamId !== this.lastId) {
+          this.team$ = this.teamsService.getTeam(this.teamId);
+          this.authService.userAuth.onAuthStateChanged(user => {
+            this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
+            this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe();
+          })
+          this.lastId = this.teamId;
+        }
+        if (val.state.root.firstChild.params['id']) {
+          this.page = val.state.root.firstChild.url[2].path;
+        }
+      }
+    });
+  }
+
+  onLogout() {
+    this.router.navigate(["/auth/login"])
+    this.store.set('user', null);
+    this.store.set('profile', null);
+    this.store.set('teams', null);
+    this.store.set('groups', null);
+    this.store.set('members', null);
+    this.profileSub.unsubscribe();
+    this.teamsSub.unsubscribe();
+    this.groupsSub.unsubscribe();
+    this.membersSub.unsubscribe();
+    this.authService.logoutUser();
+  }
+
+  ngOnDestroy() {
+    this.authSub.unsubscribe();
+    this.profileSub.unsubscribe();
+    this.teamsSub.unsubscribe();
+    this.groupsSub.unsubscribe();
+    this.membersSub.unsubscribe();
   }
 }

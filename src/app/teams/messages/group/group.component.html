@@ -1,0 +1,81 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="['/Teams', (team$ | async)?.id, 'Messages']"></ion-back-button>
+    </ion-buttons>
+    <ion-title *ngIf="(team$ | async)">{{ (group$ | async)?.name }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" #contentArea>
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large" *ngIf="(team$ | async)">{{ (group$ | async)?.name }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div id="container">
+    <ion-item class="message--list" lines="none"></ion-item>      
+    <ion-list class="message--list" *ngFor="let m of (group$ | async)?.messages; trackBy: trackFn; let last = last" #messages>
+      <ion-item class="message--list" lines="none">
+        <ion-avatar *ngIf="m.profile && m.uid !== (profile$ | async)?.uid" slot="start">
+          <img *ngIf="m.profile.url; else elseTextAvatar" src="{{ m.profile.url }}">
+          <ng-template #elseTextAvatar>
+            <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
+          </ng-template>
+        </ion-avatar>
+        <ion-card *ngIf="m.profile && m.uid !== (profile$ | async)?.uid; else elseUserMessage" class="dialog member message--card">
+          <ion-card-content>
+            <ion-label text-wrap>
+              <h2>{{ m.body }}</h2>
+            </ion-label>
+          </ion-card-content>
+        </ion-card>
+        <ion-col *ngIf="m.timestamp">
+          <ion-row [ngClass]="{'ion-justify-content-end' : m.uid === (profile$ | async)?.uid}">
+            <ion-text class="message--name">{{ m.profile.displayName }}</ion-text>
+          </ion-row> 
+          <ion-row *ngIf="time - m.timestamp.toMillis() > 86400000" [ngClass]="{'ion-justify-content-end' : m.uid === (profile$ | async)?.uid}">
+            <ion-text class="message--time">{{ m.timestamp.toMillis() | date : 'shortDate' }}</ion-text>
+          </ion-row>
+          <ion-row [ngClass]="{'ion-justify-content-end' : m.uid === (profile$ | async)?.uid}">
+            <ion-text class="message--time">{{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
+          </ion-row>
+        </ion-col>
+        <ng-template #elseUserMessage>
+          <ion-card *ngIf="m.profile" color="primary" class="dialog message--card message--user" slot="end">
+            <ion-card-content>
+              <ion-label text-wrap>
+                <h2>{{ m.body }}</h2>
+              </ion-label>
+            </ion-card-content>
+          </ion-card>
+        </ng-template>
+      </ion-item>
+    </ion-list>
+    <ion-item class="message--list" lines="none"></ion-item>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-row class="ion-align-items-center">
+      <ion-col size="10">
+          <ion-textarea 
+            autoGrow="true" 
+            rows="1" 
+            class="message--input" 
+            placeholder="Type a message..." 
+            [(ngModel)]="message.body"
+            (keyup.enter)="sendMessage()"
+            (ionFocus)="scrollOnFocus()">
+          </ion-textarea>
+      </ion-col>
+      <ion-col size="2">
+        <ion-button class="message--button" (click)="sendMessage()">
+          <ion-icon name="send"></ion-icon>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-toolbar>
+</ion-footer>

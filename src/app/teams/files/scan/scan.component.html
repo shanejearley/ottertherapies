@@ -1,0 +1,19 @@
+<ion-header translucent>
+    <ion-toolbar>
+        <ion-title>Preview Scan</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="dismiss()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+    <ion-list>
+        <ion-item lines="none"></ion-item>
+        <ion-item lines="none">
+            <img *ngIf="photo" [src]="photo">
+        </ion-item>
+        <ion-button (click)="upload()">Upload</ion-button>
+        <ion-button (click)="retake()">Retake</ion-button>
+        <ion-item lines="none"></ion-item>
+    </ion-list>
+</ion-content>

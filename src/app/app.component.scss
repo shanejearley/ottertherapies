@@ -117,3 +117,8 @@ ion-note {
 ion-item.selected {
   --color: var(--ion-color-primary);
 }
+
+ion-card.dialog {
+  box-shadow: none !important;
+  margin-inline-start: 0 !important;
+}

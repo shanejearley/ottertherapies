@@ -1,0 +1,23 @@
+<ion-header translucent>
+    <ion-toolbar>
+        <ion-title>Upload Scan</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="dismiss()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+    <ion-list>
+        <ion-item lines="none"></ion-item>
+        <ion-item lines="none">
+            <ion-thumbnail slot="start">
+                <img *ngIf="photo" [src]="photo">
+            </ion-thumbnail>
+            <ion-label>
+                <h2>{{ photoName }}</h2>
+            </ion-label>
+        </ion-item>
+        <ion-button (click)="upload()">Upload</ion-button>
+        <ion-item lines="none"></ion-item>
+    </ion-list>
+</ion-content>

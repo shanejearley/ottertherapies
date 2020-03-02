@@ -1,0 +1,180 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title *ngIf="(team$ | async)">Files</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large" *ngIf="(team$ | async)">Files</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div id="container">
+    <ion-card>
+      <ion-card-content>
+        <ion-list>
+
+          <ion-list-header>
+            Group Folders
+          </ion-list-header>
+
+          <div *ngFor="let g of (groups$ | async); let i = index">
+            <ion-item [lines]="!last ? 'inset' : 'none'" class="no-last-border" (click)="g.show = !g.show" button
+              detail="true" [detailIcon]="!g.show ? 'chevron-down' : 'chevron-up'">
+              <ion-avatar slot="start">
+                <ngx-avatar name="{{ g.name }}" [size]="40"></ngx-avatar>
+              </ion-avatar>
+              <ion-label>
+                <h2>{{ g.name }}</h2>
+                <h3>Shared with {{ g.memberCount - 1 }} members</h3>
+              </ion-label>
+              <ion-badge color="danger" *ngIf="g.unread && g.unread.unreadFiles > 0">
+                {{ g.unread.unreadFiles }}
+              </ion-badge>
+            </ion-item>
+            <div *ngIf="g.show">
+              <div *ngIf="g.files.length; else elseFile">
+                <ion-item *ngFor="let f of g.files; let i = index" download="{{ f.url }}" href="{{ f.url }}">
+                  <ion-avatar class="avatar--file" slot="start">
+                    <ion-icon name="document"></ion-icon>
+                  </ion-avatar>
+                  <ion-label>
+                    <h2>{{ f.name }}</h2>
+                    <h3>{{ f.profile.displayName }}</h3>
+                  </ion-label>
+                </ion-item>
+              </div>
+              <ng-template #elseFile>
+                <ion-item>
+                  <ion-avatar class="avatar--file" slot="start">
+                    <ion-icon name="sad"></ion-icon>
+                  </ion-avatar>
+                  <ion-label>
+                    <h2>No files yet</h2>
+                    <h3>Upload the first!</h3>
+                  </ion-label>
+                </ion-item>
+              </ng-template>
+            </div>
+          </div>
+
+          <div *ngFor="let m of (members$ | async); let i = index">
+            <ion-item [lines]="!last ? 'inset' : 'none'" class="no-last-border" (click)="m.show = !m.show" button
+              detail="true" [detailIcon]="!m.show ? 'chevron-down' : 'chevron-up'"
+              *ngIf="m.profile && m.uid !== (profile$ | async)?.uid">
+              <ion-avatar slot="start">
+                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                <ng-template #elseMemberAvatar>
+                  <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
+                </ng-template>
+              </ion-avatar>
+              <ion-label>
+                <h2>{{ m.profile.displayName }}</h2>
+                <h3>Shared between and {{ m.profile.displayName }}</h3>
+              </ion-label>
+              <ion-badge color="danger" *ngIf="m.unread && m.unread.unreadFiles > 0">
+                {{ m.unread.unreadFiles }}
+              </ion-badge>
+            </ion-item>
+            <div *ngIf="m.show && m.uid !== (profile$ | async)?.uid">
+              <div *ngIf="m.files.length; else elseFile">
+                <ion-item *ngFor="let f of m.files; let i = index" download="{{ f.url }}" href="{{ f.url }}">
+                  <ion-avatar class="avatar--file" slot="start">
+                    <ion-icon name="document"></ion-icon>
+                  </ion-avatar>
+                  <ion-label>
+                    <h2>{{ f.name }}</h2>
+                    <h3>{{ f.profile.displayName }}</h3>
+                  </ion-label>
+                </ion-item>
+              </div>
+              <ng-template #elseFile>
+                <ion-item>
+                  <ion-avatar class="avatar--file" slot="start">
+                    <ion-icon name="sad"></ion-icon>
+                  </ion-avatar>
+                  <ion-label>
+                    <h2>No files yet</h2>
+                    <h3>Upload the first!</h3>
+                  </ion-label>
+                </ion-item>
+              </ng-template>
+            </div>
+          </div>
+
+          <ion-list-header>
+            Private Folder
+          </ion-list-header>
+
+          <div *ngFor="let m of (members$ | async); let i = index">
+            <ion-item [lines]="!last ? 'inset' : 'none'" class="no-last-border" (click)="m.show = !m.show" button
+              detail="true" [detailIcon]="!m.show ? 'chevron-down' : 'chevron-up'"
+              *ngIf="m.profile && m.uid === (profile$ | async)?.uid">
+              <ion-avatar slot="start">
+                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                <ng-template #elseMemberAvatar>
+                  <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
+                </ng-template>
+              </ion-avatar>
+              <ion-label>
+                <h2>{{ m.profile.displayName }}</h2>
+                <h3>Private for you</h3>
+              </ion-label>
+            </ion-item>
+            <div *ngIf="m.show && m.uid === (profile$ | async)?.uid">
+              <div *ngIf="m.files.length; else elseFile">
+                <ion-item *ngFor="let f of m.files; let i = index" download="{{ f.url }}" href="{{ f.url }}">
+                  <ion-avatar class="avatar--file" slot="start">
+                    <ion-icon name="document"></ion-icon>
+                  </ion-avatar>
+                  <ion-label>
+                    <h2>{{ f.name }}</h2>
+                    <h3>{{ f.profile.displayName }}</h3>
+                  </ion-label>
+                </ion-item>
+              </div>
+              <ng-template #elseFile>
+                <ion-item>
+                  <ion-avatar class="avatar--file" slot="start">
+                    <ion-icon name="sad"></ion-icon>
+                  </ion-avatar>
+                  <ion-label>
+                    <h2>No files yet</h2>
+                    <h3>Upload the first!</h3>
+                  </ion-label>
+                </ion-item>
+              </ng-template>
+            </div>
+          </div>
+
+          <ion-item lines="none"></ion-item>
+
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+    <ion-fab vertical="bottom" horizontal="end">
+      <ion-fab-button>
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+
+      <!--will need to make labels for these see online forums-->
+      <ion-fab-list side="top">
+        <ion-fab-button (click)="scanDoc()">
+          <ion-icon name="scan"></ion-icon>
+        </ion-fab-button>
+        <ion-fab-button>
+          <ion-icon name="document"></ion-icon>
+        </ion-fab-button>
+        <ion-fab-button>
+          <ion-icon name="folder"></ion-icon>
+        </ion-fab-button>
+      </ion-fab-list>
+
+    </ion-fab>
+  </div>
+</ion-content>

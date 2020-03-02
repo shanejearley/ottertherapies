@@ -1,0 +1,115 @@
+ion-menu-button {
+  color: var(--ion-color-primary);
+}
+
+#container {
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  // margin-top: 5%;
+  // position: absolute;
+  // left: 0;
+  // right: 0;
+  // top: 50%;
+  // transform: translateY(-50%);
+}
+
+#container strong {
+  font-size: 20px;
+  line-height: 26px;
+}
+
+#container p {
+  font-size: 16px;
+  line-height: 22px;
+  color: #8c8c8c;
+  margin: 0;
+}
+
+#container a {
+  text-decoration: none;
+}
+
+ion-content ion-toolbar {
+  --background: transparent;
+}
+
+ion-card.dialog {
+  box-shadow: none !important;
+  margin-inline-start: 0 !important;
+}
+
+ion-card.dialog.member {
+  border: 0.5px solid #eeeeee;
+}
+
+ion-text.message--name {
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 600;
+}
+
+ion-text.message--time {
+  padding-right: 2px;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 500;
+}
+
+ion-card.message--card {
+  max-width: 75%;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+ion-card.message--card.message--user {
+  margin-inline-start: 10px !important;
+}
+
+ion-col.right {
+  justify-content: end
+}
+
+ion-row.right {
+  justify-content: end
+}
+
+ion-textarea.message--input {
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 4px;
+  border: 2px solid #eeeeee;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+ion-button.message--button {
+  --padding-start: 0.6em;
+  --padding-end: 0.6em;
+}
+
+ion-col.message--header {
+  text-align: center;
+}
+
+ion-col.message--row {
+  text-align: center;
+}
+
+ion-list.message--list {
+  background: transparent !important;
+  --ion-background-color:transparent !important;
+}
+
+ion-item.message--list {
+  --ion-background-color:transparent !important;
+  --ion-item-background:transparent !important;
+}
+
+
+/// need to style on mobile
+// ion-card-content.message--card {
+//   padding: 0;
+//   margin: 0;
+// }

@@ -1,0 +1,20 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+import { IonicModule } from '@ionic/angular';
+
+import { CalendarRoutingModule } from './calendar-routing.module';
+
+import { CalendarComponent } from './calendar.component';
+
+@NgModule({
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonicModule,
+    CalendarRoutingModule
+  ],
+  declarations: [CalendarComponent]
+})
+export class CalendarModule {}

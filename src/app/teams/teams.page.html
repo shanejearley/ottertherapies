@@ -1,0 +1,56 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      Teams
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Teams</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div id="container">
+    <ion-card>
+      <ion-card-content>
+        <ion-list>
+          
+        <ion-list-header>
+          Your Teams
+        </ion-list-header>
+
+        <ion-item 
+          *ngFor="let p of (teams$ | async); let i = index" 
+          routerDirection="root" 
+          [routerLink]="[p.id]" 
+          [lines]="!last ? 'inset' : 'none'" 
+          class="no-last-border">
+          <ion-avatar slot="start">
+            <ngx-avatar class="teams-avatar" name="{{ p.child }}" [size]="40"></ngx-avatar>
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ p.name }}</h2>
+            <h3>{{ p.publicId }}</h3>
+          </ion-label>
+          <ion-badge 
+            color="danger"
+            *ngIf="p.unreadMessages + p.unreadFiles + p.unreadNotes > 0">
+            {{ p.unreadMessages + p.unreadFiles + p.unreadNotes }}
+          </ion-badge>
+        </ion-item>
+
+        <ion-item lines="none"></ion-item>
+
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+</ion-content>
