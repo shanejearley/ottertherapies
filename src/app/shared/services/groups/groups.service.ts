@@ -9,14 +9,7 @@ import { Store } from 'src/store';
 import { ProfileService, Profile } from '../../../../auth/shared/services/profile/profile.service'
 
 import { Observable, Subscription } from 'rxjs';
-import {
-  tap,
-  filter,
-  map,
-  switchMap,
-  find
-} from 'rxjs/operators';
-import { of } from 'rxjs';
+import { tap, filter, map } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
 
@@ -34,7 +27,8 @@ export interface Group {
   timestamp: firestore.FieldValue,
   unread: Unread,
   files: File[],
-  messages: Message[]
+  messages: Message[],
+  isChecked: boolean
 }
 
 export interface Unread {
@@ -81,6 +75,7 @@ export class GroupsService {
   constructor(
     private store: Store,
     private db: AngularFirestore,
+    private storage: AngularFireStorage,
     private authService: AuthService,
     private profileService: ProfileService,
     private router: Router,
@@ -173,10 +168,6 @@ export class GroupsService {
       .pipe(
         filter(Boolean),
         map((group: Group[]) => group.find((group: Group) => group.id === id)));
-  }
-
-  uploadFile(file: File) {
-    
   }
 
   //   getMeal(key: string) {

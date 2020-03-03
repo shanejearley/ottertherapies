@@ -4,7 +4,8 @@ import { NavParams, ModalController } from '@ionic/angular';
 
 @Component({
     selector: 'app-scan',
-    templateUrl: 'scan.component.html'
+    templateUrl: 'scan.component.html',
+    styleUrls: ['./scan.component.scss']
 })
 export class ScanComponent {
     photo: SafeResourceUrl;

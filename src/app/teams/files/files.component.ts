@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { Platform, ModalController } from '@ionic/angular';
-import { Plugins, FilesystemDirectory, FilesystemEncoding } from '@capacitor/core';
+import { Platform, ModalController, ToastController } from '@ionic/angular';
+import { Plugins, FilesystemDirectory, FilesystemEncoding, FileReadResult } from '@capacitor/core';
 const { Filesystem } = Plugins;
-
+import { AngularFirestore } from '@angular/fire/firestore'
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
-
-import { v4 as uuidv4 } from 'uuid';
 
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
@@ -38,6 +36,8 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 export class FilesComponent implements OnInit {
   photoName: string;
   photo: SafeResourceUrl;
+  photoId: string;
+  photoData: string;
   teamId: string;
   user$: Observable<User>;
   profile$: Observable<Profile>;
@@ -61,7 +61,9 @@ export class FilesComponent implements OnInit {
     private photoViewer: PhotoViewer,
     private file: File,
     private modalController: ModalController,
-    private sanitizer: DomSanitizer
+    public toastController: ToastController,
+    private sanitizer: DomSanitizer,
+    private db: AngularFirestore
   ) {}
 
   ngOnInit() {
@@ -94,8 +96,10 @@ export class FilesComponent implements OnInit {
           path: path
         }).then((data) => {
           if (data) {
-            this.photoName = 'Scan-'+uuidv4().substr(0,5);
+            this.photoId = this.db.createId();
+            this.photoName = 'Scan-'+this.photoId.substr(0,5);
             this.photo = this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,'+data.data);
+            this.photoData = data.data;
             this.scanModal();
           }
         })
@@ -109,7 +113,6 @@ export class FilesComponent implements OnInit {
     let opts: DocumentScannerOptions = {};
     this.documentScanner.scanDoc(opts)
       .then((res: string) => {
-        console.log(res);
         this.readFilePath(res);
       })
       .catch((error: any) => console.error(error));
@@ -139,19 +142,27 @@ export class FilesComponent implements OnInit {
       component: UploadComponent,
       componentProps: {
         'photo': this.photo,
-        'photoName': this.photoName
+        'photoData': this.photoData,
+        'photoName': this.photoName,
+        'photoId': this.photoId,
+        'teamId': this.teamId
       }
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;
-      if (this.data.response == 'upload') {
-        console.log('upload task here...')
-      }
-      if (this.data.response == 'retake') {
-        this.scanDoc();
+      if (this.data.response == 'success') {
+        this.presentToast();
       }
     });
     return await modal.present();
+  }
+
+  async presentToast() {
+    const toast = await this.toastController.create({
+      message: 'Your scan uploaded successfully!',
+      duration: 2000
+    });
+    toast.present();
   }
 
 }

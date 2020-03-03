@@ -25,7 +25,8 @@ export interface Member {
   unread: Unread,
   files: File[],
   messages: Message[],
-  direct: Direct
+  direct: Direct,
+  isChecked: boolean
 }
 
 export interface Direct {
@@ -125,19 +126,28 @@ export class MembersService {
   }
 
   getFiles(member: Member) {
-    this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
-    this.filesCol = this.db.collection<File>(`teams/${this.teamId}/direct/${this.pathId}/files`);
-    this.files$ = this.filesCol.valueChanges()
-      .pipe(tap(next => {
-        if (!next) {
-          return;
-        }
-        next.forEach(file => {
-          this.profileService.getProfile(file);
-        })
-        member.files = next;
-      }))
-    this.files$.subscribe();
+    if (member.uid !== this.uid) {
+      this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
+      this.filesCol = this.db.collection<File>(`teams/${this.teamId}/direct/${this.pathId}/files`);
+      this.files$ = this.filesCol.valueChanges()
+        .pipe(tap(next => {
+          if (!next) {
+            return;
+          }
+          member.files = next;
+        }))
+      this.files$.subscribe();
+    } else {
+      this.filesCol = this.db.collection<File>(`users/${this.uid}/teams/${this.teamId}/files`);
+      this.files$ = this.filesCol.valueChanges()
+        .pipe(tap(next => {
+          if (!next) {
+            return;
+          }
+          member.files = next;
+        }))
+      this.files$.subscribe();
+    }
   }
 
   getMessages(member: Member) {

@@ -39,7 +39,12 @@
             </ion-item>
             <div *ngIf="g.show">
               <div *ngIf="g.files.length; else elseFile">
-                <ion-item *ngFor="let f of g.files; let i = index" download="{{ f.url }}" href="{{ f.url }}">
+                <ion-item 
+                  *ngFor="let f of g.files; let i = index" 
+                  download="{{ f.url }}" 
+                  href="{{ f.url }}"
+                  detail="true"
+                  detailIcon="download">
                   <ion-avatar class="avatar--file" slot="start">
                     <ion-icon name="document"></ion-icon>
                   </ion-avatar>
@@ -75,7 +80,7 @@
               </ion-avatar>
               <ion-label>
                 <h2>{{ m.profile.displayName }}</h2>
-                <h3>Shared between and {{ m.profile.displayName }}</h3>
+                <h3>Shared between you and {{ m.profile.displayName }}</h3>
               </ion-label>
               <ion-badge color="danger" *ngIf="m.unread && m.unread.unreadFiles > 0">
                 {{ m.unread.unreadFiles }}
@@ -83,13 +88,21 @@
             </ion-item>
             <div *ngIf="m.show && m.uid !== (profile$ | async)?.uid">
               <div *ngIf="m.files.length; else elseFile">
-                <ion-item *ngFor="let f of m.files; let i = index" download="{{ f.url }}" href="{{ f.url }}">
+                <ion-item 
+                  *ngFor="let f of m.files; let i = index" 
+                  download="{{ f.url }}" 
+                  href="{{ f.url }}"
+                  detail="true"
+                  detailIcon="download">
                   <ion-avatar class="avatar--file" slot="start">
                     <ion-icon name="document"></ion-icon>
                   </ion-avatar>
                   <ion-label>
                     <h2>{{ f.name }}</h2>
-                    <h3>{{ f.profile.displayName }}</h3>
+                    <h3 *ngIf="f.uid !== (profile$ | async)?.uid; else elseUserName">{{ m.profile.displayName }}</h3>
+                    <ng-template #elseUserName>
+                      <h3>{{ (profile$ | async)?.displayName }}</h3>
+                    </ng-template>
                   </ion-label>
                 </ion-item>
               </div>
@@ -128,13 +141,18 @@
             </ion-item>
             <div *ngIf="m.show && m.uid === (profile$ | async)?.uid">
               <div *ngIf="m.files.length; else elseFile">
-                <ion-item *ngFor="let f of m.files; let i = index" download="{{ f.url }}" href="{{ f.url }}">
+                <ion-item 
+                  *ngFor="let f of m.files; let i = index" 
+                  download="{{ f.url }}" 
+                  href="{{ f.url }}"
+                  detail="true"
+                  detailIcon="download">
                   <ion-avatar class="avatar--file" slot="start">
                     <ion-icon name="document"></ion-icon>
                   </ion-avatar>
                   <ion-label>
                     <h2>{{ f.name }}</h2>
-                    <h3>{{ f.profile.displayName }}</h3>
+                    <h3>{{ m.profile.displayName }}</h3>
                   </ion-label>
                 </ion-item>
               </div>
@@ -157,24 +175,24 @@
         </ion-list>
       </ion-card-content>
     </ion-card>
-    <ion-fab vertical="bottom" horizontal="end">
-      <ion-fab-button>
-        <ion-icon name="add"></ion-icon>
-      </ion-fab-button>
-
-      <!--will need to make labels for these see online forums-->
-      <ion-fab-list side="top">
-        <ion-fab-button (click)="scanDoc()">
-          <ion-icon name="scan"></ion-icon>
-        </ion-fab-button>
-        <ion-fab-button>
-          <ion-icon name="document"></ion-icon>
-        </ion-fab-button>
-        <ion-fab-button>
-          <ion-icon name="folder"></ion-icon>
-        </ion-fab-button>
-      </ion-fab-list>
-
-    </ion-fab>
   </div>
 </ion-content>
+<ion-fab vertical="bottom" horizontal="end">
+  <ion-fab-button>
+    <ion-icon name="add"></ion-icon>
+  </ion-fab-button>
+
+  <!--will need to make labels for these-->
+  <ion-fab-list side="top">
+    <ion-fab-button (click)="scanDoc()">
+      <ion-icon name="scan"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button>
+      <ion-icon name="document"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button>
+      <ion-icon name="folder"></ion-icon>
+    </ion-fab-button>
+  </ion-fab-list>
+
+</ion-fab>

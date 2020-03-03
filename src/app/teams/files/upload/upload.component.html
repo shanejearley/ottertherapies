@@ -8,16 +8,82 @@
 </ion-header>
 <ion-content fullscreen>
     <ion-list>
-        <ion-item lines="none"></ion-item>
+
+        <ion-list-header>
+            Name File
+        </ion-list-header>
+
         <ion-item lines="none">
             <ion-thumbnail slot="start">
                 <img *ngIf="photo" [src]="photo">
             </ion-thumbnail>
-            <ion-label>
-                <h2>{{ photoName }}</h2>
-            </ion-label>
+            <ion-input [(ngModel)]="photoName"></ion-input>
+            <ion-text>.jpg</ion-text>
         </ion-item>
-        <ion-button (click)="upload()">Upload</ion-button>
-        <ion-item lines="none"></ion-item>
+
+        <ion-list-header>
+            Choose Folder(s)
+        </ion-list-header>
+
+        <div *ngFor="let g of (groups$ | async); let i = index">
+            <ion-item [lines]="!last ? 'inset' : 'none'" class="no-last-border" detail="false">
+                <ion-avatar slot="start">
+                    <ngx-avatar name="{{ g.name }}" [size]="40"></ngx-avatar>
+                </ion-avatar>
+                <ion-label>
+                    <h2>{{ g.name }}</h2>
+                    <h3>Shared with {{ g.memberCount - 1 }} members</h3>
+                </ion-label>
+                <ion-checkbox slot="end" [(ngModel)]="g.isChecked"></ion-checkbox>
+            </ion-item>
+        </div>
+        <div *ngFor="let m of (members$ | async); let i = index">
+            <ion-item [lines]="!last ? 'inset' : 'none'" class="no-last-border" detail="false"
+                *ngIf="m.profile && m.uid !== (profile$ | async)?.uid">
+                <ion-avatar slot="start">
+                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                    <ng-template #elseMemberAvatar>
+                        <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
+                    </ng-template>
+                </ion-avatar>
+                <ion-label>
+                    <h2>{{ m.profile.displayName }}</h2>
+                    <h3>Shared between you and {{ m.profile.displayName }}</h3>
+                </ion-label>
+                <ion-checkbox slot="end" [(ngModel)]="m.isChecked"></ion-checkbox>
+            </ion-item>
+        </div>
+        <div *ngFor="let m of (members$ | async); let i = index">
+            <ion-item 
+                [lines]="!last ? 'inset' : 'none'" 
+                class="no-last-border" 
+                detail="false" 
+                *ngIf="m.profile && m.uid === (profile$ | async)?.uid">
+                <ion-avatar slot="start">
+                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                    <ng-template #elseMemberAvatar>
+                        <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
+                    </ng-template>
+                </ion-avatar>
+                <ion-label>
+                    <h2>{{ m.profile.displayName }}</h2>
+                    <h3>Private for you</h3>
+                </ion-label>
+                <ion-checkbox slot="end" [(ngModel)]="m.isChecked"></ion-checkbox>
+            </ion-item>
+        </div>
+        <!-- <ion-item lines="none"></ion-item> -->
+
+        <ion-list-header>
+            Upload File
+        </ion-list-header>
+
+        <ion-item lines="none">
+            <ion-progress-bar slot="start" [value]="uploadPercent | async"></ion-progress-bar>
+        </ion-item>
+
+        <ion-row class="ion-justify-content-center">
+            <ion-button size="large" (click)="loopFolders()">Upload</ion-button>
+        </ion-row>
     </ion-list>
 </ion-content>
