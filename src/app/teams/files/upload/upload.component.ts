@@ -32,6 +32,7 @@ export class UploadComponent {
     photoId: string;
     photoName: string;
     teamId: string;
+    pdfData: string;
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,
@@ -53,6 +54,7 @@ export class UploadComponent {
         this.photoName = this.navParams.get('photoName');
         this.photoId = this.navParams.get('photoId');
         this.teamId = this.navParams.get('teamId');
+        this.pdfData = this.navParams.get('pdfData');
     }
 
     dismiss() {
@@ -107,7 +109,7 @@ export class UploadComponent {
     }
 
     uploadScan(filesRef, storageRef, docRef) {
-        const task = storageRef.putString(this.photoData, 'base64', { contentType: 'image/jpg' });
+        const task = storageRef.putString(this.pdfData, 'base64', { contentType: 'application/pdf' });
         this.uploadPercent = task.percentageChanges();
         task.snapshotChanges().pipe(
             last(),
@@ -119,7 +121,7 @@ export class UploadComponent {
                 const size = meta.size;
                 const type = meta.contentType;
                 filesRef.doc(this.photoId).set({
-                    name: this.photoName+'.jpg',
+                    name: this.photoName+'.pdf',
                     size: size,
                     timestamp: firestore.FieldValue.serverTimestamp(),
                     type: type,
@@ -128,7 +130,7 @@ export class UploadComponent {
                     profile: null
                 })
                 docRef.update({
-                    lastFile: this.photoName+'.jpg',
+                    lastFile: this.photoName+'.pdf',
                     lastFileId: this.photoId,
                     lastFileUid: this.uid
                 })

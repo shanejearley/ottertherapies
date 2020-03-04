@@ -34,6 +34,7 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
   styleUrls: ['./files.component.scss'],
 })
 export class FilesComponent implements OnInit {
+  pdfData: string;
   photoName: string;
   photo: SafeResourceUrl;
   photoId: string;
@@ -64,7 +65,7 @@ export class FilesComponent implements OnInit {
     public toastController: ToastController,
     private sanitizer: DomSanitizer,
     private db: AngularFirestore
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.profile$ = this.store.select<Profile>('profile');
@@ -86,34 +87,26 @@ export class FilesComponent implements OnInit {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  async readFilePath(path) {
-    // Here's an example of reading a file with a full file path. Use this to
-    // read binary data (base64 encoded) from plugins that return File URIs, such as
-    // the Camera.
-    try {
-      if (Filesystem.readFile) {
-        Filesystem.readFile({
-          path: path
-        }).then((data) => {
-          if (data) {
-            this.photoId = this.db.createId();
-            this.photoName = 'Scan-'+this.photoId.substr(0,5);
-            this.photo = this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,'+data.data);
-            this.photoData = data.data;
-            this.scanModal();
-          }
-        })
-      }
-    } catch(err) {
-      console.log(err.message);
-    }
+  generatePdf(data) {
+    const docDefinition = { content: [{ image: 'data:image/jpg;base64,' + data, width: 612, height: 792, pageMargins: [ 40, 60, 40, 60 ] }] }
+    const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+    pdfDocGenerator.getBase64((data) => { 
+      this.pdfData = data; 
+      this.scanModal();
+    });
   }
 
   scanDoc() {
-    let opts: DocumentScannerOptions = {};
+    let opts: DocumentScannerOptions = {
+      returnBase64 : true
+    };
     this.documentScanner.scanDoc(opts)
       .then((res: string) => {
-        this.readFilePath(res);
+        this.photoId = this.db.createId();
+        this.photoName = 'Scan-' + this.photoId.substr(0, 5);
+        this.photo = this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + res);
+        this.photoData = res;
+        this.generatePdf(res);
       })
       .catch((error: any) => console.error(error));
   }
@@ -145,7 +138,8 @@ export class FilesComponent implements OnInit {
         'photoData': this.photoData,
         'photoName': this.photoName,
         'photoId': this.photoId,
-        'teamId': this.teamId
+        'teamId': this.teamId,
+        'pdfData': this.pdfData
       }
     });
     modal.onWillDismiss().then(data => {
