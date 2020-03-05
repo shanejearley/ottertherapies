@@ -15,7 +15,61 @@
   </ion-header>
 
   <div id="container">
-    <ion-card>
+
+    <ion-grid fixed>
+      <ion-row>
+        <ion-col size="12" size-md="6" *ngFor="let m of (members$ | async); let i = index">
+          <ion-card class="team--card" *ngIf="m.profile">
+            <ion-card-header>
+              <ion-item 
+                detail="true" 
+                lines="none" 
+                class="team--item" routerDirection="forward" [routerLink]="['Member', m.id]">
+                <ion-avatar slot="start">
+                  <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                  <ng-template #elseMemberAvatar>
+                    <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
+                  </ng-template>
+                </ion-avatar>
+                <ion-label>
+                  <h2>{{ m.profile.displayName }}</h2>
+                  <h3>{{ m.profile.email }}</h3>
+                  <p>{{ m.profile.role }}</p>
+                </ion-label>
+              </ion-item>
+            </ion-card-header>
+            <!-- <ion-card-content>
+              <ion-list lines="none">
+                <ion-item detail="false" routerDirection="forward" [routerLink]="['Member', m.id]">
+                  <ion-label>
+                    <h3>Visit Profile</h3>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+            </ion-card-content> -->
+          </ion-card>
+        </ion-col>
+        <ion-col size="12" size-md="6">
+          <ion-card class="team--card">
+            <ion-card-header>
+              <ion-item
+                detail="false" 
+                lines="none" 
+                class="team--item"
+                (click)="addMember()"
+                button>
+                <ion-icon slot="start" [ios]="'person-add' + '-outline'" [md]="'person-add' + '-sharp'"></ion-icon>
+                <ion-label>
+                  <h2>Add Member</h2>
+                </ion-label>
+              </ion-item>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- <ion-card>
       <ion-card-content>
         <ion-list>
 
@@ -48,6 +102,6 @@
 
         </ion-list>
       </ion-card-content>
-    </ion-card>
+    </ion-card> -->
   </div>
 </ion-content>

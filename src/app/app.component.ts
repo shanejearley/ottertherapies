@@ -71,8 +71,16 @@ export class AppComponent implements OnInit {
     {
       title: 'Resources',
       icon: 'help-buoy'
+    },
+    {
+      title: 'Profile',
+      icon: 'person'
     }
   ];
+
+  change() {
+    console.log("Will create dark mode toggle for development purposes.")
+  }
 
   constructor(
     private store: Store,

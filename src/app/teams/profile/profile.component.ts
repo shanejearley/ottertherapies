@@ -9,23 +9,22 @@ import { AuthService, User } from '../../../auth/shared/services/auth/auth.servi
 import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../shared/services/teams/teams.service';
 import { GroupsService, Group } from '../../shared/services/groups/groups.service';
-import { MembersService, Member } from '../../shared/services/members/members.service';
 
 import { Store } from 'src/store';
 
 import { DocumentScanner, DocumentScannerOptions } from '@ionic-native/document-scanner/ngx';
 
 @Component({
-  selector: 'app-team',
-  templateUrl: './team.component.html',
-  styleUrls: ['./team.component.scss'],
+  selector: 'app-profile',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.scss'],
 })
-export class TeamComponent implements OnInit {
+export class ProfileComponent implements OnInit {
   user$: Observable<User>;
   profile$: Observable<Profile>;
+  teams$: Observable<Team[]>;
   team$: Observable<Team>;
   groups$: Observable<Group[]>;
-  members$: Observable<Member[]>;
   subscriptions: Subscription[] = [];
   public team: string;
   public page: string;
@@ -42,7 +41,7 @@ export class TeamComponent implements OnInit {
   ngOnInit() {
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
-    this.members$ = this.store.select<Member[]>('members');
+    //this.teams$ = this.store.select<Team[]>('teams');
     this.subscriptions = [
       //this.authService.auth$.subscribe(),
       //this.profileService.profile$.subscribe(),
@@ -56,8 +55,13 @@ export class TeamComponent implements OnInit {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  addMember() {
-    console.log("Adding member");
+  scanDoc() {
+    let opts: DocumentScannerOptions = {};
+    this.documentScanner.scanDoc(opts)
+      .then((res: string) => {
+        console.log(res);
+      })
+      .catch((error: any) => console.error(error));
   }
 
 }

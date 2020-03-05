@@ -15,10 +15,11 @@
   </ion-header>
 
   <div id="container">
+
     <ion-item class="message--list" lines="none"></ion-item>      
-    <ion-list class="message--list" *ngFor="let m of (member$ | async)?.messages; trackBy: trackFn; let last = last" #messages>
-      <ion-item class="message--list" lines="none">
-        <ion-avatar *ngIf="m.uid !== (profile$ | async)?.uid" slot="start">
+    <ion-list class="scroll message--list">
+      <ion-item class="message--list" lines="none" *ngFor="let m of (member$ | async)?.messages; trackBy: trackFn; let last = last">
+        <ion-avatar class="dialog" *ngIf="m.uid !== (profile$ | async)?.uid" slot="start">
           <img *ngIf="(member$ | async)?.profile.url; else elseTextAvatar" src="{{ (member$ | async)?.profile.url }}">
           <ng-template #elseTextAvatar>
             <ngx-avatar name="{{ (member$ | async)?.profile.displayName }}" [size]="40"></ngx-avatar>
@@ -27,33 +28,43 @@
         <ion-card *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage" class="dialog member message--card">
           <ion-card-content>
             <ion-label text-wrap>
+              <ion-row>
+                <ion-text class="message--name">{{ (member$ | async)?.profile.displayName }}</ion-text>
+              </ion-row>
               <h2>{{ m.body }}</h2>
+              <ion-row class="ion-justify-content-end">
+                <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
+                <ng-template #elseDate>
+                  <ion-text class="message--time">Today, {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
+                </ng-template>
+              </ion-row>
             </ion-label>
           </ion-card-content>
         </ion-card>
-        <ion-col *ngIf="m.timestamp">
-          <ion-row [ngClass]="{'ion-justify-content-end' : m.uid === (profile$ | async)?.uid}">
-            <ion-text *ngIf="m.uid !== (profile$ | async)?.uid; else elseDisplayName" class="message--name">{{ (member$ | async)?.profile.displayName }}</ion-text>
-            <ng-template #elseDisplayName>
-              <ion-text class="message--name">{{ (profile$ | async)?.displayName }}</ion-text>
-            </ng-template>
-          </ion-row> 
-          <ion-row *ngIf="time - m.timestamp.toMillis() > 86400000" [ngClass]="{'ion-justify-content-end' : m.uid === (profile$ | async)?.uid}">
-            <ion-text class="message--time">{{ m.timestamp.toMillis() | date : 'shortDate' }}</ion-text>
-          </ion-row>
-          <ion-row [ngClass]="{'ion-justify-content-end' : m.uid === (profile$ | async)?.uid}">
-            <ion-text class="message--time">{{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
-          </ion-row>
-        </ion-col>
         <ng-template #elseUserMessage>
           <ion-card color="primary" class="dialog message--card message--user" slot="end">
             <ion-card-content>
               <ion-label text-wrap>
+                <ion-row>
+                  <ion-text class="message--name">{{ (profile$ | async)?.displayName }}</ion-text>
+                </ion-row>
                 <h2>{{ m.body }}</h2>
+                <ion-row class="ion-justify-content-end">
+                  <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
+                  <ng-template #elseDate>
+                    <ion-text class="message--time">Today, {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
+                  </ng-template>
+                </ion-row>
               </ion-label>
             </ion-card-content>
           </ion-card>
         </ng-template>
+        <ion-avatar class="dialog user" *ngIf="m.uid === (profile$ | async)?.uid" slot="end">
+          <img *ngIf="(profile$ | async)?.url; else elseTextAvatar" src="{{ (profile$ | async)?.url }}">
+          <ng-template #elseTextAvatar>
+            <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
+          </ng-template>
+        </ion-avatar>
       </ion-item>
     </ion-list>
     <ion-item class="message--list" lines="none"></ion-item>
@@ -76,7 +87,7 @@
       </ion-col>
       <ion-col size="2">
         <ion-button class="message--button" (click)="sendMessage()">
-          <ion-icon name="send"></ion-icon>
+          <ion-icon [ios]="'send' + '-outline'" [md]="'send' + '-sharp'"></ion-icon>
         </ion-button>
       </ion-col>
     </ion-row>

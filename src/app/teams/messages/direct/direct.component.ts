@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild, QueryList, ViewChildren } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { firestore } from 'firebase/app';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore'
-import {IonContent} from '@ionic/angular';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore'
+import { IonContent, IonList } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -11,9 +11,10 @@ import { switchMap, tap } from 'rxjs/operators'
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../../shared/services/teams/teams.service';
-import { MembersService, Member, Message } from '../../../shared/services/members/members.service';
+import { MembersService, Member, Message, Direct } from '../../../shared/services/members/members.service';
 
 import { Store } from 'src/store';
+import { ObserveOnOperator } from 'rxjs/internal/operators/observeOn';
 
 @Component({
   selector: 'app-direct',
@@ -21,10 +22,11 @@ import { Store } from 'src/store';
   styleUrls: ['./direct.component.scss'],
 })
 export class DirectComponent implements OnInit {
-  @ViewChild(IonContent, {static: false}) contentArea: IonContent;
-  @ViewChildren('messages') messages: QueryList<any>;
-
+  @ViewChild(IonContent, { static: false }) contentArea: IonContent;
+  @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
+  private mutationObserver: MutationObserver;
   private messagesCol: AngularFirestoreCollection<Message>;
+  private directDoc: AngularFirestoreDocument<Direct>;
   user$: Observable<User>;
   profile$: Observable<Profile>;
   team$: Observable<Team>;
@@ -43,23 +45,20 @@ export class DirectComponent implements OnInit {
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
+    private router: Router,
     private authService: AuthService,
     private teamsService: TeamsService,
     private membersService: MembersService,
     private db: AngularFirestore
-  ) {}
-  scrollToBottom() {
-    setTimeout(() => {
-      if (this.contentArea && this.contentArea.scrollToBottom) {
-        this.contentArea.scrollToBottom(500);
-      }
-    }, 500);
+  ) { }
+  scrollToBottom(duration) {
+    if (this.contentArea && this.contentArea.scrollToBottom) {
+      this.contentArea.scrollToBottom(duration);
+    }
   }
 
   scrollOnFocus() {
-    setTimeout(() => {
-      this.scrollToBottom();
-    }, 250)
+    this.scrollToBottom(500);
   }
 
   sendMessage() {
@@ -67,16 +66,22 @@ export class DirectComponent implements OnInit {
     this.message.timestamp = firestore.FieldValue.serverTimestamp();
     this.pathId = this.uid < this.directId ? this.uid + this.directId : this.directId + this.uid;
     this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/direct/${this.pathId}/messages`);
-    console.log(this.message);
-    this.messagesCol.add(this.message);
-    this.message = {
-      body: '',
-      id: null,
-      uid: null,
-      timestamp: null,
-      profile: null
-    };
-    this.scrollToBottom();
+    this.directDoc = this.db.doc<Direct>(`teams/${this.teamId}/direct/${this.pathId}`);
+    this.messagesCol.add(this.message).then((messageRef) => {
+      this.directDoc.update({
+        lastMessage: this.message.body,
+        lastMessageId: messageRef.id,
+        lastMessageUid: this.message.uid
+      }).then(() => {
+        this.message = {
+          body: '',
+          id: null,
+          uid: null,
+          timestamp: null,
+          profile: null
+        };
+      })
+    });
   }
 
   get uid() {
@@ -87,16 +92,19 @@ export class DirectComponent implements OnInit {
     return item ? item.id : undefined;
   }
 
-  ionViewDidEnter(){
-    setTimeout(() => {
-      this.scrollToBottom();
-    })
-    setTimeout(() => {
-      this.scrollToBottom();
-    }, 1500)
-  }
-
   ngOnInit() {
+    this.router.events.subscribe(val => {
+      if (val instanceof NavigationEnd) {
+        this.scrollToBottom(0);
+        this.mutationObserver = new MutationObserver((mutations) => {
+          console.log(mutations);
+          this.scrollToBottom(500);
+        })
+        this.mutationObserver.observe(this.scroll.nativeElement, {
+          childList: true
+        });
+      }
+    });
     this.date = new Date();
     this.time = this.date.getTime();
     this.message = {

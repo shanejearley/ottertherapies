@@ -49,6 +49,10 @@ const routes: Routes = [
     loadChildren: './teams/resources/resources.module#ResourcesModule'
   },
   {
+    path: 'Teams/:id/Profile',
+    loadChildren: './teams/profile/profile.module#ProfileModule'
+  },
+  {
     path: 'Teams/:id/Messages/Group/:groupId',
     loadChildren: './teams/messages/group/group.module#GroupModule'
   },

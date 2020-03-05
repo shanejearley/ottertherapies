@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild, QueryList, ViewChildren } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { firestore } from 'firebase/app';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore'
-import {IonContent} from '@ionic/angular';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore'
+import { IonContent, IonList } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -24,10 +24,11 @@ import { DocumentScanner, DocumentScannerOptions } from '@ionic-native/document-
   styleUrls: ['./group.component.scss'],
 })
 export class GroupComponent implements OnInit {
-  @ViewChild(IonContent, {static: false}) contentArea: IonContent;
-  @ViewChildren('messages') messages: QueryList<any>;
-
+  @ViewChild(IonContent, { static: false }) contentArea: IonContent;
+  @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
+  private mutationObserver: MutationObserver;
   private messagesCol: AngularFirestoreCollection<Message>;
+  private groupDoc: AngularFirestoreDocument<Group>;
   user$: Observable<User>;
   profile$: Observable<Profile>;
   team$: Observable<Team>;
@@ -46,6 +47,7 @@ export class GroupComponent implements OnInit {
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
+    private router: Router,
     private authService: AuthService,
     private profileService: ProfileService,
     private teamsService: TeamsService,
@@ -53,33 +55,37 @@ export class GroupComponent implements OnInit {
     private documentScanner: DocumentScanner,
     private db: AngularFirestore
   ) {}
-  scrollToBottom() {
-    setTimeout(() => {
-      if (this.contentArea && this.contentArea.scrollToBottom) {
-        this.contentArea.scrollToBottom(500);
-      }
-    }, 500);
+
+  scrollToBottom(duration) {
+    if (this.contentArea && this.contentArea.scrollToBottom) {
+      this.contentArea.scrollToBottom(duration);
+    }
   }
 
   scrollOnFocus() {
-    setTimeout(() => {
-      this.scrollToBottom();
-    }, 250)
+    this.scrollToBottom(500);
   }
 
   sendMessage() {
     this.message.uid = this.uid;
     this.message.timestamp = firestore.FieldValue.serverTimestamp();
     this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/groups/${this.groupId}/messages`);
-    this.messagesCol.add(this.message);
-    this.message = {
-      body: '',
-      id: null,
-      uid: null,
-      timestamp: null,
-      profile: null
-    };
-    this.scrollToBottom();
+    this.groupDoc = this.db.doc<Group>(`teams/${this.teamId}/groups/${this.groupId}`);
+    this.messagesCol.add(this.message).then((messageRef) => {
+      this.groupDoc.update({
+        lastMessage: this.message.body,
+        lastMessageId: messageRef.id,
+        lastMessageUid: this.message.uid
+      }).then(() => {
+        this.message = {
+          body: '',
+          id: null,
+          uid: null,
+          timestamp: null,
+          profile: null
+        };
+      })
+    });
   }
 
   get uid() {
@@ -90,16 +96,19 @@ export class GroupComponent implements OnInit {
     return item ? item.id : undefined;
   }
 
-  ionViewDidEnter(){
-    setTimeout(() => {
-      this.scrollToBottom();
-    })
-    setTimeout(() => {
-      this.scrollToBottom();
-    }, 1500)
-  }
-
   ngOnInit() {
+    this.router.events.subscribe(val => {
+      if (val instanceof NavigationEnd) {
+        this.scrollToBottom(0);
+        this.mutationObserver = new MutationObserver((mutations) => {
+          console.log(mutations);
+          this.scrollToBottom(500);
+        })
+        this.mutationObserver.observe(this.scroll.nativeElement, {
+          childList: true
+        });
+      }
+    });
     this.date = new Date();
     this.time = this.date.getTime();
     this.message = {
@@ -132,6 +141,7 @@ export class GroupComponent implements OnInit {
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.mutationObserver.disconnect();
   }
 
 }

@@ -15,6 +15,7 @@ import { NotesModule } from './notes/notes.module';
 import { TeamModule } from './team/team.module';
 import { ChildModule } from './child/child.module';
 import { ResourcesModule } from './resources/resources.module';
+import { ProfileModule } from './profile/profile.module';
 
 @NgModule({
   imports: [
@@ -30,6 +31,7 @@ import { ResourcesModule } from './resources/resources.module';
     TeamModule,
     ChildModule,
     ResourcesModule,
+    ProfileModule,
     AvatarModule
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA],

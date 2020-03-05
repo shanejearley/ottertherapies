@@ -9,43 +9,78 @@
           </ng-template>
 
           <ion-menu-toggle auto-hide="false">
-            <ion-item lines="full">
+            <ion-item>
               <ion-button slot="start" routerDirection="backward" [routerLink]="'/Teams'" size="default">
                 Your Teams
               </ion-button>
-              <ion-avatar slot="end" (click)="onLogout()">
-                <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url }}">
-                <ng-template #elseAvatar>
-                  <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
-                </ng-template>
-              </ion-avatar> 
-            </ion-item>  
-          </ion-menu-toggle>
+              <ion-col>
+                <ion-avatar>
+                  <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url }}">
+                  <ng-template #elseAvatar>
+                    <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
+                  </ng-template>
+                </ion-avatar>
+              </ion-col>
 
+            </ion-item>
+          </ion-menu-toggle>
+        </ion-list>
+
+        <ion-list lines="none">
+          <ion-list-header>
+            Team
+          </ion-list-header>
           <div *ngIf="(team$ | async); else elseItem">
-            <ion-menu-toggle 
-              auto-hide="false" 
-              *ngFor="let p of appPages; let i = index" >
-              <ion-item (click)="selectedIndex = i" routerDirection="root" [routerLink]="['/Teams', teamId, p.title]" lines="none" detail="false" [class.selected]="p.title == page">
+            <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
+              <ion-item *ngIf="p.title !== 'Profile'" (click)="selectedIndex = i" routerDirection="root"
+                [routerLink]="['/Teams', teamId, p.title]" detail="false"
+                [class.selected]="p.title == page">
                 <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
                 <ion-label>{{ p.title }}</ion-label>
               </ion-item>
             </ion-menu-toggle>
           </div>
           <ng-template #elseItem>
-            <ion-item lines="none" detail="false">
-              <ion-avatar slot="start">
+            <ion-item detail="false">
+              <ion-avatar slot="start" class="dialog">
                 <img src="../assets/img/otter_head.svg">
               </ion-avatar>
-              <ion-card color="primary" class="dialog">
+              <ion-card color="primary" class="dialog message--card">
                 <ion-card-content>
                   <ion-label text-wrap>Your options will appear here when you select a team!</ion-label>
                 </ion-card-content>
               </ion-card>
             </ion-item>
           </ng-template>
-
         </ion-list>
+
+        <ion-list-header>
+          Settings
+        </ion-list-header>
+
+        <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
+          <ion-item lines="none" *ngIf="p.title == 'Profile'" (click)="selectedIndex = i" routerDirection="root"
+            [routerLink]="['/Teams', teamId, p.title]" detail="false" [class.selected]="p.title == page">
+            <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
+            <ion-label>{{ p.title }}</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="false">
+          <ion-item lines="none" (click)="onLogout()" detail="false" button>
+            <ion-icon slot="start" [ios]="'power' + '-outline'" [md]="'power' + '-sharp'"></ion-icon>
+            <ion-label>Logout</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-item lines="none">
+          <ion-icon slot="start" [ios]="'moon' + '-outline'" [md]="'moon' + '-sharp'"></ion-icon>
+          <ion-label>
+            Dark Mode
+          </ion-label>
+          <ion-toggle [(ngModel)]="dark" (ionChange)="change()"></ion-toggle>
+        </ion-item>
+
 
       </ion-content>
     </ion-menu>

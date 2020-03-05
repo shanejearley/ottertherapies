@@ -120,5 +120,18 @@ ion-item.selected {
 
 ion-card.dialog {
   box-shadow: none !important;
-  margin-inline-start: 0 !important;
+  margin-inline-start: 45px !important;
+  //margin-inline-start: 0 !important;
 }
+
+ion-card.message--card {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+ion-avatar.dialog {
+  bottom: 0;
+  position: fixed;
+}
+
+
