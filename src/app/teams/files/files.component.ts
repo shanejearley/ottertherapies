@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Platform, ModalController, ToastController } from '@ionic/angular';
 import { Plugins, FilesystemDirectory, FilesystemEncoding, FileReadResult } from '@capacitor/core';
-const { Filesystem } = Plugins;
+const { Browser, Filesystem } = Plugins;
 import { AngularFirestore } from '@angular/fire/firestore'
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -16,6 +16,7 @@ import { GroupsService, Group } from '../../shared/services/groups/groups.servic
 import { MembersService, Member } from '../../shared/services/members/members.service';
 import { ScanComponent } from './scan/scan.component';
 import { UploadComponent } from './upload/upload.component';
+import { BrowseComponent } from './browse/browse.component';
 
 import { Store } from 'src/store';
 
@@ -54,8 +55,6 @@ export class FilesComponent implements OnInit {
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
-    private authService: AuthService,
-    private profileService: ProfileService,
     private teamsService: TeamsService,
     private documentScanner: DocumentScanner,
     private documentViewer: DocumentViewer,
@@ -64,7 +63,10 @@ export class FilesComponent implements OnInit {
     private modalController: ModalController,
     public toastController: ToastController,
     private sanitizer: DomSanitizer,
-    private db: AngularFirestore
+    private db: AngularFirestore,
+    private groupsService: GroupsService,
+    private membersService: MembersService,
+    private authService: AuthService,
   ) { }
 
   ngOnInit() {
@@ -88,22 +90,22 @@ export class FilesComponent implements OnInit {
   }
 
   generatePdf(data) {
-    const docDefinition = { content: [{ image: 'data:image/jpg;base64,' + data, width: 612, height: 792, pageMargins: [ 40, 60, 40, 60 ] }] }
+    const docDefinition = { content: [{ image: 'data:image/jpg;base64,' + data, width: 612, height: 792, pageMargins: [40, 60, 40, 60] }] }
     const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-    pdfDocGenerator.getBase64((data) => { 
-      this.pdfData = data; 
+    pdfDocGenerator.getBase64((data) => {
+      this.pdfData = data;
       this.scanModal();
     });
   }
 
   scanDoc() {
     let opts: DocumentScannerOptions = {
-      returnBase64 : true
+      returnBase64: true
     };
     this.documentScanner.scanDoc(opts)
       .then((res: string) => {
-        this.photoId = this.db.createId();
-        this.photoName = 'Scan-' + this.photoId.substr(0, 5);
+        const randId = this.db.createId();
+        this.photoName = 'Scan' + randId.substr(0, 5);
         this.photo = this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + res);
         this.photoData = res;
         this.generatePdf(res);
@@ -137,7 +139,6 @@ export class FilesComponent implements OnInit {
         'photo': this.photo,
         'photoData': this.photoData,
         'photoName': this.photoName,
-        'photoId': this.photoId,
         'teamId': this.teamId,
         'pdfData': this.pdfData
       }
@@ -151,12 +152,60 @@ export class FilesComponent implements OnInit {
     return await modal.present();
   }
 
+  async browseModal() {
+    const modal = await this.modalController.create({
+      component: BrowseComponent,
+      componentProps: {
+        'teamId': this.teamId
+      }
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'success') {
+        this.presentToast();
+      }
+    });
+    return await modal.present();
+  }
+
   async presentToast() {
     const toast = await this.toastController.create({
-      message: 'Your scan uploaded successfully!',
+      message: 'Your upload was successful!',
       duration: 2000
     });
     toast.present();
+  }
+
+  get uid() {
+    return this.authService.user.uid;
+  }
+
+  showMember(m) {
+    m.show = !m.show;
+    if (m.show && m.uid !== this.uid) {
+      console.log('checkin')
+      this.membersService.checkLastFile(m.uid);
+    }
+  }
+
+  showGroup(g) {
+    g.show = !g.show;
+    if (g.show) {
+      console.log('checkin')
+      this.groupsService.checkLastFile(g.id);
+    }
+  }
+
+  removeGroupFile(groupId, fileId, fileUrl) {
+    return this.groupsService.removeFile(groupId, fileId, fileUrl);
+  }
+
+  removeMemberFile(memberUid, fileId, fileUrl) {
+    return this.membersService.removeFile(memberUid, fileId, fileUrl);
+  }
+
+  async previewFile(file) {
+    await Browser.open({ url: file.url });
   }
 
 }

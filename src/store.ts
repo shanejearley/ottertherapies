@@ -8,6 +8,7 @@ import { Profile } from './auth/shared/services/profile/profile.service';
 import { Team } from './app/shared/services/teams/teams.service';
 import { Group } from './app/shared/services/groups/groups.service';
 import { Member } from './app/shared/services/members/members.service';
+import { Note } from './app/shared/services/notes/notes.service';
 
 export interface State {
   user: User,
@@ -15,6 +16,7 @@ export interface State {
   teams: Team[],
   groups: Group[],
   members: Member[],
+  notes: Note[],
   selected: any,
   list: any,
   date: Date,
@@ -27,6 +29,7 @@ const state: State = {
   teams: undefined,
   groups: undefined,
   members: undefined,
+  notes: undefined,
   selected: undefined,
   list: undefined,
   date: undefined,

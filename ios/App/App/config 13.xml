@@ -23,9 +23,5 @@
     <param name="ios-package" value="Textocr"/>
   </feature>
 
-  <feature name="PreviewAnyFile">
-    <param name="ios-package" value="HWPPreviewAnyFile"/>
-  </feature>
-
   
 </widget>

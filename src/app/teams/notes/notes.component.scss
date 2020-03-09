@@ -3,12 +3,16 @@ ion-menu-button {
 }
 
 #container {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
   text-align: center;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  margin-top: 10%;
+  // position: absolute;
+  // left: 0;
+  // right: 0;
+  // top: 50%;
+  // transform: translateY(-50%);
 }
 
 #container strong {
@@ -30,3 +34,50 @@ ion-menu-button {
 ion-content ion-toolbar {
   --background: transparent;
 }
+
+ion-list.notes--list {
+  background: transparent !important;
+  --ion-background-color:transparent !important;
+}
+
+ion-item.notes--list {
+  --ion-background-color:transparent !important;
+  --ion-item-background:transparent !important;
+}
+
+ion-avatar.dialog {
+  top: 0;
+  position: absolute;
+}
+
+ion-label.note--label {
+  margin-inline-start: 55px !important;
+}
+
+ion-textarea.comment--input {
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 4px;
+  border: 2px solid #eeeeee;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+ion-button.comment--button {
+  --padding-start: 0.6em;
+  --padding-end: 0.6em;
+}
+
+ion-text.notes--time {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+ion-text.notes--name {
+  font-weight: 600;
+}
+// ion-card.dialog {
+//   //box-shadow: none !important;
+//   margin-inline-start: 45px !important;
+//   //margin-inline-start: 0 !important;
+// }

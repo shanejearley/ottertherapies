@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { AngularFireStorage } from '@angular/fire/storage';
 import { Router, RoutesRecognized } from '@angular/router';
 import { firestore } from 'firebase/app';
 
@@ -73,7 +74,7 @@ export class MembersService {
   private unreadDoc: AngularFirestoreDocument<Unread>;
   private directDoc: AngularFirestoreDocument<Direct>;
   unread$: Observable<Unread>;
-  files$: Observable<File[]>;
+  files$: Observable<Number[]>;
   messages$: Observable<Number[]>;
   direct$: Observable<Direct>;
   teamId: string;
@@ -87,7 +88,7 @@ export class MembersService {
     private authService: AuthService,
     private profileService: ProfileService,
     private router: Router,
-
+    private storage: AngularFireStorage,
   ) {}
 
   membersObservable(userId, teamId) {
@@ -126,26 +127,61 @@ export class MembersService {
   }
 
   getFiles(member: Member) {
+    member.files = [];
     if (member.uid !== this.uid) {
       this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
       this.filesCol = this.db.collection<File>(`teams/${this.teamId}/direct/${this.pathId}/files`);
-      this.files$ = this.filesCol.valueChanges()
-        .pipe(tap(next => {
-          if (!next) {
-            return;
+      this.files$ = this.filesCol.stateChanges(['added', 'modified', 'removed'])
+      .pipe(map(actions => actions.map(a => {
+        console.log('ACTION', a);
+        if (a.type == 'removed') {
+          ///remove based on file.id
+          const file = a.payload.doc.data() as File;
+          file.id = a.payload.doc.id;
+          member.files.forEach(function(m) {
+            if (m.id === file.id) {
+              var index = member.files.indexOf(file);
+              member.files.splice(index, 1);
+              console.log("Removed member file: ", file);
+            }
+          })
+        }
+        if (a.type == 'added' || a.type == 'modified') {
+          const file = a.payload.doc.data() as File;
+          if (file.timestamp) {
+            file.id = a.payload.doc.id;
+            this.profileService.getProfile(file);
+            return member.files.push(file);
           }
-          member.files = next;
-        }))
+        }
+      })))
       this.files$.subscribe();
     } else {
       this.filesCol = this.db.collection<File>(`users/${this.uid}/teams/${this.teamId}/files`);
-      this.files$ = this.filesCol.valueChanges()
-        .pipe(tap(next => {
-          if (!next) {
-            return;
+      this.files$ = this.filesCol.stateChanges(['added', 'modified', 'removed'])
+      .pipe(map(actions => actions.map(a => {
+        console.log('ACTION', a);
+        if (a.type == 'removed') {
+          ///remove based on file.id
+          const file = a.payload.doc.data() as File;
+          file.id = a.payload.doc.id;
+          member.files.forEach(function(m) {
+            if (m.id === file.id) {
+              var index = member.files.indexOf(file);
+              member.files.splice(index, 1);
+              console.log("Removed member file: ", file);
+            }
+          })
+        }
+        if (a.type == 'added' || a.type == 'modified') {
+          const file = a.payload.doc.data() as File;
+          if (file.timestamp) {
+            file.id = a.payload.doc.id;
+            this.profileService.getProfile(file);
+            return member.files.push(file);
           }
-          member.files = next;
-        }))
+        }
+      })))
       this.files$.subscribe();
     }
   }
@@ -154,14 +190,30 @@ export class MembersService {
     member.messages = [];
     this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
     this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/direct/${this.pathId}/messages`, ref => ref.orderBy('timestamp'));
-    this.messages$ = this.messagesCol.stateChanges(['added', 'modified'])
-      .pipe(map(actions => actions.map(a => {
+    this.messages$ = this.messagesCol.stateChanges(['added', 'modified', 'removed'])
+    .pipe(map(actions => actions.map(a => {
+      console.log('ACTION', a);
+      if (a.type == 'removed') {
+        ///remove based on file.id
+        const message = a.payload.doc.data() as Message;
+        message.id = a.payload.doc.id;
+        member.messages.forEach(function(m) {
+          if (m.id === message.id) {
+            var index = member.messages.indexOf(message);
+            member.messages.splice(index, 1);
+            console.log("Removed member message: ", message);
+          }
+        })
+      }
+      if (a.type == 'added' || a.type == 'modified') {
         const message = a.payload.doc.data() as Message;
         if (message.timestamp) {
           message.id = a.payload.doc.id;
+          this.profileService.getProfile(message);
           return member.messages.push(message);
         }
-      })))
+      }
+    })))
     this.messages$.subscribe();
   }
 
@@ -189,6 +241,35 @@ export class MembersService {
         map((member: Member[]) => member.find((member: Member) => member.uid === uid)));
   }
 
+  checkLastMessage(memberUid: string) {
+    this.pathId = this.uid < memberUid ? this.uid + memberUid : memberUid + this.uid;
+    this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${this.pathId}`);
+    this.unreadDoc.update({
+      unreadMessages: 0
+    });
+  }
+
+  checkLastFile(memberUid: string) {
+    this.pathId = this.uid < memberUid ? this.uid + memberUid : memberUid + this.uid;
+    this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${this.pathId}`);
+    this.unreadDoc.update({
+      unreadFiles: 0
+    });
+  }
+
+  async removeFile(memberUid, fileId, fileUrl) {
+    console.log('removing', memberUid, fileId);
+    if (memberUid !== this.uid) {
+      const pathId = this.uid < memberUid ? this.uid + memberUid : memberUid + this.uid;
+      this.filesCol = this.db.collection<File>(`teams/${this.teamId}/direct/${pathId}/files`);
+      await this.filesCol.doc(fileId).delete();
+      return this.storage.storage.refFromURL(fileUrl).delete()
+    } else {
+      this.filesCol = this.db.collection<File>(`users/${this.uid}/teams/${this.teamId}/files`);
+      await this.filesCol.doc(fileId).delete();
+      return this.storage.storage.refFromURL(fileUrl).delete()
+    }
+  }
   //   getMeal(key: string) {
   //     if (!key) return Observable.of({});
   //     return this.store.select<Meal[]>('meals')

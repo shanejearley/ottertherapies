@@ -8,7 +8,7 @@ import { switchMap } from 'rxjs/operators'
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../shared/services/teams/teams.service';
-import { GroupsService, Group } from '../../shared/services/groups/groups.service';
+import { NotesService, Note } from '../../shared/services/notes/notes.service';
 
 import { Store } from 'src/store';
 
@@ -23,10 +23,12 @@ export class NotesComponent implements OnInit {
   user$: Observable<User>;
   profile$: Observable<Profile>;
   team$: Observable<Team>;
-  groups$: Observable<Group[]>;
+  notes$: Observable<Note[]>;
   subscriptions: Subscription[] = [];
   public team: string;
   public page: string;
+  date: Date;
+  time: number;
 
   constructor(
     private store: Store,
@@ -38,8 +40,10 @@ export class NotesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.date = new Date();
+    this.time = this.date.getTime();
     this.profile$ = this.store.select<Profile>('profile');
-    this.groups$ = this.store.select<Group[]>('groups');
+    this.notes$ = this.store.select<Note[]>('notes');
     this.subscriptions = [
       //this.authService.auth$.subscribe(),
       //this.profileService.profile$.subscribe(),
@@ -49,17 +53,20 @@ export class NotesComponent implements OnInit {
       .pipe(switchMap(param => this.teamsService.getTeam(param.id)));
   }
 
-  ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+  showNote(n) {
+    n.show = !n.show;
+    // if (n.show) {
+    //   console.log('checkin')
+    //   this.notesService.checkLastFile(g.id);
+    // }
   }
 
-  scanDoc() {
-    let opts: DocumentScannerOptions = {};
-    this.documentScanner.scanDoc(opts)
-      .then((res: string) => {
-        console.log(res);
-      })
-      .catch((error: any) => console.error(error));
+  postComment(n) {
+    console.log(n.newComment);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
 }

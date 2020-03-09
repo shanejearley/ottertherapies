@@ -15,8 +15,8 @@
   </ion-header>
 
   <div id="container">
-    <ion-item class="message--list" lines="none"></ion-item>      
     <ion-list class="scroll message--list">
+      <ion-item class="message--list" lines="none"></ion-item>      
       <ion-item class="message--list" lines="none" *ngFor="let m of (group$ | async)?.messages; trackBy: trackFn; let last = last">
         <ion-avatar class="dialog" *ngIf="m.profile && m.uid !== (profile$ | async)?.uid" slot="start">
           <img *ngIf="m.profile.url; else elseTextAvatar" src="{{ m.profile.url }}">
@@ -65,30 +65,28 @@
           </ng-template>
         </ion-avatar>
       </ion-item>
+      <ion-item class="message--list" lines="none"></ion-item>
     </ion-list>
-    <ion-item class="message--list" lines="none"></ion-item>
   </div>
 </ion-content>
 
 <ion-footer>
   <ion-toolbar>
-    <ion-row class="ion-align-items-center">
-      <ion-col size="10">
-          <ion-textarea 
-            autoGrow="true" 
-            rows="1" 
-            class="message--input" 
-            placeholder="Type a message..." 
-            [(ngModel)]="message.body"
-            (keyup.enter)="sendMessage()"
-            (ionFocus)="scrollOnFocus()">
-          </ion-textarea>
-      </ion-col>
-      <ion-col size="2">
-        <ion-button class="message--button" (click)="sendMessage()">
+    <ion-col size="12">
+      <ion-row class="ion-align-items-center ion-padding-horizontal">
+        <ion-textarea 
+          autoGrow="true" 
+          rows="1" 
+          class="message--input" 
+          placeholder="Type a message..." 
+          [(ngModel)]="message.body"
+          (keyup.enter)="sendMessage()"
+          (ionFocus)="scrollOnFocus()">
+        </ion-textarea>
+        <ion-button class="message--button ion-padding-start" (click)="sendMessage()">
           <ion-icon [ios]="'send' + '-outline'" [md]="'send' + '-sharp'"></ion-icon>
         </ion-button>
-      </ion-col>
-    </ion-row>
+      </ion-row>
+    </ion-col>
   </ion-toolbar>
 </ion-footer>

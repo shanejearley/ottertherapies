@@ -14,6 +14,7 @@ import { AuthService, User } from '../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from './shared/services/teams/teams.service';
 import { GroupsService, Group } from './shared/services/groups/groups.service';
+import { NotesService, Note } from './shared/services/notes/notes.service';
 
 import { Store } from 'src/store';
 import { MembersService, Member } from './shared/services/members/members.service';
@@ -34,6 +35,7 @@ export class AppComponent implements OnInit {
   teamsSub: Subscription;
   groupsSub: Subscription;
   membersSub: Subscription;
+  notesSub: Subscription;
   teamId: string;
   lastId: string;
   page: string;
@@ -92,7 +94,8 @@ export class AppComponent implements OnInit {
     private profileService: ProfileService,
     private teamsService: TeamsService,
     private groupsService: GroupsService,
-    private membersService: MembersService
+    private membersService: MembersService,
+    private notesService: NotesService
   ) {
     this.initializeApp();
   }
@@ -125,6 +128,7 @@ export class AppComponent implements OnInit {
           this.authService.userAuth.onAuthStateChanged(user => {
             this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
             this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe();
+            this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
           })
           this.lastId = this.teamId;
         }
@@ -142,10 +146,12 @@ export class AppComponent implements OnInit {
     this.store.set('teams', null);
     this.store.set('groups', null);
     this.store.set('members', null);
+    this.store.set('notes', null);
     this.profileSub.unsubscribe();
     this.teamsSub.unsubscribe();
     this.groupsSub.unsubscribe();
     this.membersSub.unsubscribe();
+    this.notesSub.unsubscribe();
     this.authService.logoutUser();
   }
 
@@ -155,5 +161,6 @@ export class AppComponent implements OnInit {
     this.teamsSub.unsubscribe();
     this.groupsSub.unsubscribe();
     this.membersSub.unsubscribe();
+    this.notesSub.unsubscribe();
   }
 }

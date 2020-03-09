@@ -42,8 +42,8 @@
           </ion-label>
           <ion-badge 
             color="danger"
-            *ngIf="g.unreadMessages > 0">
-            {{ g.unreadMessages }}
+            *ngIf="g.unread && g.unread.unreadMessages > 0">
+            {{ g.unread.unreadMessages }}
           </ion-badge>
         </ion-item>
 
@@ -86,5 +86,8 @@
         </ion-list>
       </ion-card-content>
     </ion-card>
+
+    <ion-item lines="none"></ion-item>
+  
   </div>
 </ion-content>

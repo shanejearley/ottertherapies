@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { firestore } from 'firebase/app';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore'
 import { IonContent, IonList } from '@ionic/angular';
@@ -9,12 +9,11 @@ import { Subscription } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
-import { ProfileService, Profile } from '../../../../auth/shared/services/profile/profile.service';
+import { Profile } from '../../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../../shared/services/teams/teams.service';
 import { MembersService, Member, Message, Direct } from '../../../shared/services/members/members.service';
 
 import { Store } from 'src/store';
-import { ObserveOnOperator } from 'rxjs/internal/operators/observeOn';
 
 @Component({
   selector: 'app-direct',
@@ -22,6 +21,7 @@ import { ObserveOnOperator } from 'rxjs/internal/operators/observeOn';
   styleUrls: ['./direct.component.scss'],
 })
 export class DirectComponent implements OnInit {
+  finished = false;
   @ViewChild(IonContent, { static: false }) contentArea: IonContent;
   @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
   private mutationObserver: MutationObserver;
@@ -45,20 +45,38 @@ export class DirectComponent implements OnInit {
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
-    private router: Router,
     private authService: AuthService,
     private teamsService: TeamsService,
     private membersService: MembersService,
     private db: AngularFirestore
   ) { }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.scrollToBottom(0);
+    }, 250)
+    this.membersService.checkLastMessage(this.directId);
+    this.mutationObserver = new MutationObserver((mutations) => {
+      this.scrollToBottom(500);
+      this.membersService.checkLastMessage(this.directId);
+    })
+    this.mutationObserver.observe(this.scroll.nativeElement, {
+      childList: true
+    });
+  }
+
   scrollToBottom(duration) {
     if (this.contentArea && this.contentArea.scrollToBottom) {
-      this.contentArea.scrollToBottom(duration);
+      setTimeout(() => {
+        this.contentArea.scrollToBottom(duration);
+      }, 250)
     }
   }
 
   scrollOnFocus() {
-    this.scrollToBottom(500);
+    setTimeout(() => {
+      this.scrollToBottom(500);
+    }, 500)  
   }
 
   sendMessage() {
@@ -93,18 +111,6 @@ export class DirectComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.router.events.subscribe(val => {
-      if (val instanceof NavigationEnd) {
-        this.scrollToBottom(0);
-        this.mutationObserver = new MutationObserver((mutations) => {
-          console.log(mutations);
-          this.scrollToBottom(500);
-        })
-        this.mutationObserver.observe(this.scroll.nativeElement, {
-          childList: true
-        });
-      }
-    });
     this.date = new Date();
     this.time = this.date.getTime();
     this.message = {
