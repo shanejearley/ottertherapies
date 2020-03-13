@@ -79,9 +79,10 @@
             autoGrow="true" 
             rows="1" 
             class="message--input" 
-            placeholder="Type a message..." 
-            [(ngModel)]="message.body"
+            placeholder="Message" 
+            [(ngModel)]="newBody"
             (keyup.enter)="sendMessage()"
+            (keydown.enter)="onKeydown($event)"
             (ionFocus)="scrollOnFocus()">
           </ion-textarea>
           <ion-button class="message--button ion-padding-start" (click)="sendMessage()">

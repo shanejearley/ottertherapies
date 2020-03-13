@@ -16,6 +16,7 @@ import { TeamModule } from './team/team.module';
 import { ChildModule } from './child/child.module';
 import { ResourcesModule } from './resources/resources.module';
 import { ProfileModule } from './profile/profile.module';
+import { CreateTeamComponent } from './create-team/create-team.component';
 
 @NgModule({
   imports: [
@@ -34,7 +35,8 @@ import { ProfileModule } from './profile/profile.module';
     ProfileModule,
     AvatarModule
   ],
+  entryComponents: [CreateTeamComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA],
-  declarations: [TeamsPage]
+  declarations: [TeamsPage, CreateTeamComponent]
 })
 export class TeamsModule {}

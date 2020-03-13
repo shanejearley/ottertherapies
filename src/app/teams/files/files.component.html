@@ -48,10 +48,10 @@
                       <h2>{{ f.name }}</h2>
                       <h3>{{ f.profile.displayName }}</h3>
                     </ion-label>
-                    <ion-button fill="clear" (click)="removeGroupFile(g.id,f.id,f.url)">
+                    <ion-button fill="clear" (click)="removeGroupFile(g.id,f.id,f.url)" slot="end">
                       <ion-icon color="danger" slot="icon-only"  [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'"></ion-icon>
                     </ion-button>
-                    <ion-button fill="clear"  (click)="previewFile(f)">
+                    <ion-button fill="clear" (click)="previewFile(f)" slot="end">
                       <ion-icon slot="icon-only"  [ios]="'download' + '-outline'" [md]="'download' + '-sharp'"></ion-icon>
                     </ion-button>
                   </ion-item>
@@ -103,10 +103,10 @@
                         <h3>{{ (profile$ | async)?.displayName }}</h3>
                       </ng-template>
                     </ion-label>
-                    <ion-button fill="clear" (click)="removeMemberFile(m.uid,f.id,f.url)">
+                    <ion-button fill="clear" (click)="removeMemberFile(m.uid,f.id,f.url)" slot="end">
                       <ion-icon slot="icon-only" color="danger" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'"></ion-icon>
                     </ion-button>
-                    <ion-button fill="clear"  (click)="previewFile(f)">
+                    <ion-button fill="clear"  (click)="previewFile(f)" slot="end">
                       <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'"></ion-icon>
                     </ion-button>
                   </ion-item>
@@ -156,10 +156,10 @@
                       <h2>{{ f.name }}</h2>
                       <h3>{{ m.profile.displayName }}</h3>
                     </ion-label>
-                    <ion-button fill="clear" (click)="removeMemberFile(m.uid,f.id,f.url)">
+                    <ion-button fill="clear" (click)="removeMemberFile(m.uid,f.id,f.url)" slot="end">
                       <ion-icon slot="icon-only" color="danger" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'"></ion-icon>
                     </ion-button>
-                    <ion-button fill="clear"  (click)="previewFile(f)">
+                    <ion-button fill="clear"  (click)="previewFile(f)" slot="end">
                       <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'"></ion-icon>
                     </ion-button>
                   </ion-item>

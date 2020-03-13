@@ -29,17 +29,18 @@ export class NotesComponent implements OnInit {
   public page: string;
   date: Date;
   time: number;
-
+  newNote: string;
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private profileService: ProfileService,
     private teamsService: TeamsService,
-    private documentScanner: DocumentScanner
+    private notesService: NotesService
   ) { }
 
   ngOnInit() {
+    this.newNote = '';
     this.date = new Date();
     this.time = this.date.getTime();
     this.profile$ = this.store.select<Profile>('profile');
@@ -62,7 +63,21 @@ export class NotesComponent implements OnInit {
   }
 
   postComment(n) {
-    console.log(n.newComment);
+    this.notesService.addComment(n.newComment, n.id);
+    n.newComment = '';
+  }
+
+  postNote() {
+    this.notesService.addNote(this.newNote);
+    this.newNote = '';
+  }
+
+  flagNote(n: Note) {
+    this.notesService.flagNote(n);
+  }
+
+  onKeydown(event){
+    event.preventDefault();
   }
 
   ngOnDestroy() {

@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ModalController } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
 
 import { AuthService, User } from '../../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../../auth/shared/services/profile/profile.service';
+import { CreateTeamComponent } from './create-team/create-team.component';
 
 import { Store } from 'src/store';
 import { TeamsService, Team } from '../shared/services/teams/teams.service';
@@ -27,7 +29,8 @@ export class TeamsPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private profileService: ProfileService,
-    private teamsService: TeamsService
+    private teamsService: TeamsService,
+    private modalController: ModalController
     ) { }
 
   ngOnInit() {
@@ -39,6 +42,16 @@ export class TeamsPage implements OnInit {
       //this.teamsService.teams$.subscribe()
     ];
     //this.teams = this.activatedRoute.snapshot.paramMap.get('id');
+  }
+
+  async createTeamModal() {
+    const modal = await this.modalController.create({
+      component: CreateTeamComponent
+    });
+    modal.onWillDismiss().then(data => {
+      //this.data = data.data;
+    });
+    return await modal.present();
   }
 
   ngOnDestroy() {

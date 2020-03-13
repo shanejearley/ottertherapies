@@ -221,6 +221,25 @@ export class GroupsService {
     return this.storage.storage.refFromURL(fileUrl).delete()
   }
 
+  addMessage(body: string, groupId: string) {
+    const message: Message = {
+      body: body,
+      uid: this.uid,
+      timestamp: firestore.FieldValue.serverTimestamp(),
+      id: null,
+      profile: null
+    }
+    this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/groups/${groupId}/messages`);
+    this.groupDoc = this.db.doc<Group>(`teams/${this.teamId}/groups/${groupId}`);
+    this.messagesCol.add(message).then((messageRef) => {
+      this.groupDoc.update({
+        lastMessage: body,
+        lastMessageId: messageRef.id,
+        lastMessageUid: message.uid
+      })
+    });
+  }
+
   //   getMeal(key: string) {
   //     if (!key) return Observable.of({});
   //     return this.store.select<Meal[]>('meals')

@@ -3,14 +3,19 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title *ngIf="(team$ | async)">Files</ion-title>
+    <ion-title *ngIf="(team$ | async)">Notes</ion-title>
+    <ion-select placeholder="Sort" interface="popover" slot="end">
+      <ion-select-option value="recent">Recent</ion-select-option>
+      <ion-select-option value="flagged">Flagged</ion-select-option>
+      <ion-select-option value="activity">Activity</ion-select-option>
+    </ion-select>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large" *ngIf="(team$ | async)">Files</ion-title>
+      <ion-title size="large" *ngIf="(team$ | async)">Notes</ion-title>
     </ion-toolbar>
   </ion-header>
 
@@ -18,114 +23,131 @@
 
     <ion-list lines="none" class="notes--list">
 
-      <!-- <ion-list-header>
-            Notes
-          </ion-list-header> -->
+      <ion-card class="dialog member">
+        <ion-item-divider color="clear">
+          <ion-label>
+            Share Something New
+          </ion-label>
+        </ion-item-divider>
+        <ion-card-content>
+          <ion-item class="notes--list" lines="none">
+            <ion-avatar slot="start" class="dialog">
+              <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
+              <ng-template #elseMemberAvatar>
+                <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
+              </ng-template>
+            </ion-avatar>
+            <ion-textarea autoGrow="true" rows="1" class="note--input" placeholder="Note" [(ngModel)]="newNote"
+              (keyup.enter)="postNote(n)" (keydown.enter)="onKeydown($event)">
+            </ion-textarea>
+            <ion-button fill="clear" (click)="postNote(n)" slot="end">
+              <ion-icon slot="icon-only" [ios]="'send' + '-outline'" [md]="'send' + '-sharp'"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
 
       <div *ngFor="let n of (notes$ | async); let i = index">
         <ion-card class="dialog member">
           <ion-card-content>
-            <ion-item class="notes--list" (click)="showNote(n)" button
-              detail="true" [detailIcon]="!n.show ? 'chevron-down' : 'chevron-up'">
-              <ion-avatar slot="start" class="dialog">
-                <img *ngIf="n.profile.url; else elseMemberAvatar" src="{{ n.profile.url }}">
+            <ion-item lines="none" class="notes--list">
+              <ion-avatar slot="start">
+                <img *ngIf="n.profile && n.profile.url; else elseMemberAvatar" src="{{ n.profile.url }}">
                 <ng-template #elseMemberAvatar>
-                  <ngx-avatar name="{{ n.profile.displayName }}" [size]="40"></ngx-avatar>
+                  <ngx-avatar *ngIf="n.profile" name="{{ n.profile.displayName }}" [size]="40"></ngx-avatar>
                 </ng-template>
               </ion-avatar>
-              <ion-label class="note--label">
-                <ion-row>
-                  <h2 class="notes--name">{{ n.profile.displayName }}</h2>
-                  <ion-text>
-                    <p *ngIf="time - n.timestamp.toMillis() > 86400000; else elseDate">{{ n.timestamp.toMillis() | date : 'short' }}</p>
-                    <ng-template #elseDate>
-                      <p class="notes--time">Today, {{ n.timestamp.toMillis() | date : 'shortTime' }}</p>
-                    </ng-template>   
-                  </ion-text>
-                </ion-row>  
-                <h3>{{ n.body }}</h3>
+              <ion-label>
+                <h2 *ngIf="n.profile" class="notes--name">
+                  <ion-text color="primary">{{ n.profile.displayName }}</ion-text>
+                </h2>
+                <ion-text>
+                  <p *ngIf="time - n.timestamp.toMillis() > 86400000; else elseDate">
+                    {{ n.timestamp.toMillis() | date : 'short' }}</p>
+                  <ng-template #elseDate>
+                    <p class="notes--time">Today, {{ n.timestamp.toMillis() | date : 'shortTime' }}</p>
+                  </ng-template>
+                </ion-text>
               </ion-label>
               <!-- <ion-badge color="danger" *ngIf="g.unread && g.unread.unreadFiles > 0">
                 {{ g.unread.unreadFiles }}
               </ion-badge> -->
             </ion-item>
-            <div *ngIf="n.show">
-              <ion-list inset="true" class="notes--list">
-                <div *ngIf="n.comments.length; else elseComment">
-                  <ion-item *ngFor="let c of n.comments; let i = index" class="notes--list">
-                    <ion-avatar slot="start" class="dialog">
-                      <img *ngIf="n.profile.url; else elseMemberAvatar" src="{{ n.profile.url }}">
-                      <ng-template #elseMemberAvatar>
-                        <ngx-avatar name="{{ n.profile.displayName }}" [size]="40"></ngx-avatar>
-                      </ng-template>
-                    </ion-avatar>
-                    <ion-label class="note--label">
-                      <ion-row>
-                        <h2 class="notes--name">{{ c.profile.displayName }}</h2>
-                        <ion-text>
-                          <p *ngIf="time - c.timestamp.toMillis() > 86400000; else elseDate">{{ c.timestamp.toMillis() | date : 'short' }}</p>
-                          <ng-template #elseDate>
-                            <p class="notes--time">Today, {{ c.timestamp.toMillis() | date : 'shortTime' }}</p>
-                          </ng-template>   
-                        </ion-text>
-                      </ion-row>                   
-                      <h3>{{ c.body }}</h3>
-                    </ion-label>
-                    <!-- <ion-button fill="clear" (click)="removeGroupFile(g.id,f.id,f.url)">
-                      <ion-icon color="danger" slot="icon-only" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
-                      </ion-icon>
-                    </ion-button>
-                    <ion-button fill="clear" (click)="previewFile(f)">
-                      <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'"></ion-icon>
-                    </ion-button> -->
-                  </ion-item>
-                </div>
-                <ng-template #elseComment>
-                  <ion-item class="notes--list">
-                    <ion-avatar class="avatar--file" slot="start">
-                      <ion-icon [ios]="'sad' + '-outline'" [md]="'sad' + '-sharp'"></ion-icon>
-                    </ion-avatar>
-                    <ion-label>
-                      <h2>No comments yet</h2>
-                      <h3>Post the first!</h3>
-                    </ion-label>
-                  </ion-item>
-                </ng-template>
-                <ion-item>
-                  <ion-col size="12">
-                    <ion-row class="ion-align-items-center ion-padding-horizontal">
-                      <ion-textarea 
-                        autoGrow="true" 
-                        rows="1" 
-                        class="comment--input" 
-                        placeholder="Type a comment..." 
-                        [(ngModel)]="n.newComment"
-                        (keyup.enter)="postComment(n)">
-                      </ion-textarea>
-                      <ion-button class="comment--button ion-padding-start" (click)="postComment(n)">
-                        <ion-icon [ios]="'send' + '-outline'" [md]="'send' + '-sharp'"></ion-icon>
-                      </ion-button>
-                    </ion-row>
-                  </ion-col>
+            <ion-item>
+              <h1>{{ n.body }}</h1>
+            </ion-item>
+            <ion-item>
+              <ion-col size="6">
+                <ion-row class="ion-justify-content-center">
+                  <ion-button fill="clear" (click)="flagNote(n)">
+                    <ion-icon [color]="!n.flag ? 'medium' : 'warning'" [ios]="'flag' + '-outline'"
+                      [md]="'flag' + '-sharp'"></ion-icon>
+                    <ion-text [color]="!n.flag ? 'medium' : 'warning'" class="ion-padding-start">
+                      Flag
+                    </ion-text>
+                  </ion-button>
+                </ion-row>
+              </ion-col>
+              <ion-col size="6" class="ion-justify-content-center">
+                <ion-row class="ion-justify-content-center">
+                  <ion-button fill="clear" (click)="showNote(n)">
+                    <ion-icon 
+                      [color]="!n.show ? 'medium' : 'primary'" 
+                      [ios]="'chatbox' + '-outline'"
+                      [md]="'chatbox' + '-sharp'">
+                    </ion-icon>
+                    <ion-text [color]="!n.show ? 'medium' : 'primary'" class="ion-padding-start">
+                      Comments
+                    </ion-text>
+                    <ion-badge [color]="!n.show ? 'medium' : 'primary'" *ngIf="n.commentCount > 0" class="ion-margin-start">
+                      {{ n.commentCount }}
+                    </ion-badge>
+                  </ion-button>
+                </ion-row>
+              </ion-col>
+            </ion-item>
+            <div *ngIf="n.show" lines="none">
+              <div *ngIf="n.comments.length" lines="none">
+                <ion-item lines="none" *ngFor="let c of n.comments; let i = index" class="notes--list">
+                  <ion-avatar slot="start" class="dialog">
+                    <img *ngIf="c.profile && c.profile.url; else elseMemberAvatar" src="{{ c.profile.url }}">
+                    <ng-template #elseMemberAvatar>
+                      <ngx-avatar name="{{ c.profile.displayName }}" [size]="40"></ngx-avatar>
+                    </ng-template>
+                  </ion-avatar>
+                  <ion-label class="note--label" text-wrap>
+                    <h2 class="notes--comment">
+                      <ion-text color="primary">{{ c.profile.displayName }}</ion-text>&nbsp;{{ c.body }}
+                    </h2>
+                    <p *ngIf="time - c.timestamp.toMillis() > 86400000; else elseDate">
+                      {{ c.timestamp.toMillis() | date : 'short' }}</p>
+                    <ng-template #elseDate>
+                      <p class="notes--time">Today, {{ c.timestamp.toMillis() | date : 'shortTime' }}</p>
+                    </ng-template>
+                  </ion-label>
+                  <!-- <ion-button fill="clear" (click)="removeGroupFile(g.id,f.id,f.url)">
+                    <ion-icon color="danger" slot="icon-only" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
+                    </ion-icon>
+                  </ion-button>
+                  <ion-button fill="clear" (click)="previewFile(f)">
+                    <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'"></ion-icon>
+                  </ion-button> -->
                 </ion-item>
-                <!-- <ion-item>
-                    <ion-col size="12">
-                      <ion-row class="ion-align-items-center">
-                        <ion-textarea 
-                          autoGrow="true" 
-                          rows="1" 
-                          class="comment--input" 
-                          placeholder="Type a comment..." 
-                          [(ngModel)]="n.newComment"
-                          (keyup.enter)="postComment(n)">
-                        </ion-textarea>
-                        <ion-button class="comment--button" (click)="postComment(n)">
-                          <ion-icon [ios]="'send' + '-outline'" [md]="'send' + '-sharp'"></ion-icon>
-                        </ion-button>
-                      </ion-row>
-                    </ion-col>
-                </ion-item> -->
-              </ion-list>
+              </div>
+              <ion-item lines="none" class="notes--list">
+                <ion-avatar slot="start" class="dialog">
+                  <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
+                  <ng-template #elseMemberAvatar>
+                    <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
+                  </ng-template>
+                </ion-avatar>
+                <ion-textarea autoGrow="true" rows="1" class="note--input" placeholder="Comment"
+                  [(ngModel)]="n.newComment" (keyup.enter)="postComment(n)" (keydown.enter)="onKeydown($event)">
+                </ion-textarea>
+                <ion-button fill="clear" (click)="postComment(n)" slot="end">
+                  <ion-icon slot="icon-only" [ios]="'send' + '-outline'" [md]="'send' + '-sharp'"></ion-icon>
+                </ion-button>
+              </ion-item>
             </div>
           </ion-card-content>
         </ion-card>

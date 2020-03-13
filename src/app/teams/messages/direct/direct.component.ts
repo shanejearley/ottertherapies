@@ -1,7 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { firestore } from 'firebase/app';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore'
 import { IonContent, IonList } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
@@ -25,14 +23,12 @@ export class DirectComponent implements OnInit {
   @ViewChild(IonContent, { static: false }) contentArea: IonContent;
   @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
   private mutationObserver: MutationObserver;
-  private messagesCol: AngularFirestoreCollection<Message>;
-  private directDoc: AngularFirestoreDocument<Direct>;
   user$: Observable<User>;
   profile$: Observable<Profile>;
   team$: Observable<Team>;
   members$: Observable<Member[]>;
   member$: Observable<Member>;
-  message: Message;
+  newBody: string;
   directId: string;
   pathId: string;
   teamId: string;
@@ -47,8 +43,7 @@ export class DirectComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private teamsService: TeamsService,
-    private membersService: MembersService,
-    private db: AngularFirestore
+    private membersService: MembersService
   ) { }
 
   ngAfterViewInit() {
@@ -80,26 +75,12 @@ export class DirectComponent implements OnInit {
   }
 
   sendMessage() {
-    this.message.uid = this.uid;
-    this.message.timestamp = firestore.FieldValue.serverTimestamp();
-    this.pathId = this.uid < this.directId ? this.uid + this.directId : this.directId + this.uid;
-    this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/direct/${this.pathId}/messages`);
-    this.directDoc = this.db.doc<Direct>(`teams/${this.teamId}/direct/${this.pathId}`);
-    this.messagesCol.add(this.message).then((messageRef) => {
-      this.directDoc.update({
-        lastMessage: this.message.body,
-        lastMessageId: messageRef.id,
-        lastMessageUid: this.message.uid
-      }).then(() => {
-        this.message = {
-          body: '',
-          id: null,
-          uid: null,
-          timestamp: null,
-          profile: null
-        };
-      })
-    });
+    this.membersService.addMessage(this.newBody, this.directId);
+    this.newBody = '';
+  }
+
+  onKeydown(event){
+    event.preventDefault();
   }
 
   get uid() {
@@ -113,13 +94,7 @@ export class DirectComponent implements OnInit {
   ngOnInit() {
     this.date = new Date();
     this.time = this.date.getTime();
-    this.message = {
-      body: '',
-      id: null,
-      uid: null,
-      timestamp: null,
-      profile: null
-    };
+    this.newBody = '';
     this.profile$ = this.store.select<Profile>('profile');
     this.members$ = this.store.select<Member[]>('members');
     this.member$ = this.activatedRoute.params

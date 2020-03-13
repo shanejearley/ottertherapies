@@ -1,7 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { firestore } from 'firebase/app';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore'
 import { IonContent, IonList } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
@@ -25,15 +23,13 @@ export class GroupComponent implements OnInit {
   @ViewChild(IonContent, { static: false }) contentArea: IonContent;
   @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
   private mutationObserver: MutationObserver;
-  private messagesCol: AngularFirestoreCollection<Message>;
-  private groupDoc: AngularFirestoreDocument<Group>;
   user$: Observable<User>;
   profile$: Observable<Profile>;
   team$: Observable<Team>;
   groups$: Observable<Group[]>;
   members$: Observable<Member[]>;
   group$: Observable<Group>;
-  message: Message;
+  newBody: string;
   groupId: string;
   teamId: string;
   subscriptions: Subscription[] = [];
@@ -47,8 +43,7 @@ export class GroupComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private teamsService: TeamsService,
-    private groupsService: GroupsService,
-    private db: AngularFirestore
+    private groupsService: GroupsService
   ) {}
 
   ngAfterViewInit() {
@@ -80,25 +75,12 @@ export class GroupComponent implements OnInit {
   }
 
   sendMessage() {
-    this.message.uid = this.uid;
-    this.message.timestamp = firestore.FieldValue.serverTimestamp();
-    this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/groups/${this.groupId}/messages`);
-    this.groupDoc = this.db.doc<Group>(`teams/${this.teamId}/groups/${this.groupId}`);
-    this.messagesCol.add(this.message).then((messageRef) => {
-      this.groupDoc.update({
-        lastMessage: this.message.body,
-        lastMessageId: messageRef.id,
-        lastMessageUid: this.message.uid
-      }).then(() => {
-        this.message = {
-          body: '',
-          id: null,
-          uid: null,
-          timestamp: null,
-          profile: null
-        };
-      })
-    });
+    this.groupsService.addMessage(this.newBody, this.groupId);
+    this.newBody = '';
+  }
+
+  onKeydown(event){
+    event.preventDefault();
   }
 
   get uid() {
@@ -112,13 +94,7 @@ export class GroupComponent implements OnInit {
   ngOnInit() {
     this.date = new Date();
     this.time = this.date.getTime();
-    this.message = {
-      body: '',
-      id: null,
-      uid: null,
-      timestamp: null,
-      profile: null
-    };
+    this.newBody = '';
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
     this.members$ = this.store.select<Member[]>('members');

@@ -270,6 +270,26 @@ export class MembersService {
       return this.storage.storage.refFromURL(fileUrl).delete()
     }
   }
+
+  addMessage(body: string, directId: string) {
+    const message: Message = {
+      body: body,
+      uid: this.uid,
+      timestamp: firestore.FieldValue.serverTimestamp(),
+      id: null,
+      profile: null
+    }
+    this.pathId = this.uid < directId ? this.uid + directId : directId + this.uid;
+    this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/direct/${this.pathId}/messages`);
+    this.directDoc = this.db.doc<Direct>(`teams/${this.teamId}/direct/${this.pathId}`);
+    this.messagesCol.add(message).then((messageRef) => {
+      this.directDoc.update({
+        lastMessage: body,
+        lastMessageId: messageRef.id,
+        lastMessageUid: message.uid
+      })
+    });
+  }
   //   getMeal(key: string) {
   //     if (!key) return Observable.of({});
   //     return this.store.select<Meal[]>('meals')
