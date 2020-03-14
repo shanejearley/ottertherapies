@@ -43,3 +43,12 @@ ion-card.team--card {
 .team--card .team--item {
   --min-height: 85px;
 }
+
+ion-item.pending {
+  font-style: italic;
+}
+
+ion-avatar.avatar--icon {
+  line-height: 40px !important;
+  text-align: center !important;
+}

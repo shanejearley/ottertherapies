@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
@@ -11,6 +11,7 @@ import { CreateTeamComponent } from './create-team/create-team.component';
 
 import { Store } from 'src/store';
 import { TeamsService, Team } from '../shared/services/teams/teams.service';
+import { Pending, PendingService } from '../shared/services/pending/pending.service';
 
 @Component({
   selector: 'app-teams',
@@ -21,6 +22,7 @@ export class TeamsPage implements OnInit {
   user$: Observable<User>;
   profile$: Observable<Profile>;
   teams$: Observable<Team[]>;
+  pending$: Observable<Pending[]>;
   subscriptions: Subscription[] = [];
   //public teams: string;
 
@@ -30,12 +32,15 @@ export class TeamsPage implements OnInit {
     private authService: AuthService,
     private profileService: ProfileService,
     private teamsService: TeamsService,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private pendingService: PendingService,
+    private router: Router
     ) { }
 
   ngOnInit() {
     this.profile$ = this.store.select<Profile>('profile');
     this.teams$ = this.store.select<Team[]>('teams');
+    this.pending$ = this.store.select<Pending[]>('pending');
     this.subscriptions = [
       this.authService.auth$.subscribe(),
       this.profileService.profile$.subscribe(),
@@ -52,6 +57,11 @@ export class TeamsPage implements OnInit {
       //this.data = data.data;
     });
     return await modal.present();
+  }
+
+  async joinTeam(team) {
+    await this.pendingService.joinTeam(team);
+    return this.router.navigate(['/Teams', team.id]);
   }
 
   ngOnDestroy() {

@@ -111,7 +111,6 @@ export class GroupComponent implements OnInit {
     this.team$ = this.activatedRoute.params
       .pipe(
         tap(param => { this.teamId = param.id }),
-        tap(param => { console.log(param.id) }),
         switchMap(param => this.teamsService.getTeam(param.id))
       );
   }

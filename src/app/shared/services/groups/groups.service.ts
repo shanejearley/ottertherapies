@@ -63,6 +63,7 @@ export class GroupsService {
   private messagesCol: AngularFirestoreCollection<Message>;
   private groupDoc: AngularFirestoreDocument<Group>;
   private unreadDoc: AngularFirestoreDocument<Unread>;
+  private unreadUpdateDoc: AngularFirestoreDocument;
   private fileDoc: AngularFirestoreDocument<File>;
   unread$: Observable<Unread>;
   group$: Observable<Group>;
@@ -108,7 +109,6 @@ export class GroupsService {
           return;
         }
         group.createdBy = next.createdBy
-        group.id = next.id
         group.lastFile = next.lastFile
         group.lastFileId = next.lastFileId
         group.lastFileUid = next.lastFileUid
@@ -201,17 +201,17 @@ export class GroupsService {
   }
 
   checkLastMessage(groupId: string) {
-    this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
-    this.unreadDoc.update({
-      unreadMessages: 0
-    });
+    this.unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
+    this.unreadUpdateDoc.set({
+      unreadMessages: 0,
+    }, {merge:true});
   }
 
   checkLastFile(groupId: string) {
-    this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
-    this.unreadDoc.update({
+    this.unreadUpdateDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
+    this.unreadUpdateDoc.set({
       unreadFiles: 0
-    });
+    }, {merge:true});
   }
 
   async removeFile(groupId, fileId, fileUrl) {

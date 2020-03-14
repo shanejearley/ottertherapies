@@ -59,7 +59,7 @@
             class="no-last-border"
             button
             detail="true"
-            *ngIf="m.profile && m.uid !== (profile$ | async)?.uid">
+            *ngIf="m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Member'">
             <ion-avatar slot="start">
               <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
               <ng-template #elseMemberAvatar>

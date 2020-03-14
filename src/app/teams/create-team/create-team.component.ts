@@ -1,7 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { NavParams, ModalController } from '@ionic/angular';
-import { Team } from 'src/app/shared/services/teams/teams.service';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { TeamsService } from 'src/app/shared/services/teams/teams.service';
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-create-team',
@@ -9,26 +11,16 @@ import { AuthService } from 'src/auth/shared/services/auth/auth.service';
     styleUrls: ['./create-team.component.scss']
 })
 export class CreateTeamComponent {
-    newTeam: Team = {
-        id: null,
-        name: null,
-        publicId: null,
-        child: null,
-        bio: null,
-        notes: null,
-        url: null,
-        createdBy: null,
-        unread: null,
-        unreadMessages: null,
-        unreadFiles: null,
-        unreadNotes: null
-    };
+    child: string;
     newMembers = [];
     member: string;
     constructor(
         public navParams: NavParams, 
         public modalController: ModalController,
-        private authService: AuthService
+        private authService: AuthService,
+        private teamsService: TeamsService,
+        private db: AngularFirestore,
+        private router: Router
     ) {}
     ionViewWillEnter() {
         //this.newMembers.push(this.email);
@@ -53,8 +45,11 @@ export class CreateTeamComponent {
         this.newMembers.splice(index, 1);
     }
 
-    createTeam() {
-        
+    async createTeam() {
+        const newTeamId = this.db.createId();
+        await this.teamsService.addTeam(newTeamId, this.child, this.newMembers);
+        await this.router.navigate(['/Teams', newTeamId]);
+        return this.dismiss();
     }
 
     dismiss() {        

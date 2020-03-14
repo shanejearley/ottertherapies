@@ -31,7 +31,10 @@
               </ion-avatar>
               <ion-label>
                 <h2>{{ g.name }}</h2>
-                <h3>Shared with {{ g.memberCount - 1 }} members</h3>
+                <h3 *ngIf="g.memberCount > 1; else elseCount">Shared with {{ g.memberCount - 1 }} members</h3>
+                <ng-template #elseCount>
+                  <h3>Shared with just you</h3>
+                </ng-template>
               </ion-label>
               <ion-badge color="danger" *ngIf="g.unread && g.unread.unreadFiles > 0">
                 {{ g.unread.unreadFiles }}
@@ -72,9 +75,13 @@
           </div>
 
           <div *ngFor="let m of (members$ | async); let i = index">
-            <ion-item [lines]="!last ? 'inset' : 'none'" class="no-last-border" (click)="showMember(m)" button
-              detail="true" [detailIcon]="!m.show ? 'chevron-down' : 'chevron-up'"
-              *ngIf="m.profile && m.uid !== (profile$ | async)?.uid">
+            <ion-item 
+              lines="none" 
+              (click)="showMember(m)" 
+              button
+              detail="true" 
+              [detailIcon]="!m.show ? 'chevron-down' : 'chevron-up'"
+              *ngIf="m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Member'">
               <ion-avatar slot="start">
                 <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                 <ng-template #elseMemberAvatar>

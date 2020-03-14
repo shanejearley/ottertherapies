@@ -18,6 +18,7 @@ import { NotesService, Note } from './shared/services/notes/notes.service';
 
 import { Store } from 'src/store';
 import { MembersService, Member } from './shared/services/members/members.service';
+import { PendingService } from './shared/services/pending/pending.service';
 
 @Component({
   selector: 'app-root',
@@ -36,6 +37,7 @@ export class AppComponent implements OnInit {
   groupsSub: Subscription;
   membersSub: Subscription;
   notesSub: Subscription;
+  pendingSub: Subscription;
   teamId: string;
   lastId: string;
   page: string;
@@ -95,7 +97,8 @@ export class AppComponent implements OnInit {
     private teamsService: TeamsService,
     private groupsService: GroupsService,
     private membersService: MembersService,
-    private notesService: NotesService
+    private notesService: NotesService,
+    private pendingService: PendingService
   ) {
     this.initializeApp();
   }
@@ -115,6 +118,7 @@ export class AppComponent implements OnInit {
     this.authService.userAuth.onAuthStateChanged(user => {
       this.profileSub = this.profileService.profileObservable(user.uid).subscribe();
       this.teamsSub = this.teamsService.teamsObservable(user.uid).subscribe();
+      this.pendingSub = this.pendingService.pendingObservable(user.uid).subscribe();
     })
     const path = window.location.pathname.split('Teams/:id/')[1];
     if (path !== undefined) {

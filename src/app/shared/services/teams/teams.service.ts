@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { firestore } from 'firebase/app';
 
 import { Store } from 'src/store';
 
@@ -43,6 +44,12 @@ export class TeamsService {
   private unreadsCol: AngularFirestoreCollection<Unread>;
   private teamDoc: AngularFirestoreDocument<Team>;
   private unreadDoc: AngularFirestoreDocument<Unread>;
+  private userTeamDoc: AngularFirestoreDocument;
+  private userDoc: AngularFirestoreDocument;
+  private teamMembersCol: AngularFirestoreCollection;
+  private pendingMembersCol: AngularFirestoreCollection;
+  private groupDoc: AngularFirestoreDocument;
+  private groupMembersCol: AngularFirestoreCollection;
   unreads$: Observable<Unread[]>;
   unread$: Observable<Unread>;
   teams$: Observable<Team[]>;
@@ -70,6 +77,10 @@ export class TeamsService {
 
   get uid() {
     return this.authService.user.uid;
+  }
+
+  get email() {
+    return this.authService.user.email;
   }
 
   async getInfo(team: Team) {
@@ -135,6 +146,64 @@ export class TeamsService {
       .pipe(
         filter(Boolean),
         map((teams: Team[]) => teams.find((team: Team) => team.id === id)));
+  }
+
+  async addTeam(newTeamId, childName, emails) {
+    const newGroupId = this.db.createId();
+    this.teamDoc = this.db.doc<Team>(`teams/${newTeamId}`);
+    this.teamMembersCol = this.db.collection(`teams/${newTeamId}/members`);
+    this.pendingMembersCol = this.db.collection(`teams/${newTeamId}/pendingMembers`)
+    this.groupDoc = this.db.doc(`teams/${newTeamId}/groups/${newGroupId}`);
+    this.groupMembersCol = this.db.collection(`teams/${newTeamId}/groups/${newGroupId}/members`);
+    this.userTeamDoc = this.db.doc(`users/${this.uid}/teams/${newTeamId}`);
+    this.userDoc = this.db.doc(`users/${this.uid}`);
+    try {
+      await this.teamDoc.set({
+        id: null,
+        name: childName + "'s Care Team",
+        publicId: childName + '-' + newTeamId.slice(-4),
+        child: childName,
+        bio: null,
+        notes: null,
+        url: null,
+        createdBy: this.uid,
+        unread: null,
+        unreadMessages: null,
+        unreadFiles: null,
+        unreadNotes: null
+      });
+      await this.teamMembersCol.doc(this.uid).set({
+        uid: this.uid,
+        email: this.email,
+        status: "Member"
+      });
+      await emails.forEach((email:string) => {
+        if (email !== this.email) {
+          this.pendingMembersCol.add({
+            email: email
+          })
+        }
+      });
+      await this.groupDoc.set({
+        name: "Everyone",
+        createdBy: this.uid,
+        timestamp: firestore.FieldValue.serverTimestamp(),
+        memberCount: firestore.FieldValue.increment(1)
+      });
+      await this.groupMembersCol.doc(this.uid).set({
+        uid: this.uid,
+        status: "Member"
+      });
+      await this.userTeamDoc.set({
+        id: newTeamId
+      });
+      await this.userDoc.update({
+        lastTeam: newTeamId
+      });
+      return;
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   //   getMeal(key: string) {

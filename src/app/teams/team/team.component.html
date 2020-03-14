@@ -24,7 +24,8 @@
               <ion-item 
                 detail="true" 
                 lines="none" 
-                class="team--item" routerDirection="forward" [routerLink]="['Member', m.id]">
+                class="team--item" routerDirection="forward" [routerLink]="['Member', m.id]"
+                [class.pending]="m.status == 'Pending'">
                 <ion-avatar slot="start">
                   <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                   <ng-template #elseMemberAvatar>
@@ -56,11 +57,13 @@
                 detail="false" 
                 lines="none" 
                 class="team--item"
-                (click)="addMember()"
+                (click)="addMembers()"
                 button>
-                <ion-icon slot="start" [ios]="'person-add' + '-outline'" [md]="'person-add' + '-sharp'"></ion-icon>
+                <ion-avatar slot="start" class="avatar--icon">
+                  <ion-icon [ios]="'person-add' + '-outline'" [md]="'person-add' + '-sharp'"></ion-icon>
+                </ion-avatar>
                 <ion-label>
-                  <h2>Add Member</h2>
+                  <h2>Add Member(s)</h2>
                 </ion-label>
               </ion-item>
             </ion-card-header>

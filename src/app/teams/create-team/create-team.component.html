@@ -14,12 +14,12 @@
 
         <ion-item lines='none'>
             <ion-avatar slot="start">
-                <ngx-avatar *ngIf="newTeam && newTeam.child; else elseAvatar" name="{{ newTeam.child }}" [size]="40"></ngx-avatar>
+                <ngx-avatar *ngIf="child; else elseAvatar" name="{{ child }}" [size]="40"></ngx-avatar>
                 <ng-template #elseAvatar>
                     <ngx-avatar name="C" [size]="40"></ngx-avatar>
                 </ng-template>
             </ion-avatar>
-            <ion-input placeholder="ie, Brian" [(ngModel)]="newTeam.child"></ion-input>
+            <ion-input placeholder="ie, Brian" [(ngModel)]="child"></ion-input>
         </ion-item>
 
         <ion-list-header>
@@ -55,6 +55,8 @@
                 <ion-icon slot="icon-only" [ios]="'person-add' + '-outline'" [md]="'person-add' + '-sharp'"></ion-icon>
             </ion-button>
         </ion-item>
+
+        <ion-item lines='none'></ion-item>
 
         <ion-row class="ion-justify-content-center">
             <ion-button size="large" (click)="createTeam()">Create</ion-button>
