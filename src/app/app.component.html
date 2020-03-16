@@ -1,16 +1,16 @@
 <ion-app>
   <ion-split-pane contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay" [disabled]="!(user$ | async)?.authenticated">
+    <ion-menu contentId="main-content" type="overlay" [disabled]="!(user$ | async)?.authenticated" color="tertiary">
       <ion-content>
         <ion-list id="inbox-list" lines="none">
-          <ion-list-header *ngIf="(team$ | async); else elseHeader">{{ (team$ | async)?.name }}</ion-list-header>
+          <ion-list-header class="top" *ngIf="(team$ | async); else elseHeader">{{ (team$ | async)?.name }}</ion-list-header>
           <ng-template #elseHeader>
-            <ion-list-header>Select Team</ion-list-header>
+            <ion-list-header class="top">Select Team</ion-list-header>
           </ng-template>
 
           <ion-menu-toggle auto-hide="false">
             <ion-item>
-              <ion-button slot="start" routerDirection="backward" [routerLink]="'/Teams'" size="default">
+              <ion-button color="light" slot="start" routerDirection="backward" [routerLink]="'/Teams'" size="default">
                 Your Teams
               </ion-button>
               <ion-col>
@@ -45,7 +45,7 @@
               <ion-avatar class="dialog">
                 <img src="../assets/img/otter_head.svg">
               </ion-avatar>
-              <ion-card color="primary" class="dialog message--card">
+              <ion-card color="light" class="dialog message--card">
                 <ion-card-content>
                   <ion-label text-wrap>Your options will appear here when you select a team!</ion-label>
                 </ion-card-content>
@@ -78,9 +78,8 @@
           <ion-label>
             Dark Mode
           </ion-label>
-          <ion-toggle [(ngModel)]="dark" (ionChange)="change()"></ion-toggle>
+          <ion-toggle [checked]="dark" (ionChange)="change()"></ion-toggle>
         </ion-item>
-
 
       </ion-content>
     </ion-menu>

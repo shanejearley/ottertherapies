@@ -16,55 +16,70 @@
 
   <div id="container">
     <ion-list class="scroll message--list">
-      <ion-item class="message--list" lines="none"></ion-item>      
-      <ion-item class="message--list" lines="none" *ngFor="let m of (group$ | async)?.messages; trackBy: trackFn; let last = last">
-        <ion-avatar class="dialog" *ngIf="m.profile && m.uid !== (profile$ | async)?.uid" slot="start">
-          <img *ngIf="m.profile.url; else elseTextAvatar" src="{{ m.profile.url }}">
-          <ng-template #elseTextAvatar>
-            <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
-          </ng-template>
-        </ion-avatar>
-        <ion-card *ngIf="m.profile && m.uid !== (profile$ | async)?.uid; else elseUserMessage" class="dialog member message--card">
-          <ion-card-content>
-            <ion-label text-wrap>
-              <ion-row>
+      <ion-item class="message--list" lines="none"></ion-item>
+      <div *ngFor="let m of (group$ | async)?.messages; trackBy: trackFn; let last = last">     
+        <ion-item class="message--list" lines="none">
+          <ion-row class="member--row" slot="start" *ngIf="m.profile && m.uid !== (profile$ | async)?.uid; else elseUserMessage">
+            <ion-avatar class="dialog--member">
+              <img *ngIf="m.profile.url; else elseTextAvatar" src="{{ m.profile.url }}">
+              <ng-template #elseTextAvatar>
+                <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
+              </ng-template>
+            </ion-avatar>
+  
+            <ion-col class="member--col" size="auto">
+              <ion-row class="message--name">
                 <ion-text class="message--name">{{ m.profile.displayName }}</ion-text>
               </ion-row>
-              <h2>{{ m.body }}</h2>
+  
+              <ion-card color="medium" class="dialog member message--card">
+                <ion-card-content>
+                  <h2 text-wrap>{{ m.body }}</h2>
+                </ion-card-content>
+              </ion-card>
+  
               <ion-row class="ion-justify-content-end">
                 <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
                 <ng-template #elseDate>
                   <ion-text class="message--time">Today, {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
                 </ng-template>
               </ion-row>
-            </ion-label>
-          </ion-card-content>
-        </ion-card>
-        <ng-template #elseUserMessage>
-          <ion-card *ngIf="m.profile" color="primary" class="dialog message--card message--user" slot="end">
-            <ion-card-content>
-              <ion-label text-wrap>
+  
+            </ion-col>
+          </ion-row>
+
+          <ng-template #elseUserMessage>
+            <ion-row class="user--row" slot="end" size="auto">
+              <ion-col class="user--col" size="auto">
+
                 <ion-row>
                   <ion-text class="message--name">{{ m.profile.displayName }}</ion-text>
                 </ion-row>
-                <h2>{{ m.body }}</h2>
+  
+                <ion-card *ngIf="m.profile" color="primary" class="dialog message--card message--user">
+                  <ion-card-content>
+                    <h2 text-wrap>{{ m.body }}</h2>
+                  </ion-card-content>
+                </ion-card>
+  
                 <ion-row class="ion-justify-content-end">
                   <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
                   <ng-template #elseDate>
                     <ion-text class="message--time">Today, {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
                   </ng-template>
                 </ion-row>
-              </ion-label>
-            </ion-card-content>
-          </ion-card>
-        </ng-template>
-        <ion-avatar class="dialog user" *ngIf="m.profile && m.uid === (profile$ | async)?.uid" slot="end">
-          <img *ngIf="m.profile.url; else elseTextAvatar" src="{{ m.profile.url }}">
-          <ng-template #elseTextAvatar>
-            <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
+  
+              </ion-col>
+              <ion-avatar class="dialog--user" *ngIf="m.profile && m.uid === (profile$ | async)?.uid">
+                <img *ngIf="m.profile.url; else elseTextAvatar" src="{{ m.profile.url }}">
+                <ng-template #elseTextAvatar>
+                  <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
+                </ng-template>
+              </ion-avatar>
+            </ion-row>
           </ng-template>
-        </ion-avatar>
-      </ion-item>
+        </ion-item>
+      </div>
       <ion-item class="message--list" lines="none"></ion-item>
     </ion-list>
   </div>

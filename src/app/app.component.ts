@@ -82,9 +82,7 @@ export class AppComponent implements OnInit {
     }
   ];
 
-  change() {
-    console.log("Will create dark mode toggle for development purposes.")
-  }
+  dark;
 
   constructor(
     private store: Store,
@@ -101,6 +99,19 @@ export class AppComponent implements OnInit {
     private pendingService: PendingService
   ) {
     this.initializeApp();
+
+    if (window.matchMedia('(prefers-color-scheme)').media !== 'not all') {console.log('🎉 Dark mode is supported');}
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+    toggleDarkTheme(prefersDark.matches);
+
+    // Listen for changes to the prefers-color-scheme media query
+    prefersDark.addListener((mediaQuery) => toggleDarkTheme(mediaQuery.matches));
+
+    // Add or remove the "dark" class based on if the media query matches
+    function toggleDarkTheme(shouldAdd) {
+      document.body.classList.toggle('dark', shouldAdd);
+    }
   }
 
   initializeApp() {
@@ -110,7 +121,18 @@ export class AppComponent implements OnInit {
     });
   }
 
+  toggleDarkTheme(shouldAdd) {
+    document.body.classList.toggle('dark', shouldAdd);
+  }
+
+  change() {
+    console.log('called');
+    this.dark = !this.dark;
+    this.toggleDarkTheme(this.dark);
+  }
+
   ngOnInit() {
+    this.dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     this.user$ = this.store.select<User>('user');
     this.profile$ = this.store.select<Profile>('profile');
     this.teams$ = this.store.select<Team[]>('teams');

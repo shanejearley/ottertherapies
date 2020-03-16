@@ -4,18 +4,12 @@
 /** Ionic CSS Variables **/
 :root {
   /** primary **/
-  --ion-color-primary: #389e61;
-  --ion-color-primary-rgb: 56,158,97;
+  --ion-color-primary: #429265;
+  --ion-color-primary-rgb: 66,146,101;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255,255,255;
-  --ion-color-primary-shade: #318b55;
-  --ion-color-primary-tint: #4ca871;
-  // --ion-color-primary: #3880ff;
-  // --ion-color-primary-rgb: 56, 128, 255;
-  // --ion-color-primary-contrast: #ffffff;
-  // --ion-color-primary-contrast-rgb: 255, 255, 255;
-  // --ion-color-primary-shade: #3171e0;
-  // --ion-color-primary-tint: #4c8dff;
+  --ion-color-primary-shade: #3a8059;
+  --ion-color-primary-tint: #559d74;
 
   /** secondary **/
   --ion-color-secondary: #3dc2ff;
@@ -82,26 +76,19 @@
   --ion-color-light-tint: #f5f6f9;
 }
 
-@media (prefers-color-scheme: dark) {
+// @media (prefers-color-scheme: dark) {
   /*
    * Dark Colors
    * -------------------------------------------
    */
 
-  body {
-    // --ion-color-primary: #428cff;
-    // --ion-color-primary-rgb: 66,140,255;
-    // --ion-color-primary-contrast: #ffffff;
-    // --ion-color-primary-contrast-rgb: 255,255,255;
-    // --ion-color-primary-shade: #3a7be0;
-    // --ion-color-primary-tint: #5598ff;
-
-    --ion-color-primary: #389e61;
-    --ion-color-primary-rgb: 56,158,97;
+  body.dark {
+    --ion-color-primary: #429265;
+    --ion-color-primary-rgb: 66,146,101;
     --ion-color-primary-contrast: #ffffff;
     --ion-color-primary-contrast-rgb: 255,255,255;
-    --ion-color-primary-shade: #318b55;
-    --ion-color-primary-tint: #4ca871;
+    --ion-color-primary-shade: #3a8059;
+    --ion-color-primary-tint: #559d74;
 
     --ion-color-secondary: #50c8ff;
     --ion-color-secondary-rgb: 80,200,255;
@@ -165,7 +152,7 @@
    * -------------------------------------------
    */
 
-  .ios body {
+  .ios body.dark {
     --ion-background-color: #000000;
     --ion-background-color-rgb: 0,0,0;
 
@@ -201,6 +188,9 @@
       --color: white;
       --background: #1A1B1E;
     }
+    ion-title.title-large {
+      --color: white;
+    }
   }
 
 
@@ -209,7 +199,7 @@
    * -------------------------------------------
    */
 
-  .md body {
+  .md body.dark {
     --ion-background-color: #121212;
     --ion-background-color-rgb: 18,18,18;
 
@@ -251,9 +241,11 @@
       color: #616265;
       background-color: #222428;
     }
+    ion-title.title-large {
+      --color: white;
+    }
   }
-
-  ion-title.title-large {
-    --color: white;
+  ion-item {
+    --transition: none;
   }
-}
+// }

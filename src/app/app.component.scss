@@ -49,18 +49,6 @@ ion-menu.md ion-item {
   border-radius: 4px;
 }
 
-ion-menu.md ion-item.selected {
-  --background: rgba(var(--ion-color-primary-rgb), 0.14);
-}
-
-ion-menu.md ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
-}
-
-ion-menu.md ion-item ion-icon {
-  color: #616e7e;
-}
-
 ion-menu.md ion-item ion-label {
   font-weight: 500;
 }
@@ -84,15 +72,6 @@ ion-menu.ios ion-item {
   --min-height: 50px;
 }
 
-ion-menu.ios ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
-}
-
-ion-menu.ios ion-item ion-icon {
-  font-size: 24px;
-  color: #73849a;
-}
-
 ion-menu.ios ion-list#labels-list ion-list-header {
   margin-bottom: 8px;
 }
@@ -114,10 +93,6 @@ ion-note {
   color: var(--ion-color-medium-shade);
 }
 
-ion-item.selected {
-  --color: var(--ion-color-primary);
-}
-
 ion-card.dialog {
   box-shadow: none !important;
   margin-inline-start: 45px !important;
@@ -134,4 +109,58 @@ ion-avatar.dialog {
   position: absolute;
 }
 
+ion-menu.ios ion-item ion-icon {
+  font-size: 24px;
+  color: rgba(var(--ion-text-color-rgb,0,0,0),0.54);
+}
 
+ion-menu {
+  --ion-background-color: var(--ion-color-primary);
+  --ion-text-color: var(--ion-color-primary-contrast);
+}
+
+ion-menu.ios {
+  --ion-background-color: var(--ion-color-primary);
+  --ion-text-color: var(--ion-color-primary-contrast);
+}
+
+ion-item.selected {
+  --color: var(--ion-color-primary-contrast);
+}
+
+ion-menu.md ion-item.selected {
+  --background: rgba(var(--ion-color-primary-contrast-rgb), 0.14);
+}
+
+ion-menu.md ion-item.selected ion-icon {
+  color: var(--ion-color-primary-contrast);
+}
+
+ion-menu.ios ion-item.selected {
+  --background: rgba(var(--ion-color-primary-contrast-rgb), 0.14);
+}
+
+ion-menu.ios ion-item.selected ion-icon {
+  color: var(--ion-color-primary-contrast);
+}
+
+ion-menu.ios ion-item.selected ion-icon {
+  color: var(--ion-color-primary-contrast);
+}
+
+ion-menu ion-item.selected ion-label {
+  color: var(--ion-color-primary-contrast);
+}
+
+ion-menu ion-list-header {
+  color: var(--ion-color-primary-contrast);
+}
+
+ion-menu.ios ion-list-header.top {
+  margin-top: 25px;
+}
+
+// ion-menu ion-item ion-label {
+//   color: rgba(var(--ion-text-color-rgb,0,0,0),0.54);
+//   //color: var(--ion-color-medium);
+// }
