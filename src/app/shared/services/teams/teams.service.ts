@@ -100,7 +100,6 @@ export class TeamsService {
 
   getUnread(team) {
     team.unread = [];
-    team.unreadMessages, team.unreadFiles, team.unreadNotes = 0;
     this.unreadsCol = this.db.collection<Unread>(`users/${this.uid}/teams/${team.id}/unread`);
     this.unreads$ = this.unreadsCol.valueChanges({ idField: 'id' })
       .pipe(tap(next => {
@@ -120,19 +119,14 @@ export class TeamsService {
               } else {
                 team.unread.push(unreadObj);
               }
-              if (team.unread.length > 1) {
-                team.unread.reduce(function (previousValue, currentValue) {
-                  if (previousValue && currentValue) {
-                    team.unreadMessages = previousValue.unreadMessages + currentValue.unreadMessages,
-                      team.unreadFiles = previousValue.unreadFiles + currentValue.unreadFiles,
-                      team.unreadNotes = previousValue.unreadNotes + currentValue.unreadNotes
-                  }
-                });
-              } else {
-                team.unreadMessages = unreadObj.unreadMessages;
-                team.unreadFiles = unreadObj.unreadFiles;
-                team.unreadNotes = unreadObj.unreadNotes;
-              }
+              team.unreadMessages = 0;
+              team.unreadFiles = 0; 
+              team.unreadNotes = 0;
+              team.unread.forEach(unreadAdd => {
+                team.unreadMessages += unreadAdd.unreadMessages;
+                team.unreadFiles += unreadAdd.unreadFiles;
+                team.unreadNotes += unreadAdd.unreadNotes;
+              })
             }))
           this.unread$.subscribe();
         })

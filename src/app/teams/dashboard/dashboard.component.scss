@@ -3,12 +3,16 @@ ion-menu-button {
 }
 
 #container {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
   text-align: center;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  margin-top: 2.5%;
+  position: relative;
+  // left: 0;
+  // right: 0;
+  // top: 50%;
+  // transform: translateY(-50%);
 }
 
 #container strong {
@@ -29,4 +33,30 @@ ion-menu-button {
 
 ion-content ion-toolbar {
   --background: transparent;
+}
+
+ion-card.dashboard--card {
+  display: flex;
+  flex-direction: column;
+}
+
+.half--margin--left {
+  margin-inline-start: 5px;
+}
+
+.half--margin--right {
+  margin-inline-end: 5px;
+}
+
+.half--margin--bottom {
+  margin-bottom: 5px;
+}
+
+.half--margin--top {
+  margin-top: 5px;
+}
+
+ion-card.dashboard--team {
+  --color: rgba(var(--ion-color-primary-contrast-rgb), 0.14) !important;
+  box-shadow: none !important;
 }

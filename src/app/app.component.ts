@@ -161,6 +161,9 @@ export class AppComponent implements OnInit {
         if (val.state.root.firstChild.params['id']) {
           this.page = val.state.root.firstChild.url[2].path;
         }
+        if (!val.state.root.firstChild.params['id']) {
+          this.page = null;
+        }
       }
     });
   }

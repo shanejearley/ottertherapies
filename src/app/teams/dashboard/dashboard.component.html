@@ -15,8 +15,140 @@
   </ion-header>
 
   <div id="container">
-    <strong class="capitalize" *ngIf="(team$ | async)">{{ (team$ | async)?.name }} Dashboard</strong>
-    <p *ngIf="(profile$ | async)">{{ (profile$ | async)?.displayName }}, Explore <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-    <ion-button (click)="scanDoc()">Scan</ion-button>
+    <ion-grid fixed>
+      <ion-row>
+        <ion-col size="12">
+          <ion-card
+            class="dashboard--team half--margin--top half--margin--bottom">
+            <ion-card-header>
+              <ion-item lines="none">
+                <ion-avatar slot="start">
+                  <ngx-avatar name="{{ (team$ | async)?.child }}" [size]="40"></ngx-avatar>
+                </ion-avatar>
+                <ion-label>
+                  <h1>{{ (team$ | async)?.name }}</h1>
+                </ion-label>
+              </ion-item>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6">
+          <ion-card 
+            class="dashboard--card half--margin--right half--margin--bottom half--margin--top"
+            routerDirection="root" 
+            [routerLink]="['../Calendar']"
+            button>
+            <ion-card-header>
+              <ion-item lines="none">
+                <ion-icon [ios]="'calendar' + '-outline'" [md]="'calendar' + '-sharp'"></ion-icon>
+              </ion-item>
+              <ion-item 
+                lines="none">
+                <ion-label>
+                  <h2>0 Today</h2>
+                  <h3>Calendar</h3>
+                </ion-label>
+              </ion-item>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6">
+          <ion-card 
+            class="dashboard--card half--margin--left half--margin--bottom half--margin--top"
+            routerDirection="root" 
+            [routerLink]="['../Messages']"
+            button>
+            <ion-card-header>
+              <ion-item lines="none">
+                <ion-icon [ios]="'chatbubbles' + '-outline'" [md]="'chatbubbles' + '-sharp'"></ion-icon>
+              </ion-item>
+              <ion-item 
+                lines="none">
+                <ion-label>
+                  <h2>{{ (team$ | async)?.unreadMessages }} New</h2>
+                  <h3>Messages</h3>
+                </ion-label>
+              </ion-item>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6">
+          <ion-card 
+            class="dashboard--card half--margin--right half--margin--top half--margin--bottom"
+            routerDirection="root" 
+            [routerLink]="['../Files']"
+            button>
+            <ion-card-header>
+              <ion-item lines="none">
+                <ion-icon [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
+              </ion-item>
+              <ion-item 
+                lines="none">
+                <ion-label>
+                  <h2>{{ (team$ | async)?.unreadFiles }} New</h2>
+                  <h3>Files</h3>
+                </ion-label>
+              </ion-item>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6">
+          <ion-card 
+            class="dashboard--card half--margin--left half--margin--top half--margin--bottom"
+            routerDirection="root" 
+            [routerLink]="['../Notes']"
+            button>
+            <ion-card-header>
+              <ion-item lines="none">
+                <ion-icon [ios]="'newspaper' + '-outline'" [md]="'newspaper' + '-sharp'"></ion-icon>
+              </ion-item>
+              <ion-item 
+                lines="none">
+                <ion-label>
+                  <h2>{{ (team$ | async)?.unreadNotes }} New</h2>
+                  <h3>Notes</h3>
+                </ion-label>
+              </ion-item>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+        <ion-col size="12">
+          <ion-card 
+            class="dashboard--card half--margin--top">
+            <ion-card-header>
+              <ion-list>
+                <ion-item 
+                  routerDirection="root" 
+                  [routerLink]="['../Team']"
+                  button>
+                  <ion-icon slot="start" [ios]="'people' + '-outline'" [md]="'people' + '-sharp'"></ion-icon>
+                  <ion-label>
+                    <h3>Team</h3>
+                  </ion-label>
+                </ion-item>
+                <ion-item 
+                  routerDirection="root" 
+                  [routerLink]="['../Child']"
+                  button>
+                  <ion-icon slot="start" [ios]="'happy' + '-outline'" [md]="'happy' + '-sharp'"></ion-icon>
+                  <ion-label>
+                    <h3>Child</h3>
+                  </ion-label>
+                </ion-item>
+                <ion-item 
+                  routerDirection="root" 
+                  [routerLink]="['../Resources']"
+                  button>
+                  <ion-icon slot="start" [ios]="'help-buoy' + '-outline'" [md]="'help-buoy' + '-sharp'"></ion-icon>
+                  <ion-label>
+                    <h3>Resources</h3>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </div>
 </ion-content>
