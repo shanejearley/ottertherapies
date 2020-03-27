@@ -12,6 +12,7 @@ import { GroupsService } from './services/groups/groups.service';
 import { MembersService } from './services/members/members.service';
 import { NotesService } from './services/notes/notes.service';
 import { PendingService } from './services/pending/pending.service';
+import { EventsService } from './services/events/events.service';
 
 @NgModule({
   imports: [
@@ -31,7 +32,8 @@ export class SharedModule {
         GroupsService,
         MembersService,
         NotesService,
-        PendingService
+        PendingService,
+        EventsService
       ]
     };
   }

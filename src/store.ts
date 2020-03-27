@@ -9,6 +9,7 @@ import { Team } from './app/shared/services/teams/teams.service';
 import { Group } from './app/shared/services/groups/groups.service';
 import { Member } from './app/shared/services/members/members.service';
 import { Note } from './app/shared/services/notes/notes.service';
+import { Event } from './app/shared/services/events/events.service';
 import { Pending } from './app/shared/services/pending/pending.service';
 
 export interface State {
@@ -19,6 +20,7 @@ export interface State {
   groups: Group[],
   members: Member[],
   notes: Note[],
+  events: Event[],
   selected: any,
   list: any,
   date: Date,
@@ -33,6 +35,7 @@ const state: State = {
   groups: undefined,
   members: undefined,
   notes: undefined,
+  events: undefined,
   selected: undefined,
   list: undefined,
   date: undefined,

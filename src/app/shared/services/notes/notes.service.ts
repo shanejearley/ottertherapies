@@ -66,6 +66,8 @@ export class NotesService {
 
     notesObservable(userId, teamId) {
         this.notes = [];
+        this.notes.length = 0;
+        this.notes$ = null;
         this.uid = userId;
         this.teamId = teamId;
         this.notesCol = this.db.collection<Note>(`teams/${this.teamId}/notes`);

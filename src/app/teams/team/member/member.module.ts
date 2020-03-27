@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
+
 import { AvatarModule } from 'ngx-avatar';
 
-import { ProfileRoutingModule } from './profile-routing.module';
+import { MemberRoutingModule } from './member-routing.module';
 
-import { ProfileComponent } from './profile.component';
+import { MemberComponent } from './member.component';
 
 @NgModule({
   imports: [
@@ -15,9 +16,9 @@ import { ProfileComponent } from './profile.component';
     FormsModule,
     IonicModule,
     AvatarModule,
-    ProfileRoutingModule
+    MemberRoutingModule
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [ProfileComponent]
+  declarations: [MemberComponent]
 })
-export class ProfileModule {}
+export class MemberModule {}

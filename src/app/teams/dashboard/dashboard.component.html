@@ -21,7 +21,7 @@
           <ion-card
             class="dashboard--team half--margin--top half--margin--bottom">
             <ion-card-header>
-              <ion-item lines="none">
+              <ion-item lines="none" color="clear">
                 <ion-avatar slot="start">
                   <ngx-avatar name="{{ (team$ | async)?.child }}" [size]="40"></ngx-avatar>
                 </ion-avatar>
@@ -36,7 +36,7 @@
           <ion-card 
             class="dashboard--card half--margin--right half--margin--bottom half--margin--top"
             routerDirection="root" 
-            [routerLink]="['../Calendar']"
+            [routerLink]="['../Events']"
             button>
             <ion-card-header>
               <ion-item lines="none">
@@ -45,8 +45,13 @@
               <ion-item 
                 lines="none">
                 <ion-label>
-                  <h2>0 Today</h2>
-                  <h3>Calendar</h3>
+                  <h2>
+                    <ion-text 
+                      color="medium">
+                      <strong>0</strong>
+                    </ion-text>&nbsp;Today
+                  </h2>
+                  <h3>Events</h3>
                 </ion-label>
               </ion-item>
             </ion-card-header>
@@ -65,7 +70,12 @@
               <ion-item 
                 lines="none">
                 <ion-label>
-                  <h2>{{ (team$ | async)?.unreadMessages }} New</h2>
+                  <h2>
+                    <ion-text
+                      [color]="(team$ | async)?.unreadMessages > 1 ? 'danger' : 'medium'">
+                      <strong>{{ (team$ | async)?.unreadMessages }}</strong>
+                    </ion-text>&nbsp;New
+                  </h2>
                   <h3>Messages</h3>
                 </ion-label>
               </ion-item>
@@ -85,7 +95,12 @@
               <ion-item 
                 lines="none">
                 <ion-label>
-                  <h2>{{ (team$ | async)?.unreadFiles }} New</h2>
+                  <h2>
+                    <ion-text 
+                      [color]="(team$ | async)?.unreadFiles > 1 ? 'danger' : 'medium'">
+                      <strong>{{ (team$ | async)?.unreadFiles }}</strong>
+                    </ion-text>&nbsp;New
+                  </h2>
                   <h3>Files</h3>
                 </ion-label>
               </ion-item>
@@ -105,7 +120,12 @@
               <ion-item 
                 lines="none">
                 <ion-label>
-                  <h2>{{ (team$ | async)?.unreadNotes }} New</h2>
+                  <h2>
+                    <ion-text 
+                      [color]="(team$ | async)?.unreadNotes > 1 ? 'danger' : 'medium'">
+                      <strong>{{ (team$ | async)?.unreadNotes }}</strong>
+                    </ion-text>&nbsp;New
+                  </h2>
                   <h3>Notes</h3>
                 </ion-label>
               </ion-item>

@@ -8,7 +8,7 @@ import { AvatarModule } from 'ngx-avatar';
 import { TeamsRoutingModule } from './teams-routing.module';
 import { TeamsPage } from './teams.page';
 import { DashboardModule } from './dashboard/dashboard.module';
-import { CalendarModule } from './calendar/calendar.module';
+import { EventsModule } from './events/events.module';
 import { MessagesModule } from './messages/messages.module';
 import { FilesModule } from './files/files.module';
 import { NotesModule } from './notes/notes.module';
@@ -25,7 +25,7 @@ import { CreateTeamComponent } from './create-team/create-team.component';
     IonicModule,
     TeamsRoutingModule,
     DashboardModule,
-    CalendarModule,
+    EventsModule,
     MessagesModule,
     FilesModule,
     NotesModule,

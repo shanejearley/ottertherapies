@@ -11,6 +11,7 @@ import { DocumentViewer } from '@ionic-native/document-viewer/ngx';
 import { PhotoViewer } from '@ionic-native/photo-viewer/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { AvatarModule } from 'ngx-avatar';
+import { CalendarModule } from "ion2-calendar";
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -28,7 +29,8 @@ import { Store } from 'src/store';
     AppRoutingModule,
     SharedModule.forRoot(),
     AvatarModule,
-    HttpClientModule
+    HttpClientModule,
+    CalendarModule
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   providers: [

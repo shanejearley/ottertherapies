@@ -14,17 +14,26 @@
     </ion-toolbar>
   </ion-header>
 
+  <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
+    <ion-fab-button (click)="addMembers()">
+      <ion-icon [ios]="'person-add' + '-outline'" [md]="'person-add' + '-sharp'"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
   <div id="container">
 
     <ion-grid fixed>
       <ion-row>
-        <ion-col size="12" size-md="6" *ngFor="let m of (members$ | async); let i = index">
-          <ion-card class="team--card" *ngIf="m.profile">
+        <ion-col size="12" size-md="6" *ngFor="let m of (members$ | async); let i = index; let odd = odd; let even = even;">
+          <ion-card 
+            class="team--card half--margin--top half--margin--bottom" 
+            *ngIf="m.profile" 
+            [ngClass]="{'half--margin--left': odd && size-lg, 'half--margin--right': even && size-lg}">
             <ion-card-header>
               <ion-item 
                 detail="true" 
                 lines="none" 
-                class="team--item" routerDirection="forward" [routerLink]="['Member', m.id]"
+                class="team--item" routerDirection="forward" [routerLink]="m.uid !== (profile$ | async)?.uid ? ['Member', m.uid] : ['../Profile']"
                 [class.pending]="m.status == 'Pending'">
                 <ion-avatar slot="start">
                   <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
@@ -36,34 +45,6 @@
                   <h2>{{ m.profile.displayName }}</h2>
                   <h3>{{ m.profile.email }}</h3>
                   <p>{{ m.profile.role }}</p>
-                </ion-label>
-              </ion-item>
-            </ion-card-header>
-            <!-- <ion-card-content>
-              <ion-list lines="none">
-                <ion-item detail="false" routerDirection="forward" [routerLink]="['Member', m.id]">
-                  <ion-label>
-                    <h3>Visit Profile</h3>
-                  </ion-label>
-                </ion-item>
-              </ion-list>
-            </ion-card-content> -->
-          </ion-card>
-        </ion-col>
-        <ion-col size="12" size-md="6">
-          <ion-card class="team--card">
-            <ion-card-header>
-              <ion-item
-                detail="false" 
-                lines="none" 
-                class="team--item"
-                (click)="addMembers()"
-                button>
-                <ion-avatar slot="start" class="avatar--icon">
-                  <ion-icon [ios]="'person-add' + '-outline'" [md]="'person-add' + '-sharp'"></ion-icon>
-                </ion-avatar>
-                <ion-label>
-                  <h2>Add Member(s)</h2>
                 </ion-label>
               </ion-item>
             </ion-card-header>

@@ -8009,8 +8009,8 @@
       "dev": true
     },
     "ion2-calendar": {
-      "version": "git+https://github.com/shaneparsons/ion2-calendar.git#76ae1e241183500a377647b363c931a03aa50bca",
-      "from": "git+https://github.com/shaneparsons/ion2-calendar.git"
+      "version": "git+https://github.com/shanoinsano10/ion2-calendar.git#6df831c317f9faa0eb30bceee56ce5b8c0b880fa",
+      "from": "git+https://github.com/shanoinsano10/ion2-calendar.git"
     },
     "ionic": {
       "version": "5.4.16",

@@ -58,9 +58,7 @@
                 </ng-template>
               </ion-avatar>
               <ion-label>
-                <h2 *ngIf="n.profile" class="notes--name">
-                  <ion-text color="primary">{{ n.profile.displayName }}</ion-text>
-                </h2>
+                <h2 *ngIf="n.profile" class="notes--name">{{ n.profile.displayName }}</h2>
                 <ion-text>
                   <p *ngIf="time - n.timestamp.toMillis() > 86400000; else elseDate">
                     {{ n.timestamp.toMillis() | date : 'short' }}</p>
@@ -116,9 +114,7 @@
                     </ng-template>
                   </ion-avatar>
                   <ion-label class="note--label" text-wrap>
-                    <h2 class="notes--comment">
-                      <ion-text color="primary">{{ c.profile.displayName }}</ion-text>&nbsp;{{ c.body }}
-                    </h2>
+                    <h2><ion-text class="notes--name">{{ c.profile.displayName }}</ion-text>&nbsp;{{ c.body }}</h2>
                     <p *ngIf="time - c.timestamp.toMillis() > 86400000; else elseDate">
                       {{ c.timestamp.toMillis() | date : 'short' }}</p>
                     <ng-template #elseDate>

@@ -13,14 +13,13 @@
               <ion-button color="light" slot="start" routerDirection="backward" [routerLink]="'/Teams'" size="default">
                 Your Teams
               </ion-button>
-              <ion-col>
-                <ion-avatar>
-                  <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url }}">
-                  <ng-template #elseAvatar>
-                    <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
-                  </ng-template>
-                </ion-avatar>
-              </ion-col>
+
+              <ion-avatar slot="end">
+                <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url }}">
+                <ng-template #elseAvatar>
+                  <ngx-avatar name="{{ (profile$ | async)?.displayName }}" size="40"></ngx-avatar>
+                </ng-template>
+              </ion-avatar>
 
             </ion-item>
           </ion-menu-toggle>
@@ -37,6 +36,30 @@
                 [class.selected]="p.title == page">
                 <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
                 <ion-label>{{ p.title }}</ion-label>
+                <!-- <ion-badge
+                  color="light"
+                  slot="end" 
+                  *ngIf="p.title == 'Events'">
+                  1
+                </ion-badge> -->
+                <ion-badge
+                  color="light"
+                  slot="end" 
+                  *ngIf="p.title == 'Messages' && (team$ | async)?.unreadMessages > 0">
+                  {{ (team$ | async)?.unreadMessages }}
+                </ion-badge>
+                <ion-badge
+                  color="light" 
+                  slot="end"
+                  *ngIf="p.title == 'Files' && (team$ | async)?.unreadFiles > 0">
+                  {{ (team$ | async)?.unreadFiles }}
+                </ion-badge>
+                <ion-badge
+                  color="light"
+                  slot="end" 
+                  *ngIf="p.title == 'Notes' && (team$ | async)?.unreadNotes > 0">
+                  {{ (team$ | async)?.unreadNotes }}
+                </ion-badge>
               </ion-item>
             </ion-menu-toggle>
           </div>

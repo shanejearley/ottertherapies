@@ -21,8 +21,8 @@ const routes: Routes = [
     loadChildren: './teams/dashboard/dashboard.module#DashboardModule'
   },
   {
-    path: 'Teams/:id/Calendar',
-    loadChildren: './teams/calendar/calendar.module#CalendarModule'
+    path: 'Teams/:id/Events',
+    loadChildren: './teams/events/events.module#EventsModule'
   },
   {
     path: 'Teams/:id/Messages',
@@ -59,6 +59,10 @@ const routes: Routes = [
   {
     path: 'Teams/:id/Messages/Direct/:directId',
     loadChildren: './teams/messages/direct/direct.module#DirectModule'
+  },
+  {
+    path: 'Teams/:id/Team/Member/:directId',
+    loadChildren: './teams/team/member/member.module#MemberModule'
   }
 ];
 

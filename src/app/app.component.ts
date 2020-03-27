@@ -15,10 +15,10 @@ import { ProfileService, Profile } from '../auth/shared/services/profile/profile
 import { TeamsService, Team } from './shared/services/teams/teams.service';
 import { GroupsService, Group } from './shared/services/groups/groups.service';
 import { NotesService, Note } from './shared/services/notes/notes.service';
-
-import { Store } from 'src/store';
 import { MembersService, Member } from './shared/services/members/members.service';
 import { PendingService } from './shared/services/pending/pending.service';
+import { EventsService } from './shared/services/events/events.service';
+import { Store } from 'src/store';
 
 @Component({
   selector: 'app-root',
@@ -37,6 +37,7 @@ export class AppComponent implements OnInit {
   groupsSub: Subscription;
   membersSub: Subscription;
   notesSub: Subscription;
+  eventsSub: Subscription;
   pendingSub: Subscription;
   teamId: string;
   lastId: string;
@@ -49,7 +50,7 @@ export class AppComponent implements OnInit {
       icon: 'grid'
     },
     {
-      title: 'Calendar',
+      title: 'Events',
       icon: 'calendar'
     },
     {
@@ -96,7 +97,8 @@ export class AppComponent implements OnInit {
     private groupsService: GroupsService,
     private membersService: MembersService,
     private notesService: NotesService,
-    private pendingService: PendingService
+    private pendingService: PendingService,
+    private eventsService: EventsService
   ) {
     this.initializeApp();
 
@@ -150,11 +152,14 @@ export class AppComponent implements OnInit {
       if (val instanceof RoutesRecognized) {
         this.teamId = val.state.root.firstChild.params['id'];
         if (this.teamId !== this.lastId) {
+          this.store.set('notes', null);
+          this.store.set('events', null);
           this.team$ = this.teamsService.getTeam(this.teamId);
           this.authService.userAuth.onAuthStateChanged(user => {
             this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
             this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe();
             this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
+            this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
           })
           this.lastId = this.teamId;
         }
@@ -176,12 +181,14 @@ export class AppComponent implements OnInit {
     this.store.set('groups', null);
     this.store.set('members', null);
     this.store.set('notes', null);
+    this.store.set('events', null);
     this.profileSub.unsubscribe();
     this.teamsSub.unsubscribe();
     this.groupsSub.unsubscribe();
     this.membersSub.unsubscribe();
     this.notesSub.unsubscribe();
     this.authService.logoutUser();
+    this.eventsSub.unsubscribe();
   }
 
   ngOnDestroy() {
@@ -191,5 +198,6 @@ export class AppComponent implements OnInit {
     this.groupsSub.unsubscribe();
     this.membersSub.unsubscribe();
     this.notesSub.unsubscribe();
+    this.eventsSub.unsubscribe();
   }
 }

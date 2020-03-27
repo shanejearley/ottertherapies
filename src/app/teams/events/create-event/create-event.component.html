@@ -1,0 +1,71 @@
+<ion-header translucent>
+    <ion-toolbar>
+        <ion-title>New Event</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="dismiss()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+    <ion-list>
+
+        <ion-list-header>
+            Event Details
+        </ion-list-header>
+
+        <ion-item>
+            <ion-label position="floating">Name</ion-label>
+            <ion-input [(ngModel)]="newEvent.name"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position="floating">Location</ion-label>
+            <ion-input [(ngModel)]="newEvent.location"></ion-input>
+        </ion-item>
+        <ion-item>
+            <ion-label position="floating">Start Date</ion-label>
+            <ion-datetime [(ngModel)]="newEvent.startDate" display-format="MMM DD, YYYY" picker-format="MMM DD, YYYY" (ionChange)="formatDate(newEvent.startDate)"></ion-datetime>
+        </ion-item>
+        <ion-item>
+            <ion-label position="floating">Start Time</ion-label>
+            <ion-datetime [(ngModel)]="newEvent.startTime" display-format="h:mm A" picker-format="h:mm A" minuteValues="0,15,30,45" (ionChange)="formatTime(newEvent.startTime)"></ion-datetime>
+        </ion-item>
+        <ion-item>
+            <ion-label position="floating">End Date</ion-label>
+            <ion-datetime [(ngModel)]="newEvent.endDate" display-format="MMM DD, YYYY" picker-format="MMM DD, YYYY"></ion-datetime>
+        </ion-item>
+        <ion-item>
+            <ion-label position="floating">End Time</ion-label>
+            <ion-datetime [(ngModel)]="newEvent.endTime" display-format="h:mm A" picker-format="h:mm A" minuteValues="0,15,30,45"></ion-datetime>
+        </ion-item>
+        <ion-item>
+            <ion-label position="floating">Description</ion-label>
+            <ion-textarea [(ngModel)]="newEvent.info"></ion-textarea>
+        </ion-item>
+
+        <ion-list-header>
+            Invite Members
+        </ion-list-header>
+
+        <div *ngFor="let m of (members$ | async); let i = index">
+            <ion-item [lines]="none" class="no-last-border" detail="false"
+                *ngIf="m.profile && m.uid !== (profile$ | async)?.uid">
+                <ion-avatar slot="start">
+                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                    <ng-template #elseMemberAvatar>
+                        <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
+                    </ng-template>
+                </ion-avatar>
+                <ion-label>
+                    <h2>{{ m.profile.displayName }}</h2>
+                    <h3>{{ m.profile.role }}</h3>
+                </ion-label>
+                <ion-checkbox slot="end" [(ngModel)]="m.isChecked"></ion-checkbox>
+            </ion-item>
+        </div>
+        <!-- <ion-item lines="none"></ion-item> -->
+
+        <ion-row class="ion-justify-content-center">
+            <ion-button size="large" (click)="addEvent()">Create</ion-button>
+        </ion-row>
+    </ion-list>
+</ion-content>

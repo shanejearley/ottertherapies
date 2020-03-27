@@ -4,6 +4,7 @@
         <ion-buttons slot="end">
             <ion-button (click)="dismiss()">Close</ion-button>
         </ion-buttons>
+        <ion-progress-bar [value]="uploadPercent | async"></ion-progress-bar>
     </ion-toolbar>
 </ion-header>
 <ion-content fullscreen>
@@ -23,9 +24,7 @@
                 File(s)
             </ion-list-header>
             <ion-item lines="none" *ngFor="let item of files; let i=index">
-                <ion-avatar class="avatar--file" slot="start">
-                    <ion-icon [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
-                </ion-avatar>
+                <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
                 <ion-label>
                     <h2>{{ item.relativePath }}</h2>
                 </ion-label>
@@ -80,15 +79,6 @@
                 <ion-checkbox slot="end" [(ngModel)]="m.isChecked"></ion-checkbox>
             </ion-item>
         </div>
-        <!-- <ion-item lines="none"></ion-item> -->
-
-        <ion-list-header>
-            Upload File
-        </ion-list-header>
-
-        <ion-item lines="none">
-            <ion-progress-bar slot="start" [value]="uploadPercent | async"></ion-progress-bar>
-        </ion-item>
 
         <ion-row class="ion-justify-content-center">
             <ion-button size="large" (click)="loopFiles()">Upload</ion-button>

@@ -57,6 +57,6 @@ ion-card.dashboard--card {
 }
 
 ion-card.dashboard--team {
-  --color: rgba(var(--ion-color-primary-contrast-rgb), 0.14) !important;
   box-shadow: none !important;
+  --background: none;
 }
