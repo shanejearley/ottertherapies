@@ -2,6 +2,9 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { IonContent, IonList } from '@ionic/angular';
 
+import { Plugins } from '@capacitor/core';
+const { Browser } = Plugins;
+
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators'
@@ -20,8 +23,8 @@ import { Store } from 'src/store';
 })
 export class MemberComponent implements OnInit {
     finished = false;
-    @ViewChild(IonContent, { static: false }) contentArea: IonContent;
-    @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
+    @ViewChild(IonContent) contentArea: IonContent;
+    @ViewChild(IonList, { read: ElementRef }) scroll: ElementRef;
     private mutationObserver: MutationObserver;
     user$: Observable<User>;
     profile$: Observable<Profile>;
@@ -126,6 +129,14 @@ export class MemberComponent implements OnInit {
                 childList: true
             });
         }
+    }
+
+    async previewFile(file) {
+        await Browser.open({ url: file.url });
+    }
+
+    removeMemberFile(memberUid, fileId, fileUrl) {
+        return this.membersService.removeFile(memberUid, fileId, fileUrl);
     }
 
 }

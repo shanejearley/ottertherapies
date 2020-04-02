@@ -6,6 +6,7 @@ import { formatDate } from "@angular/common";
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
 import 'firebase/storage';
+import * as moment from 'moment';
 
 import { firestore } from 'firebase/app';
 import { Observable } from 'rxjs';
@@ -20,18 +21,17 @@ import { EventsService } from 'src/app/shared/services/events/events.service';
 
 @Component({
     selector: 'app-create-event',
-    templateUrl: 'create-event.component.html'
+    templateUrl: 'create-event.component.html',
+    styleUrls: ['./create-event.component.scss']
 })
 export class CreateEventComponent {
     newEvent = {
         name: null,
         location: null,
-        startDate: null,
-        startDateFormat: null,
-        startTime: null,
-        startTimeFormat: null,
-        endDate: null,
-        endTime: null,
+        startDate: moment().toString(),
+        startTime: moment().toString(),
+        endDate: moment().add(1,'h').toString(),
+        endTime: moment().add(1,'h').toString(),
         info: null,
         members: []
     };
@@ -39,6 +39,7 @@ export class CreateEventComponent {
     groups$: Observable<Group[]>;
     members$: Observable<Member[]>;
     teamId: string;
+    selected: string;
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,
@@ -49,6 +50,7 @@ export class CreateEventComponent {
     ) { }
 
     ngOnInit() {
+        this.selected = 'Event';
         this.profile$ = this.store.select<Profile>('profile');
         this.members$ = this.store.select<Member[]>('members');
     }
@@ -94,16 +96,15 @@ export class CreateEventComponent {
         });
     }
 
-    formatDate(date) {
-        console.log(date);
-        const locale = 'en-US';
-        this.newEvent.startDateFormat = formatDate(date, 'mediumDate', locale);
-        console.log(this.newEvent.startDateFormat);
+    setEndDate() {
+        this.newEvent.endDate = moment(this.newEvent.startDate).add(1,'h').toString();
     }
-    formatTime(date) {
-        console.log(date);
-        const locale = 'en-US';
-        this.newEvent.startTimeFormat = formatDate(date, 'shortTime', locale);
-        console.log(this.newEvent.startTimeFormat);
+
+    setEndTime() {
+        this.newEvent.endTime = moment(this.newEvent.startTime).add(1,'h').toString();
+    }
+
+    removeGuest(m) {
+        m.isChecked = !m.isChecked;
     }
 }

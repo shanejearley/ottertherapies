@@ -35,11 +35,6 @@ ion-content ion-toolbar {
   --background: transparent;
 }
 
-ion-card.dashboard--card {
-  display: flex;
-  flex-direction: column;
-}
-
 .half--margin--left {
   margin-inline-start: 5px;
 }
@@ -59,4 +54,8 @@ ion-card.dashboard--card {
 ion-card.dashboard--team {
   box-shadow: none !important;
   --background: none;
+}
+
+ion-icon .color-icon {
+  color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.54) !important;
 }

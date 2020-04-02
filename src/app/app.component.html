@@ -14,12 +14,12 @@
                 Your Teams
               </ion-button>
 
-              <ion-avatar slot="end">
+              <ion-thumbnail slot="end" class="avatar-thumbnail">
                 <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url }}">
                 <ng-template #elseAvatar>
-                  <ngx-avatar name="{{ (profile$ | async)?.displayName }}" size="40"></ngx-avatar>
+                  <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="55" [round]="false" [cornerRadius]="55"></ngx-avatar>
                 </ng-template>
-              </ion-avatar>
+              </ion-thumbnail>
 
             </ion-item>
           </ion-menu-toggle>

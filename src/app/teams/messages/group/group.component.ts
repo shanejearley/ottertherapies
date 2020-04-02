@@ -20,8 +20,8 @@ import { Store } from 'src/store';
   styleUrls: ['./group.component.scss'],
 })
 export class GroupComponent implements OnInit {
-  @ViewChild(IonContent, { static: false }) contentArea: IonContent;
-  @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
+  @ViewChild(IonContent) contentArea: IonContent;
+  @ViewChild(IonList, { read: ElementRef }) scroll: ElementRef;
   private mutationObserver: MutationObserver;
   user$: Observable<User>;
   profile$: Observable<Profile>;

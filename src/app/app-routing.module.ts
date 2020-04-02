@@ -9,7 +9,7 @@ const routes: Routes = [
   },
   {
     path: 'Teams',
-    loadChildren: './teams/teams.module#TeamsModule'
+    loadChildren: () => import('./teams/teams.module').then(m => m.TeamsModule)
   },
   {
     path: 'Teams/:id',
@@ -18,51 +18,51 @@ const routes: Routes = [
   },
   {
     path: 'Teams/:id/Dashboard',
-    loadChildren: './teams/dashboard/dashboard.module#DashboardModule'
+    loadChildren: () => import('./teams/dashboard/dashboard.module').then(m => m.DashboardModule)
   },
   {
     path: 'Teams/:id/Events',
-    loadChildren: './teams/events/events.module#EventsModule'
+    loadChildren: () => import('./teams/events/events.module').then(m => m.EventsModule)
   },
   {
     path: 'Teams/:id/Messages',
-    loadChildren: './teams/messages/messages.module#MessagesModule'
+    loadChildren: () => import('./teams/messages/messages.module').then(m => m.MessagesModule)
   },
   {
     path: 'Teams/:id/Files',
-    loadChildren: './teams/files/files.module#FilesModule'
+    loadChildren: () => import('./teams/files/files.module').then(m => m.FilesModule)
   },
   {
     path: 'Teams/:id/Notes',
-    loadChildren: './teams/notes/notes.module#NotesModule'
+    loadChildren: () => import('./teams/notes/notes.module').then(m => m.NotesModule)
   },
   {
     path: 'Teams/:id/Team',
-    loadChildren: './teams/team/team.module#TeamModule'
+    loadChildren: () => import('./teams/team/team.module').then(m => m.TeamModule)
   },
   {
     path: 'Teams/:id/Child',
-    loadChildren: './teams/child/child.module#ChildModule'
+    loadChildren: () => import('./teams/child/child.module').then(m => m.ChildModule)
   },
   {
     path: 'Teams/:id/Resources',
-    loadChildren: './teams/resources/resources.module#ResourcesModule'
+    loadChildren: () => import('./teams/resources/resources.module').then(m => m.ResourcesModule)
   },
   {
     path: 'Teams/:id/Profile',
-    loadChildren: './teams/profile/profile.module#ProfileModule'
+    loadChildren: () => import('./teams/profile/profile.module').then(m => m.ProfileModule)
   },
   {
     path: 'Teams/:id/Messages/Group/:groupId',
-    loadChildren: './teams/messages/group/group.module#GroupModule'
+    loadChildren: () => import('./teams/messages/group/group.module').then(m => m.GroupModule)
   },
   {
     path: 'Teams/:id/Messages/Direct/:directId',
-    loadChildren: './teams/messages/direct/direct.module#DirectModule'
+    loadChildren: () => import('./teams/messages/direct/direct.module').then(m => m.DirectModule)
   },
   {
     path: 'Teams/:id/Team/Member/:directId',
-    loadChildren: './teams/team/member/member.module#MemberModule'
+    loadChildren: () => import('./teams/team/member/member.module').then(m => m.MemberModule)
   }
 ];
 

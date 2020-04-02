@@ -18,6 +18,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AuthModule } from '../auth/auth.module';
 import { SharedModule } from './shared/shared.module';
 import { Store } from 'src/store';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [AppComponent],
@@ -30,7 +32,8 @@ import { Store } from 'src/store';
     SharedModule.forRoot(),
     AvatarModule,
     HttpClientModule,
-    CalendarModule
+    CalendarModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   providers: [

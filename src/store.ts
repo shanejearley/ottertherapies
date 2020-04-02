@@ -11,6 +11,7 @@ import { Member } from './app/shared/services/members/members.service';
 import { Note } from './app/shared/services/notes/notes.service';
 import { Event } from './app/shared/services/events/events.service';
 import { Pending } from './app/shared/services/pending/pending.service';
+import { Injectable } from "@angular/core";
 
 export interface State {
   user: User,
@@ -41,6 +42,7 @@ const state: State = {
   date: undefined,
 };
 
+@Injectable()
 export class Store {
 
   private subject = new BehaviorSubject<State>(state);

@@ -38,9 +38,9 @@
               </ng-template>
             </ion-avatar>
             <ion-textarea autoGrow="true" rows="1" class="note--input" placeholder="Note" [(ngModel)]="newNote"
-              (keyup.enter)="postNote(n)" (keydown.enter)="onKeydown($event)">
+              (keyup.enter)="postNote()" (keydown.enter)="onKeydown($event)">
             </ion-textarea>
-            <ion-button fill="clear" (click)="postNote(n)" slot="end">
+            <ion-button fill="clear" (click)="postNote()" slot="end">
               <ion-icon slot="icon-only" [ios]="'send' + '-outline'" [md]="'send' + '-sharp'"></ion-icon>
             </ion-button>
           </ion-item>

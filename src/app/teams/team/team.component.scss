@@ -35,15 +35,6 @@ ion-content ion-toolbar {
   --background: transparent;
 }
 
-ion-card.team--card {
-  display: flex;
-  flex-direction: column;
-}
-
-.team--card .team--item {
-  --min-height: 85px;
-}
-
 ion-item.pending {
   font-style: italic;
 }

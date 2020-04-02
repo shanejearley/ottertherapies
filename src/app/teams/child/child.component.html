@@ -20,13 +20,13 @@
             <ion-grid class="ion-padding">
                 <ion-row class="ion-justify-content-center ion-padding">
                     <ion-col class="ion-justify-content-center" size="auto">
-                        <ion-avatar>
+                        <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
                             <img *ngIf="(team$ | async)?.url; else elseChildAvatar"
                                 src="{{ (team$ | async)?.url }}">
                             <ng-template #elseChildAvatar>
-                                <ngx-avatar name="{{ (member$ | async)?.child }}"></ngx-avatar>
+                                <ngx-avatar name="{{ (team$ | async)?.child }}" [size]="150" [round]="false" [cornerRadius]="55"></ngx-avatar>
                             </ng-template>
-                        </ion-avatar>
+                        </ion-thumbnail>
                     </ion-col>
                 </ion-row>
             </ion-grid>

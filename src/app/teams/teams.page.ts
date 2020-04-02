@@ -68,4 +68,8 @@ export class TeamsPage implements OnInit {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
+  goTo(route: string) {
+    this.router.navigate([`../Teams/${route}`]);
+  }
+
 }

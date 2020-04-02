@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators'
+import { switchMap, tap } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
@@ -24,6 +24,7 @@ export class TeamComponent implements OnInit {
   user$: Observable<User>;
   profile$: Observable<Profile>;
   team$: Observable<Team>;
+  teamId: string;
   groups$: Observable<Group[]>;
   members$: Observable<Member[]>;
   subscriptions: Subscription[] = [];
@@ -33,6 +34,7 @@ export class TeamComponent implements OnInit {
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
+    private router: Router,
     private authService: AuthService,
     private profileService: ProfileService,
     private teamsService: TeamsService,
@@ -49,15 +51,21 @@ export class TeamComponent implements OnInit {
       //this.teamsService.teams$.subscribe()
     ];
     this.team$ = this.activatedRoute.params
-      .pipe(switchMap(param => this.teamsService.getTeam(param.id)));
+      .pipe(
+        tap(param => { this.teamId = param.id }),
+        switchMap(param => this.teamsService.getTeam(param.id)));
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  addMember() {
+  addMembers() {
     console.log("Adding member");
+  }
+
+  goTo(route: string, id:string) {
+    this.router.navigate([`../Teams/${this.teamId}/${route}/${id}`]);
   }
 
 }

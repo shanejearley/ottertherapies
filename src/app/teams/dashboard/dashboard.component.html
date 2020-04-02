@@ -22,9 +22,9 @@
             class="dashboard--team half--margin--top half--margin--bottom">
             <ion-card-header>
               <ion-item lines="none" color="clear">
-                <ion-avatar slot="start">
-                  <ngx-avatar name="{{ (team$ | async)?.child }}" [size]="40"></ngx-avatar>
-                </ion-avatar>
+                <ion-thumbnail slot="start">
+                  <ngx-avatar name="{{ (team$ | async)?.child }}" [size]="55" [round]="false" [cornerRadius]="10"></ngx-avatar>
+                </ion-thumbnail>
                 <ion-label>
                   <h1>{{ (team$ | async)?.name }}</h1>
                 </ion-label>
@@ -34,16 +34,16 @@
         </ion-col>
         <ion-col size="6">
           <ion-card 
-            class="dashboard--card half--margin--right half--margin--bottom half--margin--top"
+            class="half--margin--right half--margin--bottom half--margin--top ion-activatable ion-focusable ripple-parent"
             routerDirection="root" 
-            [routerLink]="['../Events']"
+            (click)="goTo('Events')"
             button>
             <ion-card-header>
-              <ion-item lines="none">
-                <ion-icon [ios]="'calendar' + '-outline'" [md]="'calendar' + '-sharp'"></ion-icon>
+              <ion-item lines="none" class="theme--item">
+                <ion-icon class="color-icon" [ios]="'calendar' + '-outline'" [md]="'calendar' + '-sharp'"></ion-icon>
               </ion-item>
               <ion-item 
-                lines="none">
+                lines="none" class="theme--item">
                 <ion-label>
                   <h2>
                     <ion-text 
@@ -61,14 +61,14 @@
           <ion-card 
             class="dashboard--card half--margin--left half--margin--bottom half--margin--top"
             routerDirection="root" 
-            [routerLink]="['../Messages']"
+            (click)="goTo('Messages')"
             button>
             <ion-card-header>
-              <ion-item lines="none">
+              <ion-item lines="none" class="theme--item">
                 <ion-icon [ios]="'chatbubbles' + '-outline'" [md]="'chatbubbles' + '-sharp'"></ion-icon>
               </ion-item>
               <ion-item 
-                lines="none">
+                lines="none" class="theme--item">
                 <ion-label>
                   <h2>
                     <ion-text
@@ -86,14 +86,14 @@
           <ion-card 
             class="dashboard--card half--margin--right half--margin--top half--margin--bottom"
             routerDirection="root" 
-            [routerLink]="['../Files']"
+            (click)="goTo('Files')"
             button>
             <ion-card-header>
-              <ion-item lines="none">
+              <ion-item lines="none" class="theme--item">
                 <ion-icon [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
               </ion-item>
               <ion-item 
-                lines="none">
+                lines="none" class="theme--item">
                 <ion-label>
                   <h2>
                     <ion-text 
@@ -111,14 +111,14 @@
           <ion-card 
             class="dashboard--card half--margin--left half--margin--top half--margin--bottom"
             routerDirection="root" 
-            [routerLink]="['../Notes']"
+            (click)="goTo('Notes')"
             button>
             <ion-card-header>
-              <ion-item lines="none">
+              <ion-item lines="none" class="theme--item">
                 <ion-icon [ios]="'newspaper' + '-outline'" [md]="'newspaper' + '-sharp'"></ion-icon>
               </ion-item>
               <ion-item 
-                lines="none">
+                lines="none" class="theme--item">
                 <ion-label>
                   <h2>
                     <ion-text 
@@ -138,8 +138,9 @@
             <ion-card-header>
               <ion-list>
                 <ion-item 
+                  lines="none"
                   routerDirection="root" 
-                  [routerLink]="['../Team']"
+                  (click)="goTo('Team')"
                   button>
                   <ion-icon slot="start" [ios]="'people' + '-outline'" [md]="'people' + '-sharp'"></ion-icon>
                   <ion-label>
@@ -147,8 +148,9 @@
                   </ion-label>
                 </ion-item>
                 <ion-item 
+                  lines="none"
                   routerDirection="root" 
-                  [routerLink]="['../Child']"
+                  (click)="goTo('Child')"
                   button>
                   <ion-icon slot="start" [ios]="'happy' + '-outline'" [md]="'happy' + '-sharp'"></ion-icon>
                   <ion-label>
@@ -156,8 +158,9 @@
                   </ion-label>
                 </ion-item>
                 <ion-item 
+                  lines="none"
                   routerDirection="root" 
-                  [routerLink]="['../Resources']"
+                  (click)="goTo('Resources')"
                   button>
                   <ion-icon slot="start" [ios]="'help-buoy' + '-outline'" [md]="'help-buoy' + '-sharp'"></ion-icon>
                   <ion-label>

@@ -50,6 +50,11 @@ ion-avatar.dialog {
   position: absolute;
 }
 
+ion-thumbnail.dialog {
+  top: 0;
+  position: absolute;
+}
+
 ion-label.note--label {
   margin-inline-start: 55px !important;
 }

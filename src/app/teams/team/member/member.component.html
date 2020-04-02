@@ -35,13 +35,13 @@
                     <ion-grid class="ion-padding">
                         <ion-row class="ion-justify-content-center ion-padding">
                             <ion-col class="ion-justify-content-center" size="auto">
-                                <ion-avatar>
+                                <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
                                     <img *ngIf="(member$ | async)?.profile.url; else elseMemberAvatar"
                                         src="{{ (member$ | async)?.profile.url }}">
                                     <ng-template #elseMemberAvatar>
-                                        <ngx-avatar name="{{ (member$ | async)?.profile.displayName }}"></ngx-avatar>
+                                        <ngx-avatar name="{{ (member$ | async)?.profile.displayName }}" [size]="150" [round]="false" [cornerRadius]="55"></ngx-avatar>
                                     </ng-template>
-                                </ion-avatar>
+                                </ion-thumbnail>
                             </ion-col>
                         </ion-row>
                     </ion-grid>
@@ -164,13 +164,13 @@
                         <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
                         <ion-label>
                             <h2>{{ f.name }}</h2>
-                            <h3 *ngIf="f.uid !== (profile$ | async)?.uid; else elseUserName">{{ m.profile.displayName }}
+                            <h3 *ngIf="f.uid !== (profile$ | async)?.uid; else elseUserName">{{ (member$ | async)?.profile.displayName }}
                             </h3>
                             <ng-template #elseUserName>
                                 <h3>{{ (profile$ | async)?.displayName }}</h3>
                             </ng-template>
                         </ion-label>
-                        <ion-button fill="clear" (click)="removeMemberFile(m.uid,f.id,f.url)" slot="end">
+                        <ion-button fill="clear" (click)="removeMemberFile(directId,f.id,f.url)" slot="end">
                             <ion-icon slot="icon-only" color="danger" [ios]="'trash' + '-outline'"
                                 [md]="'trash' + '-sharp'"></ion-icon>
                         </ion-button>

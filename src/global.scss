@@ -38,3 +38,29 @@ ion-calendar { .days-box { padding: 0.5rem 0 !important} }
     ion-calendar { button.days-btn.on-selected{ small{ bottom: -25px !important} }}
 }
 
+ion-card {
+    border-radius: 10px !important;
+    button {
+        height: 100%;
+        border-radius: inherit;
+        background: var(--ion-item-background, var(--ion-background-color, #fff));
+    }
+}
+
+ion-list.theme--list {
+    background: transparent !important;
+    --ion-background-color: transparent !important;
+}
+
+ion-item.theme--item {
+    --background: transparent !important;
+}
+
+.avatar-thumbnail {
+    --border-radius: 50% !important;
+}
+
+.profile-thumbnail {
+    --size: 150px !important;
+}
+

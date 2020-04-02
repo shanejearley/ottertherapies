@@ -36,7 +36,7 @@
         </ion-list-header>
 
         <div *ngFor="let g of (groups$ | async); let i = index">
-            <ion-item [lines]="!last ? 'inset' : 'none'" class="no-last-border" detail="false">
+            <ion-item lines="none" detail="false">
                 <ion-avatar slot="start">
                     <ngx-avatar name="{{ g.name }}" [size]="40"></ngx-avatar>
                 </ion-avatar>
@@ -48,7 +48,7 @@
             </ion-item>
         </div>
         <div *ngFor="let m of (members$ | async); let i = index">
-            <ion-item [lines]="!last ? 'inset' : 'none'" class="no-last-border" detail="false"
+            <ion-item lines="none" detail="false"
                 *ngIf="m.profile && m.uid !== (profile$ | async)?.uid">
                 <ion-avatar slot="start">
                     <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
@@ -64,7 +64,7 @@
             </ion-item>
         </div>
         <div *ngFor="let m of (members$ | async); let i = index">
-            <ion-item [lines]="!last ? 'inset' : 'none'" class="no-last-border" detail="false"
+            <ion-item lines="none" detail="false"
                 *ngIf="m.profile && m.uid === (profile$ | async)?.uid">
                 <ion-avatar slot="start">
                     <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
