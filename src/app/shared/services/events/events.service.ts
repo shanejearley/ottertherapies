@@ -27,6 +27,7 @@ export interface Event {
     name: string,
     info: string,
     location: string,
+    type: string,
     members: Member[]
 }
 
@@ -39,6 +40,7 @@ export interface Event {
 @Injectable()
 export class EventsService {
     private eventsCol: AngularFirestoreCollection<Event>;
+    private membersCol: AngularFirestoreCollection;
     private eventDoc: AngularFirestoreDocument<Event>;
     // private unreadDoc: AngularFirestoreDocument<Unread>;
     // unread$: Observable<Unread>;
@@ -99,148 +101,27 @@ export class EventsService {
         return this.events$;
     }
 
-    addEvent(uid, teamId, event) {
-        return console.log(uid, teamId, event);
+    addEvent(event) {
+        const newEvent = {
+            createdBy: this.uid,
+            id: null,
+            startTime: firestore.Timestamp.fromDate(new Date(event.startTime)),
+            endTime: firestore.Timestamp.fromDate(new Date(event.endTime)),
+            name: event.name,
+            info: event.info,
+            type: event.type,
+            location: event.location,
+            members: event.members
+        }
+        this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
+        this.eventsCol.add(newEvent).then(docRef => {
+            this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${docRef.id}/members`);
+            event.members.forEach(m => {
+                this.membersCol.doc(m.uid).set({
+                    uid: m.uid,
+                    status: "Member"
+                })
+            })
+        });
     }
-
-    // monthEvents.date = date;
-    // monthEvents.monthStart = firebase.firestore.Timestamp.fromDate(new Date(date.getFullYear(), date.getMonth(), 1));
-    // monthEvents.monthEnd = firebase.firestore.Timestamp.fromDate(new Date(date.getFullYear(), date.getMonth() + 1, 0));
-    // db.collection("teams").doc(teamId).collection("calendar")
-    // .orderBy("startTime")
-    // .startAt(monthEvents.monthStart)
-    // .endAt(monthEvents.monthEnd)
-    // .onSnapshot(function(snapshot) {
-    //   snapshot.docChanges().forEach(function(change) {
-    //     if (change.type === "added") {
-    //       if (change.doc.data().id) {
-    //           db.collection("teams").doc(teamId).collection("calendar").doc(change.doc.data().id).collection("members")
-    //           .doc(user.uid)
-    //           .get().then(function(doc) {
-    //               if (doc.exists) {
-    //                   console.log("New event for this user: ", change.doc.data());
-    //                   var newEvent = change.doc.data();
-    //                   newEvent.member = true;
-    //                   $timeout(function() {
-    //                       monthEvents.list.push(newEvent);
-    //                       $filter('orderBy')(monthEvents.list, 'startTime', true)
-    //                   })
-    //               } else {
-    //                   console.log("New event without this user: ", change.doc.data());
-    //                   var newEvent = change.doc.data();
-    //                   newEvent.member = false;
-    //                   $timeout(function() {
-    //                       monthEvents.list.push(newEvent);
-    //                       $filter('orderBy')(monthEvents.list, 'startTime', true)
-    //                   })
-    //               }
-    //           })
-    //       }
-    //     }
-    //     if (change.type === "modified") {
-    //       if (change.doc.data().id && change.doc.data().startTime && change.doc.data().endTime) {
-    //           if ($filter('filter')(monthEvents.list, {id: change.doc.data().id}, true)[0]) {
-    //               db.collection("teams").doc(teamId).collection("calendar").doc(change.doc.data().id).collection("members")
-    //               .doc(user.uid)
-    //               .get().then(function(doc) {
-    //                   if (doc.exists) {
-    //                       console.log("Modified event for this user: ", change.doc.data());
-    //                       $filter('filter')(monthEvents.list, {id: change.doc.data().id}, true)[0] = change.doc.data();
-    //                       $filter('filter')(monthEvents.list, {id: change.doc.data().id}, true)[0].member = true;
-    //                   } else {
-    //                       console.log("Modified event without this user: ", change.doc.data());
-    //                       $filter('filter')(monthEvents.list, {id: change.doc.data().id}, true)[0] = change.doc.data();
-    //                       $filter('filter')(monthEvents.list, {id: change.doc.data().id}, true)[0].member = false;
-    //                   }
-    //               })
-    //           }
-    //           else {
-    //               db.collection("teams").doc(teamId).collection("calendar").doc(change.doc.data().id).collection("members")
-    //               .doc(user.uid)
-    //               .get().then(function(doc) {
-    //                   if (doc.exists) {
-    //                       console.log("New modified event for this user: ", change.doc.data());
-    //                       var newEvent = change.doc.data();
-    //                       newEvent.member = true;
-    //                       $timeout(function() {
-    //                           monthEvents.list.push(newEvent);
-    //                           console.log("Remove duplicates");
-    //                           monthEvents.list.forEach(function(event1, index1) {
-    //                             monthEvents.list.forEach(function(event2, index2) {
-    //                               if (event1.id == event2.id && index1 !== index2) {
-    //                                 var index = monthEvents.list.indexOf(event1);
-    //                                 monthEvents.list.splice(index, 1);
-    //                                 console.log("Found a duplicate, removed old");
-    //                               }
-    //                             })
-    //                           })
-    //                           $filter('orderBy')(monthEvents.list, 'startTime', true)
-    //                       })
-    //                   } else {
-    //                       console.log("New modified event without this user: ", change.doc.data());
-    //                       var newEvent = change.doc.data();
-    //                       newEvent.member = false;
-    //                       $timeout(function() {
-    //                           monthEvents.list.push(newEvent);
-    //                           console.log("Remove duplicates");
-    //                           monthEvents.list.forEach(function(event1, index1) {
-    //                             monthEvents.list.forEach(function(event2, index2) {
-    //                               if (event1.id == event2.id && index1 !== index2) {
-    //                                 var index = monthEvents.list.indexOf(event1);
-    //                                 monthEvents.list.splice(index, 1);
-    //                                 console.log("Found a duplicate, removed old");
-    //                               }
-    //                             })
-    //                           })
-    //                           $filter('orderBy')(monthEvents.list, 'startTime', true)
-    //                       })
-    //                   }
-    //               })
-    //           }
-    //       }
-    //     }
-    //     if (change.type === "removed") {
-    //       console.log("Removed event: ", change.doc.data());
-    //       var index = monthEvents.list.indexOf($filter('filter')(monthEvents.list, {id: change.doc.data().id}, true)[0]);
-    //       monthEvents.list.splice(index, 1);
-    //     }
-    //   })
-    //   $timeout(function() {
-    //       monthEvents.list.forEach(function(event1, index1) {
-    //           monthEvents.list.forEach(function(event2, index2) {
-    //               if (event1.id === event2.id && index1 !== index2) {
-    //                   console.log("Removing Duplicate");
-    //                   var index = monthEvents.list.indexOf(event2);
-    //                   monthEvents.list.splice(index, 1);
-    //               }
-    //           })
-    //       })
-    //       $filter('orderBy')(monthEvents.list, 'startTime', true)
-    //       delay.resolve(monthEvents);
-    //   })
-    // })
-
-    // getNote(id: string) {
-    //     return this.store.select<Note[]>('notes')
-    //         .pipe(
-    //             filter(Boolean),
-    //             map((note: Note[]) => note.find((note: Note) => note.id === id)));
-    // }
-
-    // addNote(body: string) {
-    //     const note: Note = {
-    //         body: body,
-    //         id: null,
-    //         timestamp: firestore.FieldValue.serverTimestamp(),
-    //         uid: this.uid,
-    //         unread: null,
-    //         comments: null,
-    //         isChecked: null,
-    //         commentCount: null,
-    //         flag: false
-    //     }
-    //     this.notesCol = this.db.collection<Note>(`teams/${this.teamId}/notes`);
-    //     this.notesCol.add(note);
-    // }
-
 }

@@ -1,16 +1,10 @@
-import { Component, Input } from '@angular/core';
-import { SafeResourceUrl } from '@angular/platform-browser';
+import { Component } from '@angular/core';
 import { NavParams, ModalController } from '@ionic/angular';
-import { formatDate } from "@angular/common";
 
-import { AngularFirestore } from '@angular/fire/firestore';
-import { AngularFireStorage } from '@angular/fire/storage';
-import 'firebase/storage';
 import * as moment from 'moment';
 
-import { firestore } from 'firebase/app';
 import { Observable } from 'rxjs';
-import { tap, filter, map, finalize, last, switchMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service'
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -28,11 +22,10 @@ export class CreateEventComponent {
     newEvent = {
         name: null,
         location: null,
-        startDate: moment().toString(),
-        startTime: moment().toString(),
-        endDate: moment().add(1,'h').toString(),
-        endTime: moment().add(1,'h').toString(),
+        startTime: moment().add(59, 'm').startOf('h').toString(),
+        endTime: moment().add(59, 'm').startOf('h').add(1, 'h').toString(),
         info: null,
+        type: 'Event',
         members: []
     };
     profile$: Observable<Profile>;
@@ -40,19 +33,30 @@ export class CreateEventComponent {
     members$: Observable<Member[]>;
     teamId: string;
     selected: string;
+    queryText = '';
+    filteredMembers: Member[];
+    error: boolean;
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,
-        private db: AngularFirestore,
         private store: Store,
         private authService: AuthService,
         private eventsService: EventsService
     ) { }
 
     ngOnInit() {
-        this.selected = 'Event';
         this.profile$ = this.store.select<Profile>('profile');
         this.members$ = this.store.select<Member[]>('members');
+        this.members$.pipe(map(members => {
+            members.forEach(m => {
+                if (m.uid == this.uid) {
+                    m.isChecked = true;
+                    this.newEvent.members.push(m);
+                } else {
+                    m.isChecked = false;
+                }
+            })
+        })).subscribe()
     }
 
     ionViewWillEnter() {
@@ -65,30 +69,16 @@ export class CreateEventComponent {
         });
     }
 
-    loopMembers() {
-        this.members$.pipe(map(members => {
-            members.forEach(m => {
-                if (m.isChecked) {
-                    m.isChecked = !m.isChecked;
-                    if (m.uid !== this.uid) {
-                        this.newEvent.members.push(m);
-                    }
-                }
-            })
-        })).subscribe()
-    }
-
     get uid() {
         return this.authService.user.uid;
     }
 
-    async addEvent() {
+    addEvent() {
         try {
-            await this.loopMembers();
-            await this.eventsService.addEvent(this.uid, this.teamId, this.newEvent);
+            this.eventsService.addEvent(this.newEvent);
         } catch (err) {
             return this.modalController.dismiss({
-                response: 'error'
+                response: err
             })
         }
         return this.modalController.dismiss({
@@ -96,15 +86,54 @@ export class CreateEventComponent {
         });
     }
 
-    setEndDate() {
-        this.newEvent.endDate = moment(this.newEvent.startDate).add(1,'h').toString();
-    }
-
-    setEndTime() {
-        this.newEvent.endTime = moment(this.newEvent.startTime).add(1,'h').toString();
+    changeStart() {
+        this.newEvent.endTime = moment(this.newEvent.startTime).add(1, 'h').toString();
     }
 
     removeGuest(m) {
         m.isChecked = !m.isChecked;
+        var index = this.newEvent.members.indexOf(m);
+        this.newEvent.members.splice(index, 1);
+    }
+
+    addGuest(m) {
+        this.error = false;
+        if (!m.isChecked && m.uid !== this.uid) {
+            m.isChecked = !m.isChecked;
+            this.newEvent.members.push(m);
+        } else {
+            console.log('Already a guest');
+        }
+        this.queryText = '';
+    }
+
+    manualSearch() {
+        this.members$.pipe(map(members => {
+            if (members) {
+                if (members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]) {
+                    this.addGuest(members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]);
+                } else {
+                    this.error = true;
+                    console.log('No member found');
+                }
+            }
+        })).subscribe();
+    }
+
+    filterMembers(search: string) {
+        this.members$.pipe(map(members => {
+            if (members) {
+                if (search.length) {
+                    this.filteredMembers = members.filter(o =>
+                        Object.keys(o).some(k => {
+                            if (typeof o[k] === 'string')
+                                return o[k].toLowerCase().includes(search.toLowerCase());
+                        })
+                    );
+                } else {
+                    this.filteredMembers = members;
+                }
+            }
+        })).subscribe()
     }
 }
