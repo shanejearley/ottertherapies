@@ -9,6 +9,7 @@ import { EventsRoutingModule } from './events-routing.module';
 
 import { EventsComponent } from './events.component';
 import { CreateEventComponent } from './create-event/create-event.component';
+import { EditEventComponent } from './edit-event/edit-event.component';
 
 @NgModule({
   imports: [
@@ -18,8 +19,8 @@ import { CreateEventComponent } from './create-event/create-event.component';
     EventsRoutingModule,
     CalendarModule
   ],
-  entryComponents: [CreateEventComponent],
+  entryComponents: [CreateEventComponent, EditEventComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [EventsComponent, CreateEventComponent]
+  declarations: [EventsComponent, CreateEventComponent, EditEventComponent]
 })
 export class EventsModule {}

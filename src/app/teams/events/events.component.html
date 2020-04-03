@@ -28,7 +28,7 @@
         {{ date }}
       </ion-list-header>
       <div *ngFor="let e of (events$ | async); let i = index">
-        <ion-card *ngIf="filterDay(e)" class="ion-padding" button>
+        <ion-card *ngIf="filterDay(e)" class="ion-padding" (click)="editEventModal(e.id)" button>
           <ion-item class="theme--item">
             <ion-icon slot="start" [ios]="'calendar' + '-outline'" [md]="'calendar' + '-sharp'"></ion-icon>
             <ion-label text-wrap>

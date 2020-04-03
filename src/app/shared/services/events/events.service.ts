@@ -16,7 +16,7 @@ import { AuthService } from '../../../../auth/shared/services/auth/auth.service'
 export interface Member {
     status: string,
     uid: string,
-    profile: Profile,
+    profile: Profile
 }
 
 export interface Event {
@@ -40,7 +40,7 @@ export interface Event {
 @Injectable()
 export class EventsService {
     private eventsCol: AngularFirestoreCollection<Event>;
-    private membersCol: AngularFirestoreCollection;
+    private membersCol: AngularFirestoreCollection<Member>;
     private eventDoc: AngularFirestoreDocument<Event>;
     // private unreadDoc: AngularFirestoreDocument<Unread>;
     // unread$: Observable<Unread>;
@@ -52,6 +52,7 @@ export class EventsService {
     date: Date;
     monthStart: firestore.Timestamp;
     monthEnd: firestore.Timestamp;
+    members$;
 
     constructor(
         private store: Store,
@@ -80,25 +81,55 @@ export class EventsService {
                     ///remove based on event.id
                     const event = a.payload.doc.data() as Event;
                     event.id = a.payload.doc.id;
-                    return;
                 }
                 if (a.type == 'added' || a.type == 'modified') {
                     const event = a.payload.doc.data() as Event;
                     event.id = a.payload.doc.id;
                     const exists = this.events.find(e => e.id === event.id)
                     if (event.startTime && !exists) {
-                        
-                        //this.profileService.getProfile(event);
+                        this.getMembers(event);
                         this.events.push(event);
-                    }
-                    if (event.startTime && exists) {
-                        this.events.find(e => e.id == event.id).startTime = event.startTime;
-                        this.events.find(e => e.id == event.id).endTime = event.endTime;
+                    } else if (event.startTime && exists) {
+                        let eventIndex = this.events.findIndex(e => e.id == event.id);
+                        this.events[eventIndex] = event;
                     }
                 }
                 return this.store.set('events', this.events)
             })))
         return this.events$;
+    }
+
+    getMembers(event: Event) {
+        event.members = [];
+        this.membersCol = this.db.collection<Member>(`teams/${this.teamId}/calendar/${event.id}/members`);
+        this.members$ = this.membersCol.stateChanges(['added', 'modified', 'removed'])
+            .pipe(map(actions => actions.map(a => {
+                if (a.type == 'removed') {
+                    const member = a.payload.doc.data() as Member;
+                    member.uid = a.payload.doc.id;
+                }
+                if (a.type == 'added' || a.type == 'modified') {
+                    const member = a.payload.doc.data() as Member;
+                    member.uid = a.payload.doc.id;
+                    const exists = event.members.find(m => m.uid === member.uid)
+                    if (!exists) {
+                        this.profileService.getProfile(member);
+                        event.members.push(member);
+                    } else {
+                        let memberIndex = event.members.findIndex(m => m.uid == member.uid);
+                        this.profileService.getProfile(member);
+                        event.members[memberIndex] = member;
+                    }
+                }
+            })))
+        return this.members$.subscribe();
+    }
+
+    getEvent(id: string) {
+        return this.store.select<Event[]>('events')
+            .pipe(
+                filter(Boolean),
+                map((event: Event[]) => event.find((event: Event) => event.id === id)));
     }
 
     addEvent(event) {
@@ -111,17 +142,47 @@ export class EventsService {
             info: event.info,
             type: event.type,
             location: event.location,
-            members: event.members
+            members: null
         }
         this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
-        this.eventsCol.add(newEvent).then(docRef => {
+        return this.eventsCol.add(newEvent).then(docRef => {
             this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${docRef.id}/members`);
-            event.members.forEach(m => {
-                this.membersCol.doc(m.uid).set({
+            return event.members.forEach(m => {
+                return this.membersCol.doc(m.uid).set({
                     uid: m.uid,
                     status: "Member"
-                })
+                }, {merge:true})
             })
+        });
+    }
+
+    removeGuest(eventId: string, uid: string) {
+        this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${eventId}/members`);
+        return this.membersCol.doc(uid).delete();
+    }
+
+    updateEvent(event) {
+        const updateEvent = {
+            createdBy: this.uid,
+            id: null,
+            startTime: firestore.Timestamp.fromDate(new Date(event.updateStartTime)),
+            endTime: firestore.Timestamp.fromDate(new Date(event.updateEndTime)),
+            name: event.name,
+            info: event.info,
+            type: event.type,
+            location: event.location
+        }
+        this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
+        return this.eventsCol.doc(event.id).update(updateEvent).then(() => {
+            this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${event.id}/members`);
+            if (event.members.length) {
+                return event.members.forEach(m => {
+                    return this.membersCol.doc(m.uid).set({
+                        uid: m.uid,
+                        status: "Member"
+                    }, {merge:true})
+                })
+            }
         });
     }
 }

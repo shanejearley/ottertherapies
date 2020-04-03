@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { switchMap, map, tap } from 'rxjs/operators'
 
 import { CreateEventComponent } from './create-event/create-event.component';
+import { EditEventComponent } from './edit-event/edit-event.component';
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../shared/services/teams/teams.service';
@@ -116,9 +117,26 @@ export class EventsComponent implements OnInit {
     return await modal.present();
   }
 
+  async editEventModal(eventId) {
+    const modal = await this.modalController.create({
+      component: EditEventComponent,
+      componentProps: {
+        'teamId': this.teamId,
+        'eventId': eventId
+      }
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'success') {
+        this.presentToast();
+      }
+    });
+    return await modal.present();
+  }
+
   async presentToast() {
     const toast = await this.toastController.create({
-      message: 'Your event was created!',
+      message: 'Your event was updated!',
       duration: 2000
     });
     toast.present();
