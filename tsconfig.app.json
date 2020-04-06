@@ -2,9 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "types": [
-      "cordova-plugin-file"
-    ]
+    "types": []
   },
   "files": [
     "src/main.ts",
