@@ -14,79 +14,71 @@
     </ion-toolbar>
   </ion-header>
 
+  <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
+    <ion-fab-button (click)="createGroupModal()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
   <div id="container">
 
-        <ion-list class="theme--list">
-          
-        <ion-list-header>
-          Group Messages
-        </ion-list-header>
+    <ion-list class="theme--list">
 
-        <div *ngFor="let g of (groups$ | async); trackBy: trackFn; let i = index">
-          <ion-card
-            routerDirection="forward" 
-            (click)="goTo('Group', g.id)"
-            button>
-            <ion-item  
-              class="theme--item"
-              lines="none"
-              detail="true">
-              <ion-thumbnail slot="start">
-                <ngx-avatar name="{{ g.name }}" [size]="55" [round]="false" [cornerRadius]="10"></ngx-avatar>
-              </ion-thumbnail>
-              <ion-label>
-                <h2>{{ g.name }}</h2>
-                <h3 *ngIf="g.lastMessage; else elseMessage">{{ g.lastMessage }}</h3>
-                <ng-template #elseMessage>
-                  <h3>Start a new conversation</h3>
-                </ng-template>
-              </ion-label>
-              <ion-badge 
-                color="danger"
-                *ngIf="g.unread && g.unread.unreadMessages > 0">
-                {{ g.unread.unreadMessages }}
-              </ion-badge>
-            </ion-item>
-          </ion-card>
-        </div>
+      <ion-list-header>
+        Group Messages
+      </ion-list-header>
 
-        <ion-list-header>
-          Direct Messages
-        </ion-list-header>
+      <div *ngFor="let g of (groups$ | async); trackBy: trackFn; let i = index">
+        <ion-card routerDirection="forward" (click)="goTo('Group', g.id)" button class="theme--card">
+          <ion-item class="theme--item" lines="none" detail="true">
+            <ion-thumbnail slot="start">
+              <ngx-avatar name="{{ g.name }}" [size]="55" [round]="false" [cornerRadius]="10"></ngx-avatar>
+            </ion-thumbnail>
+            <ion-label>
+              <h2>{{ g.name }}</h2>
+              <h3 *ngIf="g.lastMessage; else elseMessage">{{ g.lastMessage }}</h3>
+              <ng-template #elseMessage>
+                <h3>Start a new conversation</h3>
+              </ng-template>
+            </ion-label>
+            <ion-badge color="danger" *ngIf="g.unread && g.unread.unreadMessages > 0">
+              {{ g.unread.unreadMessages }}
+            </ion-badge>
+          </ion-item>
+        </ion-card>
+      </div>
 
-        <div *ngFor="let m of (members$ | async); let i = index">
-          <ion-card 
-            *ngIf="m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Member'" 
-            routerDirection="forward" 
-            (click)="goTo('Direct', m.uid)" 
-            button>
-            <ion-item
-              class="theme--item"
-              lines="none"
-              detail="true">
-              <ion-thumbnail slot="start" class="avatar-thumbnail">
-                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
-                <ng-template #elseMemberAvatar>
-                  <ngx-avatar name="{{ m.profile.displayName }}" [size]="55" [round]="false" [cornerRadius]="55"></ngx-avatar>
-                </ng-template>
-              </ion-thumbnail>
-              <ion-label>
-                <h2>{{ m.profile.displayName }}</h2>
-                <h3 *ngIf="m.direct && m.direct.lastMessage; else elseMessage">{{ m.direct.lastMessage }}</h3>
-                <ng-template #elseMessage>
-                  <h3>Start a new conversation</h3>
-                </ng-template>
-              </ion-label>
-              <ion-badge 
-                color="danger"
-                *ngIf="m.unread && m.unread.unreadMessages > 0">
-                {{ m.unread.unreadMessages }}
-              </ion-badge>
-            </ion-item>
-          </ion-card>
-        </div>
+      <ion-list-header>
+        Direct Messages
+      </ion-list-header>
 
-        </ion-list>
-  
+      <div *ngFor="let m of (members$ | async); let i = index">
+        <ion-card *ngIf="m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Member'"
+          routerDirection="forward" (click)="goTo('Direct', m.uid)" button class="theme--card">
+          <ion-item class="theme--item" lines="none" detail="true">
+            <ion-thumbnail slot="start" class="avatar-thumbnail">
+              <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+              <ng-template #elseMemberAvatar>
+                <ngx-avatar name="{{ m.profile.displayName }}" [size]="55" [round]="false" [cornerRadius]="55">
+                </ngx-avatar>
+              </ng-template>
+            </ion-thumbnail>
+            <ion-label>
+              <h2>{{ m.profile.displayName }}</h2>
+              <h3 *ngIf="m.direct && m.direct.lastMessage; else elseMessage">{{ m.direct.lastMessage }}</h3>
+              <ng-template #elseMessage>
+                <h3>Start a new conversation</h3>
+              </ng-template>
+            </ion-label>
+            <ion-badge color="danger" *ngIf="m.unread && m.unread.unreadMessages > 0">
+              {{ m.unread.unreadMessages }}
+            </ion-badge>
+          </ion-item>
+        </ion-card>
+      </div>
+      <ion-item lines="none" class="theme--item"></ion-item>
+
+    </ion-list>
+
   </div>
 </ion-content>

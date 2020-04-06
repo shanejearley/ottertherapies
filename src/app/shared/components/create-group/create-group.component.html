@@ -1,0 +1,93 @@
+<ion-header translucent>
+    <ion-toolbar>
+        <ion-title>New Group</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="dismiss()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+    <ion-list>
+        <ion-item>
+            <ion-icon slot="start"></ion-icon>
+            <h3>
+                <ion-input [(ngModel)]="newGroup.name" placeholder="Add group name"></ion-input>
+            </h3>
+        </ion-item>
+        <ion-item>
+            <ion-icon slot="start" [ios]="'people' + '-outline'" [md]="'people' + '-sharp'"></ion-icon>
+            <ion-input [(ngModel)]="queryText" (ionChange)="filterMembers(queryText)" (keyup.enter)="manualSearch()" placeholder="Add members" [color]="error ? 'danger' : ''"></ion-input>
+        </ion-item>
+        <ion-list class="member-list" inset="true" *ngIf="queryText !== ''">
+            <ion-item *ngFor="let m of filteredMembers; let i = index" lines="none" button color="light">
+                <ion-avatar slot="start">
+                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                    <ng-template #elseMemberAvatar>
+                        <ngx-avatar name="{{ m.profile.displayName }}"></ngx-avatar>
+                    </ng-template>
+                </ion-avatar>
+                <ion-label>
+                    <h3>{{ m.profile.displayName }}</h3>
+                    <p>{{ m.profile.email }}</p>
+                </ion-label>
+                <ion-button slot="end" fill="clear" (click)="addMember(m)" *ngIf="!m.isChecked; else checked">
+                    <ion-icon
+                        color="primary"
+                        slot="icon-only"
+                        [ios]="'add-circle' + '-outline'" 
+                        [md]="'add-circle' + '-sharp'">
+                    </ion-icon>
+                </ion-button>
+                <ng-template #checked>
+                    <ion-button slot="end" fill="clear">
+                        <ion-icon
+                            slot="icon-only"
+                            [ios]="'checkmark-circle' + '-outline'" 
+                            [md]="'checkmark-circle' + '-sharp'">
+                        </ion-icon>
+                    </ion-button>
+                </ng-template>
+            </ion-item>
+        </ion-list>
+        <ion-list class="member-list" inset="true">
+            <ion-item *ngFor="let m of newGroup.members; let i = index" lines="none" button>
+                <ion-avatar slot="start">
+                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                    <ng-template #elseMemberAvatar>
+                        <ngx-avatar name="{{ m.profile.displayName }}"></ngx-avatar>
+                    </ng-template>
+                </ion-avatar>
+                <ion-label>
+                    <h3>{{ m.profile.displayName }}</h3>
+                    <p>{{ m.profile.email }}</p>
+                </ion-label>
+                <ion-button slot="end" fill="clear" *ngIf="m.uid !== (profile$ | async)?.uid; else elseIcon" (click)="removeMember(m)">
+                    <ion-icon
+                        color="medium"
+                        slot="icon-only"
+                        [ios]="'close-circle' + '-outline'" 
+                        [md]="'close-circle' + '-sharp'">
+                    </ion-icon>
+                </ion-button>
+                <ng-template #elseIcon>
+                    <ion-button slot="end" fill="clear">
+                        <ion-icon
+                            color="medium" 
+                            slot="icon-only"
+                            [ios]="'lock-closed' + '-outline'" 
+                            [md]="'lock-closed' + '-sharp'">
+                        </ion-icon>
+                    </ion-button>
+                </ng-template>
+            </ion-item>
+        </ion-list>
+    </ion-list>
+</ion-content>
+
+<ion-footer>
+    <ion-toolbar>
+        <ion-row class="ion-justify-content-center">
+            <ion-button (click)="addGroup()" expand="block">Create</ion-button>
+        </ion-row>
+    </ion-toolbar>
+</ion-footer>

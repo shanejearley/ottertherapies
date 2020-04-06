@@ -8,25 +8,24 @@ import { map, tap } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service'
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
-import { Group } from '../../../shared/services/groups/groups.service';
 import { Member } from '../../../shared/services/members/members.service';
 import { Store } from 'src/store';
-import { EventsService, Event } from 'src/app/shared/services/events/events.service';
+import { GroupsService, Group } from 'src/app/shared/services/groups/groups.service';
 
 @Component({
-    selector: 'app-edit-event',
-    templateUrl: 'edit-event.component.html',
-    styleUrls: ['./edit-event.component.scss']
+    selector: 'app-edit-group',
+    templateUrl: 'edit-group.component.html',
+    styleUrls: ['./edit-group.component.scss']
 })
-export class EditEventComponent {
+export class EditGroupComponent {
     profile$: Observable<Profile>;
     groups$: Observable<Group[]>;
     members$: Observable<Member[]>;
-    event$: Observable<Event>;
-    event;
+    group$: Observable<Group>;
+    group;
     remove = [];
     teamId: string;
-    eventId: string;
+    groupId: string;
     selected: string;
     queryText = '';
     filteredMembers: Member[];
@@ -36,7 +35,7 @@ export class EditEventComponent {
         public modalController: ModalController,
         private store: Store,
         private authService: AuthService,
-        private eventsService: EventsService
+        private groupsService: GroupsService
     ) { }
 
     ngOnInit() {
@@ -45,18 +44,16 @@ export class EditEventComponent {
 
     ionViewWillEnter() {
         this.teamId = this.navParams.get('teamId');
-        this.eventId = this.navParams.get('eventId');
-        this.event$ = this.eventsService.getEvent(this.eventId);
-        this.event$.pipe(tap(ev => { 
-            this.event = ev;
-            this.event.updateStartTime = moment(this.event.startTime.toDate()).toString();
-            this.event.updateEndTime = moment(this.event.endTime.toDate()).toString();
+        this.groupId = this.navParams.get('groupId');
+        this.group$ = this.groupsService.getGroup(this.groupId);
+        this.group$.pipe(tap(g => { 
+            this.group = g;
         })).subscribe();
         this.members$ = this.store.select<Member[]>('members');
         this.members$.pipe(map(members => {
-            if (this.event.members && this.event.members.length) {
+            if (this.group.members && this.group.members.length) {
                 members.forEach(m => {
-                    if (this.event.members.filter(eventMember => eventMember.uid == m.uid)[0]) {
+                    if (this.group.members.filter(groupMember => groupMember.uid == m.uid)[0]) {
                         m.isChecked = true;
                     } else {
                         m.isChecked = false;
@@ -76,9 +73,9 @@ export class EditEventComponent {
         return this.authService.user.uid;
     }
 
-    updateEvent() {
+    updateGroup() {
         try {
-            this.eventsService.updateEvent(this.event, this.remove);
+            this.groupsService.updateGroup(this.group, this.remove);
         } catch (err) {
             return this.modalController.dismiss({
                 response: err
@@ -89,24 +86,20 @@ export class EditEventComponent {
         });
     }
 
-    changeStart() {
-        this.event.updateEndTime = moment(this.event.updateStartTime).add(1, 'h').toString();
-    }
-
-    removeGuest(m) {
+    removeMember(m) {
         m.isChecked = !m.isChecked;
-        var index = this.event.members.indexOf(m);
-        this.event.members.splice(index, 1);
+        var index = this.group.members.indexOf(m);
+        this.group.members.splice(index, 1);
         this.remove.push(m.uid);
     }
 
-    addGuest(m) {
+    addMember(m) {
         this.error = false;
         if (!m.isChecked && m.uid !== this.uid) {
             m.isChecked = !m.isChecked;
-            this.event.members.push(m);
+            this.group.members.push(m);
         } else {
-            console.log('Already a guest');
+            console.log('Already a member');
         }
         this.queryText = '';
     }
@@ -115,7 +108,7 @@ export class EditEventComponent {
         this.members$.pipe(map(members => {
             if (members) {
                 if (members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]) {
-                    this.addGuest(members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]);
+                    this.addMember(members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]);
                 } else {
                     this.error = true;
                     console.log('No member found');

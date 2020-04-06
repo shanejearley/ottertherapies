@@ -128,6 +128,7 @@ export class ResourcesComponent implements OnInit {
   }
 
   getLocal(event) {
+    this.local = [];
     if (this.state) {
       this.local.push(
         { url: `https://www.childcareaware.org/state/${this.state.hyphen}/`, name: "Child Care Aware" },
@@ -172,7 +173,6 @@ export class ResourcesComponent implements OnInit {
         }
       ]
     });
-
     await alert.present();
   }
 

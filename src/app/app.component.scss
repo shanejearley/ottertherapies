@@ -95,18 +95,6 @@ ion-note {
 
 ion-card.dialog {
   box-shadow: none !important;
-  margin-inline-start: 45px !important;
-  //margin-inline-start: 0 !important;
-}
-
-ion-card.message--card {
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-ion-avatar.dialog {
-  bottom: 0;
-  position: absolute;
 }
 
 ion-menu.ios ion-item ion-icon {
@@ -159,8 +147,3 @@ ion-menu ion-list-header {
 ion-menu.ios ion-list-header.top {
   margin-top: 25px;
 }
-
-// ion-menu ion-item ion-label {
-//   color: rgba(var(--ion-text-color-rgb,0,0,0),0.54);
-//   //color: var(--ion-color-medium);
-// }

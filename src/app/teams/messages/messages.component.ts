@@ -5,15 +5,15 @@ import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators'
 
-import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
-import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
+import { User } from '../../../auth/shared/services/auth/auth.service';
+import { Profile } from '../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../shared/services/teams/teams.service';
-import { GroupsService, Group } from '../../shared/services/groups/groups.service';
-import { MembersService, Member } from '../../shared/services/members/members.service';
+import { Group } from '../../shared/services/groups/groups.service';
+import { Member } from '../../shared/services/members/members.service';
+import { CreateGroupComponent } from '../../shared/components/create-group/create-group.component';
 
 import { Store } from 'src/store';
-
-import { DocumentScanner, DocumentScannerOptions } from '@ionic-native/document-scanner/ngx';
+import { ModalController, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-messages',
@@ -30,15 +30,15 @@ export class MessagesComponent implements OnInit {
   subscriptions: Subscription[] = [];
   public team: string;
   public page: string;
+  data: any;
 
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private authService: AuthService,
-    private profileService: ProfileService,
     private teamsService: TeamsService,
-    private documentScanner: DocumentScanner
+    public modalController: ModalController,
+    public toastController: ToastController
   ) { }
 
   public trackFn(index, item) {
@@ -64,8 +64,32 @@ export class MessagesComponent implements OnInit {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  goTo(route: string, id:string) {
+  goTo(route: string, id: string) {
     this.router.navigate([`../Teams/${this.teamId}/Messages/${route}/${id}`]);
+  }
+
+  async createGroupModal() {
+    const modal = await this.modalController.create({
+      component: CreateGroupComponent,
+      componentProps: {
+        'teamId': this.teamId,
+      }
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'success') {
+        this.presentCreateToast();
+      }
+    });
+    return await modal.present();
+  }
+
+  async presentCreateToast() {
+    const toast = await this.toastController.create({
+      message: 'Your group was created!',
+      duration: 2000
+    });
+    toast.present();
   }
 
 }

@@ -57,3 +57,14 @@ ion-fab-button[title]::after {
   color: var(--ion-text-color);
   background-color: #f4f5f8;
 }
+
+.ios {
+  ion-card.folder--outer--card {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  ion-card.folder--inner--card {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+}

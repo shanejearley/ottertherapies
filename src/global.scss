@@ -40,16 +40,31 @@ ion-calendar { .days-box { padding: 0.5rem 0 !important} }
 
 ion-card {
     border-radius: 10px !important;
-    button {
-        height: 100%;
-        border-radius: inherit;
-        background: var(--ion-item-background, var(--ion-background-color, #fff));
-    }
+}
+
+.ios {
+  ion-card.theme--card {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
 }
 
 ion-list.theme--list {
     background: transparent !important;
     --ion-background-color: transparent !important;
+}
+
+ion-card.empty--list {
+  --background: transparent !important;
+  box-shadow: none !important;
+}
+
+ion-tab-button.notification--button {
+  max-width: 50px;
+  margin-inline-start: 0;
+  color: var(--ion-color-medium);
 }
 
 ion-item.theme--item {
@@ -64,3 +79,68 @@ ion-item.theme--item {
     --size: 150px !important;
 }
 
+ion-card.message--card {
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    margin-top: 2.5px;
+    margin-bottom: 2.5px;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+}
+
+// make bubble pointer a bit cooler
+// ion-card.message--user {
+//     border-bottom-right-radius: 0px !important;
+// }
+
+// ion-card.message--member {
+//     border-bottom-left-radius: 0px !important;
+// }
+
+ion-avatar.dialog--member {
+  left: 15px;
+  bottom: 0;
+  position: absolute;
+  height: 40px;
+  width: 40px;
+}
+
+ion-avatar.dialog--user {
+  right: 15px;
+  bottom: 0;
+  position: absolute;
+  height: 40px;
+  width: 40px;
+}
+
+ion-row.user--row {
+  max-width: 75% !important;
+}
+
+ion-col.user--col {
+  margin-inline-end: 40px !important;
+}
+
+ion-row.member--row {
+  max-width: 75%;
+}
+
+ion-col.member--col {
+  margin-inline-start: 40px !important;
+}
+
+.half--margin--left {
+  margin-inline-start: 5px;
+}
+
+.half--margin--right {
+  margin-inline-end: 5px;
+}
+
+.half--margin--bottom {
+  margin-bottom: 5px;
+}
+
+.half--margin--top {
+  margin-top: 5px;
+}

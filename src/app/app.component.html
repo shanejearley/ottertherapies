@@ -36,12 +36,12 @@
                 [class.selected]="p.title == page">
                 <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
                 <ion-label>{{ p.title }}</ion-label>
-                <!-- <ion-badge
+                <ion-badge
                   color="light"
                   slot="end" 
                   *ngIf="p.title == 'Events'">
                   1
-                </ion-badge> -->
+                </ion-badge>
                 <ion-badge
                   color="light"
                   slot="end" 
@@ -65,14 +65,20 @@
           </div>
           <ng-template #elseItem>
             <ion-item detail="false">
-              <ion-avatar class="dialog">
-                <img src="../assets/img/otter_head.svg">
-              </ion-avatar>
-              <ion-card color="light" class="dialog message--card">
-                <ion-card-content>
-                  <ion-label text-wrap>Your options will appear here when you select a team!</ion-label>
-                </ion-card-content>
-              </ion-card>
+              <ion-row class="member--row" slot="start">
+                <ion-avatar class="dialog--member">
+                  <img src="../assets/img/otter_head.svg">
+                </ion-avatar>
+                <ion-col class="member--col" size="auto">
+                  <ion-row></ion-row>
+                  <ion-card color="light" class="dialog message--card message--member">
+                    <ion-card-content>
+                      <ion-label text-wrap>Your options will appear here when you select a team!</ion-label>
+                    </ion-card-content>
+                  </ion-card>
+                  <ion-row></ion-row>
+                </ion-col>
+              </ion-row>
             </ion-item>
           </ng-template>
         </ion-list>

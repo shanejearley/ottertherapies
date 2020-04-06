@@ -26,7 +26,7 @@
       <ion-fab-button title="Upload File" (click)="browseModal()">
         <ion-icon [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
       </ion-fab-button>
-      <ion-fab-button title="Create Folder">
+      <ion-fab-button title="Create Folder" (click)="createGroupModal()">
         <ion-icon [ios]="'folder' + '-outline'" [md]="'folder' + '-sharp'"></ion-icon>
       </ion-fab-button>
     </ion-fab-list>
@@ -41,8 +41,8 @@
       </ion-list-header>
 
       <div *ngFor="let g of (groups$ | async); let i = index">
-        <ion-card class="ion-no-padding">
-          <ion-card class="ion-no-margin" (click)="showGroup(g)" button>
+        <ion-card class="ion-no-padding folder--outer--card">
+          <ion-card class="ion-no-margin folder--inner--card" (click)="showGroup(g)" button>
             <ion-item class="theme--item" lines="none" detail="true"
               [detailIcon]="!g.show ? 'chevron-down' : 'chevron-up'">
               <ion-thumbnail slot="start">
@@ -63,7 +63,7 @@
           <div *ngIf="g.show">
             <ion-list inset="true">
               <div *ngIf="g.files.length; else elseFile">
-                <ion-item *ngFor="let f of g.files; let i = index" lines="none">
+                <ion-item *ngFor="let f of g.files; let i = index">
                   <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
                   <ion-label>
                     <h2>{{ f.name }}</h2>
@@ -87,13 +87,28 @@
                   </ion-label>
                 </ion-item>
               </ng-template>
+              <ion-item lines="none">
+                <ion-col size="12" class="ion-justify-content-center">
+                  <ion-row class="ion-justify-content-center">
+                    <ion-button fill="clear" (click)="editGroupModal(g.id)">
+                      <ion-icon 
+                        [ios]="'people' + '-outline'"
+                        [md]="'people' + '-sharp'">
+                      </ion-icon>
+                      <ion-text class="ion-padding-start">
+                        Group Details
+                      </ion-text>
+                    </ion-button>
+                  </ion-row>
+                </ion-col>
+              </ion-item>
             </ion-list>
           </div>
         </ion-card>
       </div>
       <div *ngFor="let m of (members$ | async); let i = index">
-        <ion-card class="ion-no-padding">
-          <ion-card class="ion-no-margin" (click)="showMember(m)" button
+        <ion-card class="ion-no-padding folder--outer--card">
+          <ion-card class="ion-no-margin folder--inner--card" (click)="showMember(m)" button
             *ngIf="m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Member'">
             <ion-item class="theme--item" lines="none" detail="true"
               [detailIcon]="!m.show ? 'chevron-down' : 'chevron-up'">
@@ -152,8 +167,8 @@
       </ion-list-header>
 
       <div *ngFor="let m of (members$ | async); let i = index">
-        <ion-card class="ion-no-padding">
-          <ion-card class="ion-no-margin" (click)="showMember(m)" button
+        <ion-card class="ion-no-padding folder--outer--card">
+          <ion-card class="ion-no-margin folder--inner--card" (click)="showMember(m)" button
             *ngIf="m.profile && m.uid === (profile$ | async)?.uid">
             <ion-item class="theme--item" lines="none" detail="true"
               [detailIcon]="!m.show ? 'chevron-down' : 'chevron-up'">
@@ -200,6 +215,7 @@
           </div>
         </ion-card>
       </div>
+      <ion-item lines="none" class="theme--item"></ion-item>
     </ion-list>
 
   </div>

@@ -30,3 +30,7 @@ ion-menu-button {
 ion-content ion-toolbar {
   --background: transparent;
 }
+
+ion-list-header.state--header {
+  width: auto !important;
+}

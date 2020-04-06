@@ -21,14 +21,14 @@
   </ion-fab>
 
   <div id="container">
-    <ion-calendar [(ngModel)]="date" (change)="dayChange($event)" (monthChange)="monthChange($event)" [options]="options" [type]="type" [format]="'YYYY-MM-DD'">
-    </ion-calendar>
+    <ion-card class="half-margin-top half-margin-bottom">
+      <ion-calendar [(ngModel)]="date" (change)="dayChange($event)" (monthChange)="monthChange($event)" [options]="options" [type]="type" [format]="'YYYY-MM-DD'">
+      </ion-calendar>
+    </ion-card>
+
     <ion-list lines="none" class="theme--list">
-      <ion-list-header>
-        {{ date }}
-      </ion-list-header>
       <div *ngFor="let e of (events$ | async); let i = index">
-        <ion-card *ngIf="filterDay(e)" class="ion-padding" (click)="editEventModal(e.id)" button>
+        <ion-card *ngIf="filterDay(e)" class="ion-padding half-margin-top half-margin-bottom" (click)="editEventModal(e.id)" button>
           <ion-item class="theme--item">
             <ion-icon slot="start" [ios]="'calendar' + '-outline'" [md]="'calendar' + '-sharp'"></ion-icon>
             <ion-label text-wrap>

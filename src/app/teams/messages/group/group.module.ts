@@ -7,8 +7,8 @@ import { IonicModule } from '@ionic/angular';
 import { AvatarModule } from 'ngx-avatar';
 
 import { GroupRoutingModule } from './group-routing.module';
-
 import { GroupComponent } from './group.component';
+import { EditGroupComponent } from '../../../shared/components/edit-group/edit-group.component';
 
 @NgModule({
   imports: [
@@ -18,7 +18,8 @@ import { GroupComponent } from './group.component';
     AvatarModule,
     GroupRoutingModule
   ],
+  entryComponents: [EditGroupComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [GroupComponent]
+  declarations: [GroupComponent, EditGroupComponent]
 })
 export class GroupModule {}

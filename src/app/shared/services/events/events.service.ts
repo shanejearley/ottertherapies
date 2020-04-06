@@ -91,6 +91,7 @@ export class EventsService {
                         this.events.push(event);
                     } else if (event.startTime && exists) {
                         let eventIndex = this.events.findIndex(e => e.id == event.id);
+                        event.members = this.events[eventIndex].members;
                         this.events[eventIndex] = event;
                     }
                 }
@@ -161,7 +162,7 @@ export class EventsService {
         return this.membersCol.doc(uid).delete();
     }
 
-    updateEvent(event) {
+    updateEvent(event, remove) {
         const updateEvent = {
             createdBy: this.uid,
             id: null,
@@ -175,12 +176,24 @@ export class EventsService {
         this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
         return this.eventsCol.doc(event.id).update(updateEvent).then(() => {
             this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${event.id}/members`);
+            if (remove.length) {
+                return remove.forEach(r => {
+                    return this.removeGuest(event.id, r);
+                })
+            }
             if (event.members.length) {
                 return event.members.forEach(m => {
-                    return this.membersCol.doc(m.uid).set({
-                        uid: m.uid,
-                        status: "Member"
-                    }, {merge:true})
+                    if (m.uid == this.uid) {
+                        return this.membersCol.doc(m.uid).set({
+                            uid: m.uid,
+                            status: "Admin"
+                        }, {merge:true})
+                    } else {
+                        return this.membersCol.doc(m.uid).set({
+                            uid: m.uid,
+                            status: "Member"
+                        }, {merge:true})
+                    }
                 })
             }
         });

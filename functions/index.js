@@ -111,12 +111,9 @@ exports.memberOnJoin = functions.firestore
                 .then(function (querySnapshot) {
                     return querySnapshot.forEach(async function (doc) {
                         var groupId = doc.id;
-                        await firestore.collection("teams").doc(teamId).collection("groups").doc(groupId).collection("members").doc(memberId).set({
+                        return firestore.collection("teams").doc(teamId).collection("groups").doc(groupId).collection("members").doc(memberId).set({
                             uid: memberId,
                             status: "Member"
-                        }, { merge: true });
-                        return firestore.collection("teams").doc(teamId).collection("groups").doc(groupId).set({
-                            memberCount: FieldValue.increment(1)
                         }, { merge: true });
                     })
                 })

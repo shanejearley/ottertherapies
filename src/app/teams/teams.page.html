@@ -31,36 +31,50 @@
         Your Teams
       </ion-list-header>
 
-      <ion-card *ngFor="let p of (teams$ | async); let i = index" button routerDirection="root" (click)="goTo(p.id)">
+      <ion-card *ngFor="let p of (teams$ | async); let i = index" button routerDirection="root" (click)="goTo(p.id)" class="theme--card">
         <ion-item lines="none" class="theme--item">
           <ion-thumbnail slot="start">
-            <ngx-avatar class="teams-avatar" name="{{ p.child }}" [size]="55" [round]="false" [cornerRadius]="10"></ngx-avatar>
+            <ngx-avatar class="teams-avatar" name="{{ p.child }}" [size]="55" [round]="false" [cornerRadius]="10">
+            </ngx-avatar>
           </ion-thumbnail>
           <ion-label>
             <h2>{{ p.name }}</h2>
             <h3>{{ p.publicId }}</h3>
           </ion-label>
-          <ion-badge color="danger" *ngIf="p.unreadMessages + p.unreadFiles + p.unreadNotes > 0">
-            {{ p.unreadMessages + p.unreadFiles + p.unreadNotes }}
-          </ion-badge>
+          <ion-tab-button *ngIf="p.unreadMessages > 0" slot="end" class="notification--button">
+            <ion-icon [ios]="'chatbubbles' + '-outline'" [md]="'chatbubbles' + '-sharp'"></ion-icon>
+            <ion-badge color="danger">{{ p.unreadMessages }}</ion-badge>
+          </ion-tab-button>
+          <ion-tab-button *ngIf="p.unreadFiles > 0" slot="end">
+            <ion-icon [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
+            <ion-badge color="danger">{{ p.unreadFiles }}</ion-badge>
+          </ion-tab-button>
+          <ion-tab-button *ngIf="p.unreadNotes > 0" slot="end">
+            <ion-icon [ios]="'newspaper' + '-outline'" [md]="'newspaper' + '-sharp'"></ion-icon>
+            <ion-badge color="danger">{{ p.unreadNotes }}</ion-badge>
+          </ion-tab-button>
         </ion-item>
       </ion-card>
 
-      <ion-list-header>
+      <ion-list-header *ngIf="(pending$ | async) && (pending$ | async).length">
         Pending Teams
       </ion-list-header>
 
-      <ion-card *ngFor="let p of (pending$ | async); let i = index" (click)="joinTeam(p)" button>
+      <ion-card *ngFor="let p of (pending$ | async); let i = index" (click)="joinTeam(p)" button class="theme--card">
         <ion-item lines="none" class="theme--item">
           <ion-thumbnail slot="start">
-            <ngx-avatar class="teams-avatar" name="{{ p.child }}" [size]="55" [round]="false" [cornerRadius]="10"></ngx-avatar>
+            <ngx-avatar class="teams-avatar" name="{{ p.child }}" [size]="55" [round]="false" [cornerRadius]="10">
+            </ngx-avatar>
           </ion-thumbnail>
           <ion-label>
             <h2>{{ p.name }}</h2>
             <h3>{{ p.publicId }}</h3>
           </ion-label>
+          <ion-button>Join Team</ion-button>
         </ion-item>
       </ion-card>
+      
+      <ion-item lines="none" class="theme--item"></ion-item>
 
     </ion-list>
 

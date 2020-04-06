@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { IonContent, IonList } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -11,6 +12,7 @@ import { Profile } from '../../../../auth/shared/services/profile/profile.servic
 import { TeamsService, Team } from '../../../shared/services/teams/teams.service';
 import { GroupsService, Group, Message } from '../../../shared/services/groups/groups.service';
 import { Member } from '../../../shared/services/members/members.service';
+import { EditGroupComponent } from '../../../shared/components/edit-group/edit-group.component';
 
 import { Store } from 'src/store';
 
@@ -37,14 +39,17 @@ export class GroupComponent implements OnInit {
   public page: string;
   date: Date;
   time: number;
+  data: any;
 
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private teamsService: TeamsService,
-    private groupsService: GroupsService
-  ) {}
+    private groupsService: GroupsService,
+    public modalController: ModalController,
+    public toastController: ToastController
+  ) { }
 
   ngAfterViewInit() {
     setTimeout(() => {
@@ -79,7 +84,7 @@ export class GroupComponent implements OnInit {
     this.newBody = '';
   }
 
-  onKeydown(event){
+  onKeydown(event) {
     event.preventDefault();
   }
 
@@ -117,6 +122,31 @@ export class GroupComponent implements OnInit {
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  async editGroupModal() {
+    const modal = await this.modalController.create({
+      component: EditGroupComponent,
+      componentProps: {
+        'teamId': this.teamId,
+        'groupId': this.groupId
+      }
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'success') {
+        this.presentToast();
+      }
+    });
+    return await modal.present();
+  }
+
+  async presentToast() {
+    const toast = await this.toastController.create({
+      message: 'Your group was updated!',
+      duration: 2000
+    });
+    toast.present();
   }
 
 }

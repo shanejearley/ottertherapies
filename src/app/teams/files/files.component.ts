@@ -1,29 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { Platform, ModalController, ToastController } from '@ionic/angular';
-import { Plugins, FilesystemDirectory, FilesystemEncoding, FileReadResult } from '@capacitor/core';
-const { Browser, Filesystem } = Plugins;
+import { ModalController, ToastController } from '@ionic/angular';
+import { Plugins } from '@capacitor/core';
+const { Browser } = Plugins;
 import { AngularFirestore } from '@angular/fire/firestore'
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
-import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
+import { Profile } from '../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../shared/services/teams/teams.service';
 import { GroupsService, Group } from '../../shared/services/groups/groups.service';
 import { MembersService, Member } from '../../shared/services/members/members.service';
 import { ScanComponent } from './scan/scan.component';
 import { UploadComponent } from './upload/upload.component';
 import { BrowseComponent } from './browse/browse.component';
+import { EditGroupComponent } from '../../shared/components/edit-group/edit-group.component';
+import { CreateGroupComponent } from '../../shared/components/create-group/create-group.component';
 
 import { Store } from 'src/store';
 
 import { DocumentScanner, DocumentScannerOptions } from '@ionic-native/document-scanner/ngx';
-import { DocumentViewer, DocumentViewerOptions } from '@ionic-native/document-viewer/ngx';
-import { PhotoViewer } from '@ionic-native/photo-viewer/ngx';
-import { File } from '@ionic-native/file/ngx';
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -57,9 +56,6 @@ export class FilesComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private teamsService: TeamsService,
     private documentScanner: DocumentScanner,
-    private documentViewer: DocumentViewer,
-    private photoViewer: PhotoViewer,
-    private file: File,
     private modalController: ModalController,
     public toastController: ToastController,
     private sanitizer: DomSanitizer,
@@ -206,6 +202,55 @@ export class FilesComponent implements OnInit {
 
   async previewFile(file) {
     await Browser.open({ url: file.url });
+  }
+
+  async editGroupModal(groupId) {
+    const modal = await this.modalController.create({
+      component: EditGroupComponent,
+      componentProps: {
+        'teamId': this.teamId,
+        'groupId': groupId
+      }
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'success') {
+        this.presentUpdateToast();
+      }
+    });
+    return await modal.present();
+  }
+
+  async presentUpdateToast() {
+    const toast = await this.toastController.create({
+      message: 'Your group was updated!',
+      duration: 2000
+    });
+    toast.present();
+  }
+
+  async createGroupModal() {
+    const modal = await this.modalController.create({
+      component: CreateGroupComponent,
+      componentProps: {
+        'teamId': this.teamId,
+      }
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'success') {
+        this.presentCreateToast();
+      }
+    });
+    return await modal.present();
+  }
+
+  async presentCreateToast() {
+    const toast = await this.toastController.create({
+      message: 'Your group was created!',
+      duration: 2000
+    });
+    toast.present();
   }
 
 }

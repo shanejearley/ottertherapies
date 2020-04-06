@@ -31,7 +31,7 @@
         </ion-item-divider>
         <ion-card-content>
           <ion-item class="notes--list" lines="none">
-            <ion-avatar slot="start" class="dialog">
+            <ion-avatar slot="start" class="dialog--member">
               <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
               <ng-template #elseMemberAvatar>
                 <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
@@ -107,7 +107,7 @@
             <div *ngIf="n.show" lines="none">
               <div *ngIf="n.comments.length" lines="none">
                 <ion-item lines="none" *ngFor="let c of n.comments; let i = index" class="notes--list">
-                  <ion-avatar slot="start" class="dialog">
+                  <ion-avatar slot="start" class="dialog--member">
                     <img *ngIf="c.profile && c.profile.url; else elseMemberAvatar" src="{{ c.profile.url }}">
                     <ng-template #elseMemberAvatar>
                       <ngx-avatar name="{{ c.profile.displayName }}" [size]="40"></ngx-avatar>
@@ -131,7 +131,7 @@
                 </ion-item>
               </div>
               <ion-item lines="none" class="notes--list">
-                <ion-avatar slot="start" class="dialog">
+                <ion-avatar slot="start" class="dialog--member">
                   <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
                   <ng-template #elseMemberAvatar>
                     <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
@@ -148,9 +148,7 @@
           </ion-card-content>
         </ion-card>
       </div>
+      <ion-item lines="none" class="theme--item"></ion-item>
     </ion-list>
-
-    <ion-item lines="none" class="notes--list"></ion-item>
-
   </div>
 </ion-content>

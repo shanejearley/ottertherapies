@@ -135,7 +135,6 @@ export class TeamsService {
   }
 
   getTeam(id: string) {
-    //if (!id) return Observable.of({});
     return this.store.select<Team[]>('teams')
       .pipe(
         filter(Boolean),
@@ -169,7 +168,7 @@ export class TeamsService {
       await this.teamMembersCol.doc(this.uid).set({
         uid: this.uid,
         email: this.email,
-        status: "Member"
+        status: "Admin"
       });
       await emails.forEach((email:string) => {
         if (email !== this.email) {
@@ -181,12 +180,11 @@ export class TeamsService {
       await this.groupDoc.set({
         name: "Everyone",
         createdBy: this.uid,
-        timestamp: firestore.FieldValue.serverTimestamp(),
-        memberCount: firestore.FieldValue.increment(1)
+        timestamp: firestore.FieldValue.serverTimestamp()
       });
       await this.groupMembersCol.doc(this.uid).set({
         uid: this.uid,
-        status: "Member"
+        status: "Admin"
       });
       await this.userTeamDoc.set({
         id: newTeamId
@@ -199,24 +197,5 @@ export class TeamsService {
       console.log(err);
     }
   }
-
-  //   getMeal(key: string) {
-  //     if (!key) return Observable.of({});
-  //     return this.store.select<Meal[]>('meals')
-  //       .filter(Boolean)
-  //       .map(meals => meals.find((meal: Meal) => meal.$key === key));
-  //   }
-
-  //   addMeal(meal: Meal) {
-  //     return this.db.list(`meals/${this.uid}`).push(meal);
-  //   }
-
-  //   updateMeal(key: string, meal: Meal) {
-  //     return this.db.object(`meals/${this.uid}/${key}`).update(meal);
-  //   }
-
-  //   removeMeal(key: string) {
-  //     return this.db.list(`meals/${this.uid}`).remove(key);
-  //   }
 
 }

@@ -111,7 +111,7 @@ export class EventsComponent implements OnInit {
     modal.onWillDismiss().then(data => {
       this.data = data.data;
       if (this.data.response == 'success') {
-        this.presentToast();
+        this.presentCreateToast();
       }
     });
     return await modal.present();
@@ -128,13 +128,21 @@ export class EventsComponent implements OnInit {
     modal.onWillDismiss().then(data => {
       this.data = data.data;
       if (this.data.response == 'success') {
-        this.presentToast();
+        this.presentUpdateToast();
       }
     });
     return await modal.present();
   }
 
-  async presentToast() {
+  async presentCreateToast() {
+    const toast = await this.toastController.create({
+      message: 'Your event was created!',
+      duration: 2000
+    });
+    toast.present();
+  }
+
+  async presentUpdateToast() {
     const toast = await this.toastController.create({
       message: 'Your event was updated!',
       duration: 2000

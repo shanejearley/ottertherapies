@@ -79,29 +79,6 @@ ion-text.message--time {
   font-weight: 500;
 }
 
-ion-row.member--row {
-  max-width: 75%;
-}
-
-ion-row.user--row {
-  max-width: 75%;
-}
-
-ion-col.member--col {
-  margin-inline-start: 40px !important;
-}
-
-ion-col.user--col {
-  margin-inline-end: 40px !important;
-}
-
-ion-card.message--card {
-  margin-inline-start: 0;
-  margin-inline-end: 0;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
 ion-col.right {
   justify-content: end
 }
@@ -140,22 +117,6 @@ ion-list.message--list {
 ion-item.message--list {
   --ion-background-color:transparent !important;
   --ion-item-background:transparent !important;
-}
-
-ion-avatar.dialog--member {
-  left: 15px;
-  bottom: 0;
-  position: absolute;
-  height: 40px;
-  width: 40px;
-}
-
-ion-avatar.dialog--user {
-  right: 15px;
-  bottom: 0;
-  position: absolute;
-  height: 40px;
-  width: 40px;
 }
 
 ion-card-header.profile--pic--header {

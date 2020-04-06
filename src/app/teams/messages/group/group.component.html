@@ -14,6 +14,12 @@
     </ion-toolbar>
   </ion-header>
 
+  <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
+    <ion-fab-button (click)="editGroupModal()">
+      <ion-icon [ios]="'people' + '-outline'" [md]="'people' + '-sharp'"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
   <div id="container">
     <ion-list class="scroll message--list">
       <ion-item class="message--list" lines="none"></ion-item>
@@ -29,19 +35,19 @@
   
             <ion-col class="member--col" size="auto">
               <ion-row class="message--name">
-                <ion-text class="message--name">{{ m.profile.displayName }}</ion-text>
+                <ion-text class="message--name" color="medium">{{ m.profile.displayName }}</ion-text>
               </ion-row>
   
-              <ion-card color="medium" class="dialog member message--card">
+              <ion-card color="light" class="dialog member message--card">
                 <ion-card-content>
                   <h2 text-wrap>{{ m.body }}</h2>
                 </ion-card-content>
               </ion-card>
   
               <ion-row class="ion-justify-content-end">
-                <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
+                <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time" color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
                 <ng-template #elseDate>
-                  <ion-text class="message--time">Today, {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
+                  <ion-text class="message--time" color="medium">Today, {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
                 </ng-template>
               </ion-row>
   
@@ -49,11 +55,11 @@
           </ion-row>
 
           <ng-template #elseUserMessage>
-            <ion-row class="user--row" slot="end" size="auto">
-              <ion-col class="user--col" size="auto">
+            <ion-row class="user--row" slot="end">
+              <ion-col class="user--col">
 
                 <ion-row>
-                  <ion-text class="message--name">{{ m.profile.displayName }}</ion-text>
+                  <ion-text class="message--name" color="medium">{{ m.profile.displayName }}</ion-text>
                 </ion-row>
   
                 <ion-card *ngIf="m.profile" color="primary" class="dialog message--card message--user">
@@ -63,9 +69,9 @@
                 </ion-card>
   
                 <ion-row class="ion-justify-content-end">
-                  <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
+                  <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time" color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
                   <ng-template #elseDate>
-                    <ion-text class="message--time">Today, {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
+                    <ion-text class="message--time" color="medium">Today, {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
                   </ng-template>
                 </ion-row>
   

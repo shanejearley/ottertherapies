@@ -10,6 +10,7 @@ import { MessagesRoutingModule } from './messages-routing.module';
 import { MessagesComponent } from './messages.component';
 import { GroupModule } from './group/group.module';
 import { DirectModule } from './direct/direct.module';
+import { CreateGroupComponent } from 'src/app/shared/components/create-group/create-group.component';
 
 @NgModule({
   imports: [
@@ -21,7 +22,8 @@ import { DirectModule } from './direct/direct.module';
     GroupModule,
     DirectModule
   ],
+  entryComponents: [CreateGroupComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [MessagesComponent]
+  declarations: [MessagesComponent, CreateGroupComponent]
 })
 export class MessagesModule {}
