@@ -1,19 +1,10 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
-import * as firebase from "firebase";
 
 import { Store } from '../../../../store';
-import { File } from '../../../../app/shared/services/groups/groups.service'
 
 import { Observable } from 'rxjs';
-import {
-    tap,
-    filter,
-    map,
-    switchMap,
-    take
-} from 'rxjs/operators';
-import { of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
 
@@ -79,35 +70,13 @@ export class ProfileService {
 
     getProfile(doc) {
         this.getProfileDoc = this.db.doc<Profile>(`users/${doc.uid}`)
-        this.getProfileDoc$ = this.getProfileDoc.valueChanges()
+        this.getProfileDoc.valueChanges()
             .pipe(tap(next => {
                 if (!next) {
                     return;
                 }
-                doc.profile = next;
-            }))
-        this.getProfileDoc$.subscribe();
+                return doc.profile = next;
+            })).subscribe();
     }
-
-
-
-    //   getMeal(key: string) {
-    //     if (!key) return Observable.of({});
-    //     return this.store.select<Meal[]>('meals')
-    //       .filter(Boolean)
-    //       .map(meals => meals.find((meal: Meal) => meal.$key === key));
-    //   }
-
-    //   addMeal(meal: Meal) {
-    //     return this.db.list(`meals/${this.uid}`).push(meal);
-    //   }
-
-    //   updateMeal(key: string, meal: Meal) {
-    //     return this.db.object(`meals/${this.uid}/${key}`).update(meal);
-    //   }
-
-    //   removeMeal(key: string) {
-    //     return this.db.list(`meals/${this.uid}`).remove(key);
-    //   }
 
 }

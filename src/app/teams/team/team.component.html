@@ -34,8 +34,7 @@
                 <ion-thumbnail slot="start" class="avatar-thumbnail">
                   <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                   <ng-template #elseMemberAvatar>
-                    <ngx-avatar name="{{ m.profile.displayName }}" [size]="55" [round]="false" [cornerRadius]="55">
-                    </ngx-avatar>
+                    <ngx-avatar name="{{ m.profile.displayName }}" [size]="55" [round]="false" [cornerRadius]="55"></ngx-avatar>
                   </ng-template>
                 </ion-thumbnail>
               </ion-item>

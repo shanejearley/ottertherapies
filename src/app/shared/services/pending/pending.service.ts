@@ -95,7 +95,8 @@ export class PendingService {
     this.userTeamDoc = this.db.doc(`users/${this.uid}/teams/${team.id}`);
     this.userDoc = this.db.doc(`users/${this.uid}`);
     try {
-      await this.teamMembersCol.doc(this.uid).update({
+      await this.teamMembersCol.doc(this.uid).set({
+        uid: this.uid,
         status: "Member"
       });
       await this.userTeamDoc.set({

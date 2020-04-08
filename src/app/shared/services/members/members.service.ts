@@ -15,7 +15,7 @@ import {
   switchMap,
   find
 } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, empty } from 'rxjs';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
 
@@ -114,14 +114,13 @@ export class MembersService {
     if (member.uid !== this.uid) {
       this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
       this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${this.pathId}`);
-      this.unread$ = this.unreadDoc.valueChanges()
+      this.unreadDoc.valueChanges()
         .pipe(tap(next => {
           if (!next) {
             return;
           }
           member.unread = next;
-        }))
-      this.unread$.subscribe();
+        })).subscribe();
     } else {
       return;
     }
@@ -132,11 +131,10 @@ export class MembersService {
     if (member.uid !== this.uid) {
       this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
       this.filesCol = this.db.collection<File>(`teams/${this.teamId}/direct/${this.pathId}/files`);
-      this.files$ = this.filesCol.stateChanges(['added', 'modified', 'removed'])
+      this.filesCol.stateChanges(['added', 'modified', 'removed'])
       .pipe(map(actions => actions.map(a => {
         console.log('ACTION', a);
         if (a.type == 'removed') {
-          ///remove based on file.id
           const file = a.payload.doc.data() as File;
           file.id = a.payload.doc.id;
           member.files.forEach(function(m) {
@@ -151,19 +149,19 @@ export class MembersService {
           const file = a.payload.doc.data() as File;
           if (file.timestamp) {
             file.id = a.payload.doc.id;
-            this.profileService.getProfile(file);
-            return member.files.push(file);
+            this.getMember(file.uid).subscribe(m => { 
+              file.profile = m.profile;
+              member.files.push(file);
+            })
           }
         }
-      })))
-      this.files$.subscribe();
+      }))).subscribe();
     } else {
       this.filesCol = this.db.collection<File>(`users/${this.uid}/teams/${this.teamId}/files`);
-      this.files$ = this.filesCol.stateChanges(['added', 'modified', 'removed'])
+      this.filesCol.stateChanges(['added', 'modified', 'removed'])
       .pipe(map(actions => actions.map(a => {
         console.log('ACTION', a);
         if (a.type == 'removed') {
-          ///remove based on file.id
           const file = a.payload.doc.data() as File;
           file.id = a.payload.doc.id;
           member.files.forEach(function(m) {
@@ -178,12 +176,13 @@ export class MembersService {
           const file = a.payload.doc.data() as File;
           if (file.timestamp) {
             file.id = a.payload.doc.id;
-            this.profileService.getProfile(file);
-            return member.files.push(file);
+            this.getMember(file.uid).subscribe(m => { 
+              file.profile = m.profile;
+              member.files.push(file);
+            })
           }
         }
-      })))
-      this.files$.subscribe();
+      }))).subscribe();
     }
   }
 
@@ -191,7 +190,7 @@ export class MembersService {
     member.messages = [];
     this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
     this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/direct/${this.pathId}/messages`, ref => ref.orderBy('timestamp'));
-    this.messages$ = this.messagesCol.stateChanges(['added', 'modified', 'removed'])
+    this.messagesCol.stateChanges(['added', 'modified', 'removed'])
     .pipe(map(actions => actions.map(a => {
       console.log('ACTION', a);
       if (a.type == 'removed') {
@@ -210,26 +209,26 @@ export class MembersService {
         const message = a.payload.doc.data() as Message;
         if (message.timestamp) {
           message.id = a.payload.doc.id;
-          this.profileService.getProfile(message);
-          return member.messages.push(message);
+          this.getMember(message.uid).subscribe(m => { 
+            message.profile = m.profile;
+            member.messages.push(message);
+          })
         }
       }
-    })))
-    this.messages$.subscribe();
+    }))).subscribe();
   }
 
   getDirect(member: Member) {
     if (member.uid !== this.uid) {
       this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
       this.directDoc = this.db.doc<Direct>(`teams/${this.teamId}/direct/${this.pathId}`);
-      this.direct$ = this.directDoc.valueChanges()
+      this.directDoc.valueChanges()
         .pipe(tap(next => {
           if (!next) {
             return;
           }
           member.direct = next;
-        }))
-      this.direct$.subscribe();
+        })).subscribe();
     } else {
       return;
     }
@@ -291,23 +290,5 @@ export class MembersService {
       })
     });
   }
-  //   getMeal(key: string) {
-  //     if (!key) return Observable.of({});
-  //     return this.store.select<Meal[]>('meals')
-  //       .filter(Boolean)
-  //       .map(meals => meals.find((meal: Meal) => meal.$key === key));
-  //   }
-
-  //   addMeal(meal: Meal) {
-  //     return this.db.list(`meals/${this.uid}`).push(meal);
-  //   }
-
-  //   updateMeal(key: string, meal: Meal) {
-  //     return this.db.object(`meals/${this.uid}/${key}`).update(meal);
-  //   }
-
-  //   removeMeal(key: string) {
-  //     return this.db.list(`meals/${this.uid}`).remove(key);
-  //   }
 
 }

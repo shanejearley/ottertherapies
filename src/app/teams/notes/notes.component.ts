@@ -3,16 +3,14 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators'
+import { switchMap, tap } from 'rxjs/operators'
 
-import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
-import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
+import { User } from '../../../auth/shared/services/auth/auth.service';
+import { Profile } from '../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../shared/services/teams/teams.service';
 import { NotesService, Note } from '../../shared/services/notes/notes.service';
 
 import { Store } from 'src/store';
-
-import { DocumentScanner, DocumentScannerOptions } from '@ionic-native/document-scanner/ngx';
 
 @Component({
   selector: 'app-notes',
@@ -33,8 +31,6 @@ export class NotesComponent implements OnInit {
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
-    private authService: AuthService,
-    private profileService: ProfileService,
     private teamsService: TeamsService,
     private notesService: NotesService
   ) { }
@@ -45,6 +41,7 @@ export class NotesComponent implements OnInit {
     this.time = this.date.getTime();
     this.profile$ = this.store.select<Profile>('profile');
     this.notes$ = this.store.select<Note[]>('notes');
+    this.notes$.pipe(tap(notes => console.log(notes))).subscribe()
     this.subscriptions = [
       //this.authService.auth$.subscribe(),
       //this.profileService.profile$.subscribe(),

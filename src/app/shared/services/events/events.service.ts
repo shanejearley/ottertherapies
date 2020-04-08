@@ -1,17 +1,15 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { AngularFireStorage } from '@angular/fire/storage';
-import { Router, RoutesRecognized } from '@angular/router';
 import { firestore } from 'firebase/app';
 import 'firebase/storage';
 
 import { Store } from 'src/store';
-import { ProfileService, Profile } from '../../../../auth/shared/services/profile/profile.service'
+import { Profile } from '../../../../auth/shared/services/profile/profile.service'
 
-import { Observable, Subscription } from 'rxjs';
-import { tap, filter, map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
-import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
+import { MembersService } from '../members/members.service';
 
 export interface Member {
     status: string,
@@ -31,19 +29,10 @@ export interface Event {
     members: Member[]
 }
 
-// export interface Unread {
-//     unreadMessages: number,
-//     unreadFiles: number,
-//     unreadNotes: number
-// }
-
 @Injectable()
 export class EventsService {
     private eventsCol: AngularFirestoreCollection<Event>;
     private membersCol: AngularFirestoreCollection<Member>;
-    private eventDoc: AngularFirestoreDocument<Event>;
-    // private unreadDoc: AngularFirestoreDocument<Unread>;
-    // unread$: Observable<Unread>;
     event$: Observable<Event>;
     teamId: string;
     uid: string;
@@ -57,10 +46,7 @@ export class EventsService {
     constructor(
         private store: Store,
         private db: AngularFirestore,
-        private storage: AngularFireStorage,
-        private authService: AuthService,
-        private profileService: ProfileService,
-        private router: Router,
+        private membersService: MembersService,
 
     ) { }
 
@@ -78,7 +64,6 @@ export class EventsService {
             .pipe(map(actions => actions.map(a => {
                 console.log('ACTION', a);
                 if (a.type == 'removed') {
-                    ///remove based on event.id
                     const event = a.payload.doc.data() as Event;
                     event.id = a.payload.doc.id;
                 }
@@ -103,7 +88,7 @@ export class EventsService {
     getMembers(event: Event) {
         event.members = [];
         this.membersCol = this.db.collection<Member>(`teams/${this.teamId}/calendar/${event.id}/members`);
-        this.members$ = this.membersCol.stateChanges(['added', 'modified', 'removed'])
+        this.membersCol.stateChanges(['added', 'modified', 'removed'])
             .pipe(map(actions => actions.map(a => {
                 if (a.type == 'removed') {
                     const member = a.payload.doc.data() as Member;
@@ -114,16 +99,19 @@ export class EventsService {
                     member.uid = a.payload.doc.id;
                     const exists = event.members.find(m => m.uid === member.uid)
                     if (!exists) {
-                        this.profileService.getProfile(member);
-                        event.members.push(member);
+                        this.membersService.getMember(member.uid).subscribe(m => {
+                            member.profile = m.profile;
+                            event.members.push(member);
+                        })
                     } else {
                         let memberIndex = event.members.findIndex(m => m.uid == member.uid);
-                        this.profileService.getProfile(member);
-                        event.members[memberIndex] = member;
+                        this.membersService.getMember(member.uid).subscribe(m => {
+                            member.profile = m.profile;
+                            event.members[memberIndex] = member;
+                        })
                     }
                 }
-            })))
-        return this.members$.subscribe();
+            }))).subscribe();
     }
 
     getEvent(id: string) {
@@ -152,7 +140,7 @@ export class EventsService {
                 return this.membersCol.doc(m.uid).set({
                     uid: m.uid,
                     status: "Member"
-                }, {merge:true})
+                }, { merge: true })
             })
         });
     }
@@ -187,12 +175,12 @@ export class EventsService {
                         return this.membersCol.doc(m.uid).set({
                             uid: m.uid,
                             status: "Admin"
-                        }, {merge:true})
+                        }, { merge: true })
                     } else {
                         return this.membersCol.doc(m.uid).set({
                             uid: m.uid,
                             status: "Member"
-                        }, {merge:true})
+                        }, { merge: true })
                     }
                 })
             }

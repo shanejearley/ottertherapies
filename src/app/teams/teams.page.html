@@ -45,11 +45,11 @@
             <ion-icon [ios]="'chatbubbles' + '-outline'" [md]="'chatbubbles' + '-sharp'"></ion-icon>
             <ion-badge color="danger">{{ p.unreadMessages }}</ion-badge>
           </ion-tab-button>
-          <ion-tab-button *ngIf="p.unreadFiles > 0" slot="end">
+          <ion-tab-button *ngIf="p.unreadFiles > 0" slot="end" class="notification--button">
             <ion-icon [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
             <ion-badge color="danger">{{ p.unreadFiles }}</ion-badge>
           </ion-tab-button>
-          <ion-tab-button *ngIf="p.unreadNotes > 0" slot="end">
+          <ion-tab-button *ngIf="p.unreadNotes > 0" slot="end" class="notification--button">
             <ion-icon [ios]="'newspaper' + '-outline'" [md]="'newspaper' + '-sharp'"></ion-icon>
             <ion-badge color="danger">{{ p.unreadNotes }}</ion-badge>
           </ion-tab-button>

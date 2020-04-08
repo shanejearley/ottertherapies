@@ -156,10 +156,11 @@ export class AppComponent implements OnInit {
           this.store.set('events', null);
           this.team$ = this.teamsService.getTeam(this.teamId);
           this.authService.userAuth.onAuthStateChanged(user => {
-            this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
-            this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe();
-            this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
-            this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
+            this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe(() => {
+              this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
+              this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
+              this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
+            });
           })
           this.lastId = this.teamId;
         }

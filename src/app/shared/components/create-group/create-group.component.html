@@ -23,7 +23,7 @@
                 <ion-avatar slot="start">
                     <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                     <ng-template #elseMemberAvatar>
-                        <ngx-avatar name="{{ m.profile.displayName }}"></ngx-avatar>
+                        <ngx-avatar name="{{ m.profile.displayName }}" size="40"></ngx-avatar>
                     </ng-template>
                 </ion-avatar>
                 <ion-label>
@@ -54,7 +54,7 @@
                 <ion-avatar slot="start">
                     <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                     <ng-template #elseMemberAvatar>
-                        <ngx-avatar name="{{ m.profile.displayName }}"></ngx-avatar>
+                        <ngx-avatar name="{{ m.profile.displayName }}" size="40"></ngx-avatar>
                     </ng-template>
                 </ion-avatar>
                 <ion-label>

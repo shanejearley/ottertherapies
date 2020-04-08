@@ -39,7 +39,7 @@
                                     <img *ngIf="(member$ | async)?.profile.url; else elseMemberAvatar"
                                         src="{{ (member$ | async)?.profile.url }}">
                                     <ng-template #elseMemberAvatar>
-                                        <ngx-avatar name="{{ (member$ | async)?.profile.displayName }}" [size]="150" [round]="false" [cornerRadius]="55"></ngx-avatar>
+                                        <ngx-avatar name="{{ (member$ | async)?.profile.displayName }}" [size]="150" [round]="false" [cornerRadius]="150"></ngx-avatar>
                                     </ng-template>
                                 </ion-thumbnail>
                             </ion-col>

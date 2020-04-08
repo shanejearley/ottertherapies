@@ -23,7 +23,7 @@
                 <ion-avatar slot="start">
                     <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                     <ng-template #elseMemberAvatar>
-                        <ngx-avatar name="{{ m.profile.displayName }}"></ngx-avatar>
+                        <ngx-avatar name="{{ m.profile.displayName }}" size="40"></ngx-avatar>
                     </ng-template>
                 </ion-avatar>
                 <ion-label>
@@ -52,12 +52,12 @@
         <ion-list class="member-list" inset="true">
             <ion-item *ngFor="let m of group.members; let i = index" lines="none" button>
                 <ion-avatar slot="start">
-                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                    <img *ngIf="m.profile && m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                     <ng-template #elseMemberAvatar>
-                        <ngx-avatar name="{{ m.profile.displayName }}"></ngx-avatar>
+                        <ngx-avatar *ngIf="m.profile" name="{{ m.profile.displayName }}" size="40"></ngx-avatar>
                     </ng-template>
                 </ion-avatar>
-                <ion-label>
+                <ion-label *ngIf="m.profile">
                     <h3>{{ m.profile.displayName }}</h3>
                     <p>{{ m.profile.email }}</p>
                 </ion-label>

@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
+import { AvatarModule } from 'ngx-avatar';
+
 import { TeamRoutingModule } from './team-routing.module';
 
 import { TeamComponent } from './team.component';
@@ -13,6 +15,7 @@ import { TeamComponent } from './team.component';
     CommonModule,
     FormsModule,
     IonicModule,
+    AvatarModule,
     TeamRoutingModule
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],

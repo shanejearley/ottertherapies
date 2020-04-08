@@ -1,17 +1,15 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { AngularFireStorage } from '@angular/fire/storage';
-import { Router, RoutesRecognized } from '@angular/router';
 import { firestore } from 'firebase/app';
 import 'firebase/storage';
 
 import { Store } from 'src/store';
-import { ProfileService, Profile } from '../../../../auth/shared/services/profile/profile.service'
+import { Profile } from '../../../../auth/shared/services/profile/profile.service'
 
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { tap, filter, map } from 'rxjs/operators';
 
-import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
+import { MembersService } from '../members/members.service';
 
 export interface Note {
     body: string,
@@ -22,7 +20,8 @@ export interface Note {
     comments: Comment[],
     isChecked: boolean,
     commentCount: firestore.FieldValue,
-    flag: boolean
+    flag: boolean,
+    profile: Profile
 }
 
 export interface Unread {
@@ -57,10 +56,7 @@ export class NotesService {
     constructor(
         private store: Store,
         private db: AngularFirestore,
-        private storage: AngularFireStorage,
-        private authService: AuthService,
-        private profileService: ProfileService,
-        private router: Router,
+        private membersService: MembersService
 
     ) { }
 
@@ -75,7 +71,6 @@ export class NotesService {
             .pipe(map(actions => actions.map(a => {
                 console.log('ACTION', a);
                 if (a.type == 'removed') {
-                    ///remove based on note.id
                     const note = a.payload.doc.data() as Note;
                     note.id = a.payload.doc.id;
                     return;
@@ -85,9 +80,11 @@ export class NotesService {
                     note.id = a.payload.doc.id;
                     const exists = this.notes.find(n => n.id === note.id)
                     if (note.timestamp && !exists) {
-                        this.profileService.getProfile(note);
-                        this.getComments(note);
-                        this.notes.push(note);
+                        this.membersService.getMember(note.uid).subscribe(m => {
+                            note.profile = m.profile;
+                            this.getComments(note);
+                            this.notes.push(note);
+                        })
                     }
                     if (note.timestamp && exists) {
                         this.notes.find(n => n.id == note.id).flag = note.flag;
@@ -99,22 +96,21 @@ export class NotesService {
         return this.notes$;
     }
 
-    //   getUnread(group: Group) {
-    //     this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${group.id}`);
-    //     this.unread$ = this.unreadDoc.valueChanges()
-    //       .pipe(tap(next => {
-    //         if (!next) {
-    //           return;
-    //         }
-    //         group.unread = next;
-    //       }))
-    //     this.unread$.subscribe();
-    //   }
+    getUnread(note: Note) {
+        this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${note.id}`);
+        this.unreadDoc.valueChanges()
+            .pipe(tap(next => {
+                if (!next) {
+                    return;
+                }
+                note.unread = next;
+            })).subscribe();
+    }
 
     getComments(note: Note) {
         note.comments = [];
         this.commentsCol = this.db.collection<Comment>(`teams/${this.teamId}/notes/${note.id}/comments`, ref => ref.orderBy('timestamp'));
-        this.comments$ = this.commentsCol.stateChanges(['added', 'modified', 'removed'])
+        this.commentsCol.stateChanges(['added', 'modified', 'removed'])
             .pipe(map(actions => actions.map(a => {
                 console.log('ACTION', a);
                 if (a.type == 'removed') {
@@ -133,12 +129,13 @@ export class NotesService {
                     const comment = a.payload.doc.data() as Comment;
                     if (comment.timestamp) {
                         comment.id = a.payload.doc.id;
-                        this.profileService.getProfile(comment);
-                        return note.comments.push(comment);
+                        this.membersService.getMember(comment.uid).subscribe(m => {
+                            comment.profile = m.profile;
+                            note.comments.push(comment);
+                        })
                     }
                 }
-            })))
-        this.comments$.subscribe();
+            }))).subscribe();
     }
 
     getNote(id: string) {
@@ -158,7 +155,8 @@ export class NotesService {
             comments: null,
             isChecked: null,
             commentCount: null,
-            flag: false
+            flag: false,
+            profile: null
         }
         this.notesCol = this.db.collection<Note>(`teams/${this.teamId}/notes`);
         this.notesCol.add(note);
@@ -176,7 +174,7 @@ export class NotesService {
         this.commentsCol.add(comment).then(() => {
             this.noteDoc = this.db.doc<Note>(`teams/${this.teamId}/notes/${noteId}`);
             this.noteDoc.update({
-                commentCount:firestore.FieldValue.increment(1)
+                commentCount: firestore.FieldValue.increment(1)
             })
         });
     }

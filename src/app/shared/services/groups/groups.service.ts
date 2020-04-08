@@ -6,12 +6,13 @@ import { firestore } from 'firebase/app';
 import 'firebase/storage';
 
 import { Store } from 'src/store';
-import { ProfileService, Profile } from '../../../../auth/shared/services/profile/profile.service'
+import { Profile } from '../../../../auth/shared/services/profile/profile.service'
 
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { tap, filter, map } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
+import { MembersService } from '../members/members.service';
 
 export interface Group {
   createdBy: string,
@@ -87,7 +88,7 @@ export class GroupsService {
     private db: AngularFirestore,
     private storage: AngularFireStorage,
     private authService: AuthService,
-    private profileService: ProfileService,
+    private membersService: MembersService,
     private router: Router,
 
   ) { }
@@ -112,7 +113,7 @@ export class GroupsService {
 
   async getInfo(group: Group) {
     this.groupDoc = this.db.doc<Group>(`teams/${this.teamId}/groups/${group.id}`);
-    this.group$ = this.groupDoc.valueChanges()
+    this.groupDoc.valueChanges()
       .pipe(tap(next => {
         if (!next) {
           return;
@@ -126,14 +127,13 @@ export class GroupsService {
         group.lastMessageUid = next.lastMessageUid
         group.name = next.name
         group.timestamp = next.timestamp
-      }))
-    this.group$.subscribe();
+      })).subscribe();
   }
 
   getMembers(group: Group) {
     group.members = [];
     this.membersCol = this.db.collection<Member>(`teams/${this.teamId}/groups/${group.id}/members`);
-    this.members$ = this.membersCol.stateChanges(['added', 'modified', 'removed'])
+    this.membersCol.stateChanges(['added', 'modified', 'removed'])
       .pipe(map(actions => actions.map(a => {
         if (a.type == 'removed') {
           const member = a.payload.doc.data() as Member;
@@ -144,29 +144,31 @@ export class GroupsService {
           member.uid = a.payload.doc.id;
           const exists = group.members.find(m => m.uid === member.uid)
           if (!exists) {
-            this.profileService.getProfile(member);
-            group.members.push(member);
+            this.membersService.getMember(member.uid).subscribe(m => { 
+              member.profile = m.profile;
+              group.members.push(member);
+            })
           } else {
             let memberIndex = group.members.findIndex(m => m.uid == member.uid);
-            this.profileService.getProfile(member);
-            group.members[memberIndex] = member;
+            this.membersService.getMember(member.uid).subscribe(m => { 
+              member.profile = m.profile;
+              group.members[memberIndex] = member;
+            })
           }
         }
-      })))
-    return this.members$.subscribe();
+      }))).subscribe();
   }
 
   getUnread(group: Group) {
     this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${group.id}`);
     try {
-      this.unread$ = this.unreadDoc.valueChanges()
+      this.unreadDoc.valueChanges()
         .pipe(tap(next => {
           if (!next) {
             return;
           }
           group.unread = next;
-        }))
-      this.unread$.subscribe();
+        })).subscribe();
     } catch (err) {
       console.log(err);
       return;
@@ -178,7 +180,7 @@ export class GroupsService {
     group.files = [];
     this.filesCol = this.db.collection<File>(`teams/${this.teamId}/groups/${group.id}/files`);
     try {
-      this.files$ = this.filesCol.stateChanges(['added', 'modified', 'removed'])
+      this.filesCol.stateChanges(['added', 'modified', 'removed'])
         .pipe(map(actions => actions.map(a => {
           const file = a.payload.doc.data() as File;
           file.id = a.payload.doc.id;
@@ -195,12 +197,13 @@ export class GroupsService {
           if (a.type == 'added' || a.type == 'modified') {
             if (file.timestamp) {
               console.log('file', file);
-              this.profileService.getProfile(file);
-              return group.files.push(file);
+              this.membersService.getMember(file.uid).subscribe(m => { 
+                file.profile = m.profile;
+                group.files.push(file);
+              })
             }
           }
-        })))
-      this.files$.subscribe();
+        }))).subscribe();
     } catch (err) {
       console.log(err);
       return;
@@ -211,7 +214,7 @@ export class GroupsService {
     group.messages = [];
     this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/groups/${group.id}/messages`, ref => ref.orderBy('timestamp'));
     try {
-      this.messages$ = this.messagesCol.stateChanges(['added', 'modified', 'removed'])
+      this.messagesCol.stateChanges(['added', 'modified', 'removed'])
         .pipe(map(actions => actions.map(a => {
           console.log('ACTION', a);
           if (a.type == 'removed') {
@@ -230,12 +233,15 @@ export class GroupsService {
             const message = a.payload.doc.data() as Message;
             if (message.timestamp) {
               message.id = a.payload.doc.id;
-              this.profileService.getProfile(message);
-              return group.messages.push(message);
+              this.membersService.getMember(message.uid).subscribe(m => { 
+                if (m.profile) {
+                  message.profile = m.profile;
+                  group.messages.push(message);
+                }
+              })
             }
           }
-        })))
-      this.messages$.subscribe();
+        }))).subscribe();
     } catch (err) {
       console.log(err);
       return;

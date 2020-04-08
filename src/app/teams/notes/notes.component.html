@@ -57,8 +57,8 @@
                   <ngx-avatar *ngIf="n.profile" name="{{ n.profile.displayName }}" [size]="40"></ngx-avatar>
                 </ng-template>
               </ion-avatar>
-              <ion-label>
-                <h2 *ngIf="n.profile" class="notes--name">{{ n.profile.displayName }}</h2>
+              <ion-label *ngIf="n.profile">
+                <h2 class="notes--name">{{ n.profile.displayName }}</h2>
                 <ion-text>
                   <p *ngIf="time - n.timestamp.toMillis() > 86400000; else elseDate">
                     {{ n.timestamp.toMillis() | date : 'short' }}</p>
@@ -121,13 +121,6 @@
                       <p class="notes--time">Today, {{ c.timestamp.toMillis() | date : 'shortTime' }}</p>
                     </ng-template>
                   </ion-label>
-                  <!-- <ion-button fill="clear" (click)="removeGroupFile(g.id,f.id,f.url)">
-                    <ion-icon color="danger" slot="icon-only" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
-                    </ion-icon>
-                  </ion-button>
-                  <ion-button fill="clear" (click)="previewFile(f)">
-                    <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'"></ion-icon>
-                  </ion-button> -->
                 </ion-item>
               </div>
               <ion-item lines="none" class="notes--list">
