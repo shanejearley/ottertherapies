@@ -109,6 +109,7 @@ exports.memberOnJoin = functions.firestore
         var teamId = context.params.teamId;
         console.log("memberUid", context.params.memberUid);
         var memberUid = context.params.memberUid;
+        await firestore.collection('teams').doc(teamId).collection('pendingMembers').doc(memberUid).delete();
         await firestore.collection("teams").doc(teamId).collection("members").get()
             .then(async (querySnapshot) => {
                 var members = querySnapshot.docs.map(doc => doc.data());

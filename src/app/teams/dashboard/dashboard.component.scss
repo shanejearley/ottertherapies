@@ -56,6 +56,6 @@ ion-card.dashboard--team {
   --background: none;
 }
 
-ion-icon .color-icon {
-  color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.54) !important;
+ion-icon.dashboard--icon {
+  font-size: 24px !important;
 }

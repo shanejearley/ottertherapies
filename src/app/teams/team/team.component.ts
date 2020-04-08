@@ -6,14 +6,14 @@ import { Subscription } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
-import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
+import { Profile } from '../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../shared/services/teams/teams.service';
-import { GroupsService, Group } from '../../shared/services/groups/groups.service';
-import { MembersService, Member } from '../../shared/services/members/members.service';
+import { Group } from '../../shared/services/groups/groups.service';
+import { Member, MembersService } from '../../shared/services/members/members.service';
 
 import { Store } from 'src/store';
 
-import { DocumentScanner, DocumentScannerOptions } from '@ionic-native/document-scanner/ngx';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-team',
@@ -30,21 +30,30 @@ export class TeamComponent implements OnInit {
   subscriptions: Subscription[] = [];
   public team: string;
   public page: string;
+  member$: Observable<Member>;
+  memberStatus: string;
 
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    private authService: AuthService,
-    private profileService: ProfileService,
+    private membersService: MembersService,
     private teamsService: TeamsService,
-    private documentScanner: DocumentScanner
+    private alertController: AlertController
   ) { }
 
   ngOnInit() {
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
     this.members$ = this.store.select<Member[]>('members');
+    this.profile$.pipe((tap(profile => {
+      if (profile) {
+        this.member$ = this.membersService.getMember(profile.uid);
+        this.member$.subscribe(m => {
+          this.memberStatus = m.status;
+        })
+      }
+    }))).subscribe();
     this.subscriptions = [
       //this.authService.auth$.subscribe(),
       //this.profileService.profile$.subscribe(),
@@ -60,12 +69,38 @@ export class TeamComponent implements OnInit {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  addMembers() {
-    console.log("Adding member");
+  goTo(route: string, id: string) {
+    this.router.navigate([`../Teams/${this.teamId}/${route}/${id}`]);
   }
 
-  goTo(route: string, id:string) {
-    this.router.navigate([`../Teams/${this.teamId}/${route}/${id}`]);
+  async addMember() {
+    const alert = await this.alertController.create({
+      header: 'Add Team Member',
+      inputs: [
+        {
+          name: 'email',
+          type: 'email',
+          placeholder: 'Add member email'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Add',
+          handler: data => {
+            console.log('Confirm Add', data);
+            this.membersService.addMember(data);
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
 }

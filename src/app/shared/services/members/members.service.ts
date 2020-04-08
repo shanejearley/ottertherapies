@@ -27,7 +27,8 @@ export interface Member {
   files: File[],
   messages: Message[],
   direct: Direct,
-  isChecked: boolean
+  isChecked: boolean,
+  pending: any[];
 }
 
 export interface Direct {
@@ -74,6 +75,7 @@ export class MembersService {
   private unreadDoc: AngularFirestoreDocument<Unread>;
   private unreadUpdateDoc: AngularFirestoreDocument;
   private directDoc: AngularFirestoreDocument<Direct>;
+  private pendingMembersCol: AngularFirestoreCollection<any>;
   unread$: Observable<Unread>;
   files$: Observable<Number[]>;
   messages$: Observable<Number[]>;
@@ -104,6 +106,7 @@ export class MembersService {
           this.getFiles(member);
           this.getMessages(member);
           this.getDirect(member);
+          this.getPending(member);
         })
         this.store.set('members', next)
       }));
@@ -234,6 +237,28 @@ export class MembersService {
     }
   }
 
+  getPending(member: Member) {
+    if (member.status == 'Admin') {
+      console.log('ADMIN')
+      member.pending = [];
+      this.pendingMembersCol = this.db.collection(`teams/${this.teamId}/pendingMembers`)
+      this.pendingMembersCol.valueChanges()
+        .pipe(tap(next => {
+          if (!next) {
+            return;
+          }
+          next.forEach(p => {
+            if (p && p.uid) {
+              this.profileService.getProfile(p);
+            }
+          })
+          member.pending = next;
+        })).subscribe();
+    } else {
+      return;
+    }
+  }
+
   getMember(uid: string) {
     return this.store.select<Member[]>('members')
       .pipe(
@@ -289,6 +314,11 @@ export class MembersService {
         lastMessageUid: message.uid
       })
     });
+  }
+
+  addMember(pending) {
+    this.pendingMembersCol = this.db.collection(`teams/${this.teamId}/pendingMembers`)
+    this.pendingMembersCol.add(pending);
   }
 
 }

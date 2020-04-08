@@ -15,7 +15,7 @@
   </ion-header>
 
   <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
-    <ion-fab-button (click)="addMembers()">
+    <ion-fab-button (click)="addMember()">
       <ion-icon [ios]="'person-add' + '-outline'" [md]="'person-add' + '-sharp'"></ion-icon>
     </ion-fab-button>
   </ion-fab>
@@ -72,5 +72,13 @@
         </ion-col>
       </ion-row>
     </ion-grid>
+    <div *ngIf="memberStatus == 'Admin'">
+      <ion-item *ngFor="let p of (member$ | async)?.pending">
+        <ion-label *ngIf="p.profile; else pending">{{ p.profile.displayName }}</ion-label>
+        <ng-template #pending>
+          <ion-label>{{ p.email }}</ion-label>
+        </ng-template>
+      </ion-item>
+    </div>
   </div>
 </ion-content>
