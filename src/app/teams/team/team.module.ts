@@ -9,6 +9,7 @@ import { AvatarModule } from 'ngx-avatar';
 import { TeamRoutingModule } from './team-routing.module';
 
 import { TeamComponent } from './team.component';
+import { EditTeamComponent } from './edit-team/edit-team.component';
 
 @NgModule({
   imports: [
@@ -18,7 +19,8 @@ import { TeamComponent } from './team.component';
     AvatarModule,
     TeamRoutingModule
   ],
+  entryComponents: [ EditTeamComponent ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [TeamComponent]
+  declarations: [TeamComponent, EditTeamComponent]
 })
 export class TeamModule {}

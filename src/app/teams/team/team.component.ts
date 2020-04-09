@@ -5,15 +5,16 @@ import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators'
 
-import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
+import { User } from '../../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../shared/services/teams/teams.service';
 import { Group } from '../../shared/services/groups/groups.service';
 import { Member, MembersService } from '../../shared/services/members/members.service';
+import { EditTeamComponent } from './edit-team/edit-team.component';
 
 import { Store } from 'src/store';
 
-import { AlertController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-team',
@@ -32,6 +33,7 @@ export class TeamComponent implements OnInit {
   public page: string;
   member$: Observable<Member>;
   memberStatus: string;
+  data: any;
 
   constructor(
     private store: Store,
@@ -39,21 +41,24 @@ export class TeamComponent implements OnInit {
     private router: Router,
     private membersService: MembersService,
     private teamsService: TeamsService,
-    private alertController: AlertController
+    private modalController: ModalController,
+    private toastController: ToastController
   ) { }
 
   ngOnInit() {
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
     this.members$ = this.store.select<Member[]>('members');
-    this.profile$.pipe((tap(profile => {
+    this.profile$.subscribe(profile => {
       if (profile) {
         this.member$ = this.membersService.getMember(profile.uid);
         this.member$.subscribe(m => {
-          this.memberStatus = m.status;
+          if (m) {
+            this.memberStatus = m.status;
+          }
         })
       }
-    }))).subscribe();
+    });
     this.subscriptions = [
       //this.authService.auth$.subscribe(),
       //this.profileService.profile$.subscribe(),
@@ -73,34 +78,28 @@ export class TeamComponent implements OnInit {
     this.router.navigate([`../Teams/${this.teamId}/${route}/${id}`]);
   }
 
-  async addMember() {
-    const alert = await this.alertController.create({
-      header: 'Add Team Member',
-      inputs: [
-        {
-          name: 'email',
-          type: 'email',
-          placeholder: 'Add member email'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: () => {
-            console.log('Confirm Cancel');
-          }
-        }, {
-          text: 'Add',
-          handler: data => {
-            console.log('Confirm Add', data);
-            this.membersService.addMember(data);
-          }
-        }
-      ]
+  async editTeamModal() {
+    const modal = await this.modalController.create({
+      component: EditTeamComponent,
+      componentProps: {
+        'teamId': this.teamId,
+      }
     });
-    await alert.present();
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'success') {
+        this.presentToast();
+      }
+    });
+    return await modal.present();
+  }
+
+  async presentToast() {
+    const toast = await this.toastController.create({
+      message: 'Your team was updated!',
+      duration: 2000
+    });
+    toast.present();
   }
 
 }

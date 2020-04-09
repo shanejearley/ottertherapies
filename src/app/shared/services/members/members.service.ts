@@ -92,7 +92,7 @@ export class MembersService {
     private profileService: ProfileService,
     private router: Router,
     private storage: AngularFireStorage,
-  ) {}
+  ) { }
 
   membersObservable(userId, teamId) {
     this.uid = userId;
@@ -135,57 +135,57 @@ export class MembersService {
       this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
       this.filesCol = this.db.collection<File>(`teams/${this.teamId}/direct/${this.pathId}/files`);
       this.filesCol.stateChanges(['added', 'modified', 'removed'])
-      .pipe(map(actions => actions.map(a => {
-        console.log('ACTION', a);
-        if (a.type == 'removed') {
-          const file = a.payload.doc.data() as File;
-          file.id = a.payload.doc.id;
-          member.files.forEach(function(m) {
-            if (m.id === file.id) {
-              var index = member.files.indexOf(file);
-              member.files.splice(index, 1);
-              console.log("Removed member file: ", file);
-            }
-          })
-        }
-        if (a.type == 'added' || a.type == 'modified') {
-          const file = a.payload.doc.data() as File;
-          if (file.timestamp) {
+        .pipe(map(actions => actions.map(a => {
+          console.log('ACTION', a);
+          if (a.type == 'removed') {
+            const file = a.payload.doc.data() as File;
             file.id = a.payload.doc.id;
-            this.getMember(file.uid).subscribe(m => { 
-              file.profile = m.profile;
-              member.files.push(file);
+            member.files.forEach(function (m) {
+              if (m.id === file.id) {
+                var index = member.files.indexOf(file);
+                member.files.splice(index, 1);
+                console.log("Removed member file: ", file);
+              }
             })
           }
-        }
-      }))).subscribe();
+          if (a.type == 'added' || a.type == 'modified') {
+            const file = a.payload.doc.data() as File;
+            if (file.timestamp) {
+              file.id = a.payload.doc.id;
+              this.getMember(file.uid).subscribe(m => {
+                file.profile = m.profile;
+                member.files.push(file);
+              })
+            }
+          }
+        }))).subscribe();
     } else {
       this.filesCol = this.db.collection<File>(`users/${this.uid}/teams/${this.teamId}/files`);
       this.filesCol.stateChanges(['added', 'modified', 'removed'])
-      .pipe(map(actions => actions.map(a => {
-        console.log('ACTION', a);
-        if (a.type == 'removed') {
-          const file = a.payload.doc.data() as File;
-          file.id = a.payload.doc.id;
-          member.files.forEach(function(m) {
-            if (m.id === file.id) {
-              var index = member.files.indexOf(file);
-              member.files.splice(index, 1);
-              console.log("Removed member file: ", file);
-            }
-          })
-        }
-        if (a.type == 'added' || a.type == 'modified') {
-          const file = a.payload.doc.data() as File;
-          if (file.timestamp) {
+        .pipe(map(actions => actions.map(a => {
+          console.log('ACTION', a);
+          if (a.type == 'removed') {
+            const file = a.payload.doc.data() as File;
             file.id = a.payload.doc.id;
-            this.getMember(file.uid).subscribe(m => { 
-              file.profile = m.profile;
-              member.files.push(file);
+            member.files.forEach(function (m) {
+              if (m.id === file.id) {
+                var index = member.files.indexOf(file);
+                member.files.splice(index, 1);
+                console.log("Removed member file: ", file);
+              }
             })
           }
-        }
-      }))).subscribe();
+          if (a.type == 'added' || a.type == 'modified') {
+            const file = a.payload.doc.data() as File;
+            if (file.timestamp) {
+              file.id = a.payload.doc.id;
+              this.getMember(file.uid).subscribe(m => {
+                file.profile = m.profile;
+                member.files.push(file);
+              })
+            }
+          }
+        }))).subscribe();
     }
   }
 
@@ -194,31 +194,31 @@ export class MembersService {
     this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
     this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/direct/${this.pathId}/messages`, ref => ref.orderBy('timestamp'));
     this.messagesCol.stateChanges(['added', 'modified', 'removed'])
-    .pipe(map(actions => actions.map(a => {
-      console.log('ACTION', a);
-      if (a.type == 'removed') {
-        ///remove based on file.id
-        const message = a.payload.doc.data() as Message;
-        message.id = a.payload.doc.id;
-        member.messages.forEach(function(m) {
-          if (m.id === message.id) {
-            var index = member.messages.indexOf(message);
-            member.messages.splice(index, 1);
-            console.log("Removed member message: ", message);
-          }
-        })
-      }
-      if (a.type == 'added' || a.type == 'modified') {
-        const message = a.payload.doc.data() as Message;
-        if (message.timestamp) {
+      .pipe(map(actions => actions.map(a => {
+        console.log('ACTION', a);
+        if (a.type == 'removed') {
+          ///remove based on file.id
+          const message = a.payload.doc.data() as Message;
           message.id = a.payload.doc.id;
-          this.getMember(message.uid).subscribe(m => { 
-            message.profile = m.profile;
-            member.messages.push(message);
+          member.messages.forEach(function (m) {
+            if (m.id === message.id) {
+              var index = member.messages.indexOf(message);
+              member.messages.splice(index, 1);
+              console.log("Removed member message: ", message);
+            }
           })
         }
-      }
-    }))).subscribe();
+        if (a.type == 'added' || a.type == 'modified') {
+          const message = a.payload.doc.data() as Message;
+          if (message.timestamp) {
+            message.id = a.payload.doc.id;
+            this.getMember(message.uid).subscribe(m => {
+              message.profile = m.profile;
+              member.messages.push(message);
+            })
+          }
+        }
+      }))).subscribe();
   }
 
   getDirect(member: Member) {
@@ -238,8 +238,7 @@ export class MembersService {
   }
 
   getPending(member: Member) {
-    if (member.status == 'Admin') {
-      console.log('ADMIN')
+    if (member.status == 'Admin' && member.uid == this.uid) {
       member.pending = [];
       this.pendingMembersCol = this.db.collection(`teams/${this.teamId}/pendingMembers`)
       this.pendingMembersCol.valueChanges()
@@ -271,7 +270,7 @@ export class MembersService {
     this.unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${this.pathId}`);
     this.unreadUpdateDoc.set({
       unreadMessages: 0
-    }, {merge:true});
+    }, { merge: true });
   }
 
   checkLastFile(memberUid: string) {
@@ -279,7 +278,7 @@ export class MembersService {
     this.unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${this.pathId}`);
     this.unreadUpdateDoc.set({
       unreadFiles: 0
-    }, {merge:true});
+    }, { merge: true });
   }
 
   async removeFile(memberUid, fileId, fileUrl) {
@@ -316,9 +315,54 @@ export class MembersService {
     });
   }
 
-  addMember(pending) {
+  removeMember(removeId) {
+    this.membersCol = this.db.collection(`teams/${this.teamId}/members`);
+    return this.membersCol.doc(removeId).delete();
+  }
+
+  removePendingMember(removePending) {
+    if (!removePending.profile) {
+      this.pendingMembersCol = this.db.collection(`teams/${this.teamId}/pendingMembers`, ref => ref.where('email', '==', removePending.email));
+      this.pendingMembersCol.valueChanges({ idField: 'id' })
+      .pipe(tap(next => {
+        if (!next) {
+          return;
+        }
+        return next.forEach(pendingMemberDoc => {
+          this.pendingMembersCol.doc(pendingMemberDoc.id).delete();
+        })
+      })).subscribe();
+    } else {
+      this.pendingMembersCol = this.db.collection(`teams/${this.teamId}/pendingMembers`);
+      return this.pendingMembersCol.doc(removePending.uid).delete();
+    }
+  }
+
+  addMember(pendingEmail) {
     this.pendingMembersCol = this.db.collection(`teams/${this.teamId}/pendingMembers`)
-    this.pendingMembersCol.add(pending);
+    return this.pendingMembersCol.add({ email: pendingEmail });
+  }
+
+  async updateMembers(newMembers, removeMembers, removePendingMembers) {
+    try {
+      await newMembers.forEach(n => {
+        if (n) {
+          this.addMember(n);
+        }
+      })
+      await removeMembers.forEach(r => {
+        if (r) {
+          this.removeMember(r);
+        }
+      })
+      return removePendingMembers.forEach(p => {
+        if (p) {
+          this.removePendingMember(p);
+        }
+      })
+    } catch(err) {
+      console.log(err);
+    }
   }
 
 }
