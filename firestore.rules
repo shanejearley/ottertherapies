@@ -1,8 +1,110 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth!=null;
+
+    function signedIn() {
+      return request.auth.uid != null;
     }
+    
+    function userAccess(userId) {
+    	return request.auth.uid == userId;
+    }
+    
+    function otherUserAccess(userId) {
+    	return get(/databases/$(database)/documents/users/$(resource.data.uid)/teammates/$(request.auth.uid)).data.teams > 0;
+    }
+    
+    function teamAccess(teamId) {
+    	return exists(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid));
+    }
+    
+    function teamAdmin(teamId) {
+    	return get(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid)).data.status == 'Admin';
+    }
+    
+    function pendingTeamAccess(teamId) {
+      return exists(/databases/$(database)/documents/teams/$(teamId)/pendingMembers/$(request.auth.uid));
+    }
+    
+    function memberExists(teamId, memberUid) {
+    	return exists(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid))
+    }
+    
+    function directAccess(teamId, directId) {
+    	return exists(/databases/$(database)/documents/teams/$(teamId)/direct/$(directId)/members/$(request.auth.uid));
+    }
+    
+    function directExists(teamId, directId) {
+    	return exists(/databases/$(database)/documents/teams/$(teamId)/direct/$(directId))
+    }
+    
+    function groupAccess(teamId, groupId) {
+    	return exists(/databases/$(database)/documents/teams/$(teamId)/groups/$(groupId)/members/$(request.auth.uid));
+    }
+    
+    function groupAdmin(teamId, groupId) {
+    	return get(/databases/$(database)/documents/teams/$(teamId)/groups/$(groupId)/members/$(request.auth.uid)).data.status == 'Admin';
+    }
+    
+  	match /users/{userId} {
+    	allow read, write: if signedIn() && userAccess(userId) || signedIn() && otherUserAccess(userId);
+      match /teams/{teamId} {
+      	allow read, write: if signedIn() && userAccess(userId);
+        match /groups/{groupId} {
+        	allow read, write: if signedIn() && userAccess(userId);
+        }
+        match /files/{fileId} {
+        	allow read, write: if signedIn() && userAccess(userId);
+        }
+        match /unread/{unreadId} {
+        	allow read, write: if signedIn() && userAccess(userId);
+        }
+      }
+      match /pendingTeams/{teamId} {
+      	allow read, write: if signedIn() && userAccess(userId);
+      }
+    }
+    
+    match /teams/{teamId} {
+      allow read, write: if signedIn() && teamAccess(teamId) || signedIn() && pendingTeamAccess(teamId);
+      match /members/{memberUid} {
+      	allow read: if signedIn() && teamAccess(teamId);
+        allow write: if signedIn() && teamAdmin(teamId) || signedIn() && pendingTeamAccess(teamId) && !memberExists(teamId, memberUid) && memberUid == request.auth.uid;
+      }
+      match /pendingMembers/{memberUid} {
+      	allow read, write: if signedIn() && teamAdmin(teamId);
+      }
+      match /direct/{directId} {
+      	allow read, write: if signedIn() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && teamAccess(teamId) && !directExists(teamId, directId);
+        match /members/{memberUid} {
+      		allow read, write: if signedIn() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && teamAccess(teamId) && !directExists(teamId, directId);
+        }
+        match /messages/{memberUid} {
+      		allow read, write: if signedIn() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && teamAccess(teamId) && !directExists(teamId, directId);
+        }
+        match /files/{memberUid} {
+      		allow read, write: if signedIn() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && teamAccess(teamId) && !directExists(teamId, directId);
+        }
+      }
+      match /calendar/{eventId=**} {
+      	allow read, write: if signedIn() && teamAccess(teamId);
+      }
+      match /notes/{noteId=**} {
+      	allow read, write: if signedIn() && teamAccess(teamId);
+      }
+      match /groups/{groupId} {
+      	allow read, write: if signedIn() && teamAccess(teamId) && groupAccess(teamId, groupId);
+        match /members/{memberUid} {
+      		allow read, write: if signedIn() && teamAccess(teamId) && groupAccess(teamId, groupId);
+        }
+        match /messages/{messageId} {
+        	allow read, write: if signedIn() && teamAccess(teamId) && groupAccess(teamId, groupId);
+        }
+        match /files/{fileId} {
+          allow read, write: if signedIn() && teamAccess(teamId) && groupAccess(teamId, groupId);
+        }
+      }
+    }
+    
   }
 }

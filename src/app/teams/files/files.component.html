@@ -60,50 +60,48 @@
               </ion-badge>
             </ion-item>
           </ion-card>
-          <!-- <app-expandable *ngIf="g.files.length" [expandHeight]="g.files.length" [show]="g.show"> -->
-            <div *ngIf="g.show">
-              <ion-list inset="true">
-                <div *ngIf="g.files.length; else elseFile">
-                  <ion-item *ngFor="let f of g.files; let i = index">
-                    <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
-                    <ion-label>
-                      <h2>{{ f.name }}</h2>
-                      <h3>{{ f.profile.displayName }}</h3>
-                    </ion-label>
-                    <ion-button fill="clear" (click)="removeGroupFile(g.id,f.id,f.url)" slot="end">
-                      <ion-icon color="danger" slot="icon-only" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
-                      </ion-icon>
-                    </ion-button>
-                    <ion-button fill="clear" (click)="previewFile(f)" slot="end">
-                      <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'">
-                      </ion-icon>
-                    </ion-button>
-                  </ion-item>
-                </div>
-                <ng-template #elseFile>
-                  <ion-item lines="none">
-                    <ion-icon slot="start" [ios]="'sad' + '-outline'" [md]="'sad' + '-sharp'"></ion-icon>
-                    <ion-label>
-                      <h2>No files yet!</h2>
-                    </ion-label>
-                  </ion-item>
-                </ng-template>
-                <ion-item lines="none">
-                  <ion-col size="12" class="ion-justify-content-center">
-                    <ion-row class="ion-justify-content-center">
-                      <ion-button fill="clear" (click)="editGroupModal(g.id)">
-                        <ion-icon [ios]="'people' + '-outline'" [md]="'people' + '-sharp'">
-                        </ion-icon>
-                        <ion-text class="ion-padding-start">
-                          Group Details
-                        </ion-text>
-                      </ion-button>
-                    </ion-row>
-                  </ion-col>
+          <div *ngIf="g.show">
+            <ion-list inset="true">
+              <div *ngIf="g.files.length; else elseFile">
+                <ion-item *ngFor="let f of g.files; let i = index">
+                  <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
+                  <ion-label>
+                    <h2>{{ f.name }}</h2>
+                    <h3>{{ f.profile.displayName }}</h3>
+                  </ion-label>
+                  <ion-button fill="clear" (click)="removeGroupFile(g.id,f.id,f.url)" slot="end">
+                    <ion-icon color="danger" slot="icon-only" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
+                    </ion-icon>
+                  </ion-button>
+                  <ion-button fill="clear" (click)="previewFile(f)" slot="end">
+                    <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'">
+                    </ion-icon>
+                  </ion-button>
                 </ion-item>
-              </ion-list>
-            </div>
-          <!-- </app-expandable> -->
+              </div>
+              <ng-template #elseFile>
+                <ion-item lines="none">
+                  <ion-icon slot="start" [ios]="'sad' + '-outline'" [md]="'sad' + '-sharp'"></ion-icon>
+                  <ion-label>
+                    <h2>No files yet!</h2>
+                  </ion-label>
+                </ion-item>
+              </ng-template>
+              <ion-item lines="none">
+                <ion-col size="12" class="ion-justify-content-center">
+                  <ion-row class="ion-justify-content-center">
+                    <ion-button fill="clear" (click)="editGroupModal(g.id)">
+                      <ion-icon [ios]="'people' + '-outline'" [md]="'people' + '-sharp'">
+                      </ion-icon>
+                      <ion-text class="ion-padding-start">
+                        Group Details
+                      </ion-text>
+                    </ion-button>
+                  </ion-row>
+                </ion-col>
+              </ion-item>
+            </ion-list>
+          </div>
         </ion-card>
       </div>
 
@@ -129,40 +127,38 @@
               </ion-badge>
             </ion-item>
           </ion-card>
-          <!-- <app-expandable *ngIf="m.files.length" [expandHeight]="m.files.length" [show]="m.show"> -->
-            <div *ngIf="m.show && m.uid !== (profile$ | async)?.uid">
-              <ion-list inset="true">
-                <div *ngIf="m.files.length; else elseFile">
-                  <ion-item *ngFor="let f of m.files; let i = index" lines="none">
-                    <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
-                    <ion-label>
-                      <h2>{{ f.name }}</h2>
-                      <h3 *ngIf="f.uid !== (profile$ | async)?.uid; else elseUserName">{{ m.profile.displayName }}</h3>
-                      <ng-template #elseUserName>
-                        <h3>{{ (profile$ | async)?.displayName }}</h3>
-                      </ng-template>
-                    </ion-label>
-                    <ion-button fill="clear" (click)="removeMemberFile(m.uid,f.id,f.url)" slot="end">
-                      <ion-icon slot="icon-only" color="danger" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
-                      </ion-icon>
-                    </ion-button>
-                    <ion-button fill="clear" (click)="previewFile(f)" slot="end">
-                      <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'">
-                      </ion-icon>
-                    </ion-button>
-                  </ion-item>
-                </div>
-                <ng-template #elseFile>
-                  <ion-item lines="none">
-                    <ion-icon slot="start" [ios]="'sad' + '-outline'" [md]="'sad' + '-sharp'"></ion-icon>
-                    <ion-label>
-                      <h2>No files yet!</h2>
-                    </ion-label>
-                  </ion-item>
-                </ng-template>
-              </ion-list>
-            </div>
-          <!-- </app-expandable> -->
+          <div *ngIf="m.show && m.uid !== (profile$ | async)?.uid">
+            <ion-list inset="true">
+              <div *ngIf="m.files.length; else elseFile">
+                <ion-item *ngFor="let f of m.files; let i = index" lines="none">
+                  <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
+                  <ion-label>
+                    <h2>{{ f.name }}</h2>
+                    <h3 *ngIf="f.uid !== (profile$ | async)?.uid; else elseUserName">{{ m.profile.displayName }}</h3>
+                    <ng-template #elseUserName>
+                      <h3>{{ (profile$ | async)?.displayName }}</h3>
+                    </ng-template>
+                  </ion-label>
+                  <ion-button fill="clear" (click)="removeMemberFile(m.uid,f.id,f.url)" slot="end">
+                    <ion-icon slot="icon-only" color="danger" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
+                    </ion-icon>
+                  </ion-button>
+                  <ion-button fill="clear" (click)="previewFile(f)" slot="end">
+                    <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'">
+                    </ion-icon>
+                  </ion-button>
+                </ion-item>
+              </div>
+              <ng-template #elseFile>
+                <ion-item lines="none">
+                  <ion-icon slot="start" [ios]="'sad' + '-outline'" [md]="'sad' + '-sharp'"></ion-icon>
+                  <ion-label>
+                    <h2>No files yet!</h2>
+                  </ion-label>
+                </ion-item>
+              </ng-template>
+            </ion-list>
+          </div>
         </ion-card>
       </div>
 
@@ -188,37 +184,35 @@
               </ion-label>
             </ion-item>
           </ion-card>
-          <!-- <app-expandable *ngIf="m.files.length" [expandHeight]="m.files.length" [show]="m.show"> -->
-            <div *ngIf="m.show && m.uid === (profile$ | async)?.uid">
-              <ion-list inset="true">
-                <div *ngIf="m.files.length; else elseFile">
-                  <ion-item *ngFor="let f of m.files; let i = index" lines="none">
-                    <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
-                    <ion-label>
-                      <h2>{{ f.name }}</h2>
-                      <h3>{{ m.profile.displayName }}</h3>
-                    </ion-label>
-                    <ion-button fill="clear" (click)="removeMemberFile(m.uid,f.id,f.url)" slot="end">
-                      <ion-icon slot="icon-only" color="danger" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
-                      </ion-icon>
-                    </ion-button>
-                    <ion-button fill="clear" (click)="previewFile(f)" slot="end">
-                      <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'">
-                      </ion-icon>
-                    </ion-button>
-                  </ion-item>
-                </div>
-                <ng-template #elseFile>
-                  <ion-item lines="none">
-                    <ion-icon slot="start" [ios]="'sad' + '-outline'" [md]="'sad' + '-sharp'"></ion-icon>
-                    <ion-label>
-                      <h2>No files yet!</h2>
-                    </ion-label>
-                  </ion-item>
-                </ng-template>
-              </ion-list>
-            </div>
-          <!-- </app-expandable> -->
+          <div *ngIf="m.show && m.uid === (profile$ | async)?.uid">
+            <ion-list inset="true">
+              <div *ngIf="m.files.length; else elseFile">
+                <ion-item *ngFor="let f of m.files; let i = index" lines="none">
+                  <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
+                  <ion-label>
+                    <h2>{{ f.name }}</h2>
+                    <h3>{{ m.profile.displayName }}</h3>
+                  </ion-label>
+                  <ion-button fill="clear" (click)="removeMemberFile(m.uid,f.id,f.url)" slot="end">
+                    <ion-icon slot="icon-only" color="danger" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
+                    </ion-icon>
+                  </ion-button>
+                  <ion-button fill="clear" (click)="previewFile(f)" slot="end">
+                    <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'">
+                    </ion-icon>
+                  </ion-button>
+                </ion-item>
+              </div>
+              <ng-template #elseFile>
+                <ion-item lines="none">
+                  <ion-icon slot="start" [ios]="'sad' + '-outline'" [md]="'sad' + '-sharp'"></ion-icon>
+                  <ion-label>
+                    <h2>No files yet!</h2>
+                  </ion-label>
+                </ion-item>
+              </ng-template>
+            </ion-list>
+          </div>
         </ion-card>
       </div>
       <ion-item lines="none" class="theme--item"></ion-item>

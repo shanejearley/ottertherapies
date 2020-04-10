@@ -12,8 +12,6 @@ import { GroupsService, Group } from '../../shared/services/groups/groups.servic
 
 import { Store } from 'src/store';
 
-import { DocumentScanner, DocumentScannerOptions } from '@ionic-native/document-scanner/ngx';
-
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -39,7 +37,6 @@ export class DashboardComponent implements OnInit {
     private profileService: ProfileService,
     private teamsService: TeamsService,
     private groupsService: GroupsService,
-    private documentScanner: DocumentScanner
   ) { }
 
   ngOnInit() {

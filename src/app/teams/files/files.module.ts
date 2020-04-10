@@ -12,7 +12,6 @@ import { FilesComponent } from './files.component';
 import { ScanComponent } from './scan/scan.component';
 import { UploadComponent } from './upload/upload.component';
 import { BrowseComponent } from './browse/browse.component';
-import { ExpandableComponent } from '../../shared/components/expandable/expandable.component';
 
 @NgModule({
   imports: [
@@ -25,6 +24,6 @@ import { ExpandableComponent } from '../../shared/components/expandable/expandab
   ],
   entryComponents: [ScanComponent, UploadComponent, BrowseComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [FilesComponent, ScanComponent, UploadComponent, BrowseComponent, ExpandableComponent]
+  declarations: [FilesComponent, ScanComponent, UploadComponent, BrowseComponent]
 })
 export class FilesModule {}

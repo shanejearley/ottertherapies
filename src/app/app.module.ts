@@ -7,9 +7,6 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { DocumentScanner } from '@ionic-native/document-scanner/ngx';
-import { DocumentViewer } from '@ionic-native/document-viewer/ngx';
-import { PhotoViewer } from '@ionic-native/photo-viewer/ngx';
-import { File } from '@ionic-native/file/ngx';
 import { AvatarModule } from 'ngx-avatar';
 import { CalendarModule } from "ion2-calendar";
 
@@ -41,9 +38,6 @@ import { environment } from '../environments/environment';
     StatusBar,
     SplashScreen,
     DocumentScanner,
-    DocumentViewer,
-    PhotoViewer,
-    File,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

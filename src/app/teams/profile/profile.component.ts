@@ -12,8 +12,6 @@ import { GroupsService, Group } from '../../shared/services/groups/groups.servic
 
 import { Store } from 'src/store';
 
-import { DocumentScanner, DocumentScannerOptions } from '@ionic-native/document-scanner/ngx';
-
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -34,8 +32,7 @@ export class ProfileComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private profileService: ProfileService,
-    private teamsService: TeamsService,
-    private documentScanner: DocumentScanner
+    private teamsService: TeamsService
   ) { }
 
   ngOnInit() {
@@ -53,15 +50,6 @@ export class ProfileComponent implements OnInit {
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
-  scanDoc() {
-    let opts: DocumentScannerOptions = {};
-    this.documentScanner.scanDoc(opts)
-      .then((res: string) => {
-        console.log(res);
-      })
-      .catch((error: any) => console.error(error));
   }
 
 }

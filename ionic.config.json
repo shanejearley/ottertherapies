@@ -1,7 +1,7 @@
 {
   "name": "ottertherapies_ionic",
+  "type": "angular",
   "integrations": {
     "capacitor": {}
-  },
-  "type": "angular"
+  }
 }
