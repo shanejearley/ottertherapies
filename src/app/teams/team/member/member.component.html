@@ -14,7 +14,7 @@
     </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" #contentArea>
+<ion-content [fullscreen]="true" #contentArea [class.scroll-ios]="ios">
     <!-- <ion-header collapse="condense">
         <ion-toolbar>
             <ion-title size="large" *ngIf="(member$ | async)?.profile">{{ (member$ | async)?.profile.displayName }}
@@ -77,7 +77,7 @@
             </ion-card>
         </div>
         <div id="message--container" *ngSwitchCase="'messages'">
-            <ion-list class="scroll message--list">
+            <ion-list class="message--list">
                 <ion-item class="message--list" lines="none"></ion-item>
                 <div *ngFor="let m of (member$ | async)?.messages; trackBy: trackFn; let last = last">
                     <ion-item class="message--list" lines="none">

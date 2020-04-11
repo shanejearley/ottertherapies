@@ -23,7 +23,7 @@
               <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
                 <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
                 <ng-template #elseMemberAvatar>
-                  <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="150" [round]="false" [cornerRadius]="55"></ngx-avatar>
+                  <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="150" [round]="false" [cornerRadius]="150"></ngx-avatar>
                 </ng-template>
               </ion-thumbnail>
             </ion-col>
@@ -32,7 +32,7 @@
       </ion-card-header>
       <ion-card-content>
         <ion-fab vertical="top" horizontal="center" slot="fixed" edge>
-          <ion-fab-button size="small"> 
+          <ion-fab-button size="small" (click)="profilePictureModal()"> 
             <ion-icon [ios]="'camera' + '-outline'" [md]="'camera' + '-sharp'"></ion-icon>
           </ion-fab-button>
         </ion-fab>

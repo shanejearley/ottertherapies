@@ -144,3 +144,7 @@ ion-col.member--col {
 .half--margin--top {
   margin-top: 5px;
 }
+
+ion-content.scroll-ios {
+  --offset-bottom: 0px !important;
+}

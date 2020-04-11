@@ -78,7 +78,7 @@
         </ion-col>
         <ion-col  
           size="12" size-md="6" 
-          *ngIf="memberStatus == 'Admin' && (member$ | async)?.pending.length">
+          *ngIf="memberStatus == 'Admin' && (member$ | async)?.pending && (member$ | async)?.pending.length">
           <ion-item lines="none" class="theme--item">
             <p>Pending:
               <ion-chip *ngFor="let p of (member$ | async)?.pending">

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { IonContent, IonList } from '@ionic/angular';
+import { IonContent, IonList, Config } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -22,6 +22,7 @@ export class DirectComponent implements OnInit {
   finished = false;
   @ViewChild(IonContent) contentArea: IonContent;
   @ViewChild(IonList, { read: ElementRef }) scroll: ElementRef;
+  ios: boolean;
   private mutationObserver: MutationObserver;
   user$: Observable<User>;
   profile$: Observable<Profile>;
@@ -43,35 +44,51 @@ export class DirectComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private teamsService: TeamsService,
-    private membersService: MembersService
+    private membersService: MembersService,
+    private config: Config
   ) { }
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      this.scrollToBottom(0);
-    }, 250)
-    this.membersService.checkLastMessage(this.directId);
+    this.member$.subscribe(member => {
+      if (member && member.messages.length) {
+        this.scrollToBottom(0);
+        this.checkUnread();
+      }
+    })
     this.mutationObserver = new MutationObserver((mutations) => {
       this.scrollToBottom(500);
-      this.membersService.checkLastMessage(this.directId);
+      this.checkUnread();
     })
     this.mutationObserver.observe(this.scroll.nativeElement, {
       childList: true
     });
   }
 
+  checkUnread() {
+    this.member$.pipe(tap(member => {
+      if (member.unread.unreadMessages > 0) {
+        this.membersService.checkLastMessage(this.directId);
+      }
+      setTimeout(() => {
+        if (member.unread.unreadMessages > 0) {
+          this.membersService.checkLastMessage(this.directId);
+        }
+      }, 5000)
+    })).subscribe();
+  }
+
   scrollToBottom(duration) {
     if (this.contentArea && this.contentArea.scrollToBottom) {
       setTimeout(() => {
         this.contentArea.scrollToBottom(duration);
-      }, 250)
+      })
     }
   }
 
   scrollOnFocus() {
     setTimeout(() => {
       this.scrollToBottom(500);
-    }, 500)  
+    }, 750)  
   }
 
   sendMessage() {
@@ -92,6 +109,7 @@ export class DirectComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.ios = this.config.get('mode') === 'ios';
     this.date = new Date();
     this.time = this.date.getTime();
     this.newBody = '';

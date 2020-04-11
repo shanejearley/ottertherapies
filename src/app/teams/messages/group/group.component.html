@@ -7,9 +7,9 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" #contentArea>
+<ion-content [fullscreen]="true" #contentArea [class.scroll-ios]="ios">
   <ion-header collapse="condense">
-    <ion-toolbar>
+    <ion-toolbar class="large-title-fix">
       <ion-title size="large" *ngIf="(group$ | async)">{{ (group$ | async)?.name }}</ion-title>
     </ion-toolbar>
   </ion-header>
@@ -21,36 +21,39 @@
   </ion-fab>
 
   <div id="container">
-    <ion-list class="scroll message--list">
+    <ion-list #scroll class="message--list">
       <ion-item class="message--list" lines="none"></ion-item>
-      <div *ngFor="let m of (group$ | async)?.messages; trackBy: trackFn; let last = last">     
+      <div *ngFor="let m of (group$ | async)?.messages; trackBy: trackFn; let last = last">
         <ion-item class="message--list" lines="none">
-          <ion-row class="member--row" slot="start" *ngIf="m.profile && m.uid !== (profile$ | async)?.uid; else elseUserMessage">
+          <ion-row class="member--row" slot="start"
+            *ngIf="m.profile && m.uid !== (profile$ | async)?.uid; else elseUserMessage">
             <ion-avatar class="dialog--member">
               <img *ngIf="m.profile.url; else elseTextAvatar" src="{{ m.profile.url }}">
               <ng-template #elseTextAvatar>
                 <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
               </ng-template>
             </ion-avatar>
-  
+
             <ion-col class="member--col" size="auto">
               <ion-row class="message--name">
                 <ion-text class="message--name" color="medium">{{ m.profile.displayName }}</ion-text>
               </ion-row>
-  
+
               <ion-card color="light" class="dialog member message--card">
                 <ion-card-content>
                   <h2 text-wrap>{{ m.body }}</h2>
                 </ion-card-content>
               </ion-card>
-  
+
               <ion-row class="ion-justify-content-end">
-                <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time" color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
+                <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time"
+                  color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
                 <ng-template #elseDate>
-                  <ion-text class="message--time" color="medium">Today, {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
+                  <ion-text class="message--time" color="medium">Today,
+                    {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
                 </ng-template>
               </ion-row>
-  
+
             </ion-col>
           </ion-row>
 
@@ -61,20 +64,22 @@
                 <ion-row>
                   <ion-text class="message--name" color="medium">{{ m.profile.displayName }}</ion-text>
                 </ion-row>
-  
+
                 <ion-card *ngIf="m.profile" color="primary" class="dialog message--card message--user">
                   <ion-card-content>
                     <h2 text-wrap>{{ m.body }}</h2>
                   </ion-card-content>
                 </ion-card>
-  
+
                 <ion-row class="ion-justify-content-end">
-                  <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time" color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
+                  <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time"
+                    color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
                   <ng-template #elseDate>
-                    <ion-text class="message--time" color="medium">Today, {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
+                    <ion-text class="message--time" color="medium">Today,
+                      {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
                   </ng-template>
                 </ion-row>
-  
+
               </ion-col>
               <ion-avatar class="dialog--user" *ngIf="m.profile && m.uid === (profile$ | async)?.uid">
                 <img *ngIf="m.profile.url; else elseTextAvatar" src="{{ m.profile.url }}">
@@ -91,19 +96,12 @@
   </div>
 </ion-content>
 
-<ion-footer>
+<ion-footer [translucent]="true">
   <ion-toolbar>
     <ion-col size="12">
       <ion-row class="ion-align-items-center ion-padding-horizontal">
-        <ion-textarea 
-          autoGrow="true" 
-          rows="1" 
-          class="message--input" 
-          placeholder="Message" 
-          [(ngModel)]="newBody"
-          (keyup.enter)="sendMessage()"
-          (keydown.enter)="onKeydown($event)"
-          (ionFocus)="scrollOnFocus()">
+        <ion-textarea autoGrow="true" rows="1" class="message--input" placeholder="Message" [(ngModel)]="newBody"
+          (keyup.enter)="sendMessage()" (keydown.enter)="onKeydown($event)" (ionFocus)="scrollOnFocus()">
         </ion-textarea>
         <ion-button class="message--button ion-padding-start" (click)="sendMessage()">
           <ion-icon [ios]="'send' + '-outline'" [md]="'send' + '-sharp'"></ion-icon>

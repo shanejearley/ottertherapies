@@ -44,6 +44,9 @@ export class ChildComponent implements OnInit {
     ];
     this.team$ = this.activatedRoute.params
       .pipe(switchMap(param => this.teamsService.getTeam(param.id)));
+    this.team$.subscribe(team => {
+      console.log(team);
+    })
   }
 
   ngOnDestroy() {

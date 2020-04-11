@@ -24,7 +24,8 @@
                             <img *ngIf="(team$ | async)?.url; else elseChildAvatar"
                                 src="{{ (team$ | async)?.url }}">
                             <ng-template #elseChildAvatar>
-                                <ngx-avatar name="{{ (team$ | async)?.child }}" [size]="150" [round]="false" [cornerRadius]="55"></ngx-avatar>
+                                <ngx-avatar name="{{ (team$ | async)?.child }}" [size]="150" [round]="false" [cornerRadius]="150">
+                                </ngx-avatar>
                             </ng-template>
                         </ion-thumbnail>
                     </ion-col>

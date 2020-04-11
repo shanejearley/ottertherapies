@@ -8,9 +8,10 @@ import { switchMap } from 'rxjs/operators'
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../shared/services/teams/teams.service';
-import { GroupsService, Group } from '../../shared/services/groups/groups.service';
+import { ProfilePictureComponent } from '../../shared/components/profile-picture/profile-picture.component';
 
 import { Store } from 'src/store';
+import { ModalController, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-profile',
@@ -18,11 +19,11 @@ import { Store } from 'src/store';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
+  data: any;
   user$: Observable<User>;
   profile$: Observable<Profile>;
   teams$: Observable<Team[]>;
   team$: Observable<Team>;
-  groups$: Observable<Group[]>;
   subscriptions: Subscription[] = [];
   public team: string;
   public page: string;
@@ -31,14 +32,13 @@ export class ProfileComponent implements OnInit {
     private store: Store,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
-    private profileService: ProfileService,
-    private teamsService: TeamsService
+    private teamsService: TeamsService,
+    private modalController: ModalController,
+    private toastController: ToastController
   ) { }
 
   ngOnInit() {
     this.profile$ = this.store.select<Profile>('profile');
-    this.groups$ = this.store.select<Group[]>('groups');
-    //this.teams$ = this.store.select<Team[]>('teams');
     this.subscriptions = [
       //this.authService.auth$.subscribe(),
       //this.profileService.profile$.subscribe(),
@@ -50,6 +50,31 @@ export class ProfileComponent implements OnInit {
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  async profilePictureModal() {
+    const modal = await this.modalController.create({
+      component: ProfilePictureComponent,
+      // componentProps: {
+      //   'teamId': this.teamId,
+      //   'groupId': this.groupId
+      // }
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'success') {
+        this.presentToast();
+      }
+    });
+    return await modal.present();
+  }
+
+  async presentToast() {
+    const toast = await this.toastController.create({
+      message: 'Your profile picture was updated!',
+      duration: 2000
+    });
+    toast.present();
   }
 
 }

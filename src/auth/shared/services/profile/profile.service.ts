@@ -68,6 +68,11 @@ export class ProfileService {
         return this.db.doc<Profile>(`users/${uid}`).update(profile);
     }
 
+    updateProfilePicture(uid: string, profile: Profile) {
+        //upload to storage
+        return this.updateProfile(uid, profile);
+    }
+
     getProfile(doc) {
         this.getProfileDoc = this.db.doc<Profile>(`users/${doc.uid}`)
         this.getProfileDoc.valueChanges()

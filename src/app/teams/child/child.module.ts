@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
+import { AvatarModule } from 'ngx-avatar';
+
 import { ChildRoutingModule } from './child-routing.module';
 
 import { ChildComponent } from './child.component';
@@ -13,6 +15,7 @@ import { ChildComponent } from './child.component';
     CommonModule,
     FormsModule,
     IonicModule,
+    AvatarModule,
     ChildRoutingModule
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
