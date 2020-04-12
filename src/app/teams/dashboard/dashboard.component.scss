@@ -59,3 +59,16 @@ ion-card.dashboard--team {
 ion-icon.dashboard--icon {
   font-size: 48px !important;
 }
+
+ion-icon.white {
+  color: white;
+}
+
+h2.white {
+  color: white;
+}
+
+ion-badge.white {
+  --background: white;
+  --color: black;
+}

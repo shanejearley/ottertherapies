@@ -23,7 +23,8 @@
   <div id="container">
     <ion-list #scroll class="message--list">
       <ion-item class="message--list" lines="none"></ion-item>
-      <div *ngFor="let m of (group$ | async)?.messages; trackBy: trackFn; let last = last">
+      <div *ngFor="let m of (group$ | async)?.messages; let i = index; trackBy: trackFn; let last = last">
+
         <ion-item class="message--list" lines="none">
           <ion-row class="member--row" slot="start"
             *ngIf="m.profile && m.uid !== (profile$ | async)?.uid; else elseUserMessage">

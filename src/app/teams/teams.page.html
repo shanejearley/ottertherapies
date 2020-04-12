@@ -38,8 +38,8 @@
             </ngx-avatar>
           </ion-thumbnail>
           <ion-label>
-            <h2>{{ p.name }}</h2>
-            <h3>{{ p.publicId }}</h3>
+            <h2><strong>{{ p.name }}</strong></h2>
+            <h3>Team Id: {{ p.publicId }}</h3>
           </ion-label>
           <ion-tab-button *ngIf="p.unreadMessages > 0" slot="end" class="notification--button">
             <ion-icon [ios]="'chatbubbles' + '-outline'" [md]="'chatbubbles' + '-sharp'"></ion-icon>
@@ -67,8 +67,8 @@
             </ngx-avatar>
           </ion-thumbnail>
           <ion-label>
-            <h2>{{ p.name }}</h2>
-            <h3>{{ p.publicId }}</h3>
+            <h2><strong>{{ p.name }}</strong></h2>
+            <h3>Team Id: {{ p.publicId }}</h3>
           </ion-label>
           <ion-button>Join Team</ion-button>
         </ion-item>

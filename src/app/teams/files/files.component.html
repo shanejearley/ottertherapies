@@ -49,10 +49,10 @@
                 <ngx-avatar name="{{ g.name }}" [size]="55" [round]="false" [cornerRadius]="10"></ngx-avatar>
               </ion-thumbnail>
               <ion-label>
-                <h2>{{ g.name }}</h2>
-                <h3 *ngIf="g.memberCount > 1; else elseCount">Shared with {{ g.memberCount - 1 }} members</h3>
+                <h2><strong>{{ g.name }}</strong></h2>
+                <h3 *ngIf="g.members.length > 1; else elseCount">{{ g.members.length }} Members, {{ g.files.length }} Files</h3>
                 <ng-template #elseCount>
-                  <h3>Shared with just you</h3>
+                  <h3>{{ g.members.length }} Member, {{ g.files.length }} Files</h3>
                 </ng-template>
               </ion-label>
               <ion-badge color="danger" *ngIf="g.unread && g.unread.unreadFiles > 0">
@@ -119,8 +119,8 @@
                 </ng-template>
               </ion-thumbnail>
               <ion-label>
-                <h2>{{ m.profile.displayName }}</h2>
-                <h3>Shared between you and {{ m.profile.displayName }}</h3>
+                <h2><strong>{{ m.profile.displayName }}</strong></h2>
+                <h3>2 Members, {{ m.files.length }} Files</h3>
               </ion-label>
               <ion-badge color="danger" *ngIf="m.unread && m.unread.unreadFiles > 0">
                 {{ m.unread.unreadFiles }}
@@ -179,8 +179,8 @@
                 </ng-template>
               </ion-thumbnail>
               <ion-label>
-                <h2>{{ m.profile.displayName }}</h2>
-                <h3>Private for you</h3>
+                <h2><strong>{{ m.profile.displayName }}</strong></h2>
+                <h3>1 Member, {{ m.files.length }} Files</h3>
               </ion-label>
             </ion-item>
           </ion-card>

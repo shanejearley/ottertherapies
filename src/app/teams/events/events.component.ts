@@ -72,6 +72,7 @@ export class EventsComponent implements OnInit {
       this.eventsService.eventsObservable(this.uid, this.teamId, $event._d).subscribe();
       this.date = $event.format('ll');
       this.month = $event.month();
+      //addevents
     } else {
       this.date = $event.format('ll');
     }

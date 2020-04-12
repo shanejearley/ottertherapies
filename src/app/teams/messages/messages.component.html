@@ -35,7 +35,7 @@
               <ngx-avatar name="{{ g.name }}" [size]="55" [round]="false" [cornerRadius]="10"></ngx-avatar>
             </ion-thumbnail>
             <ion-label>
-              <h2>{{ g.name }}</h2>
+              <h2><strong>{{ g.name }}</strong></h2>
               <h3 *ngIf="g.lastMessage; else elseMessage">{{ g.lastMessage }}</h3>
               <ng-template #elseMessage>
                 <h3>Start a new conversation</h3>
@@ -64,7 +64,7 @@
               </ng-template>
             </ion-thumbnail>
             <ion-label>
-              <h2>{{ m.profile.displayName }}</h2>
+              <h2><strong>{{ m.profile.displayName }}</strong></h2>
               <h3 *ngIf="m.direct && m.direct.lastMessage; else elseMessage">{{ m.direct.lastMessage }}</h3>
               <ng-template #elseMessage>
                 <h3>Start a new conversation</h3>
