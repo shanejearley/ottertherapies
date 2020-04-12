@@ -11,6 +11,7 @@ import { TeamsService, Team } from '../../shared/services/teams/teams.service';
 import { GroupsService, Group } from '../../shared/services/groups/groups.service';
 
 import { Store } from 'src/store';
+import { Config } from '@ionic/angular';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +19,7 @@ import { Store } from 'src/store';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
+  ios: boolean;
   user$: Observable<User>;
   profile$: Observable<Profile>;
   teams$: Observable<Team[]>;
@@ -37,9 +39,11 @@ export class DashboardComponent implements OnInit {
     private profileService: ProfileService,
     private teamsService: TeamsService,
     private groupsService: GroupsService,
+    private config: Config
   ) { }
 
   ngOnInit() {
+    this.ios = this.config.get('mode') === 'ios';
     console.log("init");
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');

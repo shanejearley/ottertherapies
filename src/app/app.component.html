@@ -34,7 +34,7 @@
               <ion-item *ngIf="p.title !== 'Profile'" (click)="selectedIndex = i" routerDirection="root"
                 [routerLink]="['/Teams', teamId, p.title]" detail="false"
                 [class.selected]="p.title == page">
-                <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
+                <ion-icon slot="start" [name]="p.icon"></ion-icon>
                 <ion-label>{{ p.title }}</ion-label>
                 <ion-badge
                   color="light"
@@ -90,20 +90,20 @@
         <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
           <ion-item lines="none" *ngIf="p.title == 'Profile'" (click)="selectedIndex = i" routerDirection="root"
             [routerLink]="['/Teams', teamId, p.title]" detail="false" [class.selected]="p.title == page">
-            <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
+            <ion-icon slot="start" [name]="p.icon"></ion-icon>
             <ion-label>{{ p.title }}</ion-label>
           </ion-item>
         </ion-menu-toggle>
 
         <ion-menu-toggle auto-hide="false">
           <ion-item lines="none" (click)="onLogout()" detail="false" button>
-            <ion-icon slot="start" [ios]="'power' + '-outline'" [md]="'power' + '-sharp'"></ion-icon>
+            <ion-icon slot="start" name="power"></ion-icon>
             <ion-label>Logout</ion-label>
           </ion-item>
         </ion-menu-toggle>
 
         <ion-item lines="none">
-          <ion-icon slot="start" [ios]="'moon' + '-outline'" [md]="'moon' + '-sharp'"></ion-icon>
+          <ion-icon slot="start" name="moon"></ion-icon>
           <ion-label>
             Dark Mode
           </ion-label>
