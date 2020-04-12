@@ -59,7 +59,7 @@
                 </ng-template>
               </ion-avatar>
               <ion-label *ngIf="n.profile">
-                <h2 class="notes--name">{{ n.profile.displayName }}</h2>
+                <h2 class="notes--name"><strong>{{ n.profile.displayName }}</strong></h2>
                 <ion-text>
                   <p *ngIf="time - n.timestamp.toMillis() > 86400000; else elseDate">
                     {{ n.timestamp.toMillis() | date : 'short' }}</p>
@@ -108,14 +108,14 @@
             <div *ngIf="n.show" lines="none">
               <div *ngIf="n.comments.length" lines="none">
                 <ion-item lines="none" *ngFor="let c of n.comments; let i = index" class="notes--list">
-                  <ion-avatar slot="start" class="dialog--member">
+                  <ion-avatar slot="start" class="dialog--notes">
                     <img *ngIf="c.profile && c.profile.url; else elseMemberAvatar" src="{{ c.profile.url }}">
                     <ng-template #elseMemberAvatar>
                       <ngx-avatar name="{{ c.profile.displayName }}" [size]="40"></ngx-avatar>
                     </ng-template>
                   </ion-avatar>
                   <ion-label class="note--label" text-wrap>
-                    <h2><ion-text class="notes--name">{{ c.profile.displayName }}</ion-text>&nbsp;{{ c.body }}</h2>
+                    <h2><strong>{{ c.profile.displayName }}</strong>&nbsp;{{ c.body }}</h2>
                     <p *ngIf="time - c.timestamp.toMillis() > 86400000; else elseDate">
                       {{ c.timestamp.toMillis() | date : 'short' }}</p>
                     <ng-template #elseDate>

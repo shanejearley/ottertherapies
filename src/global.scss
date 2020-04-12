@@ -96,6 +96,14 @@ ion-card.message--card {
 //     border-bottom-left-radius: 0px !important;
 // }
 
+ion-avatar.dialog--notes {
+  left: 15px;
+  top: 0;
+  position: absolute;
+  height: 40px;
+  width: 40px;
+}
+
 ion-avatar.dialog--member {
   left: 15px;
   bottom: 0;
@@ -146,4 +154,23 @@ ion-col.member--col {
 
 ion-content.scroll-ios {
   --offset-bottom: 0px !important;
+}
+
+.calendar {
+  .title { 
+    background: var(--ion-color-light) !important;
+    border-radius: 10px !important;
+  }
+}
+
+.md .calendar {
+  .title { 
+    padding: 0 75px !important;
+  }
+}
+
+.ios .calendar {
+  .title { 
+    padding: 0 45px !important;
+  }
 }

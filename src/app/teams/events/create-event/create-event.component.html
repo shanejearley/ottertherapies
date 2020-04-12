@@ -112,7 +112,7 @@
         </ion-list>
         <ion-item *ngIf="newEvent.type == 'Event'">
             <ion-icon slot="start" [ios]="'reader' + '-outline'" [md]="'reader' + '-sharp'"></ion-icon>
-            <ion-textarea rows="1" autoGrow="true" [(ngModel)]="newEvent.info" placeholder="Add description">
+            <ion-textarea [(ngModel)]="newEvent.info" placeholder="Add description">
             </ion-textarea>
         </ion-item>
     </ion-list>

@@ -22,22 +22,30 @@
 
   <div id="container">
     <ion-card class="half-margin-top half-margin-bottom">
-      <ion-calendar [(ngModel)]="date" (change)="dayChange($event)" (monthChange)="monthChange($event)" [options]="options" [type]="type" [format]="'YYYY-MM-DD'">
+      <ion-calendar cssClass="calendar" [(ngModel)]="date" (change)="dayChange($event)" (monthChange)="monthChange($event)" [options]="options" [type]="type" [format]="'YYYY-MM-DD'">
       </ion-calendar>
     </ion-card>
 
     <ion-list lines="none" class="theme--list">
-      <div *ngFor="let e of (events$ | async); let i = index">
-        <ion-card *ngIf="filterDay(e)" class="ion-padding half-margin-top half-margin-bottom" (click)="editEventModal(e.id)" button>
+      <ion-list-header>{{ date }}</ion-list-header>
+      <div *ngIf="(today$ | async).length; else noEvents">
+        <ion-card *ngFor="let e of (today$ | async); let i = index" class="ion-padding half-margin-top half-margin-bottom" (click)="editEventModal(e.id)" button>
           <ion-item class="theme--item">
             <ion-icon slot="start" [ios]="'calendar' + '-outline'" [md]="'calendar' + '-sharp'"></ion-icon>
             <ion-label text-wrap>
-              <h2>{{ e.name }}</h2>
+              <h2><strong>{{ e.name }}</strong></h2>
               <p>{{ e.startTime.toMillis() | date:"h:mm a" }} - {{ e.endTime.toMillis() | date:"h:mm a" }}</p>
             </ion-label>
           </ion-item>
         </ion-card>
       </div>
+      <ng-template #noEvents>
+        <ion-item lines="none" class="theme--item">
+          <ion-label text-wrap>
+            <h2><strong>No events {{ date == today ? 'today' : 'on '+date }}</strong></h2>
+          </ion-label>
+        </ion-item>
+      </ng-template>
     </ion-list>
   </div>
 </ion-content>

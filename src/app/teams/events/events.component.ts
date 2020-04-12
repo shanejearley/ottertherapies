@@ -45,8 +45,10 @@ export class EventsComponent implements OnInit {
   public page: string;
   public teamId: string;
   public data: any;
+  today = moment().startOf('day').format('ll');
   date = moment().startOf('day').format('ll');
   month = moment().startOf('day').month();
+  today$: Observable<Event[]>;
   type: 'string';
   _disableWeeks: number[] = [];
   eventsSource: DayConfig[] = [];
@@ -72,9 +74,11 @@ export class EventsComponent implements OnInit {
       this.eventsService.eventsObservable(this.uid, this.teamId, $event._d).subscribe();
       this.date = $event.format('ll');
       this.month = $event.month();
+      this.today$ = this.eventsService.getToday(this.date);
       //addevents
     } else {
       this.date = $event.format('ll');
+      this.today$ = this.eventsService.getToday(this.date);
     }
   }
 
@@ -91,14 +95,6 @@ export class EventsComponent implements OnInit {
     this.options = {
       ...this.options,
       color
-    }
-  }
-
-  filterDay(event) {
-    if (moment(event.startTime.toDate()).startOf('day').format('ll') == this.date) {
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -182,6 +178,7 @@ export class EventsComponent implements OnInit {
         };
       }
     })).subscribe()
+    this.today$ = this.eventsService.getToday(this.date);
     //this.teams$ = this.store.select<Team[]>('teams');
     this.subscriptions = [
       //this.authService.auth$.subscribe(),

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { firestore } from 'firebase/app';
 import 'firebase/storage';
+import * as moment from 'moment';
 
 import { Store } from 'src/store';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service'
@@ -119,6 +120,13 @@ export class EventsService {
             .pipe(
                 filter(Boolean),
                 map((event: Event[]) => event.find((event: Event) => event.id === id)));
+    }
+
+    getToday(day) {
+        return this.store.select<Event[]>('events')
+            .pipe(
+                filter(Boolean),
+                map((events: Event[]) => events.filter((event: Event) => moment(event.startTime.toDate()).startOf('day').format('ll') == day)))
     }
 
     addEvent(event) {
