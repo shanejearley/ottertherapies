@@ -49,16 +49,16 @@ export class TeamComponent implements OnInit {
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
     this.members$ = this.store.select<Member[]>('members');
-    this.profile$.subscribe(profile => {
+    this.profile$.pipe(tap(profile => {
       if (profile) {
         this.member$ = this.membersService.getMember(profile.uid);
-        this.member$.subscribe(m => {
+        this.member$.pipe(tap(m => {
           if (m) {
             this.memberStatus = m.status;
           }
-        })
+        })).subscribe()
       }
-    });
+    })).subscribe()
     this.subscriptions = [
       //this.authService.auth$.subscribe(),
       //this.profileService.profile$.subscribe(),
@@ -96,7 +96,7 @@ export class TeamComponent implements OnInit {
 
   async presentToast() {
     const toast = await this.toastController.create({
-      message: 'Your team was updated!',
+      message: 'Your team was updated! &#128079;',
       duration: 2000
     });
     toast.present();

@@ -69,6 +69,18 @@ exports.authOnCreate = functions.auth.user().onCreate((user) => {
         })
 })
 
+exports.authOnDelete = functions.auth.user().onDelete((user) => {
+    //const uid = user.uid;
+    //const email = user.email; // The email of the user.
+    console.log('Making user document for ', user.uid, 'anonymous');
+    return firestore.collection('users').doc(user.uid).set({
+        uid: user.uid,
+        displayName: 'Deleted User',
+        email: 'N/A',
+        url: 'N/A'
+    }, { merge: true })
+});
+
 exports.pendingOnCreate = functions.firestore
     .document('teams/{teamId}/pendingMembers/{pendingMemberUid}')
     .onWrite(async (change, context) => {

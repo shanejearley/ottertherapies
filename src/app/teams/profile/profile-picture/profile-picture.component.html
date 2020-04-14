@@ -1,0 +1,62 @@
+<ion-header translucent>
+    <ion-toolbar>
+        <ion-title>Upload Picture</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="dismiss()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-progress-bar [value]="(uploadPercent | async)"></ion-progress-bar>
+</ion-header>
+<ion-content fullscreen>
+    <ion-list class="theme--list">
+
+        <ion-item lines="none" class="theme--item">
+            <ion-grid>
+                <ion-row class="ion-justify-content-center">
+                    <ion-button size="medium">
+                        <label class="fileBtn">
+                            Browse
+                            <input type="file" (change)="fileChangeEvent($event)" />
+                        </label>
+                    </ion-button>
+                </ion-row>
+            </ion-grid>
+        </ion-item>
+
+        <ion-item lines="none" class="theme--item">
+            <ion-grid>
+                <ion-row class="ion-justify-content-center">
+                    <image-cropper
+                        style="width: 50%"
+                        [imageChangedEvent]="imageChangedEvent"
+                        [maintainAspectRatio]="true"
+                        [aspectRatio]="1 / 1"
+                        format="png"
+                        (imageCropped)="imageCropped($event)"
+                        (imageLoaded)="imageLoaded()"
+                        (cropperReady)="cropperReady()"
+                        (loadImageFailed)="loadImageFailed()"
+                    ></image-cropper>
+                </ion-row>
+            </ion-grid>
+        </ion-item>
+
+        <ion-item lines="none" class="theme--item">
+            <ion-grid>
+                <ion-row class="ion-justify-content-center">
+                    <img style="width: 50%" class="rounded" [src]="croppedImage" />
+                </ion-row>
+            </ion-grid>
+        </ion-item>
+
+    </ion-list>
+
+</ion-content>
+
+<ion-footer>
+    <ion-toolbar>
+        <ion-row class="ion-justify-content-center">
+            <ion-button (click)="updateProfilePicture()" expand="block">Upload</ion-button>
+        </ion-row>
+    </ion-toolbar>
+</ion-footer>

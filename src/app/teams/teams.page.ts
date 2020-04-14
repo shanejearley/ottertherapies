@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
 
-import { AuthService, User } from '../../auth/shared/services/auth/auth.service';
-import { ProfileService, Profile } from '../../auth/shared/services/profile/profile.service';
+import { User } from '../../auth/shared/services/auth/auth.service';
+import { Profile } from '../../auth/shared/services/profile/profile.service';
 import { CreateTeamComponent } from './create-team/create-team.component';
 
 import { Store } from 'src/store';
-import { TeamsService, Team } from '../shared/services/teams/teams.service';
+import { Team } from '../shared/services/teams/teams.service';
 import { Pending, PendingService } from '../shared/services/pending/pending.service';
 
 @Component({
@@ -24,14 +24,9 @@ export class TeamsPage implements OnInit {
   teams$: Observable<Team[]>;
   pending$: Observable<Pending[]>;
   subscriptions: Subscription[] = [];
-  //public teams: string;
 
   constructor(
     private store: Store,
-    private activatedRoute: ActivatedRoute,
-    private authService: AuthService,
-    private profileService: ProfileService,
-    private teamsService: TeamsService,
     private modalController: ModalController,
     private pendingService: PendingService,
     private router: Router
@@ -42,8 +37,8 @@ export class TeamsPage implements OnInit {
     this.teams$ = this.store.select<Team[]>('teams');
     this.pending$ = this.store.select<Pending[]>('pending');
     this.subscriptions = [
-      this.authService.auth$.subscribe(),
-      this.profileService.profile$.subscribe(),
+      // this.authService.auth$.subscribe(),
+      // this.profileService.profile$.subscribe(),
       //this.teamsService.teams$.subscribe()
     ];
     //this.teams = this.activatedRoute.snapshot.paramMap.get('id');

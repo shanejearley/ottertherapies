@@ -18,7 +18,8 @@ import { Store } from 'src/store';
 export class ProfilePictureComponent {
     imageChangedEvent: any = '';
     croppedImage: any = '';
-    updatedProfile: Profile;
+    croppedImageBlob: any;
+    currentProfile: Profile;
     profilePicture: string;
     profile$: Observable<Profile>;
     error: boolean;
@@ -30,11 +31,21 @@ export class ProfilePictureComponent {
         private profileService: ProfileService
     ) { }
 
+    public fileOver(event) {
+        console.log(event);
+    }
+
+    public fileLeave(event) {
+        console.log(event);
+    }
+
     fileChangeEvent(event: any): void {
+        console.log(event);
         this.imageChangedEvent = event;
     }
     imageCropped(event: ImageCroppedEvent) {
         this.croppedImage = event.base64;
+
     }
     imageLoaded() {
         // show cropper
@@ -49,7 +60,7 @@ export class ProfilePictureComponent {
     ngOnInit() {
         this.profile$ = this.store.select<Profile>('profile');
         this.profile$.pipe(tap(profile => {
-            this.updatedProfile = profile;
+            this.currentProfile = profile;
         })).subscribe();
     }
 
@@ -69,15 +80,22 @@ export class ProfilePictureComponent {
 
     updateProfilePicture() {
         try {
-            this.profileService.updateProfilePicture(this.uid, this.updatedProfile);
+            this.profileService.updateProfilePicture(this.croppedImage, this.currentProfile);
+            setTimeout(() => {
+                return this.modalController.dismiss({
+                    response: 'success'
+                });
+            }, 5000)
         } catch (err) {
+            console.log(err);
             return this.modalController.dismiss({
                 response: err
             })
         }
-        return this.modalController.dismiss({
-            response: 'success'
-        });
+    }
+
+    get uploadPercent() {
+        return this.profileService.uploadPercent;
     }
 
 }

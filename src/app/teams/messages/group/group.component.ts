@@ -161,7 +161,7 @@ export class GroupComponent implements OnInit {
 
   async presentToast() {
     const toast = await this.toastController.create({
-      message: 'Your group was updated!',
+      message: 'Your group was updated! &#128079;',
       duration: 2000
     });
     toast.present();

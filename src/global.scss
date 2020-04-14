@@ -174,3 +174,15 @@ ion-content.scroll-ios {
     padding: 0 45px !important;
   }
 }
+
+ion-input.form {
+  border-radius: 10px !important;
+  --background: var(--ion-color-light) !important;
+}
+
+ion-select.form {
+  max-width: 100% !important;
+  border-radius: 10px !important;
+  background: var(--ion-color-light) !important;
+  --background: var(--ion-color-light) !important;
+}

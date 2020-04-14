@@ -68,8 +68,8 @@ export class AuthService {
 
   async createUser(email: string, password: string) {
     await this.af.auth
-      .createUserWithEmailAndPassword(email, password).then(cred => {
-        cred.user.sendEmailVerification()
+      .createUserWithEmailAndPassword(email, password).then(async cred => {
+        await cred.user.sendEmailVerification();
         this.profileDoc = this.db.doc<Profile>(`users/${cred.user.uid}`);
         this.profile$ = this.profileDoc.valueChanges()
         .pipe(tap(next => {
@@ -80,10 +80,10 @@ export class AuthService {
             email: next.email,
             emailVerified: false,
             uid: next.uid,
-            displayName: 'DevTester',
+            displayName: null,
             url: null,
             lastTeam: null,
-            role: 'Tester'
+            role: null
           };
           this.updateProfile(cred.user.uid, profile).then(done => {
             this.subscription.unsubscribe();

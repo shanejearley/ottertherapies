@@ -9,7 +9,7 @@ import { ImageCropperModule } from 'ngx-image-cropper';
 import { ProfileRoutingModule } from './profile-routing.module';
 
 import { ProfileComponent } from './profile.component';
-import { ProfilePictureComponent } from 'src/app/shared/components/profile-picture/profile-picture.component';
+import { ProfilePictureComponent } from 'src/app/teams/profile/profile-picture/profile-picture.component';
 
 @NgModule({
   imports: [

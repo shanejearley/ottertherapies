@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, Params, RoutesRecognized } from '@angular/router';
+import { Router, RoutesRecognized } from '@angular/router';
 
 import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
-import { Observable, empty } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, filter } from 'rxjs/operators';
-import { of } from 'rxjs'
+import { tap } from 'rxjs/operators';
 
 import { AuthService, User } from '../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../auth/shared/services/profile/profile.service';
@@ -102,7 +101,7 @@ export class AppComponent implements OnInit {
   ) {
     this.initializeApp();
 
-    if (window.matchMedia('(prefers-color-scheme)').media !== 'not all') {console.log('🎉 Dark mode is supported');}
+    if (window.matchMedia('(prefers-color-scheme)').media !== 'not all') { console.log('🎉 Dark mode is supported'); }
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 
     toggleDarkTheme(prefersDark.matches);
@@ -146,6 +145,11 @@ export class AppComponent implements OnInit {
         this.pendingSub = this.pendingService.pendingObservable(user.uid).subscribe();
       }
     })
+    this.profile$.pipe(tap(profile => {
+      if (profile && !profile.displayName) {
+        this.router.navigate(['Teams/:id/Profile']);
+      }
+    })).subscribe();
     const path = window.location.pathname.split('Teams/:id/')[1];
     if (path !== undefined) {
       this.selectedIndex = this.appPages.findIndex(page => page.title.toLowerCase() === path.toLowerCase());
@@ -158,11 +162,23 @@ export class AppComponent implements OnInit {
           this.store.set('events', null);
           this.team$ = this.teamsService.getTeam(this.teamId);
           this.authService.userAuth.onAuthStateChanged(user => {
-            this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe(() => {
-              this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
-              this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
-              this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
-            });
+            if (user) {
+              if (this.teamId !== undefined) {
+
+                this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe(() => {
+                  this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
+                  this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
+                  this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
+                });
+  
+              } else {
+  
+                if (this.membersSub) { this.membersSub.unsubscribe() };
+                if (this.groupsSub) { this.groupsSub.unsubscribe() };
+                if (this.eventsSub) { this.eventsSub.unsubscribe() };
+                if (this.notesSub) { this.notesSub.unsubscribe() };
+              }
+            }
           })
           this.lastId = this.teamId;
         }
@@ -194,7 +210,7 @@ export class AppComponent implements OnInit {
       await this.groupsSub.unsubscribe();
       await this.membersSub.unsubscribe();
       await this.notesSub.unsubscribe();
-      await this.eventsSub.unsubscribe(); 
+      await this.eventsSub.unsubscribe();
     }
     return this.authService.logoutUser();
   }

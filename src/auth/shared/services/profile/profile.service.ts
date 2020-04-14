@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { AngularFireStorage } from '@angular/fire/storage';
+import 'firebase/storage';
 
 import { Store } from '../../../../store';
 
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, last, switchMap } from 'rxjs/operators';
 
-import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
+import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 
 export interface Profile {
     email: string,
@@ -26,10 +28,13 @@ export class ProfileService {
     private getProfileDoc: AngularFirestoreDocument<Profile>;
     profile$: Observable<Profile>;
     getProfileDoc$: Observable<Profile>;
+    downloadURL: string;
+    percentageChanges: any;
 
     constructor(
         private store: Store,
         private db: AngularFirestore,
+        private storage: AngularFireStorage,
         private authService: AuthService
     ) {
         this.authService.userAuth.onAuthStateChanged(user => {
@@ -41,22 +46,22 @@ export class ProfileService {
     profileObservable(userId: string) {
         this.profileDoc = this.db.doc<Profile>(`users/${userId}`);
         this.profile$ = this.profileDoc.valueChanges()
-        .pipe(tap(next => {
-            if (!next) {
-                this.store.set('profile', null);
-                return;
-            }
-            const profile: Profile = {
-                email: next.email,
-                emailVerified: next.emailVerified,
-                uid: next.uid,
-                displayName: next.displayName,
-                url: next.url,
-                lastTeam: next.lastTeam,
-                role: next.role
-            };
-            this.store.set('profile', profile)
-        }))
+            .pipe(tap(next => {
+                if (!next) {
+                    this.store.set('profile', null);
+                    return;
+                }
+                const profile: Profile = {
+                    email: next.email,
+                    emailVerified: next.emailVerified,
+                    uid: next.uid,
+                    displayName: next.displayName,
+                    url: next.url,
+                    lastTeam: next.lastTeam,
+                    role: next.role
+                };
+                this.store.set('profile', profile)
+            }))
         return this.profile$;
     }
 
@@ -68,9 +73,9 @@ export class ProfileService {
         return this.db.doc<Profile>(`users/${uid}`).update(profile);
     }
 
-    updateProfilePicture(uid: string, profile: Profile) {
-        //upload to storage
-        return this.updateProfile(uid, profile);
+    async updateProfilePicture(picture: string, profile: Profile) {
+        console.log('updateprofilepicture')
+        return this.uploadPicture(picture, profile)
     }
 
     getProfile(doc) {
@@ -82,6 +87,35 @@ export class ProfileService {
                 }
                 return doc.profile = next;
             })).subscribe();
+    }
+
+    uploadPicture(picture, profile) {
+        try {
+            console.log('tryuploadpicture')
+            const fileId = this.db.createId();
+            const filePath = `users/${this.uid}/profile/${fileId}`;
+            const storageRef = this.storage.ref(filePath);
+            console.log(picture);
+            const task = storageRef.putString(picture, 'data_url');
+            this.percentageChanges = task.percentageChanges();
+            task.snapshotChanges().pipe(
+                last(),
+                switchMap(() => storageRef.getDownloadURL())
+            ).subscribe(url => {
+                console.log('newUrl', url)
+                this.downloadURL = url;
+                profile.url = this.downloadURL;
+                console.log('profilebeforeupdate', profile);
+                this.updateProfile(this.uid, profile);
+                this.percentageChanges = null;
+            })
+        } catch (err) {
+            return err;
+        }
+    }
+
+    get uploadPercent() {
+        return this.percentageChanges;
     }
 
 }
