@@ -13,7 +13,9 @@ import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firest
 export interface User {
   email: string,
   uid: string,
-  authenticated: boolean
+  authenticated: boolean,
+  emailVerified: boolean,
+  mfa: boolean
 }
 
 export interface Profile {
@@ -38,10 +40,13 @@ export class AuthService {
           this.store.set('user', null);
           return;
         }
+        console.log('AUTH CALLED');
         const user: User = {
           email: next.email,
           uid: next.uid,
-          authenticated: true
+          authenticated: true,
+          emailVerified: next.emailVerified,
+          mfa: next.multiFactor.enrolledFactors.length > 0
         };
         this.store.set('user', user);
       })
@@ -52,8 +57,12 @@ export class AuthService {
     private af: AngularFireAuth,
     private db: AngularFirestore,
     private router: Router
-  ) {}
-  
+  ) { }
+
+  get afService() {
+    return this.af;
+  }
+
   get userAuth() {
     return this.af.auth;
   }
@@ -70,43 +79,51 @@ export class AuthService {
     await this.af.auth
       .createUserWithEmailAndPassword(email, password).then(async cred => {
         await cred.user.sendEmailVerification();
-        this.profileDoc = this.db.doc<Profile>(`users/${cred.user.uid}`);
-        this.profile$ = this.profileDoc.valueChanges()
-        .pipe(tap(next => {
-          if (!next) {
-            return;
-          }
-          const profile: Profile = {
-            email: next.email,
-            emailVerified: false,
-            uid: next.uid,
-            displayName: null,
-            url: null,
-            lastTeam: null,
-            role: null
-          };
-          this.updateProfile(cred.user.uid, profile).then(done => {
-            this.subscription.unsubscribe();
-            return this.router.navigate(['/']);
-          });
-        }));
-        this.subscription = this.profile$.subscribe();
       })
   }
 
-  async loginUser(email: string, password: string) {
-    await this.af.auth
-      .signInWithEmailAndPassword(email, password).then(cred => {
-        this.router.navigate(['/'])
-      });
+  resendVerification() {
+    return this.af.auth.currentUser.sendEmailVerification();
   }
 
-  logoutUser() {
-    return this.af.auth.signOut();
+  async reloadUser() {
+    return this.af.auth.currentUser.reload();
+  }
+
+  async loginUser(email: string, password: string) {
+    await this.af.auth.signInWithEmailAndPassword(email, password);
+  }
+
+  async logoutUser() {
+    await this.af.auth.signOut();
+    this.store.set('user', null);
+    this.store.set('profile', null);
+    this.store.set('teams', null);
+    this.store.set('groups', null);
+    this.store.set('members', null);
+    this.store.set('notes', null);
+    this.store.set('events', null);
+    return this.router.navigate(["/auth/login"])
   }
 
   updateProfile(uid: string, profile: Profile) {
     return this.db.doc<Profile>(`users/${uid}`).update(profile);
+  }
+
+  async deleteUser() {
+    try {
+      await this.user.delete();
+      this.store.set('user', null);
+      this.store.set('profile', null);
+      this.store.set('teams', null);
+      this.store.set('groups', null);
+      this.store.set('members', null);
+      this.store.set('notes', null);
+      this.store.set('events', null);
+      return this.router.navigate(["/auth/login"])
+    } catch (err) {
+      console.log(err);
+    }
   }
 
 }

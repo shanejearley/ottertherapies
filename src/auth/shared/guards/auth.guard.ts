@@ -20,6 +20,8 @@ export class AuthGuard implements CanActivate {
             this.router.navigate(['/auth/login']);
           } else if (!user.emailVerified) {
             this.router.navigate(['/auth/verify']);
+          } else if (!user.multiFactor.enrolledFactors.length) {
+            this.router.navigate(['/auth/two-factor']);
           }
           return !!user;
         })

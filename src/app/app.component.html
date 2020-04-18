@@ -1,6 +1,6 @@
 <ion-app>
   <ion-split-pane contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay" [disabled]="!(user$ | async)?.authenticated" color="tertiary">
+    <ion-menu contentId="main-content" type="overlay" [disabled]="!menu" color="tertiary">
       <ion-content>
         <ion-list id="inbox-list" lines="none">
           <ion-list-header class="top" *ngIf="(team$ | async); else elseHeader">{{ (team$ | async)?.name }}</ion-list-header>

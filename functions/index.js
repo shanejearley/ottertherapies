@@ -74,10 +74,9 @@ exports.authOnDelete = functions.auth.user().onDelete((user) => {
     //const email = user.email; // The email of the user.
     console.log('Making user document for ', user.uid, 'anonymous');
     return firestore.collection('users').doc(user.uid).set({
-        uid: user.uid,
         displayName: 'Deleted User',
         email: 'N/A',
-        url: 'N/A'
+        url: null
     }, { merge: true })
 });
 

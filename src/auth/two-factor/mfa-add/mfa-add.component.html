@@ -1,0 +1,20 @@
+<ion-header translucent>
+    <ion-toolbar>
+        <ion-title>Verify Account</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="dismiss()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+    <ion-list class="theme--list">
+        <ion-item lines="none" class="theme--item">
+            <ion-label>We sent a verification code to {{ userPhone }}</ion-label>
+        </ion-item>
+        <div id="recaptcha-button"></div>
+        <ion-label class="auth--label">
+            <ion-input [disabled]="!verified" class="auth--input" type="text" placeholder="Enter your 6 digit code" [(ngModel)]="code" (ionChange)="checkCode()"></ion-input>
+        </ion-label>
+    </ion-list>
+
+</ion-content>

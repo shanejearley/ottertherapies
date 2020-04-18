@@ -12,7 +12,6 @@ import { AuthService, User } from '../../../../auth/shared/services/auth/auth.se
 
 export interface Profile {
     email: string,
-    emailVerified: boolean,
     uid: string,
     displayName: string,
     url: string,
@@ -51,9 +50,9 @@ export class ProfileService {
                     this.store.set('profile', null);
                     return;
                 }
+                console.log('PROFILE RETRIEVED')
                 const profile: Profile = {
                     email: next.email,
-                    emailVerified: next.emailVerified,
                     uid: next.uid,
                     displayName: next.displayName,
                     url: next.url,

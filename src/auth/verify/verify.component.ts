@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../shared/services/auth/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-verify',
@@ -6,7 +8,31 @@ import { Component } from '@angular/core';
     templateUrl: 'verify.component.html'
 })
 export class VerifyComponent {
-    constructor() { }
+    error: boolean = false;
+    verified: boolean = false;
+    constructor(
+        private authService: AuthService,
+        private router: Router
+    ) { }
+
+    async continue() {
+        try {
+            await this.authService.reloadUser();
+            if (this.authService.user.emailVerified) {
+                console.log('verified');
+                this.router.navigate(['/'])
+            } else {
+                console.log('not verified yet');
+                this.error = true;
+            }
+        } catch (err) {
+            this.error = true;
+        }
+    }
+
+    resendVerification() {
+        return this.authService.resendVerification();
+    }
 }
 
 // ctrl.checkVerification = function () {

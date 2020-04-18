@@ -1,4 +1,5 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -37,6 +38,7 @@ export const firebaseConfig: FirebaseAppConfig = {
 @NgModule({
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule.forChild(ROUTES),
     IonicModule,
     AngularFireModule.initializeApp(firebaseConfig),
@@ -44,6 +46,7 @@ export const firebaseConfig: FirebaseAppConfig = {
     AngularFireStorageModule,
     SharedModule.forRoot()
   ],
+  schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   exports: [RouterModule]
 })
 export class AuthModule {}

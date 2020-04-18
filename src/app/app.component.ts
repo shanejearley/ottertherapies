@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Router, RoutesRecognized } from '@angular/router';
 
 import { Platform } from '@ionic/angular';
@@ -7,7 +7,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, map } from 'rxjs/operators';
 
 import { AuthService, User } from '../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../auth/shared/services/profile/profile.service';
@@ -42,6 +42,7 @@ export class AppComponent implements OnInit {
   lastId: string;
   page: string;
   loggedIn: boolean;
+  menu: boolean;
   public selectedIndex = 0;
   public appPages = [
     {
@@ -137,19 +138,7 @@ export class AppComponent implements OnInit {
     this.user$ = this.store.select<User>('user');
     this.profile$ = this.store.select<Profile>('profile');
     this.teams$ = this.store.select<Team[]>('teams');
-    this.authService.userAuth.onAuthStateChanged(user => {
-      if (user) {
-        this.authSub = this.authService.auth$.subscribe();
-        this.profileSub = this.profileService.profileObservable(user.uid).subscribe();
-        this.teamsSub = this.teamsService.teamsObservable(user.uid).subscribe();
-        this.pendingSub = this.pendingService.pendingObservable(user.uid).subscribe();
-      }
-    })
-    this.profile$.pipe(tap(profile => {
-      if (profile && !profile.displayName) {
-        this.router.navigate(['Teams/:id/Profile']);
-      }
-    })).subscribe();
+    this.subscribeUser();
     const path = window.location.pathname.split('Teams/:id/')[1];
     if (path !== undefined) {
       this.selectedIndex = this.appPages.findIndex(page => page.title.toLowerCase() === path.toLowerCase());
@@ -161,25 +150,7 @@ export class AppComponent implements OnInit {
           this.store.set('notes', null);
           this.store.set('events', null);
           this.team$ = this.teamsService.getTeam(this.teamId);
-          this.authService.userAuth.onAuthStateChanged(user => {
-            if (user) {
-              if (this.teamId !== undefined) {
-
-                this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe(() => {
-                  this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
-                  this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
-                  this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
-                });
-  
-              } else {
-  
-                if (this.membersSub) { this.membersSub.unsubscribe() };
-                if (this.groupsSub) { this.groupsSub.unsubscribe() };
-                if (this.eventsSub) { this.eventsSub.unsubscribe() };
-                if (this.notesSub) { this.notesSub.unsubscribe() };
-              }
-            }
-          })
+          this.subscribeUserTeam();
           this.lastId = this.teamId;
         }
         if (val.state.root.firstChild.params['id']) {
@@ -192,31 +163,74 @@ export class AppComponent implements OnInit {
     });
   }
 
-  async onLogout() {
-    await this.router.navigate(["/auth/login"])
-    await this.store.set('user', null);
-    await this.store.set('profile', null);
-    await this.store.set('teams', null);
-    await this.store.set('groups', null);
-    await this.store.set('members', null);
-    await this.store.set('notes', null);
-    await this.store.set('events', null);
-    await this.authSub.unsubscribe();
-    await this.profileSub.unsubscribe();
-    await this.teamsSub.unsubscribe();
-    await this.teamsSub.unsubscribe();
-    await this.pendingSub.unsubscribe();
-    if (this.groupsSub) {
-      await this.groupsSub.unsubscribe();
-      await this.membersSub.unsubscribe();
-      await this.notesSub.unsubscribe();
-      await this.eventsSub.unsubscribe();
+  async subscribeUserTeam() {
+    this.authService.authState
+      .pipe(map((user) => {
+        if (this.teamId !== 'undefined' && this.teamId !== ':id' && this.teamId !== null) {
+
+          this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe(() => {
+            this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
+            this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
+            this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
+          });
+
+        } else {
+
+          if (this.membersSub) { this.membersSub.unsubscribe() };
+          if (this.groupsSub) { this.groupsSub.unsubscribe() };
+          if (this.eventsSub) { this.eventsSub.unsubscribe() };
+          if (this.notesSub) { this.notesSub.unsubscribe() };
+        }
+      }
+      )).subscribe()
+  }
+
+  async subscribeUser() {
+    this.authSub = this.authService.auth$.subscribe();
+    this.user$
+      .pipe(
+        map((user) => {
+          if (user && user.authenticated && user.emailVerified && user.mfa && !this.menu) {
+            console.log(user, user.authenticated, user.emailVerified, user.mfa, !this.menu)
+            console.log('App has not subscribed to profile yet, so I will subscribe - app')
+            this.menu = true;
+            this.profileSub = this.profileService.profileObservable(user.uid).subscribe();
+            this.teamsSub = this.teamsService.teamsObservable(user.uid).subscribe();
+            this.pendingSub = this.pendingService.pendingObservable(user.uid).subscribe();
+          } else if (user && !user.authenticated) {
+            console.log('signed out')
+          }
+          return !!user;
+        })
+      ).subscribe();
+  }
+
+  async reloadUser(event: boolean) {
+    if (event) {
+      console.log('EVENT');
+      this.subscribeUser();
     }
-    return this.authService.logoutUser();
+  }
+
+  async onLogout() {
+    this.menu = false;
+    //this.authSub.unsubscribe();
+    if (this.profileSub) {
+      this.profileSub.unsubscribe();
+      this.teamsSub.unsubscribe();
+      this.pendingSub.unsubscribe();
+    }
+    if (this.groupsSub) {
+      this.groupsSub.unsubscribe();
+      this.membersSub.unsubscribe();
+      this.notesSub.unsubscribe();
+      this.eventsSub.unsubscribe();
+    }
+    await this.authService.logoutUser();
   }
 
   ngOnDestroy() {
-    this.authSub.unsubscribe();
+    //this.authSub.unsubscribe();
     this.profileSub.unsubscribe();
     this.teamsSub.unsubscribe();
     this.pendingSub.unsubscribe();

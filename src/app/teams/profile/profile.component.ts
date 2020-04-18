@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -9,6 +9,7 @@ import { AuthService, User } from '../../../auth/shared/services/auth/auth.servi
 import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../shared/services/teams/teams.service';
 import { ProfilePictureComponent } from './profile-picture/profile-picture.component';
+import { DeleteUserComponent } from './delete-user/delete-user.component';
 
 import { Store } from 'src/store';
 import { ModalController, ToastController } from '@ionic/angular';
@@ -42,6 +43,7 @@ export class ProfileComponent implements OnInit {
     { name: 'Case Worker' }
   ]
   selected: string;
+  profileSub: Subscription;
 
 
   constructor(
@@ -51,18 +53,23 @@ export class ProfileComponent implements OnInit {
     private teamsService: TeamsService,
     private profileService: ProfileService,
     private modalController: ModalController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private router: Router
   ) { }
 
   ngOnInit() {
     this.profile$ = this.store.select<Profile>('profile');
     this.profile$.pipe(tap(profile => {
       if (profile && !profile.displayName) {
+        this.profile = profile;
+        this.profile.displayName = '';
+        this.profile.role = '';
+        this.profile.lastTeam = '';
+        this.profile.url = '';
         this.firstTime = true;
         this.edit = true;
       } else if (profile) {
         this.profile = profile;
-        console.log(this.profile.role);
         this.selected = this.profile.role;
         this.roleList.forEach(role => {
           if (role.name == this.selected) {
@@ -72,6 +79,7 @@ export class ProfileComponent implements OnInit {
       }
     })).subscribe()
     this.subscriptions = [
+      this.profileSub
       //this.authService.auth$.subscribe(),
       //this.profileService.profile$.subscribe(),
       //this.teamsService.teams$.subscribe()
@@ -81,7 +89,37 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach(sub => {
+      if (sub) {
+        sub.unsubscribe()
+      }
+    });
+  }
+
+  async deleteUserModal() {
+    const modal = await this.modalController.create({
+      component: DeleteUserComponent,
+      // componentProps: {
+      //   'teamId': this.teamId,
+      //   'groupId': this.groupId
+      // }
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'delete') {
+        this.presentDeleteUserToast();
+        this.authService.deleteUser();
+      }
+    });
+    await modal.present();
+  }
+
+  async presentDeleteUserToast() {
+    const toast = await this.toastController.create({
+      message: 'We are sorry to see you go! &#128075;',
+      duration: 2000
+    });
+    toast.present();
   }
 
   async profilePictureModal() {
@@ -124,7 +162,13 @@ export class ProfileComponent implements OnInit {
   async updateProfile() {
     this.edit = false;
     await this.profileService.updateProfile(this.uid, this.profile);
-    return this.presentProfileUpdateToast();
+    await this.presentProfileUpdateToast();
+    if (this.firstTime) {
+      this.firstTime = false;
+      return this.router.navigate(['/Teams']);
+    } else {
+      return;
+    }
   }
 
   onChange(ev) {
@@ -132,6 +176,10 @@ export class ProfileComponent implements OnInit {
     this.roleList.forEach(role => {
       console.log(role);
     })
+  }
+
+  deleteUser() {
+    return this.deleteUserModal();
   }
 
 }

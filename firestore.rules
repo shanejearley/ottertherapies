@@ -6,6 +6,10 @@ service cloud.firestore {
       return request.auth.uid != null;
     }
     
+    function emailVerified() {
+    	return request.auth.token.email_verified;
+    }
+    
     function userAccess(userId) {
     	return request.auth.uid == userId;
     }
@@ -51,61 +55,61 @@ service cloud.firestore {
     }
     
   	match /users/{userId} {
-    	allow read, write: if signedIn() && userAccess(userId) || signedIn() && otherUserAccess(userId);
+    	allow read, write: if signedIn() && emailVerified() && userAccess(userId) || signedIn() && emailVerified() && otherUserAccess(userId);
       match /teams/{teamId} {
-      	allow read, write: if signedIn() && userAccess(userId);
+      	allow read, write: if signedIn() && emailVerified() && userAccess(userId);
         match /groups/{groupId} {
-        	allow read, write: if signedIn() && userAccess(userId);
+        	allow read, write: if signedIn() && emailVerified() && userAccess(userId);
         }
         match /files/{fileId} {
-        	allow read, write: if signedIn() && userAccess(userId);
+        	allow read, write: if signedIn() && emailVerified() && userAccess(userId);
         }
         match /unread/{unreadId} {
-        	allow read, write: if signedIn() && userAccess(userId);
+        	allow read, write: if signedIn() && emailVerified() && userAccess(userId);
         }
       }
       match /pendingTeams/{teamId} {
-      	allow read, write: if signedIn() && userAccess(userId);
+      	allow read, write: if signedIn() && emailVerified() && userAccess(userId);
       }
     }
     
     match /teams/{teamId} {
-      allow read, write: if signedIn() && teamAccess(teamId) || signedIn() && pendingTeamAccess(teamId);
+      allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) || signedIn() && emailVerified() && pendingTeamAccess(teamId);
       match /members/{memberUid} {
-      	allow read: if signedIn() && teamAccess(teamId);
-        allow write: if signedIn() && teamAdmin(teamId) || signedIn() && pendingTeamAccess(teamId) && !memberExists(teamId, memberUid) && memberUid == request.auth.uid;
+      	allow read: if signedIn() && emailVerified() && teamAccess(teamId);
+        allow write: if signedIn() && emailVerified() && teamAdmin(teamId) || signedIn() && emailVerified() && pendingTeamAccess(teamId) && !memberExists(teamId, memberUid) && memberUid == request.auth.uid;
       }
       match /pendingMembers/{memberUid} {
-      	allow read, write: if signedIn() && teamAdmin(teamId) || signedIn() && teamAdmin(teamId) && !pendingMemberExists(teamId, memberUid);
+      	allow read, write: if signedIn() && emailVerified() && teamAdmin(teamId) || signedIn() && emailVerified() && teamAdmin(teamId) && !pendingMemberExists(teamId, memberUid);
       }
       match /direct/{directId} {
-      	allow read, write: if signedIn() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && teamAccess(teamId) && !directExists(teamId, directId);
+      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
         match /members/{memberUid} {
-      		allow read, write: if signedIn() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && teamAccess(teamId) && !directExists(teamId, directId);
+      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
         }
         match /messages/{memberUid} {
-      		allow read, write: if signedIn() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && teamAccess(teamId) && !directExists(teamId, directId);
+      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
         }
         match /files/{memberUid} {
-      		allow read, write: if signedIn() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && teamAccess(teamId) && !directExists(teamId, directId);
+      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && teamAccess(teamId) && emailVerified() && !directExists(teamId, directId);
         }
       }
       match /calendar/{eventId=**} {
-      	allow read, write: if signedIn() && teamAccess(teamId);
+      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId);
       }
       match /notes/{noteId=**} {
-      	allow read, write: if signedIn() && teamAccess(teamId);
+      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId);
       }
       match /groups/{groupId} {
-      	allow read, write: if signedIn() && teamAccess(teamId) && groupAccess(teamId, groupId);
+      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && groupAccess(teamId, groupId);
         match /members/{memberUid} {
-      		allow read, write: if signedIn() && teamAccess(teamId) && groupAccess(teamId, groupId);
+      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && groupAccess(teamId, groupId);
         }
         match /messages/{messageId} {
-        	allow read, write: if signedIn() && teamAccess(teamId) && groupAccess(teamId, groupId);
+        	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && groupAccess(teamId, groupId);
         }
         match /files/{fileId} {
-          allow read, write: if signedIn() && teamAccess(teamId) && groupAccess(teamId, groupId);
+          allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && groupAccess(teamId, groupId);
         }
       }
     }

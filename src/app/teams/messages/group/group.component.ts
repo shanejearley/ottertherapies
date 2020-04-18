@@ -41,6 +41,7 @@ export class GroupComponent implements OnInit {
   date: Date;
   time: number;
   data: any;
+  messages: Message[];
 
   constructor(
     private store: Store,
@@ -56,6 +57,7 @@ export class GroupComponent implements OnInit {
   ngAfterViewInit() {
     this.group$.pipe(tap(group => {
       if (group && group.messages.length) {
+        this.messages = group.messages;
         this.scrollToBottom(0);
         this.checkUnread();
         this.mutationObserver = new MutationObserver((mutations) => {

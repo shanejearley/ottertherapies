@@ -1,1 +1,31 @@
-<h1>verify</h1>
+<ion-card class="auth--card">
+    <img class="auth--logo" src="../assets/img/otter_logo.svg" width="25%">
+    <ion-card-content>
+        <h1>Email verification</h1>
+        <ion-grid>
+            <ion-row class="ion-justify-content-center">
+                <ion-col class="ion-justify-content-center" size="12">
+                    <ion-icon class="large-icon" name="mail-unread-outline"></ion-icon>
+                </ion-col>
+                <ion-col class="ion-justify-content-center" size="auto">
+                    We sent you a verification email
+                </ion-col> 
+                <ion-col class="ion-justify-content-center" size="auto">
+                    Click the link in the email to complete
+                </ion-col> 
+                <ion-col class="ion-justify-content-center" size="auto">
+                    (If you don't see it, check spam)
+                </ion-col> 
+                <ion-col class="ion-justify-content-center" size="auto" *ngIf="error">
+                    <ion-text color="danger">You still need to verify your email</ion-text>
+                </ion-col> 
+            </ion-row>
+        </ion-grid>
+        <div class="auth--card__action">
+            <ion-button expand="block" (click)="continue()">Continue</ion-button>
+        </div>
+        <div class="auth--card__toggle">
+            <a [routerLink]="" (click)="resendVerification()">No email? Try sending again</a>
+        </div>
+    </ion-card-content>
+</ion-card>

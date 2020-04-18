@@ -39,7 +39,7 @@
       <ion-card-content>
         <ion-fab vertical="top" horizontal="center" slot="fixed" edge>
           <ion-fab-button size="small" (click)="profilePictureModal()">
-            <ion-icon [ios]="'camera' + '-outline'" [md]="'camera' + '-sharp'"></ion-icon>
+            <ion-icon name="camera-outline"></ion-icon>
           </ion-fab-button>
         </ion-fab>
         <ion-list>
@@ -47,19 +47,19 @@
             Your Info
           </ion-list-header>
           <ion-item lines="none" *ngIf="(profile$ | async)">
-            <ion-icon slot="start" [ios]="'person' + '-outline'" [md]="'person' + '-sharp'"></ion-icon>
+            <ion-icon slot="start" name="person-outline"></ion-icon>
             <ion-label *ngIf="edit == false; else editName">
               <h2><strong>{{ (profile$ | async)?.displayName }}</strong></h2>
             </ion-label>
             <ng-template #editName>
               <h2><strong>
-                  <ion-input class="form" [(ngModel)]="profile.displayName" placeholder="Add a short display name">
+                  <ion-input class="form" [(ngModel)]="profile.displayName" placeholder="Add a display name">
                   </ion-input>
                 </strong></h2>
             </ng-template>
           </ion-item>
           <ion-item lines="none" *ngIf="(profile$ | async)">
-            <ion-icon slot="start" [ios]="'mail' + '-outline'" [md]="'mail' + '-sharp'"></ion-icon>
+            <ion-icon slot="start" name="mail-outline"></ion-icon>
             <ion-label>
               <h2>{{ (profile$ | async)?.email }}</h2>
             </ion-label>
@@ -68,7 +68,7 @@
             </ion-button>
           </ion-item>
           <ion-item lines="none" *ngIf="(profile$ | async)">
-            <ion-icon slot="start" [ios]="'people' + '-outline'" [md]="'people' + '-sharp'"></ion-icon>
+            <ion-icon slot="start" name="people-outline"></ion-icon>
             <ion-label *ngIf="edit == false; else editRole">
               <h2>{{ (profile$ | async)?.role }}</h2>
             </ion-label>
@@ -89,3 +89,11 @@
     </ion-card>
   </div>
 </ion-content>
+
+<ion-footer [translucent]="true">
+  <ion-toolbar>
+      <ion-row class="ion-justify-content-end">
+          <ion-button (click)="deleteUser()" fill="clear" color="danger" expand="block">Delete Account</ion-button>
+      </ion-row>
+  </ion-toolbar>
+</ion-footer>

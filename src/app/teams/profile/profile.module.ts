@@ -10,6 +10,7 @@ import { ProfileRoutingModule } from './profile-routing.module';
 
 import { ProfileComponent } from './profile.component';
 import { ProfilePictureComponent } from 'src/app/teams/profile/profile-picture/profile-picture.component';
+import { DeleteUserComponent } from './delete-user/delete-user.component';
 
 @NgModule({
   imports: [
@@ -20,8 +21,8 @@ import { ProfilePictureComponent } from 'src/app/teams/profile/profile-picture/p
     ImageCropperModule,
     ProfileRoutingModule
   ],
-  entryComponents: [ProfilePictureComponent],
+  entryComponents: [ProfilePictureComponent, DeleteUserComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [ProfileComponent, ProfilePictureComponent]
+  declarations: [ProfileComponent, ProfilePictureComponent, DeleteUserComponent]
 })
 export class ProfileModule {}

@@ -81,8 +81,8 @@ ion-item.theme--item {
 ion-card.message--card {
     margin-inline-start: 0;
     margin-inline-end: 0;
-    margin-top: 2.5px;
-    margin-bottom: 2.5px;
+    margin-top: 0px;
+    margin-bottom: 0px;
     max-width: 100% !important;
     overflow-x: hidden !important;
 }
@@ -176,13 +176,20 @@ ion-content.scroll-ios {
 }
 
 ion-input.form {
+  --padding-start: 15px !important;
+  max-width: 100% !important;
   border-radius: 10px !important;
   --background: var(--ion-color-light) !important;
 }
 
 ion-select.form {
+  --padding-end: 15px !important;
   max-width: 100% !important;
   border-radius: 10px !important;
   background: var(--ion-color-light) !important;
   --background: var(--ion-color-light) !important;
+}
+
+ion-icon.large-icon {
+  font-size: 48px;
 }

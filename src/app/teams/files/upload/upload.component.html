@@ -5,26 +5,21 @@
             <ion-button (click)="dismiss()">Close</ion-button>
         </ion-buttons>
     </ion-toolbar>
+    <ion-progress-bar slot="start" [value]="(uploadPercent | async)"></ion-progress-bar>
 </ion-header>
 <ion-content fullscreen>
     <ion-list>
-
-        <ion-list-header>
-            Name File
-        </ion-list-header>
-
         <ion-item lines="none">
             <ion-thumbnail slot="start">
                 <img *ngIf="photo" [src]="photo">
             </ion-thumbnail>
-            <ion-input [(ngModel)]="photoName"></ion-input>
+            <ion-input class="form" [(ngModel)]="photoName" placeholder="Add file name"></ion-input>
             <ion-text>.pdf</ion-text>
         </ion-item>
-
-        <ion-list-header>
-            Choose Folder(s)
-        </ion-list-header>
-
+        <ion-item lines="none" class="theme--item">
+            <ion-icon slot="start" name="folder-outline"></ion-icon>
+            <ion-label>Select folders</ion-label>
+        </ion-item>
         <div *ngFor="let g of (groups$ | async); let i = index">
             <ion-item lines="none" detail="false">
                 <ion-avatar slot="start">
@@ -71,18 +66,14 @@
                 <ion-checkbox slot="end" [(ngModel)]="m.isChecked"></ion-checkbox>
             </ion-item>
         </div>
-        <!-- <ion-item lines="none"></ion-item> -->
+        <ion-item lines="none" class="theme--item"></ion-item>
+    </ion-list>
+</ion-content>
 
-        <ion-list-header>
-            Upload File
-        </ion-list-header>
-
-        <ion-item lines="none">
-            <ion-progress-bar slot="start" [value]="uploadPercent | async"></ion-progress-bar>
-        </ion-item>
-
+<ion-footer [translucent]="true">
+    <ion-toolbar>
         <ion-row class="ion-justify-content-center">
             <ion-button size="large" (click)="loopFolders()">Upload</ion-button>
         </ion-row>
-    </ion-list>
-</ion-content>
+    </ion-toolbar>
+</ion-footer>

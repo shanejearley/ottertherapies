@@ -6,5 +6,10 @@
     <param name="ios-package" value="Scan"/>
   </feature>
 
+  <feature name="FirebasePlugin">
+    <param name="ios-package" value="FirebasePlugin"/>
+    <param name="onload" value="true"/>
+  </feature>
+
   
 </widget>

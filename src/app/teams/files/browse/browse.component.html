@@ -4,8 +4,8 @@
         <ion-buttons slot="end">
             <ion-button (click)="dismiss()">Close</ion-button>
         </ion-buttons>
-        <ion-progress-bar [value]="uploadPercent | async"></ion-progress-bar>
     </ion-toolbar>
+    <ion-progress-bar [value]="(uploadPercent | async)"></ion-progress-bar>
 </ion-header>
 <ion-content fullscreen>
     <ion-list>

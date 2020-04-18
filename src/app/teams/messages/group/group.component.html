@@ -25,10 +25,20 @@
       <ion-item class="message--list" lines="none"></ion-item>
       <div *ngFor="let m of (group$ | async)?.messages; let i = index; trackBy: trackFn; let last = last">
 
-        <ion-item class="message--list" lines="none">
+        <ion-row class="ion-justify-content-center" *ngIf="(group$ | async)?.messages[i-1] && m.timestamp.toMillis() - (group$ | async)?.messages[i-1].timestamp.toMillis() > 900000 || !(group$ | async)?.messages[i-1]">
+          <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time"
+            color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
+          <ng-template #elseDate>
+            <ion-text class="message--time" color="medium">Today,
+              {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
+          </ng-template>
+        </ion-row>
+
+        <ion-item *ngIf="m.profile" class="message--list" lines="none">
+          
           <ion-row class="member--row" slot="start"
             *ngIf="m.profile && m.uid !== (profile$ | async)?.uid; else elseUserMessage">
-            <ion-avatar class="dialog--member">
+            <ion-avatar *ngIf="m.profile && (group$ | async)?.messages[i+1] && m.profile !== (group$ | async)?.messages[i+1].profile || m.profile && !(group$ | async)?.messages[i+1] || (group$ | async)?.messages[i+1] && (group$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 900000" class="dialog--member">
               <img *ngIf="m.profile.url; else elseTextAvatar" src="{{ m.profile.url }}">
               <ng-template #elseTextAvatar>
                 <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
@@ -36,24 +46,15 @@
             </ion-avatar>
 
             <ion-col class="member--col" size="auto">
-              <ion-row class="message--name">
+              <!-- <ion-row class="message--name">
                 <ion-text class="message--name" color="medium">{{ m.profile.displayName }}</ion-text>
-              </ion-row>
+              </ion-row> -->
 
               <ion-card color="light" class="dialog member message--card">
                 <ion-card-content>
                   <h2 text-wrap>{{ m.body }}</h2>
                 </ion-card-content>
               </ion-card>
-
-              <ion-row class="ion-justify-content-end">
-                <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time"
-                  color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
-                <ng-template #elseDate>
-                  <ion-text class="message--time" color="medium">Today,
-                    {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
-                </ng-template>
-              </ion-row>
 
             </ion-col>
           </ion-row>
@@ -62,9 +63,9 @@
             <ion-row class="user--row" slot="end">
               <ion-col class="user--col">
 
-                <ion-row>
+                <!-- <ion-row>
                   <ion-text class="message--name" color="medium">{{ m.profile.displayName }}</ion-text>
-                </ion-row>
+                </ion-row> -->
 
                 <ion-card *ngIf="m.profile" color="primary" class="dialog message--card message--user">
                   <ion-card-content>
@@ -72,17 +73,8 @@
                   </ion-card-content>
                 </ion-card>
 
-                <ion-row class="ion-justify-content-end">
-                  <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time"
-                    color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
-                  <ng-template #elseDate>
-                    <ion-text class="message--time" color="medium">Today,
-                      {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
-                  </ng-template>
-                </ion-row>
-
               </ion-col>
-              <ion-avatar class="dialog--user" *ngIf="m.profile && m.uid === (profile$ | async)?.uid">
+              <ion-avatar class="dialog--user" *ngIf="m.profile && m.uid === (profile$ | async)?.uid && (group$ | async)?.messages[i+1] && m.profile !== (group$ | async)?.messages[i+1].profile || m.profile && m.uid === (profile$ | async)?.uid && !(group$ | async)?.messages[i+1] || m.profile && m.uid === (profile$ | async)?.uid && (group$ | async)?.messages[i+1] && (group$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 900000">
                 <img *ngIf="m.profile.url; else elseTextAvatar" src="{{ m.profile.url }}">
                 <ng-template #elseTextAvatar>
                   <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>

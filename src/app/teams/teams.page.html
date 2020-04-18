@@ -56,6 +56,12 @@
         </ion-item>
       </ion-card>
 
+      <ion-item lines="none" class="theme--item" *ngIf="(teams$ | async) && !(teams$ | async).length">
+        <ion-label>
+          <h2><strong>No teams yet</strong></h2>
+        </ion-label>
+      </ion-item>
+
       <ion-list-header *ngIf="(pending$ | async) && (pending$ | async).length">
         Pending Teams
       </ion-list-header>
