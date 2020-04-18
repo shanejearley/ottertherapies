@@ -26,7 +26,8 @@
                   </ngx-avatar>
                 </ion-thumbnail>
                 <ion-label>
-                  <h2><strong>{{ (team$ | async)?.name }}</strong></h2>
+                  <strong><h1>{{ (team$ | async)?.name }}</h1></strong>
+                  <!-- <h2><strong>{{ (team$ | async)?.name }}</strong></h2> -->
                 </ion-label>
               </ion-item>
             <!-- </ion-card-header> -->
@@ -45,7 +46,7 @@
               <ion-item lines="none" class="theme--item">
                 <ion-label>
                   <h2 class="white">
-                    Events
+                    <strong>Events</strong>
                   </h2>
                 </ion-label>
                 <ion-badge class="white">1</ion-badge>
@@ -67,7 +68,7 @@
               <ion-item lines="none" class="theme--item">
                 <ion-label>
                   <h2 class="white">
-                    Messages
+                    <strong>Messages</strong>
                   </h2>
                 </ion-label>
               </ion-item>
@@ -88,7 +89,7 @@
               <ion-item lines="none" class="theme--item">
                 <ion-label>
                   <h2 class="white">
-                    Files
+                    <strong>Files</strong>
                   </h2>
                 </ion-label>
               </ion-item>
@@ -109,7 +110,7 @@
               <ion-item lines="none" class="theme--item">
                 <ion-label>
                   <h2 class="white">
-                    Notes
+                    <strong>Notes</strong>
                   </h2>
                 </ion-label>
               </ion-item>
@@ -121,24 +122,24 @@
             <ion-card-header>
               <ion-list>
                 <ion-item lines="none" routerDirection="root" (click)="goTo('Team')" button>
-                  <ion-icon slot="start" class="dashboard--icon" name="people-outline"></ion-icon>
+                  <ion-icon slot="start" class="dashboard--icon--extra" name="people-outline"></ion-icon>
                   <!-- <ion-icon slot="start" class="dashboard--icon" src="assets/custom-icons/people-outline.svg"></ion-icon> -->
                   <ion-label>
-                    <h2>Team</h2>
+                    <h2><strong>Team</strong></h2>
                   </ion-label>
                 </ion-item>
                 <ion-item lines="none" routerDirection="root" (click)="goTo('Child')" button>
-                  <ion-icon slot="start" class="dashboard--icon" name="happy-outline"></ion-icon>
+                  <ion-icon slot="start" class="dashboard--icon--extra" name="happy-outline"></ion-icon>
                   <!-- <ion-icon slot="start" class="dashboard--icon" src="assets/custom-icons/happy-outline.svg"></ion-icon> -->
                   <ion-label>
-                    <h2>Child</h2>
+                    <h2><strong>Child</strong></h2>
                   </ion-label>
                 </ion-item>
                 <ion-item lines="none" routerDirection="root" (click)="goTo('Resources')" button>
-                  <ion-icon slot="start" class="dashboard--icon" name="link-outline"></ion-icon>
+                  <ion-icon slot="start" class="dashboard--icon--extra" name="link-outline"></ion-icon>
                   <!-- <ion-icon slot="start" class="dashboard--icon" src="assets/custom-icons/link-outline.svg"></ion-icon> -->
                   <ion-label>
-                    <h2>Resources</h2>
+                    <h2><strong>Resources</strong></h2>
                   </ion-label>
                 </ion-item>
               </ion-list>

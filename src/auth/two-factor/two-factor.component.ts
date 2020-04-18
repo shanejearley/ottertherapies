@@ -1,9 +1,7 @@
 import { Component, OnInit, AfterViewInit, Output, EventEmitter } from '@angular/core';
 
-import * as firebase from 'firebase/app';
 import { AuthService } from '../shared/services/auth/auth.service';
-import { Config, AlertController, ModalController } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { Config, ModalController } from '@ionic/angular';
 import { MfaAddComponent } from './mfa-add/mfa-add.component';
 
 @Component({
@@ -18,17 +16,14 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
     userPhone: string = '';
     password: string = '';
     error: boolean = false;
-    ios: boolean;
     data: any;
     constructor(
         private authService: AuthService,
         private config: Config,
         private modalController: ModalController,
-        private router: Router
     ) { }
 
     ngOnInit() {
-        this.ios = this.config.get('mode') === 'ios';
     }
 
     ngAfterViewInit() {
@@ -58,5 +53,5 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
         this.request = true;
         this.verifyDeviceModal();
     }
-    
+
 }
