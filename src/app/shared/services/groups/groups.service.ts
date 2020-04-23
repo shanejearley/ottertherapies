@@ -314,15 +314,14 @@ export class GroupsService {
       members: null
     }
     this.groupsCol = this.db.collection<Group>(`teams/${this.teamId}/groups`);
-    return this.groupsCol.add(newGroup).then(docRef => {
+    return this.groupsCol.add(newGroup).then(async docRef => {
       this.membersCol = this.db.collection(`teams/${this.teamId}/groups/${docRef.id}/members`);
+      await this.membersCol.doc(this.uid).set({
+        uid: this.uid,
+        status: "Admin"
+      }, { merge: true })
       return group.members.forEach(m => {
-        if (m.uid == this.uid) {
-          return this.membersCol.doc(m.uid).set({
-            uid: m.uid,
-            status: "Admin"
-          }, { merge: true })
-        } else {
+        if (m.uid !== this.uid) {
           return this.membersCol.doc(m.uid).set({
             uid: m.uid,
             status: "Member"

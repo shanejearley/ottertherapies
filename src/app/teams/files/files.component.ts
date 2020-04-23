@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ModalController, ToastController } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet } from '@ionic/angular';
 import { Plugins } from '@capacitor/core';
 const { Browser } = Plugins;
 import { AngularFirestore } from '@angular/fire/firestore'
@@ -63,6 +63,7 @@ export class FilesComponent implements OnInit {
     private groupsService: GroupsService,
     private membersService: MembersService,
     private authService: AuthService,
+    private routerOutlet: IonRouterOutlet
   ) { }
 
   ngOnInit() {
@@ -114,7 +115,9 @@ export class FilesComponent implements OnInit {
       component: ScanComponent,
       componentProps: {
         'photo': this.photo
-      }
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;
@@ -137,7 +140,9 @@ export class FilesComponent implements OnInit {
         'photoName': this.photoName,
         'teamId': this.teamId,
         'pdfData': this.pdfData
-      }
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;
@@ -153,7 +158,9 @@ export class FilesComponent implements OnInit {
       component: BrowseComponent,
       componentProps: {
         'teamId': this.teamId
-      }
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;
@@ -210,7 +217,9 @@ export class FilesComponent implements OnInit {
       componentProps: {
         'teamId': this.teamId,
         'groupId': groupId
-      }
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;
@@ -234,7 +243,9 @@ export class FilesComponent implements OnInit {
       component: CreateGroupComponent,
       componentProps: {
         'teamId': this.teamId,
-      }
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;

@@ -12,6 +12,7 @@ import { Note } from './app/shared/services/notes/notes.service';
 import { Event } from './app/shared/services/events/events.service';
 import { Pending } from './app/shared/services/pending/pending.service';
 import { Injectable } from "@angular/core";
+import { Resource } from './app/shared/services/resources/resources.service';
 
 export interface State {
   user: User,
@@ -22,6 +23,7 @@ export interface State {
   members: Member[],
   notes: Note[],
   events: Event[],
+  resources: Resource[],
   selected: any,
   list: any,
   date: Date,
@@ -37,6 +39,7 @@ const state: State = {
   members: undefined,
   notes: undefined,
   events: undefined,
+  resources: undefined,
   selected: undefined,
   list: undefined,
   date: undefined,

@@ -34,12 +34,12 @@ export class MfaAddComponent implements AfterViewInit {
 
     ngAfterViewInit() {
         this.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-button', {
-            'size': 'normal',
+            'size': 'invisible',
             'callback': (response) => {
                 if (response) {
                     this.verified = true;
+                    this.checkCode();
                 }
-                console.log(response);
             }
         });
     }
@@ -65,7 +65,7 @@ export class MfaAddComponent implements AfterViewInit {
     }
 
     async checkCode() {
-        if (this.code.length === 6) {
+        if (this.code.length === 6 && this.verified) {
             try {
                 const mfaDisplayName = "2FA Mobile Device 1"
                 var cred = firebase.auth.PhoneAuthProvider.credential(
@@ -80,6 +80,12 @@ export class MfaAddComponent implements AfterViewInit {
                 this.error = err.message;
                 this.addFailure();
             }
+        } else if (this.code.length === 6 && !this.verified) {
+            console.log("Verify you are not a robot!")
+        } else if (this.code.length !== 6 && this.verified) {
+            console.log("Enter your code!");
+        } else {
+            console.log("Verify you are not a robot and enter your code!");
         }
     }
 

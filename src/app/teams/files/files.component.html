@@ -34,7 +34,7 @@
 
   <div id="container">
 
-    <ion-list class="theme--list">
+    <ion-list class="theme--list" lines="none">
 
       <ion-list-header>
         Group Folders
@@ -61,9 +61,9 @@
             </ion-item>
           </ion-card>
           <div *ngIf="g.show">
-            <ion-list inset="true">
+            <ion-list inset="true" lines="none">
               <div *ngIf="g.files.length; else elseFile">
-                <ion-item *ngFor="let f of g.files; let i = index">
+                <ion-item *ngFor="let f of g.files; let i = index" lines="inset">
                   <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
                   <ion-label>
                     <h2>{{ f.name }}</h2>
@@ -127,7 +127,7 @@
             </ion-item>
           </ion-card>
           <div *ngIf="m.show && m.uid !== (profile$ | async)?.uid">
-            <ion-list inset="true">
+            <ion-list inset="true" lines="none">
               <div *ngIf="m.files.length; else elseFile">
                 <ion-item *ngFor="let f of m.files; let i = index" lines="none">
                   <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
@@ -183,7 +183,7 @@
             </ion-item>
           </ion-card>
           <div *ngIf="m.show && m.uid === (profile$ | async)?.uid">
-            <ion-list inset="true">
+            <ion-list inset="true" lines="none">
               <div *ngIf="m.files.length; else elseFile">
                 <ion-item *ngFor="let f of m.files; let i = index" lines="none">
                   <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>

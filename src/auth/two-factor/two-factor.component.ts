@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, Output, EventEmitter } from '@angular/core';
 
 import { AuthService } from '../shared/services/auth/auth.service';
-import { Config, ModalController } from '@ionic/angular';
+import { Config, ModalController, IonRouterOutlet } from '@ionic/angular';
 import { MfaAddComponent } from './mfa-add/mfa-add.component';
 
 @Component({
@@ -21,6 +21,7 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
         private authService: AuthService,
         private config: Config,
         private modalController: ModalController,
+        private routerOutlet: IonRouterOutlet
     ) { }
 
     ngOnInit() {
@@ -35,7 +36,9 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
             component: MfaAddComponent,
             componentProps: {
                 'userPhone': this.userPhone
-            }
+            },
+            swipeToClose: true,
+            presentingElement: this.routerOutlet.nativeEl
         });
         modal.onWillDismiss().then((data) => {
             this.data = data.data;
@@ -52,6 +55,10 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
         await this.authService.loginUser(this.authService.user.email, this.password);
         this.request = true;
         this.verifyDeviceModal();
+    }
+
+    async onLogout() {
+        await this.authService.logoutUser();
     }
 
 }

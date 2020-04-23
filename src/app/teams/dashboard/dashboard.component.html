@@ -26,8 +26,7 @@
                   </ngx-avatar>
                 </ion-thumbnail>
                 <ion-label>
-                  <strong><h1>{{ (team$ | async)?.name }}</h1></strong>
-                  <!-- <h2><strong>{{ (team$ | async)?.name }}</strong></h2> -->
+                  <h1>{{ (team$ | async)?.name }}</h1>
                 </ion-label>
               </ion-item>
             <!-- </ion-card-header> -->
@@ -36,11 +35,12 @@
         <ion-col size="6">
           <ion-card
             color="secondary"
-            class="half--margin--right half--margin--bottom half--margin--top"
+            class="dashboard--card half--margin--right half--margin--bottom half--margin--top"
             routerDirection="root" (click)="goTo('Events')" button>
             <ion-card-header>
               <ion-item lines="none" class="theme--item">
                 <ion-icon slot="start" class="dashboard--icon white" name="calendar-outline"></ion-icon>
+                <ion-badge class="white">1</ion-badge>
                 <!-- <ion-icon slot="start" class="dashboard--icon" src="assets/custom-icons/calendar-outline.svg"></ion-icon> -->
               </ion-item>
               <ion-item lines="none" class="theme--item">
@@ -49,7 +49,6 @@
                     <strong>Events</strong>
                   </h2>
                 </ion-label>
-                <ion-badge class="white">1</ion-badge>
               </ion-item>
             </ion-card-header>
           </ion-card>
@@ -62,8 +61,8 @@
             <ion-card-header>
               <ion-item lines="none" class="theme--item">
                 <ion-icon slot="start" class="dashboard--icon white" name="chatbubbles-outline"></ion-icon>
+                <ion-badge class="white" *ngIf="(team$ | async)?.unreadMessages > 1">{{ (team$ | async)?.unreadMessages }}</ion-badge>
                 <!-- <ion-icon slot="start" class="dashboard--icon" src="assets/custom-icons/chatbubbles-outline.svg"></ion-icon> -->
-                <ion-badge *ngIf="(team$ | async)?.unreadMessages > 1">{{ (team$ | async)?.unreadMessages }}</ion-badge>
               </ion-item>
               <ion-item lines="none" class="theme--item">
                 <ion-label>
@@ -83,8 +82,8 @@
             <ion-card-header>
               <ion-item lines="none" class="theme--item">
                 <ion-icon slot="start" class="dashboard--icon white" name="document-text-outline"></ion-icon>
+                <ion-badge class="white" *ngIf="(team$ | async)?.unreadFiles > 1">{{ (team$ | async)?.unreadFiles }}</ion-badge>
                 <!-- <ion-icon slot="start" class="dashboard--icon" src="assets/custom-icons/document-text-outline.svg"></ion-icon> -->
-                <ion-badge *ngIf="(team$ | async)?.unreadFiles > 1">{{ (team$ | async)?.unreadFiles }}</ion-badge>
               </ion-item>
               <ion-item lines="none" class="theme--item">
                 <ion-label>
@@ -104,8 +103,8 @@
             <ion-card-header>
               <ion-item lines="none" class="theme--item">
                 <ion-icon slot="start" class="dashboard--icon white" name="newspaper-outline"></ion-icon>
+                <ion-badge class="white" *ngIf="(team$ | async)?.unreadNotes > 1">{{ (team$ | async)?.unreadNotes }}</ion-badge>
                 <!-- <ion-icon slot="start" class="dashboard--icon" src="assets/custom-icons/newspaper-outline.svg"></ion-icon> -->
-                <ion-badge *ngIf="(team$ | async)?.unreadNotes > 1">{{ (team$ | async)?.unreadNotes }}</ion-badge>
               </ion-item>
               <ion-item lines="none" class="theme--item">
                 <ion-label>

@@ -38,6 +38,7 @@ export class DirectComponent implements OnInit {
   public page: string;
   date: Date;
   time: number;
+  memberSub: Subscription
 
   constructor(
     private store: Store,
@@ -49,12 +50,13 @@ export class DirectComponent implements OnInit {
   ) { }
 
   ngAfterViewInit() {
-    this.member$.subscribe(member => {
+    this.subscriptions = [ this.memberSub ]
+    this.memberSub = this.member$.pipe(tap(member => {
       if (member && member.messages.length) {
         this.scrollToBottom(0);
         this.checkUnread();
       }
-    })
+    })).subscribe()
     this.mutationObserver = new MutationObserver((mutations) => {
       this.scrollToBottom(500);
       this.checkUnread();
@@ -65,12 +67,12 @@ export class DirectComponent implements OnInit {
   }
 
   checkUnread() {
-    this.member$.pipe(tap(member => {
-      if (member.unread.unreadMessages > 0) {
+    this.memberSub = this.member$.pipe(tap(member => {
+      if (member.unread && member.unread.unreadMessages > 0) {
         this.membersService.checkLastMessage(this.directId);
       }
       setTimeout(() => {
-        if (member.unread.unreadMessages > 0) {
+        if (member.unread && member.unread.unreadMessages > 0) {
           this.membersService.checkLastMessage(this.directId);
         }
       }, 5000)
@@ -133,7 +135,11 @@ export class DirectComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach(sub => {
+      if (sub) {
+        sub.unsubscribe()
+      }
+    });
   }
 
 }

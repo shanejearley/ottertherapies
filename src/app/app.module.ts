@@ -18,8 +18,6 @@ import { Store } from 'src/store';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 
-import { FirebaseX } from "@ionic-native/firebase-x/ngx";
-
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -41,7 +39,6 @@ import { FirebaseX } from "@ionic-native/firebase-x/ngx";
     StatusBar,
     SplashScreen,
     DocumentScanner,
-    FirebaseX,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

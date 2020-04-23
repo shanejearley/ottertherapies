@@ -4,11 +4,15 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title *ngIf="(team$ | async)">Notes</ion-title>
-    <ion-select placeholder="Sort" interface="popover" slot="end">
-      <ion-select-option value="recent">Recent</ion-select-option>
-      <ion-select-option value="flagged">Flagged</ion-select-option>
-      <ion-select-option value="activity">Activity</ion-select-option>
-    </ion-select>
+    <ion-buttons slot="end">
+      <ion-button color="primary">
+        <ion-select placeholder="Sort" interface="popover">
+          <ion-select-option value="recent">Recent</ion-select-option>
+          <ion-select-option value="flagged">Flagged</ion-select-option>
+          <ion-select-option value="activity">Activity</ion-select-option>
+        </ion-select>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 

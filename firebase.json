@@ -17,6 +17,10 @@
     ],
     "rewrites": [
       {
+        "source": "/ottertherapies/us-central1/scraper",
+        "function": "scraper"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

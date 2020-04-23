@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { IonContent, IonList, Config } from '@ionic/angular';
+import { IonContent, IonList, Config, IonRouterOutlet } from '@ionic/angular';
 import { ModalController, ToastController } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
@@ -51,7 +51,8 @@ export class GroupComponent implements OnInit {
     private groupsService: GroupsService,
     public modalController: ModalController,
     public toastController: ToastController,
-    private config: Config
+    private config: Config,
+    private routerOutlet: IonRouterOutlet
   ) { }
 
   ngAfterViewInit() {
@@ -150,7 +151,9 @@ export class GroupComponent implements OnInit {
       componentProps: {
         'teamId': this.teamId,
         'groupId': this.groupId
-      }
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;

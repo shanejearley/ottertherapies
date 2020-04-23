@@ -81,9 +81,11 @@ export class NotesService {
                     const exists = this.notes.find(n => n.id === note.id)
                     if (note.timestamp && !exists) {
                         this.membersService.getMember(note.uid).subscribe(m => {
-                            note.profile = m.profile;
-                            this.getComments(note);
-                            this.notes.push(note);
+                            if (!note.profile) {
+                                note.profile = m.profile;
+                                this.getComments(note);
+                                this.notes.push(note);
+                            }
                         })
                     }
                     if (note.timestamp && exists) {
@@ -130,8 +132,10 @@ export class NotesService {
                     if (comment.timestamp) {
                         comment.id = a.payload.doc.id;
                         this.membersService.getMember(comment.uid).subscribe(m => {
-                            comment.profile = m.profile;
-                            note.comments.push(comment);
+                            if (!comment.profile) {
+                                comment.profile = m.profile;
+                                note.comments.push(comment);
+                            }
                         })
                     }
                 }

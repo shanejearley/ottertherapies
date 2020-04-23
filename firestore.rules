@@ -38,8 +38,8 @@ service cloud.firestore {
     	return exists(/databases/$(database)/documents/teams/$(teamId)/pendingMembers/$(request.auth.uid))
     }
     
-    function directAccess(teamId, directId) {
-    	return exists(/databases/$(database)/documents/teams/$(teamId)/direct/$(directId)/members/$(request.auth.uid));
+    function directAccess(directId) {
+    	return directId.matches('.*'+request.auth.uid) || directId.matches(request.auth.uid+'.*');
     }
     
     function directExists(teamId, directId) {
@@ -83,21 +83,24 @@ service cloud.firestore {
       	allow read, write: if signedIn() && emailVerified() && teamAdmin(teamId) || signedIn() && emailVerified() && teamAdmin(teamId) && !pendingMemberExists(teamId, memberUid);
       }
       match /direct/{directId} {
-      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
+      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
         match /members/{memberUid} {
-      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
+      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
         }
         match /messages/{memberUid} {
-      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
+      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
         }
         match /files/{memberUid} {
-      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(teamId, directId) || signedIn() && teamAccess(teamId) && emailVerified() && !directExists(teamId, directId);
+      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId) || signedIn() && teamAccess(teamId) && emailVerified() && !directExists(teamId, directId);
         }
       }
       match /calendar/{eventId=**} {
       	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId);
       }
       match /notes/{noteId=**} {
+      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId);
+      }
+      match /resources/{resourceId=**} {
       	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId);
       }
       match /groups/{groupId} {

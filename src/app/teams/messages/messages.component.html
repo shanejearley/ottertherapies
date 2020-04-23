@@ -53,7 +53,7 @@
       </ion-list-header>
 
       <div *ngFor="let m of (members$ | async); let i = index">
-        <ion-card *ngIf="m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Member'"
+        <ion-card *ngIf="m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Member' || m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Admin'"
           routerDirection="forward" (click)="goTo('Direct', m.uid)" button class="theme--card">
           <ion-item class="theme--item" lines="none" detail="true">
             <ion-thumbnail slot="start" class="avatar-thumbnail">

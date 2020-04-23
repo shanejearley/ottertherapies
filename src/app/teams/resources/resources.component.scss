@@ -34,3 +34,15 @@ ion-content ion-toolbar {
 ion-list-header.state--header {
   width: auto !important;
 }
+
+ion-thumbnail.resources--thumbnail {
+  height: auto !important;
+}
+
+ion-avatar.resources--avatar {
+  --border-radius: 25% !important;
+  width: 20px !important;
+  height: 20px !important;
+  text-align: center !important;
+  line-height: 20px !important;
+}

@@ -12,7 +12,7 @@ import { ProfilePictureComponent } from './profile-picture/profile-picture.compo
 import { DeleteUserComponent } from './delete-user/delete-user.component';
 
 import { Store } from 'src/store';
-import { ModalController, ToastController } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet } from '@ionic/angular';
 
 @Component({
   selector: 'app-profile',
@@ -54,7 +54,8 @@ export class ProfileComponent implements OnInit {
     private profileService: ProfileService,
     private modalController: ModalController,
     private toastController: ToastController,
-    private router: Router
+    private router: Router,
+    private routerOutlet: IonRouterOutlet
   ) { }
 
   ngOnInit() {
@@ -99,6 +100,8 @@ export class ProfileComponent implements OnInit {
   async deleteUserModal() {
     const modal = await this.modalController.create({
       component: DeleteUserComponent,
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
       // componentProps: {
       //   'teamId': this.teamId,
       //   'groupId': this.groupId
@@ -125,6 +128,8 @@ export class ProfileComponent implements OnInit {
   async profilePictureModal() {
     const modal = await this.modalController.create({
       component: ProfilePictureComponent,
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
       // componentProps: {
       //   'teamId': this.teamId,
       //   'groupId': this.groupId

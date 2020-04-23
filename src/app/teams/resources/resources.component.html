@@ -23,65 +23,36 @@
   <div id="container">
     <ion-list lines="none" class="theme--list">
 
-      <ion-list-header>
-        National Resources
-      </ion-list-header>
-
-      <ion-card class="ion-padding" *ngFor="let link of national" (click)="viewSite(link)" button>
-        <ion-item class="theme--item">
-          <ion-icon slot="start" [ios]="'link' + '-outline'" [md]="'link' + '-sharp'"></ion-icon>
+      <ion-card class="ion-padding" *ngFor="let link of (resources$ | async)" (click)="viewSite(link)" button>
+        <ion-item class="theme--item" *ngIf="!link.preview; else linkPreview">
           <ion-label text-wrap>
-            <h3><strong>{{ link.name }}</strong></h3>
-            <a>{{ link.url }}</a>
+            <h2><strong>{{ link.name }}</strong></h2>
+            <p>{{ link.url }}<p>
           </ion-label>
-          <ion-button fill="clear" slot="end" (click)="viewSite(link)">
-            <ion-icon slot="icon-only" [ios]="'open' + '-outline'" [md]="'open' + '-sharp'"></ion-icon>
-          </ion-button>
         </ion-item>
-      </ion-card>
-
-      <ion-list-header class="state--header">
-        State Resources
-      </ion-list-header>
-
-      <ion-item lines="none" class="theme--item">
-        <ion-select slot="start" placeholder="Select State" [(ngModel)]="state" (ionChange)="getLocal($event)"
-          interface="action-sheet">
-          <ion-select-option *ngFor="let state of states" [value]="state">{{ state.name }}</ion-select-option>
-        </ion-select>
-      </ion-item>
-
-      <ion-card class="ion-padding" *ngFor="let link of local" (click)="viewSite(link)" button>
-        <ion-item class="theme--item">
-          <ion-icon slot="start" [ios]="'link' + '-outline'" [md]="'link' + '-sharp'"></ion-icon>
-          <ion-label text-wrap>
-            <h3><strong>{{ link.name }}</strong></h3>
-            <a>{{ link.url }}</a>
-          </ion-label>
-          <ion-button fill="clear" slot="end" (click)="viewSite(link)">
-            <ion-icon slot="icon-only" [ios]="'open' + '-outline'" [md]="'open' + '-sharp'"></ion-icon>
-          </ion-button>
-        </ion-item>
-      </ion-card>
-
-      <div *ngIf="custom.length">
-        <ion-list-header>
-          Team Resources
-        </ion-list-header>
-  
-        <ion-card *ngFor="let link of custom" class="ion-padding" button (click)="viewSite(link)">
-          <ion-item class="theme--item">
-            <ion-icon slot="start" [ios]="'link' + '-outline'" [md]="'link' + '-sharp'"></ion-icon>
+        <ng-template #linkPreview>
+          <ion-item class="theme--item" *ngFor="let linkData of link.preview.result">
+            <ion-avatar class="resources--avatar" slot="start">
+              <img *ngIf="linkData.favicon; else otterHead" [src]="linkData.favicon">
+              <ng-template #otterHead>
+                <ion-icon name="link-outline"></ion-icon>
+                <!-- <img src="../../../assets/img/otter_head.svg"> -->
+              </ng-template>
+            </ion-avatar>
             <ion-label text-wrap>
-              <h3><strong>{{ link.name }}</strong></h3>
-              <a>{{ link.url }}</a>
+              <h2><strong>{{ linkData.title }}</strong></h2>
+              <h3>{{ linkData.description }}</h3>
+              <p>{{ linkData.url }}</p>
             </ion-label>
-            <ion-button fill="clear" slot="end" (click)="viewSite(link)">
-              <ion-icon slot="icon-only" [ios]="'open' + '-outline'" [md]="'open' + '-sharp'"></ion-icon>
-            </ion-button>
+            <ion-thumbnail class="resources--thumbnail" slot="end">
+              <img *ngIf="linkData.image; else otterLogo" [src]="linkData.image" style="width: 100%;">
+              <ng-template #otterLogo>
+                <img src="../../../assets/img/otter_logo.svg">
+              </ng-template>
+            </ion-thumbnail>
           </ion-item>
-        </ion-card>
-      </div>
+        </ng-template>
+      </ion-card>
 
       <ion-item lines="none" class="theme--item"></ion-item>
 

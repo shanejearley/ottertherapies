@@ -1,7 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { NavParams, ModalController, Config } from '@ionic/angular';
 import * as firebase from 'firebase/app';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
 import { Router } from '@angular/router';
@@ -20,77 +19,73 @@ export class MfaVerifyComponent implements AfterViewInit {
     password: string = '';
     code: string = "";
     error: boolean = false;
-    ios: boolean;
     verificationId: string = '';
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,
         private authService: AuthService,
         private router: Router,
-        private firebaseX: FirebaseX,
-        private config: Config
     ) { }
 
     ngAfterViewInit() {
         this.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-button', {
-            'size': 'normal',
+            'size': 'invisible',
             'callback': (response) => {
                 if (response) {
                     this.verified = true;
+                    this.checkCode();
                 }
-                console.log(response);
             }
         });
     }
 
     ionViewWillEnter() {
-        this.ios = this.config.get('mode') === 'ios';
         this.userPhone = this.navParams.get('userPhone');
         this.resolver = this.navParams.get('resolver');
-        if (!this.ios) {
-            console.log(this.resolver);
-            var phoneInfoOptions = {
-                multiFactorHint: this.resolver.hints[0],
-                session: this.resolver.session
-            };
-            
-            var phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
-    
-            return phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, this.recaptchaVerifier)
-                .then(async (verificationId) => {
-                    // Ask user for the SMS verification code.
-                    this.verificationId = verificationId;
-                })
-            // The user is a multi-factor user. Second factor challenge is required.
-            //resolver = error.resolver;
-        } else {
-            ///
-        }
+        console.log(this.resolver);
+        var phoneInfoOptions = {
+            multiFactorHint: this.resolver.hints[0],
+            session: this.resolver.session
+        };
+
+        var phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
+
+        return phoneAuthProvider.verifyPhoneNumber(phoneInfoOptions, this.recaptchaVerifier)
+            .then(async (verificationId) => {
+                // Ask user for the SMS verification code.
+                this.verificationId = verificationId;
+            })
+        // The user is a multi-factor user. Second factor challenge is required.
+        //resolver = error.resolver;
+
     }
 
     async checkCode() {
-        if (!this.ios) {
-            if (this.code.length === 6) {
+        if (this.code.length === 6 && this.verified) {
 
-                console.log(this.code);
-                try {
-                    var cred = firebase.auth.PhoneAuthProvider.credential(
-                        this.verificationId, this.code);
-                    var multiFactorAssertion =
-                        firebase.auth.PhoneMultiFactorGenerator.assertion(cred);
-                    // Complete sign-in.
-                    await this.resolver.resolveSignIn(multiFactorAssertion);
-                    this.authService.auth$.subscribe();
-                    await this.loginSuccess();
-                    return this.router.navigate(['/']);
-                } catch (err) {
-                    this.error = err.message;
-                    this.loginFailure();
-                }
+            console.log(this.code);
+            try {
+                var cred = firebase.auth.PhoneAuthProvider.credential(
+                    this.verificationId, this.code);
+                var multiFactorAssertion =
+                    firebase.auth.PhoneMultiFactorGenerator.assertion(cred);
+                // Complete sign-in.
+                await this.resolver.resolveSignIn(multiFactorAssertion);
+                this.authService.auth$.subscribe();
+                await this.loginSuccess();
+                return this.router.navigate(['/']);
+            } catch (err) {
+                this.error = err.message;
+                this.loginFailure();
             }
+        } else if (this.code.length === 6 && !this.verified) {
+            console.log("Verify you are not a robot!")
+        } else if (this.code.length !== 6 && this.verified) {
+            console.log("Enter your code!");
         } else {
-            ///
+            console.log("Verify you are not a robot and enter your code!");
         }
+
     }
 
     dismiss() {

@@ -7,7 +7,9 @@ import { IonicModule } from '@ionic/angular';
 // third-party modules
 import { AngularFireModule, FirebaseAppConfig } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireStorageModule } from '@angular/fire/storage';
+import { AngularFireFunctionsModule, FUNCTIONS_ORIGIN } from '@angular/fire/functions';
 import 'firebase/storage';
 // shared modules
 import { SharedModule } from './shared/shared.module';
@@ -43,8 +45,13 @@ export const firebaseConfig: FirebaseAppConfig = {
     IonicModule,
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFireAuthModule,
+    AngularFirestoreModule,
     AngularFireStorageModule,
+    AngularFireFunctionsModule,
     SharedModule.forRoot()
+  ],
+  providers: [
+    { provide: FUNCTIONS_ORIGIN, useValue: 'https://ottertherapies.web.app' }
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   exports: [RouterModule]

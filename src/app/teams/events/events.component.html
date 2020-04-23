@@ -28,7 +28,7 @@
 
     <ion-list lines="none" class="theme--list">
       <ion-list-header>{{ date }}</ion-list-header>
-      <div *ngIf="(today$ | async).length; else noEvents">
+      <div *ngIf="(today$ | async) && (today$ | async).length; else noEvents">
         <ion-card *ngFor="let e of (today$ | async); let i = index" class="ion-padding half-margin-top half-margin-bottom" (click)="editEventModal(e.id)" button>
           <ion-item class="theme--item">
             <ion-icon slot="start" [ios]="'calendar' + '-outline'" [md]="'calendar' + '-sharp'"></ion-icon>

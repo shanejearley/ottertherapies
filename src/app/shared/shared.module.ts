@@ -2,8 +2,6 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { AngularFirestoreModule } from '@angular/fire/firestore';
-
 // services
 import { AuthService } from '../../auth/shared/services/auth/auth.service';
 import { ProfileService } from '../../auth/shared/services/profile/profile.service';
@@ -13,12 +11,12 @@ import { MembersService } from './services/members/members.service';
 import { NotesService } from './services/notes/notes.service';
 import { PendingService } from './services/pending/pending.service';
 import { EventsService } from './services/events/events.service';
+import { ResourcesService } from './services/resources/resources.service';
 
 @NgModule({
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    AngularFirestoreModule
   ]
 })
 export class SharedModule {
@@ -33,7 +31,8 @@ export class SharedModule {
         MembersService,
         NotesService,
         PendingService,
-        EventsService
+        EventsService,
+        ResourcesService
       ]
     };
   }

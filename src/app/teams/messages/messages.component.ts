@@ -13,7 +13,7 @@ import { Member } from '../../shared/services/members/members.service';
 import { CreateGroupComponent } from '../../shared/components/create-group/create-group.component';
 
 import { Store } from 'src/store';
-import { ModalController, ToastController } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet } from '@ionic/angular';
 
 @Component({
   selector: 'app-messages',
@@ -38,7 +38,8 @@ export class MessagesComponent implements OnInit {
     private router: Router,
     private teamsService: TeamsService,
     public modalController: ModalController,
-    public toastController: ToastController
+    public toastController: ToastController,
+    private routerOutlet: IonRouterOutlet
   ) { }
 
   public trackFn(index, item) {
@@ -73,7 +74,9 @@ export class MessagesComponent implements OnInit {
       component: CreateGroupComponent,
       componentProps: {
         'teamId': this.teamId,
-      }
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;

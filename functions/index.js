@@ -1,15 +1,80 @@
-const functions = require('firebase-functions');
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
-// The Firebase Admin SDK to access the Firebase Realtime Database.
 const admin = require('firebase-admin');
+
+const functions = require('firebase-functions');
+
+const cors = require('cors')({ origin: 'https://ottertherapies.web.app' });
+//const cors = require('cors')({ origin: "*", methods: "GET, POST" })
+
+const cheerio = require('cheerio');
+const getUrls = require('get-urls');
+const fetch = require('node-fetch');
+
 admin.initializeApp();
 const firestore = admin.firestore();
 const FieldValue = admin.firestore.FieldValue;
+
+const scrapeMetatags = (text) => {
+
+    const urls = Array.from(getUrls(text));
+
+    const requests = urls.map(async url => {
+
+        const res = await fetch(url);
+
+        const html = await res.text();
+        const $ = cheerio.load(html);
+
+        const getMetatag = (name) =>
+            $(`meta[name=${name}]`).attr('content') ||
+            $(`meta[name="og:${name}"]`).attr('content') ||
+            $(`meta[name="twitter:${name}"]`).attr('content');
+
+        return {
+            url,
+            title: $('title').first().text(),
+            favicon: $('link[rel~="icon"]').attr('href') && !$('link[rel~="icon"]').attr('href').startsWith('https://') ? url + $('link[rel~="icon"]').attr('href') : $('link[rel~="icon"]').attr('href'),
+            //favicon: $('link[rel="shortcut icon"]').attr('href'),
+            // description: $('meta[name=description]').attr('content'),
+            description: getMetatag('description'),
+            image: getMetatag('image'),
+            author: getMetatag('author'),
+        }
+    });
+
+    return Promise.all(requests);
+
+}
+
+exports.scraper = functions.https.onCall(async (data, context) => {
+    const text = data.text;
+    if (!(typeof text === 'string') || text.length === 0) {
+        // Throwing an HttpsError so that the client gets the error details.
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            'one arguments "text" containing the message text to add.');
+    }
+    // Checking that the user is authenticated.
+    if (!context.auth) {
+        // Throwing an HttpsError so that the client gets the error details.
+        throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' +
+            'while authenticated.');
+    }
+    const result = await scrapeMetatags(text);
+
+    return { result };
+    // const uid = context.auth.uid;
+    // const scrape = await scrapeMetatags(data.text)
+    // console.log(scrape);
+
+});
+
+// exports.scraper = functions.https.onRequest( async (request, response) => {
+//     return { success: true };
+//     return cors(request, response, async () => {
+
+
+//     });
+// });
+
 exports.authOnCreate = functions.auth.user().onCreate((user) => {
     const uid = user.uid;
     const email = user.email; // The email of the user.
@@ -28,23 +93,23 @@ exports.authOnCreate = functions.auth.user().onCreate((user) => {
                         return firestore.collection('teams').doc(teamId).collection('pendingMembers').where('email', '==', email).get()
                             .then(function (querySnapshot) {
                                 if (!querySnapshot.empty) {
-                                    return querySnapshot.forEach(async(doc) => {
+                                    return querySnapshot.forEach(async (doc) => {
                                         console.log("Found member in pending for ", teamId);
                                         var pendingDocId = doc.id;
                                         await firestore.collection("teams").doc(teamId).collection("members").where('status', '==', 'Admin').get()
-                                        .then(async (querySnapshot) => {
-                                            if (!querySnapshot.empty) {
-                                                return querySnapshot.forEach(async admin => {
-                                                    adminUid = admin.data().uid;
-                                                    console.log('Adding a ', adminUid, ' instance to ', uid)
-                                                    await firestore.collection("users").doc(uid).collection("teammates").doc(adminUid).set({ teams: FieldValue.increment(1) }, { merge: true });
-                                                    console.log('Adding a ', uid, ' instance to ', adminUid)
-                                                    return firestore.collection("users").doc(adminUid).collection("teammates").doc(uid).set({ teams: FieldValue.increment(1) }, { merge: true });
-                                                })
-                                            } else {
-                                                return console.log('No admin');
-                                            }
-                                        })
+                                            .then(async (querySnapshot) => {
+                                                if (!querySnapshot.empty) {
+                                                    return querySnapshot.forEach(async admin => {
+                                                        adminUid = admin.data().uid;
+                                                        console.log('Adding a ', adminUid, ' instance to ', uid)
+                                                        await firestore.collection("users").doc(uid).collection("teammates").doc(adminUid).set({ teams: FieldValue.increment(1) }, { merge: true });
+                                                        console.log('Adding a ', uid, ' instance to ', adminUid)
+                                                        return firestore.collection("users").doc(adminUid).collection("teammates").doc(uid).set({ teams: FieldValue.increment(1) }, { merge: true });
+                                                    })
+                                                } else {
+                                                    return console.log('No admin');
+                                                }
+                                            })
                                         await firestore.collection('teams').doc(teamId).collection('pendingMembers').doc(uid).set({
                                             uid: uid,
                                             status: "Pending"
@@ -223,19 +288,19 @@ exports.memberOnRemove = functions.firestore
         var memberUid = context.params.memberUid;
         try {
             await firestore.collection("teams").doc(teamId).collection("members").get()
-            .then(async (querySnapshot) => {
-                var members = querySnapshot.docs.map(doc => doc.data());
-                return members.forEach(async member => {
-                    if (member.uid !== memberUid) {
-                        console.log('Subtracting a ', memberUid, ' instance from ', member.uid);
-                        await firestore.collection("users").doc(member.uid).collection("teammates").doc(memberUid).set({ teams: FieldValue.increment(-1) }, { merge: true });
-                        console.log('Subtracting a ', member.uid, ' instance from ', memberUid)
-                        return firestore.collection("users").doc(memberUid).collection("teammates").doc(member.uid).set({ teams: FieldValue.increment(-1) }, { merge: true });
-                    } else {
-                        return;
-                    }
+                .then(async (querySnapshot) => {
+                    var members = querySnapshot.docs.map(doc => doc.data());
+                    return members.forEach(async member => {
+                        if (member.uid !== memberUid) {
+                            console.log('Subtracting a ', memberUid, ' instance from ', member.uid);
+                            await firestore.collection("users").doc(member.uid).collection("teammates").doc(memberUid).set({ teams: FieldValue.increment(-1) }, { merge: true });
+                            console.log('Subtracting a ', member.uid, ' instance from ', memberUid)
+                            return firestore.collection("users").doc(memberUid).collection("teammates").doc(member.uid).set({ teams: FieldValue.increment(-1) }, { merge: true });
+                        } else {
+                            return;
+                        }
+                    })
                 })
-            })
             const querySnapshot = await firestore.collection("teams").doc(teamId).collection("groups").get();
             return querySnapshot.forEach(async function (doc) {
                 var groupId = doc.id;
@@ -257,7 +322,7 @@ exports.memberOnRemove = functions.firestore
         }
     });
 
-    exports.pendingMemberOnRemove = functions.firestore
+exports.pendingMemberOnRemove = functions.firestore
     .document('teams/{teamId}/pendingMembers/{memberUid}')
     .onDelete(async (change, context) => {
         console.log(change, context);
@@ -268,37 +333,37 @@ exports.memberOnRemove = functions.firestore
         var memberUid = context.params.memberUid;
         try {
             return firestore.collection("users").doc(memberUid).get()
-            .then(async doc => {
-                if (doc.exists) {
-                    return firestore.collection("users").doc(memberUid).collection("teams").doc(teamId).get()
-                    .then(async doc => {
-                        if (!doc.exists) {
-                            await firestore.collection("teams").doc(teamId).collection("members").get()
-                            .then(async (querySnapshot) => {
-                                var members = querySnapshot.docs.map(doc => doc.data());
-                                return members.forEach(async member => {
-                                    if (member.status === 'Admin') {
-                                        console.log('Subtracting a ', memberUid, ' instance from ', member.uid)
-                                        await firestore.collection("users").doc(member.uid).collection("teammates").doc(memberUid).set({ teams: FieldValue.increment(-1) }, { merge: true });
-                                        console.log('Subtracting a ', member.uid, ' instance from ', memberUid)
-                                        return firestore.collection("users").doc(memberUid).collection("teammates").doc(member.uid).set({ teams: FieldValue.increment(-1) }, { merge: true });
-                                    } else {
-                                        return;
-                                    }
-                                })
+                .then(async doc => {
+                    if (doc.exists) {
+                        return firestore.collection("users").doc(memberUid).collection("teams").doc(teamId).get()
+                            .then(async doc => {
+                                if (!doc.exists) {
+                                    await firestore.collection("teams").doc(teamId).collection("members").get()
+                                        .then(async (querySnapshot) => {
+                                            var members = querySnapshot.docs.map(doc => doc.data());
+                                            return members.forEach(async member => {
+                                                if (member.status === 'Admin') {
+                                                    console.log('Subtracting a ', memberUid, ' instance from ', member.uid)
+                                                    await firestore.collection("users").doc(member.uid).collection("teammates").doc(memberUid).set({ teams: FieldValue.increment(-1) }, { merge: true });
+                                                    console.log('Subtracting a ', member.uid, ' instance from ', memberUid)
+                                                    return firestore.collection("users").doc(memberUid).collection("teammates").doc(member.uid).set({ teams: FieldValue.increment(-1) }, { merge: true });
+                                                } else {
+                                                    return;
+                                                }
+                                            })
+                                        })
+                                    await firestore.collection("users").doc(memberUid).set({
+                                        lastTeam: FieldValue.delete()
+                                    }, { merge: true });
+                                    return firestore.collection("users").doc(memberUid).collection("pendingTeams").doc(teamId).delete();
+                                } else {
+                                    return;
+                                }
                             })
-                            await firestore.collection("users").doc(memberUid).set({
-                                lastTeam: FieldValue.delete()
-                            }, { merge: true });
-                            return firestore.collection("users").doc(memberUid).collection("pendingTeams").doc(teamId).delete();      
-                        } else {
-                            return;
-                        }
-                    })
-                } else {
-                    return;
-                }
-            })
+                    } else {
+                        return;
+                    }
+                })
         }
         catch (error) {
             return console.log("error", error);
@@ -384,23 +449,18 @@ exports.updateDirectMessageCount = functions.firestore
             var teamId = context.params.teamId;
             console.log("pathId", context.params.pathId);
             var pathId = context.params.pathId;
-            return firestore.collection("teams").doc(teamId).collection("direct").doc(pathId).collection("members").get()
-                .then(function (querySnapshot) {
-                    console.log("members", querySnapshot.docs.map(doc => doc.id));
-                    var members = querySnapshot.docs.map(doc => doc.data());
-                    return members.forEach(function (member) {
-                        if (member.uid !== userUid) {
-                            return firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("unread").doc(pathId).set({
-                                unreadMessages: FieldValue.increment(1)
-                            }, { merge: true })
-                        } else {
-                            return console.log("Not updating user who posted");
-                        }
-                    })
-                })
-                .catch(function (error) {
-                    return console.log("error", error);
-                });
+            var updateUid;
+            console.log(pathId.substr(0, 28), userUid, pathId.substr(28, 28))
+            if (pathId.substr(0, 28) === userUid) {
+                updateUid = pathId.substr(28, 28);
+                console.log(updateUid);
+            } else if (pathId.substr(28, 28) === userUid) {
+                updateUid = pathId.substr(0, 28);
+                console.log(updateUid);
+            }
+            return firestore.collection("users").doc(updateUid).collection("teams").doc(teamId).collection("unread").doc(pathId).set({
+                unreadMessages: FieldValue.increment(1)
+            }, { merge: true })
         } else {
             return console.log("No new direct messages with change");
         }

@@ -14,7 +14,7 @@ import { EditTeamComponent } from './edit-team/edit-team.component';
 
 import { Store } from 'src/store';
 
-import { ModalController, ToastController } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet } from '@ionic/angular';
 
 @Component({
   selector: 'app-team',
@@ -42,7 +42,8 @@ export class TeamComponent implements OnInit {
     private membersService: MembersService,
     private teamsService: TeamsService,
     private modalController: ModalController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private routerOutlet: IonRouterOutlet
   ) { }
 
   ngOnInit() {
@@ -83,7 +84,9 @@ export class TeamComponent implements OnInit {
       component: EditTeamComponent,
       componentProps: {
         'teamId': this.teamId,
-      }
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;

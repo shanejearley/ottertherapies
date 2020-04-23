@@ -18,6 +18,7 @@ import { MembersService, Member } from './shared/services/members/members.servic
 import { PendingService } from './shared/services/pending/pending.service';
 import { EventsService } from './shared/services/events/events.service';
 import { Store } from 'src/store';
+import { ResourcesService } from './shared/services/resources/resources.service';
 
 @Component({
   selector: 'app-root',
@@ -38,6 +39,7 @@ export class AppComponent implements OnInit {
   notesSub: Subscription;
   eventsSub: Subscription;
   pendingSub: Subscription;
+  resourcesSub: Subscription;
   teamId: string;
   lastId: string;
   page: string;
@@ -98,7 +100,8 @@ export class AppComponent implements OnInit {
     private membersService: MembersService,
     private notesService: NotesService,
     private pendingService: PendingService,
-    private eventsService: EventsService
+    private eventsService: EventsService,
+    private resourcesService: ResourcesService
   ) {
     this.initializeApp();
 
@@ -166,12 +169,13 @@ export class AppComponent implements OnInit {
   async subscribeUserTeam() {
     this.authService.authState
       .pipe(map((user) => {
-        if (this.teamId !== 'undefined' && this.teamId !== ':id' && this.teamId !== null) {
+        if (this.teamId && this.teamId !== 'undefined' && this.teamId !== ':id' && this.teamId !== null) {
 
           this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe(() => {
             this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
             this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
             this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
+            this.resourcesSub = this.resourcesService.resourcesObservable(user.uid, this.teamId).subscribe();
           });
 
         } else {
@@ -180,6 +184,7 @@ export class AppComponent implements OnInit {
           if (this.groupsSub) { this.groupsSub.unsubscribe() };
           if (this.eventsSub) { this.eventsSub.unsubscribe() };
           if (this.notesSub) { this.notesSub.unsubscribe() };
+          if (this.resourcesSub) { this.resourcesSub.unsubscribe() };
         }
       }
       )).subscribe()
@@ -225,6 +230,7 @@ export class AppComponent implements OnInit {
       this.membersSub.unsubscribe();
       this.notesSub.unsubscribe();
       this.eventsSub.unsubscribe();
+      this.resourcesSub.unsubscribe();
     }
     await this.authService.logoutUser();
   }
@@ -239,6 +245,7 @@ export class AppComponent implements OnInit {
       this.membersSub.unsubscribe();
       this.notesSub.unsubscribe();
       this.eventsSub.unsubscribe();
+      this.resourcesSub.unsubscribe();
     }
   }
 }

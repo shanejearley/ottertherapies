@@ -17,7 +17,7 @@ import { Store } from 'src/store';
 
 import { CalendarComponentOptions } from 'ion2-calendar';
 import * as moment from 'moment';
-import { ModalController, ToastController } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet } from '@ionic/angular';
 
 export interface DayConfig {
   date: Date;
@@ -66,7 +66,8 @@ export class EventsComponent implements OnInit {
     private teamsService: TeamsService,
     private eventsService: EventsService,
     private modalController: ModalController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private routerOutlet: IonRouterOutlet
   ) { }
 
   dayChange($event) {
@@ -103,7 +104,9 @@ export class EventsComponent implements OnInit {
       component: CreateEventComponent,
       componentProps: {
         'teamId': this.teamId,
-      }
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;
@@ -120,7 +123,9 @@ export class EventsComponent implements OnInit {
       componentProps: {
         'teamId': this.teamId,
         'eventId': eventId
-      }
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;

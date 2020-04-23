@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ModalController, IonRouterOutlet } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -29,7 +29,8 @@ export class TeamsPage implements OnInit {
     private store: Store,
     private modalController: ModalController,
     private pendingService: PendingService,
-    private router: Router
+    private router: Router,
+    private routerOutlet: IonRouterOutlet
     ) { }
 
   ngOnInit() {
@@ -46,7 +47,9 @@ export class TeamsPage implements OnInit {
 
   async createTeamModal() {
     const modal = await this.modalController.create({
-      component: CreateTeamComponent
+      component: CreateTeamComponent,
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       //this.data = data.data;

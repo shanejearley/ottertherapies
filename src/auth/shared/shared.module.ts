@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
-import { AngularFirestoreModule } from '@angular/fire/firestore';
-
 // components
 import { AuthFormComponent } from './components/auth-form/auth-form.component';
 
@@ -20,8 +18,7 @@ import { AuthGuard } from './guards/auth.guard';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    IonicModule,
-    AngularFirestoreModule
+    IonicModule
   ],
   declarations: [
     AuthFormComponent

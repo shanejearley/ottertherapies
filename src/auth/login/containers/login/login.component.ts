@@ -2,27 +2,30 @@ import { Component } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import * as firebase from 'firebase/app';
+import { IonRouterOutlet, ModalController } from '@ionic/angular';
 
 import { AuthService } from '../../../shared/services/auth/auth.service';
 import { MfaVerifyComponent } from './mfa-verify/mfa-verify.component';
-import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'login',
   template: `
-    <div>
-      <auth-form (submitted)="loginUser($event)">
-        <h1>Login</h1>
-        <a routerDirection="root" routerLink="/auth/register">Not registered?</a>
-        <ion-button type="submit" expand="block">
-          Login
-        </ion-button>
-        <div class="error" *ngIf="error">
-          {{ error }}
+    <ion-content>
+      <div id="container">
+        <div>
+          <auth-form (submitted)="loginUser($event)">
+            <h1>Login</h1>
+            <a routerDirection="root" routerLink="/auth/register">Not registered?</a>
+            <ion-button type="submit" expand="block">
+              Login
+            </ion-button>
+            <div class="error" *ngIf="error">
+              {{ error }}
+            </div>
+          </auth-form>
         </div>
-      </auth-form>
-    </div>
+      </div>
+    </ion-content>
   `
 })
 export class LoginComponent {
@@ -33,9 +36,10 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private modalController: ModalController
-  ) {}
-  
+    private modalController: ModalController,
+    private routerOutlet: IonRouterOutlet
+  ) { }
+
   async loginUser(event: FormGroup) {
     const { email, password } = event.value;
     try {
@@ -58,7 +62,9 @@ export class LoginComponent {
       componentProps: {
         'userPhone': this.resolver.hints[0].phoneNumber,
         'resolver': this.resolver
-      }
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then((data) => {
       this.data = data.data;

@@ -193,3 +193,7 @@ ion-select.form {
 ion-icon.large-icon {
   font-size: 48px;
 }
+
+.theme--modal--css .modal-wrapper {
+  --border-radius: 10px !important;  
+}

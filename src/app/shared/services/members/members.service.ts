@@ -213,8 +213,10 @@ export class MembersService {
           if (message.timestamp) {
             message.id = a.payload.doc.id;
             this.getMember(message.uid).subscribe(m => {
-              message.profile = m.profile;
-              member.messages.push(message);
+              if (m.profile && !message.profile) {
+                message.profile = m.profile;
+                member.messages.push(message);
+              }
             })
           }
         }
@@ -305,13 +307,13 @@ export class MembersService {
     }
     this.pathId = this.uid < directId ? this.uid + directId : directId + this.uid;
     this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/direct/${this.pathId}/messages`);
-    this.directDoc = this.db.doc<Direct>(`teams/${this.teamId}/direct/${this.pathId}`);
+    const directDoc = this.db.doc(`teams/${this.teamId}/direct/${this.pathId}`);
     this.messagesCol.add(message).then((messageRef) => {
-      this.directDoc.update({
-        lastMessage: body,
+      directDoc.set({
+        lastMessage: message.body,
         lastMessageId: messageRef.id,
         lastMessageUid: message.uid
-      })
+      }, {merge:true})
     });
   }
 

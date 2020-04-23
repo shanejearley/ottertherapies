@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AngularFireFunctions } from '@angular/fire/functions';
 import { AlertController } from '@ionic/angular';
 
 import { Plugins } from '@capacitor/core';
@@ -7,7 +9,7 @@ const { Browser } = Plugins;
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators'
+import { switchMap, tap } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
@@ -15,6 +17,7 @@ import { TeamsService, Team } from '../../shared/services/teams/teams.service';
 import { GroupsService, Group } from '../../shared/services/groups/groups.service';
 
 import { Store, State } from 'src/store';
+import { Resource, ResourcesService } from 'src/app/shared/services/resources/resources.service';
 
 export interface usState {
   abr: string,
@@ -37,12 +40,15 @@ export class ResourcesComponent implements OnInit {
   public team: string;
   public page: string;
   state: usState;
-  local = [];
-  custom = [];
-  newResource: object = {
+  newResource: Resource = {
     url: null,
-    name: null
+    name: null,
+    level: 'Team',
+    preview: null,
+    id: null
   };
+  data$: Observable<any>;
+  resources$: Observable<Resource[]>;
 
   states = [
     { abr: "AL", hyphen: "alabama", name: "Alabama" },
@@ -98,20 +104,17 @@ export class ResourcesComponent implements OnInit {
     { abr: "WY", hyphen: "wyoming", name: "Wyoming" }
   ]
 
-  national = [
-    { url: `https://www.nacdd.org/`, name: "National Assoc. of Councils on Developmental Disabilities" }
-  ]
-
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
-    private authService: AuthService,
-    private profileService: ProfileService,
     private teamsService: TeamsService,
-    public alertController: AlertController
+    public alertController: AlertController,
+    private resourcesService: ResourcesService
   ) { }
 
   ngOnInit() {
+    this.resources$ = this.store.select<Resource[]>('resources');
+
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
     this.subscriptions = [
@@ -128,13 +131,7 @@ export class ResourcesComponent implements OnInit {
   }
 
   getLocal(event) {
-    this.local = [];
-    if (this.state) {
-      this.local.push(
-        { url: `https://www.childcareaware.org/state/${this.state.hyphen}/`, name: "Child Care Aware" },
-        { url: `https://mchb.tvisdata.hrsa.gov/State/Detail/${this.state.abr}`, name: "Maternal and Child Health Services" }
-      )
-    }
+    console.log(event);
   }
 
   async viewSite(link) {
@@ -168,7 +165,12 @@ export class ResourcesComponent implements OnInit {
           text: 'Add',
           handler: data => {
             console.log('Confirm Add', data);
-            this.custom.push(data)
+            this.newResource.url = data.url;
+            this.newResource.name = data.name;
+            if (!this.newResource.url.startsWith('https://') && (!this.newResource.url.startsWith('http://'))) {
+              this.newResource.url = 'https://' + this.newResource.url;
+            }
+            this.resourcesService.addResource(this.newResource);
           }
         }
       ]
