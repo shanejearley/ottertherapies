@@ -1,6 +1,7 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { NavParams, ModalController } from '@ionic/angular';
-import * as firebase from 'firebase/app';
+import { NavParams, ModalController, Config } from '@ionic/angular';
+import firebase from 'firebase/app';
+import { cfaSignIn, cfaSignInPhoneOnCodeSent } from 'capacitor-firebase-auth';
 
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
 import { Router } from '@angular/router';
@@ -16,6 +17,7 @@ export class MfaAddComponent implements AfterViewInit {
     verified: boolean = false;
     userPhone: string = '';
     resolver: any;
+    email: string = '';
     password: string = '';
     code: string = "";
     error: boolean = false;
@@ -25,7 +27,8 @@ export class MfaAddComponent implements AfterViewInit {
         public navParams: NavParams,
         public modalController: ModalController,
         private authService: AuthService,
-        private router: Router
+        private router: Router,
+        private config: Config
     ) { }
 
     get user () {
@@ -33,39 +36,76 @@ export class MfaAddComponent implements AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-button', {
-            'size': 'invisible',
-            'callback': (response) => {
-                if (response) {
-                    this.verified = true;
-                    this.checkCode();
+        this.ios = this.config.get('mode') === 'ios';
+
+        if (!this.ios) {
+            this.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-button', {
+                'size': 'invisible',
+                'callback': (response) => {
+                    if (response) {
+                        this.verified = true;
+                        this.checkCode();
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     async ionViewWillEnter() {
         this.userPhone = this.navParams.get('userPhone');
+        this.email = this.navParams.get('email');
+        this.password = this.navParams.get('password');
 
         var phoneInfoOptions = {
             phoneNumber: this.userPhone,
             session: null
         };
 
-        await this.user.multiFactor.getSession().then((multiFactorSession) => {
-            phoneInfoOptions.session = multiFactorSession;
-            var phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
-            return phoneAuthProvider.verifyPhoneNumber(
-                phoneInfoOptions, this.recaptchaVerifier)
-                .then(async (verificationId) => {
-                    this.verificationId = verificationId;
-                });
-        })
+        var iosPhoneInfoOptions = {
+            phone: this.userPhone + ' ' + this.email + ' ' + this.password,
+        };
+
+        if (!this.ios) {
+
+            await this.user.multiFactor.getSession().then((multiFactorSession) => {
+                phoneInfoOptions.session = multiFactorSession;
+                var phoneAuthProvider = new firebase.auth.PhoneAuthProvider();
+                return phoneAuthProvider.verifyPhoneNumber(
+                    phoneInfoOptions, this.recaptchaVerifier)
+                    .then(async (verificationId) => {
+                        this.verificationId = verificationId;
+                    });
+            })
+
+        } else {
+            try {
+                cfaSignInPhoneOnCodeSent().subscribe(
+                    (verificationId) => {
+                        this.verificationId = verificationId;
+                        console.log('Got verificationId', verificationId)
+                    },
+                    (error) => {
+                        console.log(error);
+                    },
+                    () => {console.log("Code verify complete was called")}
+                )
+                cfaSignIn('phone', iosPhoneInfoOptions).subscribe(
+                    (user) => console.log('Sent a verification to ', user),
+                    (error) => {
+                        console.log(error);
+                    },
+                    () => {console.log("Send SMS code complete was called")}
+                )
+                ///var phoneAuthProvider =      
+            } catch (err) {
+                console.log(err.message);
+            }
+        }
 
     }
 
     async checkCode() {
-        if (this.code.length === 6 && this.verified) {
+        if (this.code.length === 6 && this.verified || this.code.length === 6 && this.ios) {
             try {
                 const mfaDisplayName = "2FA Mobile Device 1"
                 var cred = firebase.auth.PhoneAuthProvider.credential(
@@ -80,9 +120,9 @@ export class MfaAddComponent implements AfterViewInit {
                 this.error = err.message;
                 this.addFailure();
             }
-        } else if (this.code.length === 6 && !this.verified) {
+        } else if (this.code.length === 6 && !this.verified && !this.ios) {
             console.log("Verify you are not a robot!")
-        } else if (this.code.length !== 6 && this.verified) {
+        } else if (this.code.length !== 6) {
             console.log("Enter your code!");
         } else {
             console.log("Verify you are not a robot and enter your code!");

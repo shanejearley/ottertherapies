@@ -16,7 +16,7 @@ import { Event, EventsService } from '../../shared/services/events/events.servic
 import { Store } from 'src/store';
 
 import { CalendarComponentOptions } from 'ion2-calendar';
-import * as moment from 'moment';
+import moment from 'moment';
 import { ModalController, ToastController, IonRouterOutlet } from '@ionic/angular';
 
 export interface DayConfig {

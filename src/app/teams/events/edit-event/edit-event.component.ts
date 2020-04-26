@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavParams, ModalController } from '@ionic/angular';
 
-import * as moment from 'moment';
+import moment from 'moment';
 
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';

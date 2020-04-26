@@ -1,14 +1,10 @@
 {
-  "appId": "com.ottertherapies.ionic",
+  "appId": "com.ottertherapies.app",
   "appName": "Otter Therapies",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",
   "cordova": {},
-  "server": {
-    "url": "http://10.0.0.94:8100",
-    "originalUrl": "http://10.0.0.94:8100"
-  },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 3000,
@@ -18,6 +14,13 @@
       "androidScaleType": "CENTER_CROP",
       "splashFullScreen": true,
       "splashImmersive": true
+    },
+    "CapacitorFirebaseAuth": {
+      "providers": [
+        "phone"
+      ],
+      "languageCode": "en",
+      "nativeAuth": false
     }
   }
 }

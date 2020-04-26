@@ -32,6 +32,8 @@ export class LoginComponent {
   resolver: any;
   error: string;
   data: any;
+  email: string;
+  password: string;
 
   constructor(
     private authService: AuthService,
@@ -42,6 +44,8 @@ export class LoginComponent {
 
   async loginUser(event: FormGroup) {
     const { email, password } = event.value;
+    this.email = email;
+    this.password = password;
     try {
       await this.authService.loginUser(email, password);
       this.router.navigate(['/']);
@@ -61,7 +65,9 @@ export class LoginComponent {
       component: MfaVerifyComponent,
       componentProps: {
         'userPhone': this.resolver.hints[0].phoneNumber,
-        'resolver': this.resolver
+        'resolver': this.resolver,
+        'email': this.email,
+        'password': this.password
       },
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl

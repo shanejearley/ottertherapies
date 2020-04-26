@@ -1,0 +1,24 @@
+{
+  "appId": "com.ottertherapies.app",
+  "appName": "Otter Therapies",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www",
+  "cordova": {},
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "backgroundColor": "#ffffffff",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "splashFullScreen": true,
+      "splashImmersive": true
+    },
+    "CapacitorFirebaseAuth": {
+      "providers": ["phone"],
+      "languageCode": "en",
+      "nativeAuth": false
+    }
+  }
+}

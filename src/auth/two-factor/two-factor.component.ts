@@ -35,7 +35,9 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
         const modal = await this.modalController.create({
             component: MfaAddComponent,
             componentProps: {
-                'userPhone': this.userPhone
+                'userPhone': this.userPhone,
+                'email': this.authService.user.email,
+                'password': this.password
             },
             swipeToClose: true,
             presentingElement: this.routerOutlet.nativeEl

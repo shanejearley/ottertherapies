@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { firestore } from 'firebase/app';
 import 'firebase/storage';
-import * as moment from 'moment';
+import moment from 'moment';
+
 
 import { Store } from 'src/store';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service'

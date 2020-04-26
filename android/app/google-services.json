@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "842164942057",
+    "firebase_url": "https://ottertherapies.firebaseio.com",
+    "project_id": "ottertherapies",
+    "storage_bucket": "ottertherapies.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:842164942057:android:82e6eef2b9a47d3ed3ec78",
+        "android_client_info": {
+          "package_name": "com.ottertherapies.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "842164942057-oa678f4oqa8p2maioc3au5siqusje3os.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEXH4wGLlYKwk7YC9QYwm08uVy-g0KI7Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "842164942057-oa678f4oqa8p2maioc3au5siqusje3os.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "842164942057-hm5d7ji9ajbql08gfmgq2ln42jjpjh7s.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ottertherapies.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

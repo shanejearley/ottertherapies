@@ -5,6 +5,8 @@
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "module": "esnext",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
@@ -17,10 +19,10 @@
     "lib": [
       "es2018",
       "dom"
-    ],
+    ]
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true
-  }
+  },
 }
