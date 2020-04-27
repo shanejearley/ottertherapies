@@ -61,22 +61,26 @@ export class ProfileComponent implements OnInit {
   ngOnInit() {
     this.profile$ = this.store.select<Profile>('profile');
     this.profile$.pipe(tap(profile => {
-      if (profile && !profile.displayName) {
-        this.profile = profile;
-        this.profile.displayName = '';
-        this.profile.role = '';
-        this.profile.lastTeam = '';
-        this.profile.url = '';
-        this.firstTime = true;
-        this.edit = true;
-      } else if (profile) {
-        this.profile = profile;
-        this.selected = this.profile.role;
-        this.roleList.forEach(role => {
-          if (role.name == this.selected) {
-            this.selected = role;
-          }
-        })
+      if (profile) {
+        this.profile = {
+          uid: profile.uid || '',
+          email: profile.email || '',
+          displayName: profile.displayName || '',
+          role: profile.role || '',
+          lastTeam: profile.lastTeam || '',
+          url: profile.url || ''
+        }
+        if (!profile.displayName) {
+          this.firstTime = true;
+          this.edit = true;
+        } else {
+          this.selected = this.profile.role;
+          this.roleList.forEach(role => {
+            if (role.name == this.selected) {
+              this.selected = role;
+            }
+          })
+        } 
       }
     })).subscribe()
     this.subscriptions = [

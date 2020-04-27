@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, Output, EventEmitter } from '@angular/core';
 
 import { AuthService } from '../shared/services/auth/auth.service';
-import { Config, ModalController, IonRouterOutlet } from '@ionic/angular';
+import { Config, ModalController, IonRouterOutlet, IonInput } from '@ionic/angular';
 import { MfaAddComponent } from './mfa-add/mfa-add.component';
 
 @Component({
@@ -15,8 +15,9 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
     request: boolean = false;
     userPhone: string = '';
     password: string = '';
-    error: boolean = false;
+    error: string;
     data: any;
+    phoneMask: string = '(000) 000-0000';
     constructor(
         private authService: AuthService,
         private config: Config,
@@ -53,14 +54,30 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
     }
 
     async requestSendCode() {
-        console.log('hey', this.password, this.userPhone, this.authService.user);
-        await this.authService.loginUser(this.authService.user.email, this.password);
-        this.request = true;
-        this.verifyDeviceModal();
+        if (this.userPhone.length !== 12) {
+            this.error = 'Please enter a valid phone number.';
+        } else if (!this.password.length) {
+            this.error = 'Please enter your password.';
+        } else {
+            try {
+                await this.authService.loginUser(this.authService.user.email, this.password);
+                this.error = '';
+                this.request = true;
+                this.verifyDeviceModal();
+            } catch (err) {
+                if (err) {
+                    this.error = err.message;
+                }
+            }
+        }
     }
 
     async onLogout() {
         await this.authService.logoutUser();
+    }
+
+    async updatePhone(ev) {
+        return this.userPhone = ev.detail.value.replace(/[- )(]/g, '');
     }
 
 }

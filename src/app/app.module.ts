@@ -31,7 +31,7 @@ import { environment } from '../environments/environment';
     AvatarModule,
     HttpClientModule,
     CalendarModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   providers: [

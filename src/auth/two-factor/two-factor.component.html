@@ -3,15 +3,25 @@
         <ion-card class="auth--card">
             <img class="auth--logo" src="../assets/img/otter_logo.svg" width="25%">
             <ion-card-content>
-                <h1>Phone Verification</h1>
-                <ion-col class="ion-justify-content-center" size="12">
-                    <ion-icon class="large-icon" name="shield-checkmark-outline"></ion-icon>
-                </ion-col>
+                <h1>2-Factor Verification</h1>
+                <ion-grid>
+                    <ion-row class="ion-justify-content-center">
+                        <ion-col class="ion-justify-content-center" size="12">
+                            <ion-icon class="large-icon" name="shield-checkmark-outline"></ion-icon>
+                        </ion-col>
+                        <ion-col class="ion-justify-content-center" size="auto">
+                            Save your phone number for extra security
+                        </ion-col> 
+                        <ion-col class="ion-justify-content-center" size="auto">
+                            Each login requires a unique verification code
+                        </ion-col> 
+                    </ion-row>
+                </ion-grid>
                 <ion-label class="auth--label">
                     <ion-input class="auth--input" type="password" placeholder="Re-enter your password" [(ngModel)]="password"></ion-input>
                 </ion-label>
                 <ion-label class="auth--label">
-                    <ion-input class="auth--input" type="text" placeholder="Enter your phone number" [(ngModel)]="userPhone"></ion-input>
+                    <ion-input class="auth--input" type="text" prefix="+1" [mask]="phoneMask" (ionChange)="updatePhone($event)" placeholder="Enter your phone number"></ion-input>
                 </ion-label>
                 <div class="error" *ngIf="error">
                     {{ error }}
