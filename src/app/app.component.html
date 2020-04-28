@@ -11,7 +11,7 @@
           <ion-menu-toggle auto-hide="false">
             <ion-item>
               <ion-button color="light" slot="start" routerDirection="backward" [routerLink]="'/Teams'" size="default">
-                Your Teams
+                Your Teams {{ (badge$ | async) }}
               </ion-button>
 
               <ion-thumbnail slot="end" class="avatar-thumbnail">

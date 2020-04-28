@@ -32,7 +32,7 @@ export class SharedModule {
         NotesService,
         PendingService,
         EventsService,
-        ResourcesService
+        ResourcesService,
       ]
     };
   }

@@ -10,6 +10,7 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireStorageModule } from '@angular/fire/storage';
 import { AngularFireFunctionsModule, FUNCTIONS_ORIGIN } from '@angular/fire/functions';
+import { AngularFireMessagingModule } from '@angular/fire/messaging';
 import 'firebase/storage';
 // shared modules
 import { SharedModule } from './shared/shared.module';
@@ -48,6 +49,7 @@ export const firebaseConfig: FirebaseAppConfig = {
     AngularFirestoreModule,
     AngularFireStorageModule,
     AngularFireFunctionsModule,
+    AngularFireMessagingModule,
     SharedModule.forRoot()
   ],
   providers: [

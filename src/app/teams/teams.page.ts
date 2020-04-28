@@ -11,8 +11,8 @@ import {
 
 const { PushNotifications } = Plugins;
 
-import { Observable } from 'rxjs';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { map, reduce } from 'rxjs/operators';
 
 import { User } from '../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../auth/shared/services/profile/profile.service';
@@ -21,6 +21,7 @@ import { CreateTeamComponent } from './create-team/create-team.component';
 import { Store } from 'src/store';
 import { Team } from '../shared/services/teams/teams.service';
 import { Pending, PendingService } from '../shared/services/pending/pending.service';
+import { NotificationsService } from '../notifications.service';
 
 @Component({
   selector: 'app-teams',
@@ -39,7 +40,8 @@ export class TeamsPage implements OnInit {
     private modalController: ModalController,
     private pendingService: PendingService,
     private router: Router,
-    private routerOutlet: IonRouterOutlet
+    private routerOutlet: IonRouterOutlet,
+    private notificationsService: NotificationsService
   ) { }
 
   ngOnInit() {
@@ -50,6 +52,8 @@ export class TeamsPage implements OnInit {
     // Request permission to use push notifications
     // iOS will prompt user and return if they granted permission or not
     // Android will just grant without prompting
+    this.notificationsService.init();
+    this.notificationsService.requestPermission();
     PushNotifications.requestPermission().then(result => {
       if (result.granted) {
         // Register with Apple / Google to receive push via APNS/FCM

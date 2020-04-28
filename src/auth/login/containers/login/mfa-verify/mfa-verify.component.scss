@@ -65,15 +65,17 @@
     &::-webkit-input-placeholder {
       color: #5777a8;
     }
-    &[type=email] {
-      border-radius: 4px 4px 0 0;
-    }
-    &[type=password] {
-      border-radius: 0 0 4px 4px;
-      margin: -1px 0 0;
+    &[type=text] {
+      border-radius: 4px;
     }
   }
   img.auth--logo {
     padding-top: 5%;
   }
+}
+
+.mfa--card {
+  box-shadow: none !important;
+  background: transparent !important;
+  --background: transparent !important;
 }

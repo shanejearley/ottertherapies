@@ -4,16 +4,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
-import { NgxMaskModule, IConfig } from 'ngx-mask';
+import { NgxMaskModule } from 'ngx-mask';
 
 import { SharedModule } from '../shared/shared.module';
 
 import { TwoFactorComponent } from './two-factor.component';
 import { MfaAddComponent } from './mfa-add/mfa-add.component';
-
-export const maskConfig: Partial<IConfig> = {
-  validation: true,
-};
 
 export const ROUTES: Routes = [
   { path: '', component: TwoFactorComponent }
@@ -27,7 +23,7 @@ export const ROUTES: Routes = [
     RouterModule.forChild(ROUTES),
     IonicModule,
     SharedModule,
-    NgxMaskModule.forRoot(maskConfig)
+    NgxMaskModule.forChild()
   ],
   entryComponents: [MfaAddComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

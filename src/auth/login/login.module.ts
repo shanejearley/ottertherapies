@@ -8,6 +8,7 @@ import { SharedModule } from '../shared/shared.module';
 
 import { LoginComponent } from './containers/login/login.component';
 import { MfaVerifyComponent } from './containers/login/mfa-verify/mfa-verify.component';
+import { NgxMaskModule } from 'ngx-mask';
 
 export const ROUTES: Routes = [
   { path: '', component: LoginComponent }
@@ -20,7 +21,8 @@ export const ROUTES: Routes = [
     ReactiveFormsModule,
     RouterModule.forChild(ROUTES),
     IonicModule,
-    SharedModule
+    SharedModule,
+    NgxMaskModule.forChild()
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   entryComponents: [MfaVerifyComponent],

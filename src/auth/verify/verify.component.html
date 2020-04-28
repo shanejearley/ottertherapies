@@ -16,11 +16,11 @@
                 <ion-col class="ion-justify-content-center" size="auto">
                     (If you don't see it, check spam)
                 </ion-col> 
-                <ion-col class="ion-justify-content-center" size="auto" *ngIf="error">
-                    <ion-text color="danger">You still need to verify your email</ion-text>
-                </ion-col> 
             </ion-row>
         </ion-grid>
+        <div class="error" *ngIf="error">
+            You still need to verify your email.
+        </div>
         <div class="auth--card__action">
             <ion-button expand="block" (click)="continue()">Continue</ion-button>
         </div>

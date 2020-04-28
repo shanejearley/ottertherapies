@@ -16,6 +16,7 @@ export class MfaAddComponent implements AfterViewInit {
     appVerifier: any;
     verified: boolean = false;
     userPhone: string = '';
+    phoneMask: string = '(000) 000-0000';
     resolver: any;
     email: string = '';
     password: string = '';
@@ -23,6 +24,7 @@ export class MfaAddComponent implements AfterViewInit {
     error: boolean = false;
     ios: boolean;
     verificationId: string = '';
+    codeNumber: string = '000000'
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,
@@ -44,7 +46,7 @@ export class MfaAddComponent implements AfterViewInit {
                 'callback': (response) => {
                     if (response) {
                         this.verified = true;
-                        this.checkCode();
+                        this.checkCode(null);
                     }
                 }
             });
@@ -104,7 +106,12 @@ export class MfaAddComponent implements AfterViewInit {
 
     }
 
-    async checkCode() {
+    async checkCode(ev) {
+        if (ev) {
+            this.code = ev.detail.value;
+        } else {
+            this.code = this.code || '';
+        }
         if (this.code.length === 6 && this.verified || this.code.length === 6 && this.ios) {
             try {
                 const mfaDisplayName = "2FA Mobile Device 1"

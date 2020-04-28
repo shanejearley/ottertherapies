@@ -16,7 +16,9 @@ export class MfaVerifyComponent implements AfterViewInit {
     recaptchaVerifier: any;
     appVerifier: any;
     verified: boolean = false;
+    codeNumber: string = '000000';
     userPhone: string = '';
+    phoneMask: string = '(000) 000-0000';
     resolver: any;
     email: string;
     password: string;
@@ -42,7 +44,7 @@ export class MfaVerifyComponent implements AfterViewInit {
                 'callback': (response) => {
                     if (response) {
                         this.verified = true;
-                        this.checkCode();
+                        this.checkCode(null);
                     }
                 }
             });
@@ -103,7 +105,12 @@ export class MfaVerifyComponent implements AfterViewInit {
 
     }
 
-    async checkCode() {
+    async checkCode(ev) {
+        if (ev) {
+            this.code = ev.detail.value;
+        } else {
+            this.code = this.code || '';
+        }
         if (this.code.length === 6 && this.verified || this.code.length === 6 && this.ios) {
             try {
                 var cred = firebase.auth.PhoneAuthProvider.credential(

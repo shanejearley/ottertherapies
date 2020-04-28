@@ -7,7 +7,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { tap, map, reduce } from 'rxjs/operators';
 
 import { AuthService, User } from '../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../auth/shared/services/profile/profile.service';
@@ -29,6 +29,7 @@ export class AppComponent implements OnInit {
   user$: Observable<User>;
   profile$: Observable<Profile>;
   teams$: Observable<Team[]>;
+  badge$: Observable<number>;
   team$: Observable<Team>;
   groups$: Observable<Group[]>;
   authSub: Subscription;
@@ -40,6 +41,7 @@ export class AppComponent implements OnInit {
   eventsSub: Subscription;
   pendingSub: Subscription;
   resourcesSub: Subscription;
+  badgeSub: Subscription;
   teamId: string;
   lastId: string;
   page: string;
@@ -101,7 +103,7 @@ export class AppComponent implements OnInit {
     private notesService: NotesService,
     private pendingService: PendingService,
     private eventsService: EventsService,
-    private resourcesService: ResourcesService
+    private resourcesService: ResourcesService,
   ) {
     this.initializeApp();
 

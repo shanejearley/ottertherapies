@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  firebase: {
+    vapidKey: 'BB2ZXCxS0HG04yDXoBoXMIAJv9gW4fisgIK3NVYpNJfDuJdkDPLoGBtrSq0Gg_11gaPmwd6tsKvWTzCSxQxKGZc'
+  }
 };
 
 /*
