@@ -51,7 +51,11 @@ service cloud.firestore {
     }
     
     function groupAdmin(teamId, groupId) {
-    	return get(/databases/$(database)/documents/teams/$(teamId)/groups/$(groupId)/members/$(request.auth.uid)).data.status == 'Admin';
+    	return get(/databases/$(database)/documents/teams/$(teamId)/groups/$(groupId)/members/$(request.auth.uid)).data.status == 'Admin' || !exists(/databases/$(database)/documents/teams/$(teamId)/groups/$(groupId)/members/$(request.auth.uid)) && get(/databases/$(database)/documents/teams/$(teamId)/groups/$(groupId)).data.createdBy == request.auth.uid;
+    }
+    
+    function groupExists(teamId, groupId) {
+    	return exists(/databases/$(database)/documents/teams/$(teamId)/groups/$(groupId));
     }
     
   	match /users/{userId} {
@@ -104,9 +108,9 @@ service cloud.firestore {
       	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId);
       }
       match /groups/{groupId} {
-      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && groupAccess(teamId, groupId);
+      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && groupAccess(teamId, groupId) || signedIn() && emailVerified() && teamAccess(teamId) && !groupExists(teamId, groupId);
         match /members/{memberUid} {
-      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && groupAccess(teamId, groupId);
+      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && groupAdmin(teamId, groupId);
         }
         match /messages/{messageId} {
         	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && groupAccess(teamId, groupId);
