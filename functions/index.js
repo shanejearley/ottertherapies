@@ -362,7 +362,7 @@ exports.pendingMemberOnRemove = functions.firestore
         }
     });
 
-const notifyUser = async (uid, context) => {
+const notifyUser = function(uid, context) {
     const userId = uid
 
     // Message details for end user
@@ -411,7 +411,7 @@ exports.updateGroupMessageCount = functions.firestore
                     return members.forEach(function (member) {
                         if (member.uid !== userUid) {
                             console.log("memberUid?", member.uid);
-                            await notifyUser(member.uid, "message");
+                            notifyUser(member.uid, "message");
                             return firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("unread").doc(groupId).set({
                                 unreadMessages: FieldValue.increment(1)
                             }, { merge: true })
