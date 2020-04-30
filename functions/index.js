@@ -67,37 +67,6 @@ exports.scraper = functions.https.onCall(async (data, context) => {
 
 });
 
-const notifyUser = (uid, context) => {
-    const userId = uid
-
-    // Message details for end user
-    const payload = {
-        notification: {
-            title: `New ${context}!`,
-            body: `A team member sent you a new ${context}`,
-        }
-    }
-
-    // ref to the parent document
-    const userRef = firestore.collection('users').doc(userId)
-
-
-    // get users tokens and send notifications
-    return userRef.get()
-        .then(snapshot => snapshot.data())
-        .then(user => {
-
-            const tokens = user.fcmTokens ? Object.keys(user.fcmTokens) : []
-
-            if (!tokens.length) {
-                throw new Error('User does not have any tokens!')
-            }
-
-            return admin.messaging().sendToDevice(tokens, payload)
-        })
-        .catch(err => console.log(err))
-}
-
 exports.authOnCreate = functions.auth.user().onCreate((user) => {
     const uid = user.uid;
     const email = user.email; // The email of the user.
@@ -392,6 +361,36 @@ exports.pendingMemberOnRemove = functions.firestore
             return console.log("error", error);
         }
     });
+
+const notifyUser = async (uid, context) => {
+    const userId = uid
+
+    // Message details for end user
+    const payload = {
+        notification: {
+            title: `New ${context}!`,
+            body: `A team member sent you a new ${context}`,
+        }
+    }
+
+    // ref to the parent document
+    const userRef = firestore.collection('users').doc(userId)
+
+
+    // get users tokens and send notifications
+    try {
+        const snapshot = await userRef.get();
+        const user = snapshot.data();
+        const tokens = user.fcmTokens ? Object.keys(user.fcmTokens) : [];
+        if (!tokens.length) {
+            throw new Error('User does not have any tokens!');
+        }
+        return admin.messaging().sendToDevice(tokens, payload);
+    }
+    catch (err) {
+        return console.log(err);
+    }
+}
 
 exports.updateGroupMessageCount = functions.firestore
     .document('teams/{teamId}/groups/{groupId}')
