@@ -7,6 +7,7 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { DocumentScanner } from '@ionic-native/document-scanner/ngx';
+import { Badge } from '@ionic-native/badge/ngx';
 import { AvatarModule } from 'ngx-avatar';
 import { CalendarModule } from 'ion2-calendar';
 import { NgxMaskModule } from 'ngx-mask';
@@ -41,6 +42,7 @@ import { environment } from '../environments/environment';
     StatusBar,
     SplashScreen,
     DocumentScanner,
+    Badge,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]
