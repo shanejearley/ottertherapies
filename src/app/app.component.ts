@@ -1,9 +1,10 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, AfterContentChecked } from '@angular/core';
 import { Router, RoutesRecognized } from '@angular/router';
 
 import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { Badge } from '@ionic-native/badge/ngx';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -25,7 +26,7 @@ import { ResourcesService } from './shared/services/resources/resources.service'
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterContentChecked {
   user$: Observable<User>;
   profile$: Observable<Profile>;
   teams$: Observable<Team[]>;
@@ -104,6 +105,7 @@ export class AppComponent implements OnInit {
     private pendingService: PendingService,
     private eventsService: EventsService,
     private resourcesService: ResourcesService,
+    private badge: Badge
   ) {
     this.initializeApp();
 
@@ -168,6 +170,24 @@ export class AppComponent implements OnInit {
     });
   }
 
+  ngAfterContentChecked() {
+    this.badge$ = this.teams$.pipe(
+      map(teams => {
+        if (teams) {
+          console.log('reducing')
+          return teams.reduce((total: number, team: Team) => total + team.unreadMessages + team.unreadFiles + team.unreadNotes, 0)
+        }
+      })
+    )
+    this.badge$.pipe(map(badge => {
+      if (badge) {
+        console.log('update on badge', badge)
+        this.badge.set(badge);
+        ///update badge here
+      }
+    })).subscribe();
+  }
+
   async subscribeUserTeam() {
     this.authService.authState
       .pipe(map((user) => {
@@ -210,13 +230,6 @@ export class AppComponent implements OnInit {
           return !!user;
         })
       ).subscribe();
-  }
-
-  async reloadUser(event: boolean) {
-    if (event) {
-      console.log('EVENT');
-      this.subscribeUser();
-    }
   }
 
   async onLogout() {

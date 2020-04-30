@@ -12,6 +12,7 @@ dependencies {
     implementation project(':capacitor-firebase-auth')
 
 }
+apply from: "../../node_modules/cordova-plugin-badge/src/android/badge.gradle"
 apply from: "../../node_modules/cordova-plugin-document-scanner/src/android/build.gradle"
 
 if (hasProperty('postBuildExtras')) {

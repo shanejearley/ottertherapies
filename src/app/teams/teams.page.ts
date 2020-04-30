@@ -14,7 +14,7 @@ const { PushNotifications } = Plugins;
 import { Observable, Subscription } from 'rxjs';
 import { map, reduce } from 'rxjs/operators';
 
-import { User } from '../../auth/shared/services/auth/auth.service';
+import { User, AuthService } from '../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../auth/shared/services/profile/profile.service';
 import { CreateTeamComponent } from './create-team/create-team.component';
 
@@ -41,8 +41,13 @@ export class TeamsPage implements OnInit {
     private pendingService: PendingService,
     private router: Router,
     private routerOutlet: IonRouterOutlet,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    private authService: AuthService
   ) { }
+
+  get user() {
+    return this.authService.user;
+  }
 
   ngOnInit() {
     console.log('Initializing Teams Page');
@@ -65,6 +70,7 @@ export class TeamsPage implements OnInit {
     // On success, we should be able to receive notifications
     PushNotifications.addListener('registration',
       (token: PushNotificationToken) => {
+        this.notificationsService.saveToken(this.user, token.value)
         alert('Push registration success, token: ' + token.value);
       }
     );

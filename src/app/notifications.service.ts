@@ -3,13 +3,22 @@ import { Injectable } from '@angular/core';
 import { firebase } from '@firebase/app';
 import '@firebase/messaging';
 import { environment } from '../environments/environment';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AuthService } from 'src/auth/shared/services/auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationsService {
 
-  constructor() { }
+  constructor(
+    private afs: AngularFirestore,
+    private authService: AuthService
+  ) { }
+
+  get user() {
+    return this.authService.user;
+  }
 
   init(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -40,6 +49,7 @@ export class NotificationsService {
         messaging.onTokenRefresh(() => {
           messaging.getToken().then(
             (refreshedToken: string) => {
+              this.saveToken(this.user, refreshedToken);
               console.log(refreshedToken);
             }).catch((err) => {
               console.error(err);
@@ -68,6 +78,7 @@ export class NotificationsService {
         await messaging.requestPermission();
 
         const token: string = await messaging.getToken();
+        this.saveToken(this.user, token);
 
         console.log('User notifications token:', token);
       } catch (err) {
@@ -76,5 +87,19 @@ export class NotificationsService {
 
       resolve();
     });
+  }
+
+  // save the permission token in firestore
+  saveToken(user, token): void {
+
+    const currentTokens = user.fcmTokens || {}
+    console.log(currentTokens, token)
+
+    // If token does not exist in firestore, update db
+    if (!currentTokens[token]) {
+      const userRef = this.afs.collection('users').doc(user.uid)
+      const tokens = { ...currentTokens, [token]: true }
+      userRef.update({ fcmTokens: tokens })
+    }
   }
 }

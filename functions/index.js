@@ -67,13 +67,36 @@ exports.scraper = functions.https.onCall(async (data, context) => {
 
 });
 
-// exports.scraper = functions.https.onRequest( async (request, response) => {
-//     return { success: true };
-//     return cors(request, response, async () => {
+const notifyUser = (userId, context) => {
+    const userId = userId
+
+    // Message details for end user
+    const payload = {
+        notification: {
+            title: `New ${context}!`,
+            body: `A team member sent you a new ${context}`,
+        }
+    }
+
+    // ref to the parent document
+    const userRef = firestore.collection('users').doc(userId)
 
 
-//     });
-// });
+    // get users tokens and send notifications
+    return userRef.get()
+        .then(snapshot => snapshot.data())
+        .then(user => {
+
+            const tokens = user.fcmTokens ? Object.keys(user.fcmTokens) : []
+
+            if (!tokens.length) {
+                throw new Error('User does not have any tokens!')
+            }
+
+            return admin.messaging().sendToDevice(tokens, payload)
+        })
+        .catch(err => console.log(err))
+}
 
 exports.authOnCreate = functions.auth.user().onCreate((user) => {
     const uid = user.uid;
@@ -389,6 +412,7 @@ exports.updateGroupMessageCount = functions.firestore
                     return members.forEach(function (member) {
                         if (member.uid !== userUid) {
                             console.log("memberUid?", member.uid);
+                            await notifyUser(member.uid, "message");
                             return firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("unread").doc(groupId).set({
                                 unreadMessages: FieldValue.increment(1)
                             }, { merge: true })
@@ -422,6 +446,7 @@ exports.updateGroupFileCount = functions.firestore
                     var members = querySnapshot.docs.map(doc => doc.data());
                     return members.forEach(function (member) {
                         if (member.uid !== userUid) {
+                            await notifyUser(member.uid, "file");
                             return firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("unread").doc(groupId).set({
                                 unreadFiles: FieldValue.increment(1)
                             }, { merge: true })
@@ -458,6 +483,7 @@ exports.updateDirectMessageCount = functions.firestore
                 updateUid = pathId.substr(0, 28);
                 console.log(updateUid);
             }
+            await notifyUser(updateUid, "message");
             return firestore.collection("users").doc(updateUid).collection("teams").doc(teamId).collection("unread").doc(pathId).set({
                 unreadMessages: FieldValue.increment(1)
             }, { merge: true })
@@ -483,6 +509,7 @@ exports.updateDirectFileCount = functions.firestore
                     var members = querySnapshot.docs.map(doc => doc.data());
                     return members.forEach(function (member) {
                         if (member.uid !== userUid) {
+                            await notifyUser(member.uid, "file");
                             return firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("unread").doc(pathId).set({
                                 unreadFiles: FieldValue.increment(1)
                             }, { merge: true })

@@ -16,7 +16,9 @@
       "splashImmersive": true
     },
     "CapacitorFirebaseAuth": {
-      "providers": ["phone"],
+      "providers": [
+        "phone"
+      ],
       "languageCode": "en",
       "nativeAuth": false
     }
