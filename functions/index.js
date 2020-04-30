@@ -67,8 +67,8 @@ exports.scraper = functions.https.onCall(async (data, context) => {
 
 });
 
-const notifyUser = (userId, context) => {
-    const userId = userId
+const notifyUser = (uid, context) => {
+    const userId = uid
 
     // Message details for end user
     const payload = {
