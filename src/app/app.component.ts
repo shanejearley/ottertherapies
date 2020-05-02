@@ -183,10 +183,14 @@ export class AppComponent implements OnInit, AfterContentChecked {
         if (!teams) {
           return;
         }
-        console.log('reducing')
         return teams.reduce((total: number, team: Team) => total + team.unreadMessages + team.unreadFiles + team.unreadNotes, 0);
       })
     )
+    this.badge$.pipe(map(badge => {
+      if (badge && this.ios) {
+        this.badge.set(badge);
+      }
+    })).subscribe();
   }
 
   async subscribeUserTeam() {
@@ -225,11 +229,6 @@ export class AppComponent implements OnInit, AfterContentChecked {
             this.profileSub = this.profileService.profileObservable(user.uid).subscribe();
             this.teamsSub = this.teamsService.teamsObservable(user.uid).subscribe();
             this.pendingSub = this.pendingService.pendingObservable(user.uid).subscribe();
-            this.badgeSub = this.badge$.pipe(map(badge => {
-              if (badge && this.ios) {
-                this.badge.set(badge);
-              }
-            })).subscribe();
           } else if (user && !user.authenticated) {
             console.log('signed out')
           }
@@ -245,7 +244,6 @@ export class AppComponent implements OnInit, AfterContentChecked {
       this.profileSub.unsubscribe();
       this.teamsSub.unsubscribe();
       this.pendingSub.unsubscribe();
-      this.badgeSub.unsubscribe();
     }
     if (this.groupsSub) {
       this.groupsSub.unsubscribe();
@@ -262,7 +260,6 @@ export class AppComponent implements OnInit, AfterContentChecked {
     this.profileSub.unsubscribe();
     this.teamsSub.unsubscribe();
     this.pendingSub.unsubscribe();
-    this.badgeSub.unsubscribe();
     if (this.groupsSub) {
       this.groupsSub.unsubscribe();
       this.membersSub.unsubscribe();

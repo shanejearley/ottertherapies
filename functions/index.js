@@ -75,6 +75,7 @@ const notifyUser = async (uid, context) => {
         notification: {
             title: `New ${context}!`,
             body: `A team member sent you a new ${context}`,
+            badge: `1`
         }
     }
 
@@ -541,7 +542,7 @@ exports.updateNoteCount = functions.firestore
                 var members = querySnapshot.docs.map(doc => doc.data());
                 return members.forEach((member) => {
                     if (member.uid !== userUid) {
-                        notifyUser(member.uid, "file");
+                        notifyUser(member.uid, "note");
                         return firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("unread").doc(noteId).set({
                             unreadNotes: FieldValue.increment(1)
                         }, { merge: true })
