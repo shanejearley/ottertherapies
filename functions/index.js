@@ -68,24 +68,21 @@ exports.scraper = functions.https.onCall(async (data, context) => {
 });
 
 const notifyUser = async (uid, context) => {
-    const userId = uid
-
-    // Message details for end user
-    const payload = {
-        notification: {
-            title: `New ${context}!`,
-            body: `A team member sent you a new ${context}`,
-            badge: `1`
-        }
-    }
-
-    // ref to the parent document
-    const userRef = firestore.collection('users').doc(userId)
 
     // get users tokens and send notifications
     try {
+        const userId = uid
+        const userRef = firestore.collection('users').doc(userId)
         const snapshot = await userRef.get();
         const user = snapshot.data();
+        // Message details for end user
+        const payload = {
+            notification: {
+                title: `New ${context}!`,
+                body: `A team member sent you a new ${context}`
+            }
+        }
+
         const tokens = user.fcmTokens ? Object.keys(user.fcmTokens) : [];
         if (!tokens.length) {
             throw new Error('User does not have any tokens!');
