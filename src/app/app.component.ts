@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterContentChecked } from '@angular/core';
 import { Router, RoutesRecognized } from '@angular/router';
 
-import { Platform } from '@ionic/angular';
+import { Platform, Config } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Badge } from '@ionic-native/badge/ngx';
@@ -48,6 +48,9 @@ export class AppComponent implements OnInit, AfterContentChecked {
   page: string;
   loggedIn: boolean;
   menu: boolean;
+  ios: boolean;
+  total: number;
+  teams: Team[];
   public selectedIndex = 0;
   public appPages = [
     {
@@ -105,6 +108,7 @@ export class AppComponent implements OnInit, AfterContentChecked {
     private pendingService: PendingService,
     private eventsService: EventsService,
     private resourcesService: ResourcesService,
+    private config: Config,
     private badge: Badge
   ) {
     this.initializeApp();
@@ -141,6 +145,7 @@ export class AppComponent implements OnInit, AfterContentChecked {
   }
 
   ngOnInit() {
+    this.ios = this.config.get('mode') === 'ios';
     this.dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     this.user$ = this.store.select<User>('user');
     this.profile$ = this.store.select<Profile>('profile');
@@ -173,19 +178,15 @@ export class AppComponent implements OnInit, AfterContentChecked {
   ngAfterContentChecked() {
     this.badge$ = this.teams$.pipe(
       map(teams => {
-        if (teams) {
-          console.log('reducing')
-          return teams.reduce((total: number, team: Team) => total + team.unreadMessages + team.unreadFiles + team.unreadNotes, 0)
+        this.total = this.total || null;
+        this.teams = this.teams || null;
+        if (!teams) {
+          return;
         }
+        console.log('reducing')
+        return teams.reduce((total: number, team: Team) => total + team.unreadMessages + team.unreadFiles + team.unreadNotes, 0);
       })
     )
-    this.badge$.pipe(map(badge => {
-      if (badge) {
-        console.log('update on badge', badge)
-        this.badge.set(badge);
-        ///update badge here
-      }
-    })).subscribe();
   }
 
   async subscribeUserTeam() {
@@ -224,6 +225,11 @@ export class AppComponent implements OnInit, AfterContentChecked {
             this.profileSub = this.profileService.profileObservable(user.uid).subscribe();
             this.teamsSub = this.teamsService.teamsObservable(user.uid).subscribe();
             this.pendingSub = this.pendingService.pendingObservable(user.uid).subscribe();
+            this.badgeSub = this.badge$.pipe(map(badge => {
+              if (badge && this.ios) {
+                this.badge.set(badge);
+              }
+            })).subscribe();
           } else if (user && !user.authenticated) {
             console.log('signed out')
           }
@@ -239,6 +245,7 @@ export class AppComponent implements OnInit, AfterContentChecked {
       this.profileSub.unsubscribe();
       this.teamsSub.unsubscribe();
       this.pendingSub.unsubscribe();
+      this.badgeSub.unsubscribe();
     }
     if (this.groupsSub) {
       this.groupsSub.unsubscribe();
@@ -255,6 +262,7 @@ export class AppComponent implements OnInit, AfterContentChecked {
     this.profileSub.unsubscribe();
     this.teamsSub.unsubscribe();
     this.pendingSub.unsubscribe();
+    this.badgeSub.unsubscribe();
     if (this.groupsSub) {
       this.groupsSub.unsubscribe();
       this.membersSub.unsubscribe();

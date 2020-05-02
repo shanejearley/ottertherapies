@@ -55,9 +55,10 @@
                   <h3>{{ g.members.length }} Member, {{ g.files.length }} Files</h3>
                 </ng-template>
               </ion-label>
-              <ion-badge color="danger" *ngIf="g.unread && g.unread.unreadFiles > 0">
-                {{ g.unread.unreadFiles }}
-              </ion-badge>
+              <ion-tab-button *ngIf="g.unread && g.unread.unreadFiles > 0" slot="end" class="notification--button">
+                <ion-icon name="document-text-outline"></ion-icon>            
+                <ion-badge color="danger">{{ g.unread.unreadFiles }}</ion-badge>
+              </ion-tab-button>
             </ion-item>
           </ion-card>
           <div *ngIf="g.show">
@@ -121,9 +122,10 @@
                 <h2><strong>{{ m.profile.displayName }}</strong></h2>
                 <h3>2 Members, {{ m.files.length }} Files</h3>
               </ion-label>
-              <ion-badge color="danger" *ngIf="m.unread && m.unread.unreadFiles > 0">
-                {{ m.unread.unreadFiles }}
-              </ion-badge>
+              <ion-tab-button *ngIf="m.unread && m.unread.unreadFiles > 0" slot="end" class="notification--button">
+                <ion-icon name="document-text-outline"></ion-icon>            
+                <ion-badge color="danger">{{ m.unread.unreadFiles }}</ion-badge>
+              </ion-tab-button>
             </ion-item>
           </ion-card>
           <div *ngIf="m.show && m.uid !== (profile$ | async)?.uid">

@@ -41,7 +41,13 @@ export class NotesComponent implements OnInit {
     this.time = this.date.getTime();
     this.profile$ = this.store.select<Profile>('profile');
     this.notes$ = this.store.select<Note[]>('notes');
-    this.notes$.pipe(tap(notes => console.log(notes))).subscribe()
+    this.notes$.pipe(tap(notes => {
+      notes.forEach(n => {
+        if (n.unread && n.unread.unreadNotes) {
+          this.notesService.checkLastNote(n.id);
+        }
+      })
+    })).subscribe()
     this.subscriptions = [
       //this.authService.auth$.subscribe(),
       //this.profileService.profile$.subscribe(),

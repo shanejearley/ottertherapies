@@ -41,9 +41,10 @@
                 <h3>Start a new conversation</h3>
               </ng-template>
             </ion-label>
-            <ion-badge color="danger" *ngIf="g.unread && g.unread.unreadMessages > 0">
-              {{ g.unread.unreadMessages }}
-            </ion-badge>
+            <ion-tab-button *ngIf="g.unread && g.unread.unreadMessages > 0" slot="end" class="notification--button">
+              <ion-icon name="chatbubbles-outline"></ion-icon>            
+              <ion-badge color="danger">{{ g.unread.unreadMessages }}</ion-badge>
+            </ion-tab-button>
           </ion-item>
         </ion-card>
       </div>
@@ -70,9 +71,10 @@
                 <h3>Start a new conversation</h3>
               </ng-template>
             </ion-label>
-            <ion-badge color="danger" *ngIf="m.unread && m.unread.unreadMessages > 0">
-              {{ m.unread.unreadMessages }}
-            </ion-badge>
+            <ion-tab-button *ngIf="m.unread && m.unread.unreadMessages > 0" slot="end" class="notification--button">
+              <ion-icon name="chatbubbles-outline"></ion-icon>            
+              <ion-badge color="danger">{{ m.unread.unreadMessages }}</ion-badge>
+            </ion-tab-button>
           </ion-item>
         </ion-card>
       </div>

@@ -89,6 +89,7 @@ const notifyUser = async (uid, context) => {
         if (!tokens.length) {
             throw new Error('User does not have any tokens!');
         }
+        console.log("Sending to tokens: ", tokens);
         return admin.messaging().sendToDevice(tokens, payload);
     }
     catch (err) {
@@ -522,4 +523,34 @@ exports.updateDirectFileCount = functions.firestore
         } else {
             return console.log("No new direct Files with change");
         }
+    });
+
+exports.updateNoteCount = functions.firestore
+    .document('teams/{teamId}/notes/{noteId}')
+    .onCreate((snap, context) => {
+        console.log("snap", snap);
+        console.log("context", context);
+        console.log("teamId", context.params.teamId);
+        var userUid = snap.data().uid;
+        var teamId = context.params.teamId;
+        console.log("noteId", context.params.noteId);
+        var noteId = context.params.noteId;
+        return firestore.collection("teams").doc(teamId).collection("members").get()
+            .then(function (querySnapshot) {
+                console.log("members", querySnapshot.docs.map(doc => doc.id));
+                var members = querySnapshot.docs.map(doc => doc.data());
+                return members.forEach((member) => {
+                    if (member.uid !== userUid) {
+                        notifyUser(member.uid, "file");
+                        return firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("unread").doc(noteId).set({
+                            unreadNotes: FieldValue.increment(1)
+                        }, { merge: true })
+                    } else {
+                        return console.log("Not updating user who posted");
+                    }
+                })
+            })
+            .catch(function (error) {
+                return console.log("error", error);
+            });
     });

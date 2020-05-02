@@ -15,7 +15,7 @@ import { Observable, Subscription } from 'rxjs';
 import { map, reduce } from 'rxjs/operators';
 
 import { User, AuthService } from '../../auth/shared/services/auth/auth.service';
-import { Profile } from '../../auth/shared/services/profile/profile.service';
+import { Profile, ProfileService } from '../../auth/shared/services/profile/profile.service';
 import { CreateTeamComponent } from './create-team/create-team.component';
 
 import { Store } from 'src/store';
@@ -42,11 +42,11 @@ export class TeamsPage implements OnInit {
     private router: Router,
     private routerOutlet: IonRouterOutlet,
     private notificationsService: NotificationsService,
-    private authService: AuthService
+    private profileService: ProfileService
   ) { }
 
-  get user() {
-    return this.authService.user;
+  get currentProfile() {
+    return this.profileService.currentProfile;
   }
 
   ngOnInit() {
@@ -70,8 +70,8 @@ export class TeamsPage implements OnInit {
     // On success, we should be able to receive notifications
     PushNotifications.addListener('registration',
       (token: PushNotificationToken) => {
-        this.notificationsService.saveToken(this.user, token.value)
         alert('Push registration success, token: ' + token.value);
+        this.notificationsService.saveToken(this.currentProfile, token.value);
       }
     );
 

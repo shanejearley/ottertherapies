@@ -68,7 +68,8 @@ export class ProfileComponent implements OnInit {
           displayName: profile.displayName || '',
           role: profile.role || '',
           lastTeam: profile.lastTeam || '',
-          url: profile.url || ''
+          url: profile.url || '',
+          fcmTokens: profile.fcmTokens || {}
         }
         if (!profile.displayName) {
           this.firstTime = true;

@@ -18,12 +18,14 @@ import { Store } from 'src/store';
   styleUrls: ['./child.component.scss'],
 })
 export class ChildComponent implements OnInit {
+  edit: boolean = false;
   user$: Observable<User>;
   profile$: Observable<Profile>;
   team$: Observable<Team>;
   groups$: Observable<Group[]>;
   subscriptions: Subscription[] = [];
-  public team: string;
+  public team;
+  public childName;
   public page: string;
 
   constructor(
@@ -45,8 +47,25 @@ export class ChildComponent implements OnInit {
     this.team$ = this.activatedRoute.params
       .pipe(switchMap(param => this.teamsService.getTeam(param.id)));
     this.team$.subscribe(team => {
-      console.log(team);
+      this.childName = team.child ? team.child : null
+      this.team = {
+        id: team.id ? team.id : null,
+        name: team.name ? team.name : null,
+        publicId: team.publicId ? team.publicId : null,
+        child: team.child ? team.child : null,
+        bio: team.bio ? team.bio : null,
+        url: team.url ? team.url : null,
+      }
     })
+  }
+
+  updateTeamInfo() {
+    this.edit = false;
+    if (this.team.child !== this.childName) {
+      this.team.name = this.team.child + "'s Care Team";
+      this.team.publicId = this.team.child + "-" + this.team.id.slice(-4);
+    }
+    this.teamsService.updateTeamInfo(this.team);
   }
 
   ngOnDestroy() {

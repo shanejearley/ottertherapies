@@ -16,7 +16,8 @@ export interface Profile {
     displayName: string,
     url: string,
     lastTeam: string,
-    role: string
+    role: string,
+    fcmTokens: object
 }
 
 export interface Item { name: string; }
@@ -26,6 +27,7 @@ export class ProfileService {
     private profileDoc: AngularFirestoreDocument<Profile>;
     private getProfileDoc: AngularFirestoreDocument<Profile>;
     profile$: Observable<Profile>;
+    profile: Profile;
     getProfileDoc$: Observable<Profile>;
     downloadURL: string;
     percentageChanges: any;
@@ -52,13 +54,15 @@ export class ProfileService {
                 }
                 console.log('PROFILE RETRIEVED')
                 const profile: Profile = {
-                    email: next.email,
-                    uid: next.uid,
-                    displayName: next.displayName,
-                    url: next.url,
-                    lastTeam: next.lastTeam,
-                    role: next.role
+                    email: next.email ? next.email : null,
+                    uid: next.uid ? next.uid : null,
+                    displayName: next.displayName ? next.displayName : null,
+                    url: next.url ? next.url : null,
+                    lastTeam: next.lastTeam ? next.lastTeam : null,
+                    role: next.role ? next.role : null,
+                    fcmTokens: next.fcmTokens ? next.fcmTokens : null
                 };
+                this.profile = profile;
                 this.store.set('profile', profile)
             }))
         return this.profile$;
@@ -66,6 +70,10 @@ export class ProfileService {
 
     get uid() {
         return this.authService.user.uid;
+    }
+
+    get currentProfile() {
+        return this.profile;
     }
 
     updateProfile(uid: string, profile: Profile) {

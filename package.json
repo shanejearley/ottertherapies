@@ -42,6 +42,8 @@
     "capacitor-firebase-auth": "^0.3.0",
     "cordova-plugin-badge": "^0.8.8",
     "cordova-plugin-document-scanner": "^4.2.4",
+    "cordova-plugin-ionic": "5.4.7",
+    "cordova-plugin-whitelist": "^1.3.4",
     "core-js": "^2.5.4",
     "fibers": "^4.0.2",
     "file-drop-element": "^0.2.0",

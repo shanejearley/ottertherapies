@@ -22,7 +22,6 @@ export interface Team {
   publicId: string,
   child: string,
   bio: string,
-  notes: string,
   url: string,
   createdBy: string,
   unread: string[],
@@ -69,6 +68,7 @@ export class TeamsService {
         next.forEach(team => {
           this.getInfo(team);
           this.getUnread(team);
+          console.log('team with unread ', team)
         })
         this.store.set('teams', next)
       }));
@@ -91,7 +91,6 @@ export class TeamsService {
         team.publicId = next.publicId
         team.child = next.child
         team.bio = next.bio
-        team.notes = next.notes
         team.url = next.url
         team.createdBy = next.createdBy
       }))
@@ -157,7 +156,6 @@ export class TeamsService {
         publicId: childName + '-' + newTeamId.slice(-4),
         child: childName,
         bio: null,
-        notes: null,
         url: null,
         createdBy: this.uid,
         unread: null,
@@ -196,6 +194,11 @@ export class TeamsService {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  async updateTeamInfo(team: Team) {
+    this.teamDoc = this.db.doc<Team>(`teams/${team.id}`);
+    return this.teamDoc.update(team);
   }
 
 }

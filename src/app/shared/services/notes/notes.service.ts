@@ -44,6 +44,7 @@ export class NotesService {
     private commentsCol: AngularFirestoreCollection<Comment>;
     private noteDoc: AngularFirestoreDocument<Note>;
     private unreadDoc: AngularFirestoreDocument<Unread>;
+    private unreadUpdateDoc: AngularFirestoreDocument;
     unread$: Observable<Unread>;
     note$: Observable<Note>;
     comments$: Observable<Number[]>;
@@ -83,6 +84,7 @@ export class NotesService {
                         this.membersService.getMember(note.uid).subscribe(m => {
                             if (!note.profile) {
                                 note.profile = m.profile;
+                                this.getUnread(note);
                                 this.getComments(note);
                                 this.notes.push(note);
                             }
@@ -147,6 +149,13 @@ export class NotesService {
             .pipe(
                 filter(Boolean),
                 map((note: Note[]) => note.find((note: Note) => note.id === id)));
+    }
+
+    checkLastNote(noteId: string) {
+        this.unreadUpdateDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${noteId}`);
+        this.unreadUpdateDoc.set({
+            unreadNotes: 0
+        }, { merge: true });
     }
 
     addNote(body: string) {

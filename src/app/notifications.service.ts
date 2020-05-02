@@ -5,6 +5,7 @@ import '@firebase/messaging';
 import { environment } from '../environments/environment';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
+import { Profile, ProfileService } from 'src/auth/shared/services/profile/profile.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,11 +14,11 @@ export class NotificationsService {
 
   constructor(
     private afs: AngularFirestore,
-    private authService: AuthService
+    private profileService: ProfileService
   ) { }
 
-  get user() {
-    return this.authService.user;
+  get currentProfile() {
+    return this.profileService.currentProfile;
   }
 
   init(): Promise<void> {
@@ -49,7 +50,7 @@ export class NotificationsService {
         messaging.onTokenRefresh(() => {
           messaging.getToken().then(
             (refreshedToken: string) => {
-              this.saveToken(this.user, refreshedToken);
+              this.saveToken(this.currentProfile, refreshedToken);
               console.log(refreshedToken);
             }).catch((err) => {
               console.error(err);
@@ -78,7 +79,7 @@ export class NotificationsService {
         await messaging.requestPermission();
 
         const token: string = await messaging.getToken();
-        this.saveToken(this.user, token);
+        this.saveToken(this.currentProfile, token);
 
         console.log('User notifications token:', token);
       } catch (err) {
@@ -90,13 +91,14 @@ export class NotificationsService {
   }
 
   // save the permission token in firestore
-  saveToken(user, token): void {
+  saveToken(user: Profile, token: string): void {
 
     const currentTokens = user.fcmTokens || {}
     console.log(currentTokens, token)
 
     // If token does not exist in firestore, update db
     if (!currentTokens[token]) {
+      console.log('Adding new token: ', token)
       const userRef = this.afs.collection('users').doc(user.uid)
       const tokens = { ...currentTokens, [token]: true }
       userRef.update({ fcmTokens: tokens })

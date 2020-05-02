@@ -185,16 +185,14 @@ export class FilesComponent implements OnInit {
 
   showMember(m) {
     m.show = !m.show;
-    if (m.show && m.uid !== this.uid) {
-      console.log('checkin')
+    if (m.show && m.uid !== this.uid && m.unread && m.unread.unreadFiles) {
       this.membersService.checkLastFile(m.uid);
     }
   }
 
   showGroup(g) {
     g.show = !g.show;
-    if (g.show) {
-      console.log('checkin')
+    if (g.show && g.unread && g.unread.unreadFiles) {
       this.groupsService.checkLastFile(g.id);
     }
   }

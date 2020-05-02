@@ -15,7 +15,7 @@
             </h3>
         </ion-item>
         <ion-item class="theme--item">
-            <ion-icon slot="start" [ios]="'people' + '-outline'" [md]="'people' + '-sharp'"></ion-icon>
+            <ion-icon slot="start" name="people-outline"></ion-icon>
             <ion-input [(ngModel)]="queryText" (ionChange)="filterMembers(queryText)" (keyup.enter)="manualSearch()" placeholder="Add members" [color]="error ? 'danger' : ''"></ion-input>
         </ion-item>
         <ion-list class="member-list theme--list" inset="true" *ngIf="queryText !== ''">
@@ -34,16 +34,14 @@
                     <ion-icon
                         color="primary"
                         slot="icon-only"
-                        [ios]="'add-circle' + '-outline'" 
-                        [md]="'add-circle' + '-sharp'">
+                        name="add-circle-outline">
                     </ion-icon>
                 </ion-button>
                 <ng-template #checked>
                     <ion-button slot="end" fill="clear">
                         <ion-icon
                             slot="icon-only"
-                            [ios]="'checkmark-circle' + '-outline'" 
-                            [md]="'checkmark-circle' + '-sharp'">
+                            name="checkmark-circle-outline">
                         </ion-icon>
                     </ion-button>
                 </ng-template>
@@ -65,8 +63,7 @@
                     <ion-icon
                         color="medium"
                         slot="icon-only"
-                        [ios]="'close-circle' + '-outline'" 
-                        [md]="'close-circle' + '-sharp'">
+                        name="close-circle-outline">
                     </ion-icon>
                 </ion-button>
                 <ng-template #elseIcon>
@@ -74,8 +71,7 @@
                         <ion-icon
                             color="medium" 
                             slot="icon-only"
-                            [ios]="'lock-closed' + '-outline'" 
-                            [md]="'lock-closed' + '-sharp'">
+                            name="lock-closed-outline">
                         </ion-icon>
                     </ion-button>
                 </ng-template>
