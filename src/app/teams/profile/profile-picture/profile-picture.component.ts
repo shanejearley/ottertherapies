@@ -23,6 +23,7 @@ export class ProfilePictureComponent {
     profilePicture: string;
     profile$: Observable<Profile>;
     error: boolean;
+    done: boolean = false;
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,
@@ -78,24 +79,18 @@ export class ProfilePictureComponent {
         return this.authService.user.uid;
     }
 
-    updateProfilePicture() {
+    async updateProfilePicture() {
         try {
-            this.profileService.updateProfilePicture(this.croppedImage, this.currentProfile);
-            setTimeout(() => {
-                return this.modalController.dismiss({
-                    response: 'success'
-                });
-            }, 5000)
+            await this.profileService.updateProfilePicture(this.croppedImage, this.currentProfile);
+            return this.modalController.dismiss({
+                response: 'success'
+            });
         } catch (err) {
             console.log(err);
             return this.modalController.dismiss({
                 response: err
             })
         }
-    }
-
-    get uploadPercent() {
-        return this.profileService.uploadPercent;
     }
 
 }

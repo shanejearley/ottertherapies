@@ -38,7 +38,7 @@ export class ResourcesService {
     links = [
         { url: `https://thearc.org/`, name: "The ARC", level: "National", preview: null, id: null },
         { url: `https://www.childcareaware.org/`, name: "Child Care Aware", level: "National", preview: null, id: null },
-        { url: `https://www.asha.org/`, name: "American Speech-Language-Hearing Association (ASHA)", level: "National", preview: null, id: null }
+        // { url: `https://www.asha.org/`, name: "American Speech-Language-Hearing Association (ASHA)", level: "National", preview: null, id: null }
         // { url: `https://www.nacdd.org/`, name: "National Assoc. of Councils on Developmental Disabilities", level: "National", preview: null, id: null },
         // { url: `https://iris.peabody.vanderbilt.edu/`, name: "IRIS Center", level: "National", preview: null, id: null },
         // { url: `https://www2.ed.gov/about/offices/list/osers/osep/index.html`, name: "Office of Special Education and Rehabilitative Services", level: "National", preview: null, id: null },

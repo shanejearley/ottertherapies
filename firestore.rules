@@ -18,12 +18,16 @@ service cloud.firestore {
     	return get(/databases/$(database)/documents/users/$(resource.data.uid)/teammates/$(request.auth.uid)).data.teams > 0;
     }
     
+    function teamExists(teamId) {
+    	return exists(/databases/$(database)/documents/teams/$(teamId));
+    }
+    
     function teamAccess(teamId) {
     	return exists(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid));
     }
     
     function teamAdmin(teamId) {
-    	return get(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid)).data.status == 'Admin';
+    	return get(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid)).data.status == 'Admin' || !exists(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid)) && get(/databases/$(database)/documents/teams/$(teamId)).data.createdBy == request.auth.uid;
     }
     
     function pendingTeamAccess(teamId) {
@@ -78,7 +82,7 @@ service cloud.firestore {
     }
     
     match /teams/{teamId} {
-      allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) || signedIn() && emailVerified() && pendingTeamAccess(teamId);
+      allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) || signedIn() && emailVerified() && pendingTeamAccess(teamId) || signedIn() && emailVerified() && !teamExists(teamId);
       match /members/{memberUid} {
       	allow read: if signedIn() && emailVerified() && teamAccess(teamId);
         allow write: if signedIn() && emailVerified() && teamAdmin(teamId) || signedIn() && emailVerified() && pendingTeamAccess(teamId) && !memberExists(teamId, memberUid) && memberUid == request.auth.uid;

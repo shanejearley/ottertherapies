@@ -6,7 +6,7 @@ import 'firebase/storage';
 import { Store } from '../../../../store';
 
 import { Observable } from 'rxjs';
-import { tap, last, switchMap } from 'rxjs/operators';
+import { tap, last, switchMap, finalize } from 'rxjs/operators';
 
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 
@@ -17,7 +17,8 @@ export interface Profile {
     url: string,
     lastTeam: string,
     role: string,
-    fcmTokens: object
+    fcmTokens: object,
+    badge: number
 }
 
 export interface Item { name: string; }
@@ -60,7 +61,8 @@ export class ProfileService {
                     url: next.url ? next.url : null,
                     lastTeam: next.lastTeam ? next.lastTeam : null,
                     role: next.role ? next.role : null,
-                    fcmTokens: next.fcmTokens ? next.fcmTokens : null
+                    fcmTokens: next.fcmTokens ? next.fcmTokens : null,
+                    badge: next.badge ? next.badge : null
                 };
                 this.profile = profile;
                 this.store.set('profile', profile)
@@ -102,20 +104,20 @@ export class ProfileService {
             const fileId = this.db.createId();
             const filePath = `users/${this.uid}/profile/${fileId}`;
             const storageRef = this.storage.ref(filePath);
-            console.log(picture);
             const task = storageRef.putString(picture, 'data_url');
             this.percentageChanges = task.percentageChanges();
             task.snapshotChanges().pipe(
-                last(),
-                switchMap(() => storageRef.getDownloadURL())
-            ).subscribe(url => {
-                console.log('newUrl', url)
-                this.downloadURL = url;
-                profile.url = this.downloadURL;
-                console.log('profilebeforeupdate', profile);
-                this.updateProfile(this.uid, profile);
-                this.percentageChanges = null;
-            })
+                finalize(() => { 
+                    storageRef.getDownloadURL().subscribe(url => {
+                        this.downloadURL = url;
+                        profile.url = this.downloadURL;
+                        this.percentageChanges = null;
+                        return this.updateProfile(this.uid, profile);
+                    })
+                })
+                // last(),
+                // switchMap(() => storageRef.getDownloadURL())
+            ).subscribe()
         } catch (err) {
             return err;
         }

@@ -5,7 +5,6 @@
             <ion-button (click)="dismiss()">Close</ion-button>
         </ion-buttons>
     </ion-toolbar>
-    <ion-progress-bar [value]="(uploadPercent | async)"></ion-progress-bar>
 </ion-header>
 <ion-content fullscreen>
     <ion-list class="theme--list">
@@ -41,13 +40,13 @@
             </ion-grid>
         </ion-item>
 
-        <ion-item lines="none" class="theme--item">
+        <!-- <ion-item lines="none" class="theme--item">
             <ion-grid>
                 <ion-row class="ion-justify-content-center">
                     <img style="width: 50%" class="rounded" [src]="croppedImage" />
                 </ion-row>
             </ion-grid>
-        </ion-item>
+        </ion-item> -->
 
     </ion-list>
 

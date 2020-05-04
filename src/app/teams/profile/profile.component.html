@@ -7,92 +7,93 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
+<ion-content [fullscreen]="true" class="home">
+  <!-- <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">Profile</ion-title>
     </ion-toolbar>
-  </ion-header>
-
-  <div id="container">
-    <ion-card>
-      <ion-card-header class="profile--pic--header">
-        <ion-grid class="ion-padding">
-          <ion-row class="ion-justify-content-center ion-padding">
-            <ion-col class="ion-justify-content-center" size="auto">
-              <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
-                <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
-                <ng-template #elseMemberAvatar>
-                  <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar"
-                    name="{{ (profile$ | async)?.displayName }}" [size]="150" [round]="false" [cornerRadius]="150">
-                  </ngx-avatar>
-                  <ng-template #elseEmailAvatar>
-                    <ngx-avatar name="{{ (profile$ | async)?.email }}" [size]="150" [round]="false"
-                      [cornerRadius]="150"></ngx-avatar>
-                  </ng-template>
+  </ion-header> -->
+  <ion-grid class="ion-no-padding">
+    <ion-row class="profile--pic--header ion-justify-content-center ion-padding">
+      <ion-col class="ion-justify-content-center ion-padding" size="auto">
+        <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
+          <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
+          <ng-template #elseMemberAvatar>
+            <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar"
+              name="{{ (profile$ | async)?.displayName }}" [size]="150" [round]="false" [cornerRadius]="150">
+            </ngx-avatar>
+            <ng-template #elseEmailAvatar>
+              <ngx-avatar name="{{ (profile$ | async)?.email }}" [size]="150" [round]="false"
+                [cornerRadius]="150"></ngx-avatar>
+            </ng-template>
+          </ng-template>
+        </ion-thumbnail>
+      </ion-col>
+    </ion-row>
+    <ion-row class="profile--info--row ion-align-items-stretch">
+      <ion-col class="profile--info--col ion-align-self-stretch">
+        <ion-card class="profile--info--card ion-no-margin ion-align-self-stretch">
+          <ion-card-content>
+            <ion-fab vertical="top" horizontal="center" slot="fixed" edge>
+              <ion-fab-button size="small" (click)="profilePictureModal()">
+                <ion-icon name="camera-outline"></ion-icon>
+              </ion-fab-button>
+            </ion-fab>
+            <ion-list>
+              <ion-list-header>
+                Your Info
+              </ion-list-header>
+              <ion-item lines="none" *ngIf="(profile$ | async)">
+                <ion-icon slot="start" name="person-outline"></ion-icon>
+                <ion-label *ngIf="edit == false; else editName">
+                  <h2><strong>{{ (profile$ | async)?.displayName }}</strong></h2>
+                </ion-label>
+                <ng-template #editName>
+                  <h2><strong>
+                      <ion-input class="form" [(ngModel)]="profile.displayName" placeholder="Add a display name">
+                      </ion-input>
+                    </strong></h2>
                 </ng-template>
-              </ion-thumbnail>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-fab vertical="top" horizontal="center" slot="fixed" edge>
-          <ion-fab-button size="small" (click)="profilePictureModal()">
-            <ion-icon name="camera-outline"></ion-icon>
-          </ion-fab-button>
-        </ion-fab>
-        <ion-list>
-          <ion-list-header>
-            Your Info
-          </ion-list-header>
-          <ion-item lines="none" *ngIf="(profile$ | async)">
-            <ion-icon slot="start" name="person-outline"></ion-icon>
-            <ion-label *ngIf="edit == false; else editName">
-              <h2><strong>{{ (profile$ | async)?.displayName }}</strong></h2>
-            </ion-label>
-            <ng-template #editName>
-              <h2><strong>
-                  <ion-input class="form" [(ngModel)]="profile.displayName" placeholder="Add a display name">
-                  </ion-input>
-                </strong></h2>
-            </ng-template>
-          </ion-item>
-          <ion-item lines="none" *ngIf="(profile$ | async)">
-            <ion-icon slot="start" name="mail-outline"></ion-icon>
-            <ion-label>
-              <h2>{{ (profile$ | async)?.email }}</h2>
-            </ion-label>
-            <ion-button fill="clear" slot="end">
-              <ion-icon slot="icon-only" name="lock-closed-outline"></ion-icon>
-            </ion-button>
-          </ion-item>
-          <ion-item lines="none" *ngIf="(profile$ | async)">
-            <ion-icon slot="start" name="people-outline"></ion-icon>
-            <ion-label *ngIf="edit == false; else editRole">
-              <h2>{{ (profile$ | async)?.role }}</h2>
-            </ion-label>
-            <ng-template #editRole>
-              <h2>
-                <ion-select placeholder="Select your team role" class="form" [(ngModel)]="profile.role" [selectedText]="profile.role">
-                  <ion-select-option [value]="role.name" *ngFor="let role of roleList">
-                    {{ role.name }}
-                  </ion-select-option>
-                </ion-select>
-              </h2>
-            </ng-template>
-          </ion-item>
-        </ion-list>
-        <ion-button [disabled]="edit" (click)="edit = true">Edit</ion-button>
-        <ion-button [disabled]="!edit" (click)="updateProfile()">Save</ion-button>
-      </ion-card-content>
-    </ion-card>
-  </div>
+              </ion-item>
+              <ion-item lines="none" *ngIf="(profile$ | async)">
+                <ion-icon slot="start" name="mail-outline"></ion-icon>
+                <ion-label>
+                  <h2>{{ (profile$ | async)?.email }}</h2>
+                </ion-label>
+                <ion-button fill="clear" slot="end">
+                  <ion-icon slot="icon-only" name="lock-closed-outline"></ion-icon>
+                </ion-button>
+              </ion-item>
+              <ion-item lines="none" *ngIf="(profile$ | async)">
+                <ion-icon slot="start" name="people-outline"></ion-icon>
+                <ion-label *ngIf="edit == false; else editRole">
+                  <h2>{{ (profile$ | async)?.role }}</h2>
+                </ion-label>
+                <ng-template #editRole>
+                  <h2>
+                    <ion-select placeholder="Select your team role" class="form" [(ngModel)]="profile.role" [selectedText]="profile.role">
+                      <ion-select-option [value]="role.name" *ngFor="let role of roleList">
+                        {{ role.name }}
+                      </ion-select-option>
+                    </ion-select>
+                  </h2>
+                </ng-template>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
 
 <ion-footer [translucent]="true">
   <ion-toolbar>
-      <ion-row class="ion-justify-content-end">
+      <ion-row class="ion-justify-content-between">
+        <div>
+          <ion-button fill="clear" [disabled]="edit" (click)="edit = true">Edit</ion-button>
+          <ion-button fill="clear" [disabled]="!edit" (click)="updateProfile()">Save</ion-button>
+        </div>
           <ion-button (click)="deleteUser()" fill="clear" color="danger" expand="block">Delete Account</ion-button>
       </ion-row>
   </ion-toolbar>

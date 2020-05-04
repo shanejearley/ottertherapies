@@ -35,9 +35,40 @@ ion-content ion-toolbar {
   --background: transparent;
 }
 
-ion-card-header.profile--pic--header {
+ion-row.profile--pic--header {
   background-image: url('../../../assets/shapes.svg');
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
+}
+
+ion-col.profile--info--col {
+  margin-top: -10px;
+}
+
+ion-card.profile--info--card {
+  overflow: visible;
+  height: 100%;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.home {
+
+  scroll-content {
+      display: flex !important;
+      flex-direction: column !important;
+  }
+
+  ion-grid {
+      display: flex;
+      flex-flow: column;
+      padding: 0 !important;
+      height: 100% !important;
+  }
+
+  ion-row.profile--info--row {
+      flex: 1 !important;
+  }
+
 }

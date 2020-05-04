@@ -63,13 +63,14 @@ export class ProfileComponent implements OnInit {
     this.profile$.pipe(tap(profile => {
       if (profile) {
         this.profile = {
-          uid: profile.uid || '',
-          email: profile.email || '',
-          displayName: profile.displayName || '',
-          role: profile.role || '',
-          lastTeam: profile.lastTeam || '',
-          url: profile.url || '',
-          fcmTokens: profile.fcmTokens || {}
+          uid: profile.uid || null,
+          email: profile.email || null,
+          displayName: profile.displayName || null,
+          role: profile.role || null,
+          lastTeam: profile.lastTeam || null,
+          url: profile.url || null,
+          fcmTokens: profile.fcmTokens || null,
+          badge: profile.badge || null
         }
         if (!profile.displayName) {
           this.firstTime = true;
