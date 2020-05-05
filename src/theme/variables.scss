@@ -222,6 +222,9 @@ $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
     ion-title.title-large {
       --color: white;
     }
+    ion-row.calendar--header {
+      background: transparent !important;
+    }
   }
 
 
@@ -262,6 +265,9 @@ $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
     --ion-item-background: #1A1B1E;
     ion-title.title-large {
       --color: white;
+    }
+    ion-row.calendar--header {
+      background: transparent !important;
     }
   }
   ion-item {

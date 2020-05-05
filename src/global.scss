@@ -25,9 +25,45 @@
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
+.days-box {
+  .days {
+    button.days-btn {
+      p {
+        color: var(--ion-text-color) !important;
+      }
+    }
+    button.days-btn.last-month-day,
+    button.days-btn.next-month-day {
+      p {
+        color: var(--ion-color-medium) !important;
+      }
+    }
+  }
+}
+ion-calendar {
+  .title {
+    ion-button {
+      color: var(--ion-text-color) !important;
+    }
+  }
+  ion-calendar-week {
+    ion-toolbar {
+      ul {
+        color: var(--ion-text-color) !important;
+      }
+    }
+  }
+}
+
+ion-calendar { 
+  .days-box { 
+    padding: 0.5rem 0 !important
+  } 
+}
+
 ion-calendar { background-color: transparent !important; } 
 ion-calendar { .dot{ small{ color: var(--ion-color-medium) !important; font-size: 40px !important; } }}
-ion-calendar { .days-box { padding: 0.5rem 0 !important} }
+
 .md {
     ion-calendar { button.days-btn{ small{ bottom: -20px !important} }}
     ion-calendar { button.days-btn.on-selected{ small{ bottom: -30px !important} }}
@@ -182,6 +218,13 @@ ion-input.form {
   --background: var(--ion-color-light) !important;
 }
 
+ion-textarea.form {
+  --padding-start: 15px !important;
+  max-width: 100% !important;
+  border-radius: 10px !important;
+  --background: var(--ion-color-light) !important;
+}
+
 ion-select.form {
   --padding-end: 15px !important;
   max-width: 100% !important;
@@ -196,4 +239,72 @@ ion-icon.large-icon {
 
 .theme--modal--css .modal-wrapper {
   --border-radius: 10px !important;  
+}
+
+.full-width {
+  width: 100% !important;
+}
+
+ion-col.profile--info--col {
+  margin-top: -10px;
+}
+
+ion-card.profile--info--card {
+  overflow: visible;
+  min-height: 100% !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.profile--content {
+
+  scroll-content {
+      display: flex !important;
+      flex-direction: column !important;
+  }
+
+  #segment {
+    min-height: 100% !important;
+  }
+
+  ion-grid {
+      display: flex;
+      flex-flow: column;
+      padding: 0 !important;
+      min-height: 100% !important;
+  }
+
+  ion-row.profile--info--row {
+      flex: 1 !important;
+  }
+
+}
+
+.calendar--content {
+
+  scroll-content {
+      display: flex !important;
+      flex-direction: column !important;
+  }
+
+  #segment {
+      min-height: 100% !important;
+  }
+
+  ion-grid {
+      display: flex;
+      flex-flow: column;
+      padding: 0 !important;
+      min-height: 100% !important;
+  }
+
+  ion-row.profile--info--row {
+      flex: 1 !important;
+  }
+
+}
+
+.md .thumbnail--list {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
 }

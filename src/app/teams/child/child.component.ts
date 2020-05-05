@@ -11,6 +11,8 @@ import { TeamsService, Team } from '../../shared/services/teams/teams.service';
 import { GroupsService, Group } from '../../shared/services/groups/groups.service';
 
 import { Store } from 'src/store';
+import { ModalController, IonRouterOutlet, ToastController } from '@ionic/angular';
+import { ProfilePictureComponent } from '../profile/profile-picture/profile-picture.component';
 
 @Component({
   selector: 'app-child',
@@ -27,13 +29,17 @@ export class ChildComponent implements OnInit {
   public team;
   public childName;
   public page: string;
+  data;
 
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private profileService: ProfileService,
-    private teamsService: TeamsService
+    private teamsService: TeamsService,
+    private modalController: ModalController,
+    private toastController: ToastController,
+    private routerOutlet: IonRouterOutlet
   ) { }
 
   ngOnInit() {
@@ -66,6 +72,32 @@ export class ChildComponent implements OnInit {
       this.team.publicId = this.team.child + "-" + this.team.id.slice(-4);
     }
     this.teamsService.updateTeamInfo(this.team);
+  }
+
+  async profilePictureModal() {
+    const modal = await this.modalController.create({
+      component: ProfilePictureComponent,
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl,
+      componentProps: {
+        'type': 'child',
+      }
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'success') {
+        this.presentPictureUpdateToast();
+      }
+    });
+    return await modal.present();
+  }
+
+  async presentPictureUpdateToast() {
+    const toast = await this.toastController.create({
+      message: 'Your child picture was updated! &#128079;',
+      duration: 2000
+    });
+    toast.present();
   }
 
   ngOnDestroy() {

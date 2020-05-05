@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController, IonRouterOutlet } from '@ionic/angular';
+import { ModalController, IonRouterOutlet, Platform } from '@ionic/angular';
 
 import {
   Plugins,
@@ -34,6 +34,9 @@ export class TeamsPage implements OnInit {
   teams$: Observable<Team[]>;
   pending$: Observable<Pending[]>;
   subscriptions: Subscription[] = [];
+  desktop: boolean;
+  android: boolean;
+  ios: boolean;
 
   constructor(
     private store: Store,
@@ -42,7 +45,8 @@ export class TeamsPage implements OnInit {
     private router: Router,
     private routerOutlet: IonRouterOutlet,
     private notificationsService: NotificationsService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private platform: Platform
   ) { }
 
   get currentProfile() {
@@ -50,51 +54,54 @@ export class TeamsPage implements OnInit {
   }
 
   ngOnInit() {
-    console.log('Initializing Teams Page');
+    this.notificationsService.init();
+    this.notificationsService.requestPermission();
+    this.platform.ready().then(() => {
+      if (this.platform.is('desktop')) {
+        this.desktop = true;
+      } else if (this.platform.is('ios')) {
+        this.ios = true;
+      } else if (this.platform.is('android')) {
+        this.android = true;
+      }
+      if (this.ios || this.android) {
+        PushNotifications.requestPermission().then(result => {
+          if (result.granted) {
+            // Register with Apple / Google to receive push via APNS/FCM
+            PushNotifications.register();
+          } else {
+            // Show some error
+          }
+        });
+        PushNotifications.addListener('registration',
+          (token: PushNotificationToken) => {
+            console.log('Push registration success, token: ' + token.value);
+            this.notificationsService.saveToken(this.currentProfile, token.value);
+          }
+        );
+    
+        PushNotifications.addListener('registrationError',
+          (error: any) => {
+            console.log('Error on registration: ' + JSON.stringify(error))
+          }
+        );
+    
+        PushNotifications.addListener('pushNotificationReceived',
+          (notification: PushNotification) => {
+            console.log('Push received: ' + JSON.stringify(notification))
+          }
+        );
+    
+        PushNotifications.addListener('pushNotificationActionPerformed',
+          (notification: PushNotificationActionPerformed) => {
+            console.log('Push action performed: ' + JSON.stringify(notification))
+          }
+        );
+      }
+    });
     this.profile$ = this.store.select<Profile>('profile');
     this.teams$ = this.store.select<Team[]>('teams');
     this.pending$ = this.store.select<Pending[]>('pending');
-    // Request permission to use push notifications
-    // iOS will prompt user and return if they granted permission or not
-    // Android will just grant without prompting
-    this.notificationsService.init();
-    this.notificationsService.requestPermission();
-    PushNotifications.requestPermission().then(result => {
-      if (result.granted) {
-        // Register with Apple / Google to receive push via APNS/FCM
-        PushNotifications.register();
-      } else {
-        // Show some error
-      }
-    });
-    // On success, we should be able to receive notifications
-    PushNotifications.addListener('registration',
-      (token: PushNotificationToken) => {
-        alert('Push registration success, token: ' + token.value);
-        this.notificationsService.saveToken(this.currentProfile, token.value);
-      }
-    );
-
-    // Some issue with our setup and push will not work
-    PushNotifications.addListener('registrationError',
-      (error: any) => {
-        alert('Error on registration: ' + JSON.stringify(error));
-      }
-    );
-
-    // Show us the notification payload if the app is open on our device
-    PushNotifications.addListener('pushNotificationReceived',
-      (notification: PushNotification) => {
-        alert('Push received: ' + JSON.stringify(notification));
-      }
-    );
-
-    // Method called when tapping on a notification
-    PushNotifications.addListener('pushNotificationActionPerformed',
-      (notification: PushNotificationActionPerformed) => {
-        alert('Push action performed: ' + JSON.stringify(notification));
-      }
-    );
 
     this.subscriptions = [
       // this.authService.auth$.subscribe(),

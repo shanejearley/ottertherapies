@@ -57,6 +57,7 @@ export class EventsComponent implements OnInit {
     disableWeeks: [...this._disableWeeks],
     daysConfig: this.eventsSource
   };
+  personal: boolean = false;
 
   constructor(
     private store: Store,
@@ -80,6 +81,16 @@ export class EventsComponent implements OnInit {
     } else {
       this.date = $event.format('ll');
       this.today$ = this.eventsService.getToday(this.date);
+    }
+  }
+
+  segmentChanged(ev) {
+    if (ev && ev.detail.value === 'yours') {
+      this.personal = true;
+      this.configCalendar();
+    } else if (ev && ev.detail.value === 'all') {
+      this.personal = false;
+      this.configCalendar();
     }
   }
 
@@ -152,28 +163,27 @@ export class EventsComponent implements OnInit {
     toast.present();
   }
 
-  ngOnInit() {
-    this.profile$ = this.store.select<Profile>('profile');
-    this.groups$ = this.store.select<Group[]>('groups');
-    this.events$ = this.store.select<Event[]>('events');
+  configCalendar() {
     this.events$.pipe(map(events => {
       if (events) {
         events.forEach(e => {
-          if (moment(e.startTime.toDate()).startOf('day').format('ll') == this.date) {
-            console.log(e);
-            this.eventsSource.push({
-              date: e.startTime.toDate(),
-              marked: true,
-              subTitle: '•',
-              cssClass: 'dot && on-selected'
-            });
-          } else {
-            this.eventsSource.push({
-              date: e.startTime.toDate(),
-              marked: false,
-              subTitle: '•',
-              cssClass: 'dot'
-            });
+          if (this.personal && e.members[this.uid] || !this.personal) {
+            if (moment(e.startTime.toDate()).startOf('day').format('ll') == this.date) {
+              console.log(e);
+              this.eventsSource.push({
+                date: e.startTime.toDate(),
+                marked: true,
+                subTitle: '•',
+                cssClass: 'dot && on-selected'
+              });
+            } else {
+              this.eventsSource.push({
+                date: e.startTime.toDate(),
+                marked: false,
+                subTitle: '•',
+                cssClass: 'dot'
+              });
+            }
           }
         })
         this.options = {
@@ -183,7 +193,14 @@ export class EventsComponent implements OnInit {
         };
       }
     })).subscribe()
+  }
+
+  ngOnInit() {
+    this.profile$ = this.store.select<Profile>('profile');
+    this.groups$ = this.store.select<Group[]>('groups');
+    this.events$ = this.store.select<Event[]>('events');
     this.today$ = this.eventsService.getToday(this.date);
+    this.configCalendar();
     //this.teams$ = this.store.select<Team[]>('teams');
     this.subscriptions = [
       //this.authService.auth$.subscribe(),

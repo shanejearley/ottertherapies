@@ -13,6 +13,7 @@ import { tap, filter, map } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
 import { MembersService } from '../members/members.service';
+import { Unread } from '../teams/teams.service';
 
 export interface Group {
   createdBy: string,
@@ -36,12 +37,6 @@ export interface Member {
   status: string,
   uid: string,
   profile: Profile
-}
-
-export interface Unread {
-  unreadMessages: number,
-  unreadFiles: number,
-  unreadNotes: number
 }
 
 export interface File {
@@ -89,8 +84,7 @@ export class GroupsService {
     private storage: AngularFireStorage,
     private authService: AuthService,
     private membersService: MembersService,
-    private router: Router,
-
+    private router: Router
   ) { }
 
   groupsObservable(userId, teamId) {
@@ -102,7 +96,6 @@ export class GroupsService {
         next.forEach(group => {
           this.getInfo(group);
           this.getMembers(group);
-          this.getUnread(group);
           this.getFiles(group);
           this.getMessages(group);
         })
@@ -144,35 +137,19 @@ export class GroupsService {
           member.uid = a.payload.doc.id;
           const exists = group.members.find(m => m.uid === member.uid)
           if (!exists) {
-            this.membersService.getMember(member.uid).subscribe(m => { 
+            this.membersService.getMember(member.uid).subscribe(m => {
               member.profile = m.profile;
               group.members.push(member);
             })
           } else {
             let memberIndex = group.members.findIndex(m => m.uid == member.uid);
-            this.membersService.getMember(member.uid).subscribe(m => { 
+            this.membersService.getMember(member.uid).subscribe(m => {
               member.profile = m.profile;
               group.members[memberIndex] = member;
             })
           }
         }
       }))).subscribe();
-  }
-
-  getUnread(group: Group) {
-    this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${group.id}`);
-    try {
-      this.unreadDoc.valueChanges()
-        .pipe(tap(next => {
-          if (!next) {
-            return;
-          }
-          group.unread = next;
-        })).subscribe();
-    } catch (err) {
-      console.log(err);
-      return;
-    }
   }
 
   /// need to modifiy this to stateChages as it is below!
@@ -197,7 +174,7 @@ export class GroupsService {
           if (a.type == 'added' || a.type == 'modified') {
             if (file.timestamp) {
               console.log('file', file);
-              this.membersService.getMember(file.uid).subscribe(m => { 
+              this.membersService.getMember(file.uid).subscribe(m => {
                 file.profile = m.profile;
                 group.files.push(file);
               })
@@ -233,7 +210,7 @@ export class GroupsService {
             const message = a.payload.doc.data() as Message;
             if (message.timestamp) {
               message.id = a.payload.doc.id;
-              this.membersService.getMember(message.uid).subscribe(m => { 
+              this.membersService.getMember(message.uid).subscribe(m => {
                 if (m.profile) {
                   message.profile = m.profile;
                   group.messages.push(message);

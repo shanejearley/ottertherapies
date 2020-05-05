@@ -18,6 +18,7 @@ import {
 import { of, empty } from 'rxjs';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
+import { Unread } from '../teams/teams.service';
 
 export interface Member {
   status: string,
@@ -40,12 +41,6 @@ export interface Direct {
   lastMessageUid: string,
   members: boolean,
   id: string
-}
-
-export interface Unread {
-  unreadMessages: number,
-  unreadFiles: number,
-  unreadNotes: number
 }
 
 export interface File {
@@ -102,7 +97,6 @@ export class MembersService {
       .pipe(tap(next => {
         next.forEach(member => {
           this.profileService.getProfile(member);
-          this.getUnread(member);
           this.getFiles(member);
           this.getMessages(member);
           this.getDirect(member);
@@ -113,22 +107,6 @@ export class MembersService {
     return this.members$;
   }
 
-  getUnread(member: Member) {
-    if (member.uid !== this.uid) {
-      this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
-      this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${this.pathId}`);
-      this.unreadDoc.valueChanges()
-        .pipe(tap(next => {
-          if (!next) {
-            return;
-          }
-          member.unread = next;
-        })).subscribe();
-    } else {
-      return;
-    }
-  }
-
   getFiles(member: Member) {
     member.files = [];
     if (member.uid !== this.uid) {
@@ -136,7 +114,6 @@ export class MembersService {
       this.filesCol = this.db.collection<File>(`teams/${this.teamId}/direct/${this.pathId}/files`);
       this.filesCol.stateChanges(['added', 'modified', 'removed'])
         .pipe(map(actions => actions.map(a => {
-          console.log('ACTION', a);
           if (a.type == 'removed') {
             const file = a.payload.doc.data() as File;
             file.id = a.payload.doc.id;
@@ -144,7 +121,6 @@ export class MembersService {
               if (m.id === file.id) {
                 var index = member.files.indexOf(file);
                 member.files.splice(index, 1);
-                console.log("Removed member file: ", file);
               }
             })
           }
@@ -163,7 +139,6 @@ export class MembersService {
       this.filesCol = this.db.collection<File>(`users/${this.uid}/teams/${this.teamId}/files`);
       this.filesCol.stateChanges(['added', 'modified', 'removed'])
         .pipe(map(actions => actions.map(a => {
-          console.log('ACTION', a);
           if (a.type == 'removed') {
             const file = a.payload.doc.data() as File;
             file.id = a.payload.doc.id;
@@ -171,7 +146,6 @@ export class MembersService {
               if (m.id === file.id) {
                 var index = member.files.indexOf(file);
                 member.files.splice(index, 1);
-                console.log("Removed member file: ", file);
               }
             })
           }
@@ -195,7 +169,6 @@ export class MembersService {
     this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/direct/${this.pathId}/messages`, ref => ref.orderBy('timestamp'));
     this.messagesCol.stateChanges(['added', 'modified', 'removed'])
       .pipe(map(actions => actions.map(a => {
-        console.log('ACTION', a);
         if (a.type == 'removed') {
           ///remove based on file.id
           const message = a.payload.doc.data() as Message;
@@ -204,7 +177,6 @@ export class MembersService {
             if (m.id === message.id) {
               var index = member.messages.indexOf(message);
               member.messages.splice(index, 1);
-              console.log("Removed member message: ", message);
             }
           })
         }
@@ -313,7 +285,7 @@ export class MembersService {
         lastMessage: message.body,
         lastMessageId: messageRef.id,
         lastMessageUid: message.uid
-      }, {merge:true})
+      }, { merge: true })
     });
   }
 
@@ -326,14 +298,14 @@ export class MembersService {
     if (!removePending.profile) {
       this.pendingMembersCol = this.db.collection(`teams/${this.teamId}/pendingMembers`, ref => ref.where('email', '==', removePending.email));
       this.pendingMembersCol.valueChanges({ idField: 'id' })
-      .pipe(tap(next => {
-        if (!next) {
-          return;
-        }
-        return next.forEach(pendingMemberDoc => {
-          this.pendingMembersCol.doc(pendingMemberDoc.id).delete();
-        })
-      })).subscribe();
+        .pipe(tap(next => {
+          if (!next) {
+            return;
+          }
+          return next.forEach(pendingMemberDoc => {
+            this.pendingMembersCol.doc(pendingMemberDoc.id).delete();
+          })
+        })).subscribe();
     } else {
       this.pendingMembersCol = this.db.collection(`teams/${this.teamId}/pendingMembers`);
       return this.pendingMembersCol.doc(removePending.uid).delete();
@@ -362,7 +334,7 @@ export class MembersService {
           this.removePendingMember(p);
         }
       })
-    } catch(err) {
+    } catch (err) {
       console.log(err);
     }
   }

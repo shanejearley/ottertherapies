@@ -9,6 +9,7 @@ import { AvatarModule } from 'ngx-avatar';
 import { ChildRoutingModule } from './child-routing.module';
 
 import { ChildComponent } from './child.component';
+// import { ProfilePictureComponent } from '../profile/profile-picture/profile-picture.component';
 
 @NgModule({
   imports: [
@@ -18,6 +19,7 @@ import { ChildComponent } from './child.component';
     AvatarModule,
     ChildRoutingModule
   ],
+  entryComponents: [],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   declarations: [ChildComponent]
 })

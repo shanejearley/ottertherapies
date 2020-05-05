@@ -48,7 +48,10 @@ export class AppComponent implements OnInit, AfterContentChecked {
   page: string;
   loggedIn: boolean;
   menu: boolean;
+  init: boolean;
+  desktop: boolean;
   ios: boolean;
+  android: boolean;
   total: number;
   teams: Team[];
   public selectedIndex = 0;
@@ -131,6 +134,14 @@ export class AppComponent implements OnInit, AfterContentChecked {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+      if (this.platform.is('desktop')) {
+        console.log('desktop')
+        this.desktop = true;
+      } else if (this.platform.is('ios')) {
+        this.ios = true;
+      } else if (this.platform.is('android')) {
+        this.android = true;
+      }
     });
   }
 
@@ -144,8 +155,11 @@ export class AppComponent implements OnInit, AfterContentChecked {
     this.toggleDarkTheme(this.dark);
   }
 
+  get uid() {
+    return this.authService.user.uid;
+  }
+
   ngOnInit() {
-    this.ios = this.config.get('mode') === 'ios';
     this.dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     this.user$ = this.store.select<User>('user');
     this.profile$ = this.store.select<Profile>('profile');
@@ -186,11 +200,6 @@ export class AppComponent implements OnInit, AfterContentChecked {
         return teams.reduce((total: number, team: Team) => total + team.unreadMessages + team.unreadFiles + team.unreadNotes, 0);
       })
     )
-    this.badge$.pipe(map(badge => {
-      if (badge && this.ios) {
-        this.badge.set(badge);
-      }
-    })).subscribe();
   }
 
   async subscribeUserTeam() {
@@ -229,6 +238,14 @@ export class AppComponent implements OnInit, AfterContentChecked {
             this.profileSub = this.profileService.profileObservable(user.uid).subscribe();
             this.teamsSub = this.teamsService.teamsObservable(user.uid).subscribe();
             this.pendingSub = this.pendingService.pendingObservable(user.uid).subscribe();
+            this.badge$.pipe(map(badge => {
+              if (badge) {
+                this.profileService.updateBadge(this.uid, badge);
+                if (this.ios || this.android) {
+                  this.badge.set(badge);
+                }
+              }
+            })).subscribe();
           } else if (user && !user.authenticated) {
             console.log('signed out')
           }

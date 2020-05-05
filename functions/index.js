@@ -75,6 +75,7 @@ const notifyUser = async (uid, context) => {
         const userRef = firestore.collection('users').doc(userId)
         const snapshot = await userRef.get();
         const user = snapshot.data();
+        //user.badge = user.badge ? user.badge + 1 : 1;
         // Message details for end user
         const payload = {
             notification: {
@@ -83,11 +84,20 @@ const notifyUser = async (uid, context) => {
             }
         }
 
+        // const payload = {
+        //     notification: {
+        //         title: `New ${context}!`,
+        //         body: `A team member sent you a new ${context}`,
+        //         badge: `${user.badge}`
+        //     }
+        // }
+
         const tokens = user.fcmTokens ? Object.keys(user.fcmTokens) : [];
         if (!tokens.length) {
             throw new Error('User does not have any tokens!');
         }
         console.log("Sending to tokens: ", tokens);
+        //userRef.update(user);
         return admin.messaging().sendToDevice(tokens, payload);
     }
     catch (err) {

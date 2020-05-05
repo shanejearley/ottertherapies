@@ -43,7 +43,7 @@ export class NotesComponent implements OnInit {
     this.notes$ = this.store.select<Note[]>('notes');
     this.notes$.pipe(tap(notes => {
       notes.forEach(n => {
-        if (n.unread && n.unread.unreadNotes) {
+        if (n.unread && n.unread.unreadNotes > 0) {
           this.notesService.checkLastNote(n.id);
         }
       })

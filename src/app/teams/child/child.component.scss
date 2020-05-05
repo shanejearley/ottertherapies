@@ -7,8 +7,8 @@ ion-menu-button {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
-  margin-top: 2.5%;
-  position: relative;
+  //margin-top: 2.5%;
+  //position: relative;
 }
 
 #container strong {
@@ -31,9 +31,10 @@ ion-content ion-toolbar {
   --background: transparent;
 }
 
-ion-card-header.profile--pic--header {
+ion-row.profile--pic--header {
   background-image: url('../../../assets/shapes.svg');
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
 }
+

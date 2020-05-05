@@ -10,7 +10,7 @@
     <ion-list class="theme--list">
         <ion-item class="theme--item">
             <ion-icon slot="start"></ion-icon>
-            <h3>
+            <h3 class="full-width">
                 <ion-input [(ngModel)]="newEvent.name" placeholder="Add title"></ion-input>
             </h3>
         </ion-item>
@@ -28,7 +28,7 @@
             <ion-input [(ngModel)]="newEvent.location" placeholder="Add location"></ion-input>
         </ion-item>
         <ion-item class="theme--item">
-            <ion-icon slot="start" [ios]="'time' + '-outline'" [md]="'time' + '-sharp'"></ion-icon>
+            <ion-icon slot="start" name="time-outline"></ion-icon>
             <ion-grid class="date--grid" fixed>
                 <ion-row class="ion-align-items-center">
                     <ion-col class="date--col" size="auto">

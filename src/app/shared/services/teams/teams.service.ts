@@ -15,6 +15,9 @@ import {
 import { of } from 'rxjs';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
+import { GroupsService } from '../groups/groups.service';
+import { MembersService } from '../members/members.service';
+import { NotesService } from '../notes/notes.service';
 
 export interface Team {
   id: string,
@@ -24,7 +27,7 @@ export interface Team {
   bio: string,
   url: string,
   createdBy: string,
-  unread: string[],
+  unread: Unread[],
   unreadMessages: number,
   unreadFiles: number,
   unreadNotes: number
@@ -57,7 +60,10 @@ export class TeamsService {
   constructor(
     private store: Store,
     private db: AngularFirestore,
-    private authService: AuthService
+    private authService: AuthService,
+    private groupsService: GroupsService,
+    private membersService: MembersService,
+    private notesService: NotesService
   ) { }
 
   teamsObservable(userId: string) {
@@ -112,6 +118,25 @@ export class TeamsService {
                 unreadFiles: next.unreadFiles ? next.unreadFiles : 0,
                 unreadNotes: next.unreadNotes ? next.unreadNotes : 0
               }
+              let memberUid: string;
+              if (unreadObj.id.length == 56) {
+                memberUid = unreadObj.id.substr(0, 28) !== this.uid ? unreadObj.id.substr(0, 28) : unreadObj.id.substr(28, 28);
+              }
+              this.groupsService.getGroup(unread.id).subscribe(g => {
+                if (g) {
+                  g.unread = unreadObj;
+                }
+              })
+              this.membersService.getMember(memberUid).subscribe(m => {
+                if (m) {
+                  m.unread = unreadObj;
+                }
+              })
+              this.notesService.getNote(unread.id).subscribe(n => {
+                if (n) {
+                  n.unread = unreadObj;
+                }
+              })
               if (team.unread.filter(item => item.id == unreadObj.id)[0]) {
                 let itemIndex = team.unread.findIndex(item => item.id == unreadObj.id);
                 team.unread[itemIndex] = unreadObj;

@@ -30,7 +30,7 @@
 
       <div *ngFor="let g of (groups$ | async); trackBy: trackFn; let i = index">
         <ion-card routerDirection="forward" (click)="goTo('Group', g.id)" button class="theme--card">
-          <ion-item class="theme--item" lines="none" detail="true">
+          <ion-item class="theme--item thumbnail--list" lines="none" detail="true">
             <ion-thumbnail slot="start">
               <ngx-avatar name="{{ g.name }}" [size]="55" [round]="false" [cornerRadius]="10"></ngx-avatar>
             </ion-thumbnail>
@@ -56,7 +56,7 @@
       <div *ngFor="let m of (members$ | async); let i = index">
         <ion-card *ngIf="m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Member' || m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Admin'"
           routerDirection="forward" (click)="goTo('Direct', m.uid)" button class="theme--card">
-          <ion-item class="theme--item" lines="none" detail="true">
+          <ion-item class="theme--item thumbnail--list" lines="none" detail="true">
             <ion-thumbnail slot="start" class="avatar-thumbnail">
               <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
               <ng-template #elseMemberAvatar>

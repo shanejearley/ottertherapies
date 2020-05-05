@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="87.5mm"
+   height="35mm"
+   viewBox="0 0 87.5 35"
+   version="1.1"
+   id="svg407"
+   inkscape:version="1.0beta1 (32d4812, 2019-09-19)"
+   sodipodi:docname="circle.svg">
+  <defs
+     id="defs401" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.3689297"
+     inkscape:cx="174.30369"
+     inkscape:cy="126.08547"
+     inkscape:document-units="mm"
+     inkscape:current-layer="g26"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     inkscape:window-width="1440"
+     inkscape:window-height="855"
+     inkscape:window-x="0"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata404">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g26"
+       fill-rule="evenodd"
+       fill="none"
+       transform="matrix(0.26458333,0,0,0.26458333,3.2944679,-3.0123023)">
+      <path
+         d="M 283.85829,79.98217 A 131.28027,131.28026 0 0 1 152.84819,211.26215 131.28027,131.28026 0 0 1 21.298857,80.522519 131.28027,131.28026 0 0 1 151.7675,-51.295586 131.28027,131.28026 0 0 1 283.85384,78.901482"
+         sodipodi:arc-type="arc"
+         sodipodi:open="true"
+         sodipodi:end="6.2749533"
+         sodipodi:start="0"
+         sodipodi:ry="131.28026"
+         sodipodi:rx="131.28027"
+         sodipodi:cy="79.98217"
+         sodipodi:cx="152.57802"
+         sodipodi:type="arc"
+         id="circle12"
+         style="mix-blend-mode:multiply"
+         fill="#10DC60" />
+      <circle
+         id="circle24"
+         r="20.5"
+         cy="191.23773"
+         cx="339.24478"
+         style="mix-blend-mode:multiply"
+         fill="#0CD1E8" />
+    </g>
+  </g>
+</svg>

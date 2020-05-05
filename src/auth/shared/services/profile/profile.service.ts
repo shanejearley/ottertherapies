@@ -123,8 +123,14 @@ export class ProfileService {
         }
     }
 
-    get uploadPercent() {
-        return this.percentageChanges;
+    updateBadge(uid, badge) {
+        if (this.currentProfile.badge !== badge) {
+            return this.db.doc(`users/${uid}`).set({
+                badge: badge
+            }, {merge: true});
+        } else {
+            return console.log('Badge up to date');
+        }
     }
 
 }

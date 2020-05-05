@@ -1,8 +1,16 @@
 ion-menu-button {
   color: var(--ion-color-primary);
 }
-
 #container {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+//margin-top: 2.5%;
+//position: relative;
+}
+
+#file--container {
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -62,6 +70,13 @@ ion-menu-button {
 
 ion-content ion-toolbar {
   --background: transparent;
+}
+
+ion-row.profile--pic--header {
+  background-image: url('../../../../assets/shapes.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 ion-card.dialog {

@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { tap, filter, map } from 'rxjs/operators';
 
 import { MembersService } from '../members/members.service';
+import { Unread } from '../teams/teams.service';
 
 export interface Note {
     body: string,
@@ -22,12 +23,6 @@ export interface Note {
     commentCount: firestore.FieldValue,
     flag: boolean,
     profile: Profile
-}
-
-export interface Unread {
-    unreadMessages: number,
-    unreadFiles: number,
-    unreadNotes: number
 }
 
 export interface Comment {
@@ -57,8 +52,7 @@ export class NotesService {
     constructor(
         private store: Store,
         private db: AngularFirestore,
-        private membersService: MembersService
-
+        private membersService: MembersService,
     ) { }
 
     notesObservable(userId, teamId) {
@@ -84,7 +78,6 @@ export class NotesService {
                         this.membersService.getMember(note.uid).subscribe(m => {
                             if (!note.profile) {
                                 note.profile = m.profile;
-                                this.getUnread(note);
                                 this.getComments(note);
                                 this.notes.push(note);
                             }
@@ -98,17 +91,6 @@ export class NotesService {
                 return this.store.set('notes', this.notes)
             })))
         return this.notes$;
-    }
-
-    getUnread(note: Note) {
-        this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${note.id}`);
-        this.unreadDoc.valueChanges()
-            .pipe(tap(next => {
-                if (!next) {
-                    return;
-                }
-                note.unread = next;
-            })).subscribe();
     }
 
     getComments(note: Note) {
@@ -198,19 +180,5 @@ export class NotesService {
             flag: !note.flag
         });
     }
-
-    //   checkLastMessage(groupId: string) {
-    //     this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
-    //     this.unreadDoc.update({
-    //       unreadMessages: 0
-    //     });
-    //   }
-
-    //   checkLastFile(groupId: string) {
-    //     this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
-    //     this.unreadDoc.update({
-    //       unreadFiles: 0
-    //     });
-    //   }
 
 }

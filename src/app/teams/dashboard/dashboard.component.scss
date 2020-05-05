@@ -88,3 +88,17 @@ ion-badge.white {
   --background: white;
   --color: black;
 }
+
+ion-item {
+  ion-icon.dashboard--icon {
+    margin-right: -15px;
+  }
+  ion-badge.hover-badge {
+    top: 10px;
+    position: absolute;
+  }
+}
+
+strong {
+  font-size: 15px !important;
+}

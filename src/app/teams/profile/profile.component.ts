@@ -135,11 +135,10 @@ export class ProfileComponent implements OnInit {
     const modal = await this.modalController.create({
       component: ProfilePictureComponent,
       swipeToClose: true,
-      presentingElement: this.routerOutlet.nativeEl
-      // componentProps: {
-      //   'teamId': this.teamId,
-      //   'groupId': this.groupId
-      // }
+      presentingElement: this.routerOutlet.nativeEl,
+      componentProps: {
+        'type': 'profile',
+      }
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;

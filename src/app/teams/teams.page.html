@@ -32,7 +32,7 @@
       </ion-list-header>
 
       <ion-card *ngFor="let p of (teams$ | async); let i = index" button routerDirection="root" (click)="goTo(p.id)" class="theme--card">
-        <ion-item lines="none" class="theme--item">
+        <ion-item lines="none" class="theme--item thumbnail--list">
           <ion-thumbnail slot="start">
             <ngx-avatar class="teams-avatar" name="{{ p.child }}" [size]="55" [round]="false" [cornerRadius]="10">
             </ngx-avatar>
@@ -48,7 +48,7 @@
         </ion-item>
       </ion-card>
 
-      <ion-item lines="none" class="theme--item" *ngIf="(teams$ | async) && !(teams$ | async).length">
+      <ion-item lines="none" class="theme--item thumbnail--list" *ngIf="(teams$ | async) && !(teams$ | async).length">
         <ion-label>
           <h2><strong>No teams yet</strong></h2>
         </ion-label>
@@ -59,7 +59,7 @@
       </ion-list-header>
 
       <ion-card *ngFor="let p of (pending$ | async); let i = index" (click)="joinTeam(p)" button class="theme--card">
-        <ion-item lines="none" class="theme--item">
+        <ion-item lines="none" class="theme--item thumbnail--list">
           <ion-thumbnail slot="start">
             <ngx-avatar class="teams-avatar" name="{{ p.child }}" [size]="55" [round]="false" [cornerRadius]="10">
             </ngx-avatar>

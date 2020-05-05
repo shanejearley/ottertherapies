@@ -7,8 +7,8 @@ ion-menu-button {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
-  margin-top: 2.5%;
-  position: relative;
+  //margin-top: 2.5%;
+  //position: relative;
 }
 
 #container strong {
@@ -29,4 +29,12 @@ ion-menu-button {
 
 ion-content ion-toolbar {
   --background: transparent;
+}
+
+ion-row.calendar--header {
+  background: var(--ion-color-light);
+  // background-image: url('../../../assets/circle.svg');
+  // background-position: center center;
+  // background-repeat: no-repeat;
+  // background-size: cover;
 }
