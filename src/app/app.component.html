@@ -34,7 +34,7 @@
           </ion-list-header>
           <div *ngIf="(team$ | async); else elseItem">
             <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
-              <ion-item *ngIf="p.title !== 'Profile'" routerDirection="root" [routerLink]="['/Teams', teamId, p.title]"
+              <ion-item *ngIf="p.title !== 'Profile' && p.title !== 'Privacy'" routerDirection="root" [routerLink]="['/Teams', teamId, p.title]"
                 detail="false" [class.selected]="p.title == page">
                 <ion-icon slot="start" [name]="p.title == page ? p.icon : p.icon + '-outline'"></ion-icon>
                 <ion-label>{{ p.title }}</ion-label>

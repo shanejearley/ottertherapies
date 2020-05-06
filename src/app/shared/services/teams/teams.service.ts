@@ -10,7 +10,8 @@ import {
   filter,
   map,
   switchMap,
-  find
+  find,
+  shareReplay
 } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -69,15 +70,18 @@ export class TeamsService {
   teamsObservable(userId: string) {
     this.teamsCol = this.db.collection<Team>(`users/${userId}/teams`);
     this.teams$ = this.teamsCol.valueChanges()
-      .pipe(tap(next => {
-        console.log("next");
-        next.forEach(team => {
-          this.getInfo(team);
-          this.getUnread(team);
-          console.log('team with unread ', team)
-        })
-        this.store.set('teams', next)
-      }));
+      .pipe(
+        tap(next => {
+          console.log("next");
+          next.forEach(team => {
+            this.getInfo(team);
+            this.getUnread(team);
+            console.log('team with unread ', team)
+          })
+          this.store.set('teams', next)
+        }),
+        shareReplay(1)
+      );
     return this.teams$;
   }
 
@@ -92,14 +96,17 @@ export class TeamsService {
   async getInfo(team: Team) {
     this.teamDoc = this.db.doc<Team>(`teams/${team.id}`);
     this.team$ = this.teamDoc.valueChanges()
-      .pipe(tap(next => {
-        team.name = next.name
-        team.publicId = next.publicId
-        team.child = next.child
-        team.bio = next.bio
-        team.url = next.url
-        team.createdBy = next.createdBy
-      }))
+      .pipe(
+        tap(next => {
+          team.name = next.name
+          team.publicId = next.publicId
+          team.child = next.child
+          team.bio = next.bio
+          team.url = next.url
+          team.createdBy = next.createdBy
+        }),
+        shareReplay(1)
+      )
     this.team$.subscribe();
   }
 
@@ -107,54 +114,57 @@ export class TeamsService {
     team.unread = [];
     this.unreadsCol = this.db.collection<Unread>(`users/${this.uid}/teams/${team.id}/unread`);
     this.unreads$ = this.unreadsCol.valueChanges({ idField: 'id' })
-      .pipe(tap(next => {
-        next.forEach(unread => {
-          this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${team.id}/unread/${unread.id}`);
-          this.unread$ = this.unreadDoc.valueChanges()
-            .pipe(tap(next => {
-              let unreadObj = {
-                id: unread.id,
-                unreadMessages: next.unreadMessages ? next.unreadMessages : 0,
-                unreadFiles: next.unreadFiles ? next.unreadFiles : 0,
-                unreadNotes: next.unreadNotes ? next.unreadNotes : 0
-              }
-              let memberUid: string;
-              if (unreadObj.id.length == 56) {
-                memberUid = unreadObj.id.substr(0, 28) !== this.uid ? unreadObj.id.substr(0, 28) : unreadObj.id.substr(28, 28);
-              }
-              this.groupsService.getGroup(unread.id).subscribe(g => {
-                if (g) {
-                  g.unread = unreadObj;
+      .pipe(
+        tap(next => {
+          next.forEach(unread => {
+            this.unreadDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${team.id}/unread/${unread.id}`);
+            this.unread$ = this.unreadDoc.valueChanges()
+              .pipe(tap(next => {
+                let unreadObj = {
+                  id: unread.id,
+                  unreadMessages: next.unreadMessages ? next.unreadMessages : 0,
+                  unreadFiles: next.unreadFiles ? next.unreadFiles : 0,
+                  unreadNotes: next.unreadNotes ? next.unreadNotes : 0
                 }
-              })
-              this.membersService.getMember(memberUid).subscribe(m => {
-                if (m) {
-                  m.unread = unreadObj;
+                let memberUid: string;
+                if (unreadObj.id.length == 56) {
+                  memberUid = unreadObj.id.substr(0, 28) !== this.uid ? unreadObj.id.substr(0, 28) : unreadObj.id.substr(28, 28);
                 }
-              })
-              this.notesService.getNote(unread.id).subscribe(n => {
-                if (n) {
-                  n.unread = unreadObj;
+                this.groupsService.getGroup(unread.id).subscribe(g => {
+                  if (g) {
+                    g.unread = unreadObj;
+                  }
+                })
+                this.membersService.getMember(memberUid).subscribe(m => {
+                  if (m) {
+                    m.unread = unreadObj;
+                  }
+                })
+                this.notesService.getNote(unread.id).subscribe(n => {
+                  if (n) {
+                    n.unread = unreadObj;
+                  }
+                })
+                if (team.unread.filter(item => item.id == unreadObj.id)[0]) {
+                  let itemIndex = team.unread.findIndex(item => item.id == unreadObj.id);
+                  team.unread[itemIndex] = unreadObj;
+                } else {
+                  team.unread.push(unreadObj);
                 }
-              })
-              if (team.unread.filter(item => item.id == unreadObj.id)[0]) {
-                let itemIndex = team.unread.findIndex(item => item.id == unreadObj.id);
-                team.unread[itemIndex] = unreadObj;
-              } else {
-                team.unread.push(unreadObj);
-              }
-              team.unreadMessages = 0;
-              team.unreadFiles = 0; 
-              team.unreadNotes = 0;
-              team.unread.forEach(unreadAdd => {
-                team.unreadMessages += unreadAdd.unreadMessages;
-                team.unreadFiles += unreadAdd.unreadFiles;
-                team.unreadNotes += unreadAdd.unreadNotes;
-              })
-            }))
-          this.unread$.subscribe();
-        })
-      }))
+                team.unreadMessages = 0;
+                team.unreadFiles = 0;
+                team.unreadNotes = 0;
+                team.unread.forEach(unreadAdd => {
+                  team.unreadMessages += unreadAdd.unreadMessages;
+                  team.unreadFiles += unreadAdd.unreadFiles;
+                  team.unreadNotes += unreadAdd.unreadNotes;
+                })
+              }))
+            this.unread$.subscribe();
+          })
+        }),
+        shareReplay(1)
+      )
     this.unreads$.subscribe();
   }
 
@@ -193,7 +203,7 @@ export class TeamsService {
         email: this.email,
         status: "Admin"
       });
-      await emails.forEach((email:string) => {
+      await emails.forEach((email: string) => {
         if (email !== this.email) {
           this.pendingMembersCol.add({
             email: email

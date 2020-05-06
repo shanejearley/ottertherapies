@@ -6,7 +6,7 @@ import 'firebase/storage';
 import { Store } from '../../../../store';
 
 import { Observable } from 'rxjs';
-import { tap, last, switchMap, finalize } from 'rxjs/operators';
+import { tap, last, switchMap, finalize, shareReplay } from 'rxjs/operators';
 
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 
@@ -48,25 +48,28 @@ export class ProfileService {
     profileObservable(userId: string) {
         this.profileDoc = this.db.doc<Profile>(`users/${userId}`);
         this.profile$ = this.profileDoc.valueChanges()
-            .pipe(tap(next => {
-                if (!next) {
-                    this.store.set('profile', null);
-                    return;
-                }
-                console.log('PROFILE RETRIEVED')
-                const profile: Profile = {
-                    email: next.email ? next.email : null,
-                    uid: next.uid ? next.uid : null,
-                    displayName: next.displayName ? next.displayName : null,
-                    url: next.url ? next.url : null,
-                    lastTeam: next.lastTeam ? next.lastTeam : null,
-                    role: next.role ? next.role : null,
-                    fcmTokens: next.fcmTokens ? next.fcmTokens : null,
-                    badge: next.badge ? next.badge : null
-                };
-                this.profile = profile;
-                this.store.set('profile', profile)
-            }))
+            .pipe(
+                tap(next => {
+                    if (!next) {
+                        this.store.set('profile', null);
+                        return;
+                    }
+                    console.log('PROFILE RETRIEVED')
+                    const profile: Profile = {
+                        email: next.email ? next.email : null,
+                        uid: next.uid ? next.uid : null,
+                        displayName: next.displayName ? next.displayName : null,
+                        url: next.url ? next.url : null,
+                        lastTeam: next.lastTeam ? next.lastTeam : null,
+                        role: next.role ? next.role : null,
+                        fcmTokens: next.fcmTokens ? next.fcmTokens : null,
+                        badge: next.badge ? next.badge : null
+                    };
+                    this.profile = profile;
+                    this.store.set('profile', profile)
+                }),
+                shareReplay(1)
+            )
         return this.profile$;
     }
 
@@ -107,7 +110,7 @@ export class ProfileService {
             const task = storageRef.putString(picture, 'data_url');
             this.percentageChanges = task.percentageChanges();
             task.snapshotChanges().pipe(
-                finalize(() => { 
+                finalize(() => {
                     storageRef.getDownloadURL().subscribe(url => {
                         this.downloadURL = url;
                         profile.url = this.downloadURL;
@@ -127,7 +130,7 @@ export class ProfileService {
         if (this.currentProfile.badge !== badge) {
             return this.db.doc(`users/${uid}`).set({
                 badge: badge
-            }, {merge: true});
+            }, { merge: true });
         } else {
             return console.log('Badge up to date');
         }

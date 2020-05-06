@@ -10,33 +10,33 @@
     <ion-list class="theme--list">
 
         <ion-item lines='none'>
-            <ion-icon slot="start" name="'happy' + '-outline'"></ion-icon>
+            <ion-icon slot="start" [name]="'happy' + '-outline'"></ion-icon>
             <h3>
                 <ion-input placeholder="Add child first name" [(ngModel)]="child"></ion-input>
             </h3>
         </ion-item>
 
         <ion-item lines='none'>
-            <ion-icon slot="start" name="'people' + '-outline'"></ion-icon>
+            <ion-icon slot="start" [name]="'people' + '-outline'"></ion-icon>
             <ion-input placeholder="Add members by email" [(ngModel)]="member" (keyup.enter)="addMember()"></ion-input>
             <ion-button fill="clear"  (click)="addMember()" slot="end">
-                <ion-icon slot="icon-only" name="'person-add' + '-outline'"></ion-icon>
+                <ion-icon slot="icon-only" [name]="'person-add' + '-outline'"></ion-icon>
             </ion-button>
         </ion-item>
 
         <ion-item lines="none">
             <p>
                 <ion-chip *ngFor="let member of newMembers" outline color="primary">
-                    <ion-icon name="'person' + '-outline'"></ion-icon>
+                    <ion-icon [name]="'person' + '-outline'"></ion-icon>
                     <ion-label>{{ member }}</ion-label>
                     <ion-icon 
                         *ngIf="member !== email; else elseIcon"
-                        name="'close-circle' + '-outline'"
+                        [name]="'close-circle' + '-outline'"
                         (click)="removeMember(member)">
                     </ion-icon>
                     <ng-template #elseIcon>
                         <ion-icon 
-                            name="'lock-closed' + '-outline'">
+                            [name]="'lock-closed' + '-outline'">
                         </ion-icon>
                     </ng-template>
                 </ion-chip>

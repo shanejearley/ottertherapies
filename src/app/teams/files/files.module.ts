@@ -12,6 +12,7 @@ import { FilesComponent } from './files.component';
 import { ScanComponent } from './scan/scan.component';
 import { UploadComponent } from './upload/upload.component';
 import { BrowseComponent } from './browse/browse.component';
+import { UploadTaskComponent } from './upload-task/upload-task.component';
 
 @NgModule({
   imports: [
@@ -24,6 +25,6 @@ import { BrowseComponent } from './browse/browse.component';
   ],
   entryComponents: [ScanComponent, UploadComponent, BrowseComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [FilesComponent, ScanComponent, UploadComponent, BrowseComponent]
+  declarations: [FilesComponent, ScanComponent, UploadComponent, BrowseComponent, UploadTaskComponent]
 })
 export class FilesModule {}

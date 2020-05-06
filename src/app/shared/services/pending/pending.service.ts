@@ -10,7 +10,8 @@ import {
   filter,
   map,
   switchMap,
-  find
+  find,
+  shareReplay
 } from 'rxjs/operators';
 import { of } from 'rxjs';
 
@@ -47,13 +48,16 @@ export class PendingService {
   pendingObservable(userId: string) {
     this.teamsCol = this.db.collection<Pending>(`users/${userId}/pendingTeams`);
     this.pending$ = this.teamsCol.valueChanges()
-      .pipe(tap(next => {
-        console.log("next");
-        next.forEach(team => {
-          this.getInfo(team);
-        })
-        this.store.set('pending', next)
-      }));
+      .pipe(
+        tap(next => {
+          console.log("next");
+          next.forEach(team => {
+            this.getInfo(team);
+          })
+          this.store.set('pending', next)
+        }),
+        shareReplay(1)
+      );
     return this.pending$;
   }
 
@@ -68,15 +72,18 @@ export class PendingService {
   async getInfo(team: Pending) {
     this.teamDoc = this.db.doc<Pending>(`teams/${team.id}`);
     this.team$ = this.teamDoc.valueChanges()
-      .pipe(tap(next => {
-        team.name = next.name
-        team.publicId = next.publicId
-        team.child = next.child
-        team.bio = next.bio
-        team.notes = next.notes
-        team.url = next.url
-        team.createdBy = next.createdBy
-      }))
+      .pipe(
+        tap(next => {
+          team.name = next.name
+          team.publicId = next.publicId
+          team.child = next.child
+          team.bio = next.bio
+          team.notes = next.notes
+          team.url = next.url
+          team.createdBy = next.createdBy
+        }),
+        shareReplay(1)
+      )
     this.team$.subscribe();
   }
 

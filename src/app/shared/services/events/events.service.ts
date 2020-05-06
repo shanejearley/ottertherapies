@@ -9,7 +9,7 @@ import { Store } from 'src/store';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service'
 
 import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import { filter, map, shareReplay } from 'rxjs/operators';
 
 import { MembersService } from '../members/members.service';
 
@@ -63,27 +63,29 @@ export class EventsService {
         this.monthEnd = firestore.Timestamp.fromDate(new Date(date.getFullYear(), date.getMonth() + 1, 0));
         this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.orderBy('startTime').startAt(this.monthStart).endAt(this.monthEnd));
         this.events$ = this.eventsCol.stateChanges(['added', 'modified', 'removed'])
-            .pipe(map(actions => actions.map(a => {
-                console.log('ACTION', a);
-                if (a.type == 'removed') {
-                    const event = a.payload.doc.data() as Event;
-                    event.id = a.payload.doc.id;
-                }
-                if (a.type == 'added' || a.type == 'modified') {
-                    const event = a.payload.doc.data() as Event;
-                    event.id = a.payload.doc.id;
-                    const exists = this.events.find(e => e.id === event.id)
-                    if (event.startTime && !exists) {
-                        this.getMembers(event);
-                        this.events.push(event);
-                    } else if (event.startTime && exists) {
-                        let eventIndex = this.events.findIndex(e => e.id == event.id);
-                        event.members = this.events[eventIndex].members;
-                        this.events[eventIndex] = event;
+            .pipe(
+                map(actions => actions.map(a => {
+                    console.log('ACTION', a);
+                    if (a.type == 'removed') {
+                        const event = a.payload.doc.data() as Event;
+                        event.id = a.payload.doc.id;
                     }
-                }
-                return this.store.set('events', this.events)
-            })))
+                    if (a.type == 'added' || a.type == 'modified') {
+                        const event = a.payload.doc.data() as Event;
+                        event.id = a.payload.doc.id;
+                        const exists = this.events.find(e => e.id === event.id)
+                        if (event.startTime && !exists) {
+                            this.getMembers(event);
+                            this.events.push(event);
+                        } else if (event.startTime && exists) {
+                            let eventIndex = this.events.findIndex(e => e.id == event.id);
+                            event.members = this.events[eventIndex].members;
+                            this.events[eventIndex] = event;
+                        }
+                    }
+                    return this.store.set('events', this.events)
+                })),
+                shareReplay(1))
         return this.events$;
     }
 
@@ -91,29 +93,32 @@ export class EventsService {
         event.members = [];
         this.membersCol = this.db.collection<Member>(`teams/${this.teamId}/calendar/${event.id}/members`);
         this.membersCol.stateChanges(['added', 'modified', 'removed'])
-            .pipe(map(actions => actions.map(a => {
-                if (a.type == 'removed') {
-                    const member = a.payload.doc.data() as Member;
-                    member.uid = a.payload.doc.id;
-                }
-                if (a.type == 'added' || a.type == 'modified') {
-                    const member = a.payload.doc.data() as Member;
-                    member.uid = a.payload.doc.id;
-                    const exists = event.members.find(m => m.uid === member.uid)
-                    if (!exists) {
-                        this.membersService.getMember(member.uid).subscribe(m => {
-                            member.profile = m.profile;
-                            event.members.push(member);
-                        })
-                    } else {
-                        let memberIndex = event.members.findIndex(m => m.uid == member.uid);
-                        this.membersService.getMember(member.uid).subscribe(m => {
-                            member.profile = m.profile;
-                            event.members[memberIndex] = member;
-                        })
+            .pipe(
+                map(actions => actions.map(a => {
+                    if (a.type == 'removed') {
+                        const member = a.payload.doc.data() as Member;
+                        member.uid = a.payload.doc.id;
                     }
-                }
-            }))).subscribe();
+                    if (a.type == 'added' || a.type == 'modified') {
+                        const member = a.payload.doc.data() as Member;
+                        member.uid = a.payload.doc.id;
+                        const exists = event.members.find(m => m.uid === member.uid)
+                        if (!exists) {
+                            this.membersService.getMember(member.uid).subscribe(m => {
+                                member.profile = m.profile;
+                                event.members.push(member);
+                            })
+                        } else {
+                            let memberIndex = event.members.findIndex(m => m.uid == member.uid);
+                            this.membersService.getMember(member.uid).subscribe(m => {
+                                member.profile = m.profile;
+                                event.members[memberIndex] = member;
+                            })
+                        }
+                    }
+                })),
+                shareReplay(1)
+            ).subscribe();
     }
 
     getEvent(id: string) {

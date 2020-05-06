@@ -94,7 +94,7 @@
           (keyup.enter)="sendMessage()" (keydown.enter)="onKeydown($event)" (ionFocus)="scrollOnFocus()">
         </ion-textarea>
         <ion-button class="message--button ion-padding-start" (click)="sendMessage()">
-          <ion-icon name="'send' + '-outline'"></ion-icon>
+          <ion-icon [name]="'send' + '-outline'"></ion-icon>
         </ion-button>
       </ion-row>
     </ion-col>

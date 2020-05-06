@@ -9,7 +9,7 @@ import { Store } from 'src/store';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service'
 
 import { Observable } from 'rxjs';
-import { tap, filter, map } from 'rxjs/operators';
+import { tap, filter, map, shareReplay } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
 import { MembersService } from '../members/members.service';
@@ -92,64 +92,73 @@ export class GroupsService {
     this.teamId = teamId;
     this.groupsCol = this.db.collection<Group>(`users/${this.uid}/teams/${this.teamId}/groups`);
     this.groups$ = this.groupsCol.valueChanges({ idField: 'id' })
-      .pipe(tap(next => {
-        next.forEach(group => {
-          this.getInfo(group);
-          this.getMembers(group);
-          this.getFiles(group);
-          this.getMessages(group);
-        })
-        this.store.set('groups', next)
-      }));
+      .pipe(
+        tap(next => {
+          next.forEach(group => {
+            this.getInfo(group);
+            this.getMembers(group);
+            this.getFiles(group);
+            this.getMessages(group);
+          })
+          this.store.set('groups', next)
+        }),
+        shareReplay(1)
+      );
     return this.groups$;
   }
 
   async getInfo(group: Group) {
     this.groupDoc = this.db.doc<Group>(`teams/${this.teamId}/groups/${group.id}`);
     this.groupDoc.valueChanges()
-      .pipe(tap(next => {
-        if (!next) {
-          return;
-        }
-        group.createdBy = next.createdBy
-        group.lastFile = next.lastFile
-        group.lastFileId = next.lastFileId
-        group.lastFileUid = next.lastFileUid
-        group.lastMessage = next.lastMessage
-        group.lastMessageId = next.lastMessageId
-        group.lastMessageUid = next.lastMessageUid
-        group.name = next.name
-        group.timestamp = next.timestamp
-      })).subscribe();
+      .pipe(
+        tap(next => {
+          if (!next) {
+            return;
+          }
+          group.createdBy = next.createdBy
+          group.lastFile = next.lastFile
+          group.lastFileId = next.lastFileId
+          group.lastFileUid = next.lastFileUid
+          group.lastMessage = next.lastMessage
+          group.lastMessageId = next.lastMessageId
+          group.lastMessageUid = next.lastMessageUid
+          group.name = next.name
+          group.timestamp = next.timestamp
+        }),
+        shareReplay(1)
+      ).subscribe();
   }
 
   getMembers(group: Group) {
     group.members = [];
     this.membersCol = this.db.collection<Member>(`teams/${this.teamId}/groups/${group.id}/members`);
     this.membersCol.stateChanges(['added', 'modified', 'removed'])
-      .pipe(map(actions => actions.map(a => {
-        if (a.type == 'removed') {
-          const member = a.payload.doc.data() as Member;
-          member.uid = a.payload.doc.id;
-        }
-        if (a.type == 'added' || a.type == 'modified') {
-          const member = a.payload.doc.data() as Member;
-          member.uid = a.payload.doc.id;
-          const exists = group.members.find(m => m.uid === member.uid)
-          if (!exists) {
-            this.membersService.getMember(member.uid).subscribe(m => {
-              member.profile = m.profile;
-              group.members.push(member);
-            })
-          } else {
-            let memberIndex = group.members.findIndex(m => m.uid == member.uid);
-            this.membersService.getMember(member.uid).subscribe(m => {
-              member.profile = m.profile;
-              group.members[memberIndex] = member;
-            })
+      .pipe(
+        map(actions => actions.map(a => {
+          if (a.type == 'removed') {
+            const member = a.payload.doc.data() as Member;
+            member.uid = a.payload.doc.id;
           }
-        }
-      }))).subscribe();
+          if (a.type == 'added' || a.type == 'modified') {
+            const member = a.payload.doc.data() as Member;
+            member.uid = a.payload.doc.id;
+            const exists = group.members.find(m => m.uid === member.uid)
+            if (!exists) {
+              this.membersService.getMember(member.uid).subscribe(m => {
+                member.profile = m.profile;
+                group.members.push(member);
+              })
+            } else {
+              let memberIndex = group.members.findIndex(m => m.uid == member.uid);
+              this.membersService.getMember(member.uid).subscribe(m => {
+                member.profile = m.profile;
+                group.members[memberIndex] = member;
+              })
+            }
+          }
+        })),
+        shareReplay(1)
+      ).subscribe();
   }
 
   /// need to modifiy this to stateChages as it is below!
@@ -158,29 +167,32 @@ export class GroupsService {
     this.filesCol = this.db.collection<File>(`teams/${this.teamId}/groups/${group.id}/files`);
     try {
       this.filesCol.stateChanges(['added', 'modified', 'removed'])
-        .pipe(map(actions => actions.map(a => {
-          const file = a.payload.doc.data() as File;
-          file.id = a.payload.doc.id;
-          if (a.type == 'removed') {
-            ///remove based on file.id
-            group.files.forEach(function (f) {
-              if (f.id === file.id) {
-                var index = group.files.indexOf(file);
-                group.files.splice(index, 1);
-                console.log("Removed group file: ", file);
-              }
-            })
-          }
-          if (a.type == 'added' || a.type == 'modified') {
-            if (file.timestamp) {
-              console.log('file', file);
-              this.membersService.getMember(file.uid).subscribe(m => {
-                file.profile = m.profile;
-                group.files.push(file);
+        .pipe(
+          map(actions => actions.map(a => {
+            const file = a.payload.doc.data() as File;
+            file.id = a.payload.doc.id;
+            if (a.type == 'removed') {
+              ///remove based on file.id
+              group.files.forEach(function (f) {
+                if (f.id === file.id) {
+                  var index = group.files.indexOf(file);
+                  group.files.splice(index, 1);
+                  console.log("Removed group file: ", file);
+                }
               })
             }
-          }
-        }))).subscribe();
+            if (a.type == 'added' || a.type == 'modified') {
+              if (file.timestamp) {
+                console.log('file', file);
+                this.membersService.getMember(file.uid).subscribe(m => {
+                  file.profile = m.profile;
+                  group.files.push(file);
+                })
+              }
+            }
+          })),
+          shareReplay(1)
+        ).subscribe();
     } catch (err) {
       console.log(err);
       return;
@@ -192,33 +204,36 @@ export class GroupsService {
     this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/groups/${group.id}/messages`, ref => ref.orderBy('timestamp'));
     try {
       this.messagesCol.stateChanges(['added', 'modified', 'removed'])
-        .pipe(map(actions => actions.map(a => {
-          console.log('ACTION', a);
-          if (a.type == 'removed') {
-            ///remove based on file.id
-            const message = a.payload.doc.data() as Message;
-            message.id = a.payload.doc.id;
-            group.messages.forEach(function (m) {
-              if (m.id === message.id) {
-                var index = group.messages.indexOf(message);
-                group.messages.splice(index, 1);
-                console.log("Removed group message: ", message);
-              }
-            })
-          }
-          if (a.type == 'added' || a.type == 'modified') {
-            const message = a.payload.doc.data() as Message;
-            if (message.timestamp) {
+        .pipe(
+          map(actions => actions.map(a => {
+            console.log('ACTION', a);
+            if (a.type == 'removed') {
+              ///remove based on file.id
+              const message = a.payload.doc.data() as Message;
               message.id = a.payload.doc.id;
-              this.membersService.getMember(message.uid).subscribe(m => {
-                if (m.profile) {
-                  message.profile = m.profile;
-                  group.messages.push(message);
+              group.messages.forEach(function (m) {
+                if (m.id === message.id) {
+                  var index = group.messages.indexOf(message);
+                  group.messages.splice(index, 1);
+                  console.log("Removed group message: ", message);
                 }
               })
             }
-          }
-        }))).subscribe();
+            if (a.type == 'added' || a.type == 'modified') {
+              const message = a.payload.doc.data() as Message;
+              if (message.timestamp) {
+                message.id = a.payload.doc.id;
+                this.membersService.getMember(message.uid).subscribe(m => {
+                  if (m.profile) {
+                    message.profile = m.profile;
+                    group.messages.push(message);
+                  }
+                })
+              }
+            }
+          })),
+          shareReplay(1)
+        ).subscribe();
     } catch (err) {
       console.log(err);
       return;

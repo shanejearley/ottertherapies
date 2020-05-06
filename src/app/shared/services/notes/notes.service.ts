@@ -7,7 +7,7 @@ import { Store } from 'src/store';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service'
 
 import { Observable } from 'rxjs';
-import { tap, filter, map } from 'rxjs/operators';
+import { tap, filter, map, shareReplay } from 'rxjs/operators';
 
 import { MembersService } from '../members/members.service';
 import { Unread } from '../teams/teams.service';
@@ -63,33 +63,36 @@ export class NotesService {
         this.teamId = teamId;
         this.notesCol = this.db.collection<Note>(`teams/${this.teamId}/notes`);
         this.notes$ = this.notesCol.stateChanges(['added', 'modified', 'removed'])
-            .pipe(map(actions => actions.map(a => {
-                console.log('ACTION', a);
-                if (a.type == 'removed') {
-                    const note = a.payload.doc.data() as Note;
-                    note.id = a.payload.doc.id;
-                    return;
-                }
-                if (a.type == 'added' || a.type == 'modified') {
-                    const note = a.payload.doc.data() as Note;
-                    note.id = a.payload.doc.id;
-                    const exists = this.notes.find(n => n.id === note.id)
-                    if (note.timestamp && !exists) {
-                        this.membersService.getMember(note.uid).subscribe(m => {
-                            if (!note.profile) {
-                                note.profile = m.profile;
-                                this.getComments(note);
-                                this.notes.push(note);
-                            }
-                        })
+            .pipe(
+                map(actions => actions.map(a => {
+                    console.log('ACTION', a);
+                    if (a.type == 'removed') {
+                        const note = a.payload.doc.data() as Note;
+                        note.id = a.payload.doc.id;
+                        return;
                     }
-                    if (note.timestamp && exists) {
-                        this.notes.find(n => n.id == note.id).flag = note.flag;
-                        this.notes.find(n => n.id == note.id).commentCount = note.commentCount;
+                    if (a.type == 'added' || a.type == 'modified') {
+                        const note = a.payload.doc.data() as Note;
+                        note.id = a.payload.doc.id;
+                        const exists = this.notes.find(n => n.id === note.id)
+                        if (note.timestamp && !exists) {
+                            this.membersService.getMember(note.uid).subscribe(m => {
+                                if (!note.profile) {
+                                    note.profile = m.profile;
+                                    this.getComments(note);
+                                    this.notes.push(note);
+                                }
+                            })
+                        }
+                        if (note.timestamp && exists) {
+                            this.notes.find(n => n.id == note.id).flag = note.flag;
+                            this.notes.find(n => n.id == note.id).commentCount = note.commentCount;
+                        }
                     }
-                }
-                return this.store.set('notes', this.notes)
-            })))
+                    return this.store.set('notes', this.notes)
+                })),
+                shareReplay(1)
+            )
         return this.notes$;
     }
 
@@ -97,33 +100,36 @@ export class NotesService {
         note.comments = [];
         this.commentsCol = this.db.collection<Comment>(`teams/${this.teamId}/notes/${note.id}/comments`, ref => ref.orderBy('timestamp'));
         this.commentsCol.stateChanges(['added', 'modified', 'removed'])
-            .pipe(map(actions => actions.map(a => {
-                console.log('ACTION', a);
-                if (a.type == 'removed') {
-                    ///remove based on file.id
-                    const comment = a.payload.doc.data() as Comment;
-                    comment.id = a.payload.doc.id;
-                    note.comments.forEach(function (m) {
-                        if (m.id === comment.id) {
-                            var index = note.comments.indexOf(comment);
-                            note.comments.splice(index, 1);
-                            console.log("Removed note comment: ", comment);
-                        }
-                    })
-                }
-                if (a.type == 'added' || a.type == 'modified') {
-                    const comment = a.payload.doc.data() as Comment;
-                    if (comment.timestamp) {
+            .pipe(
+                map(actions => actions.map(a => {
+                    console.log('ACTION', a);
+                    if (a.type == 'removed') {
+                        ///remove based on file.id
+                        const comment = a.payload.doc.data() as Comment;
                         comment.id = a.payload.doc.id;
-                        this.membersService.getMember(comment.uid).subscribe(m => {
-                            if (!comment.profile) {
-                                comment.profile = m.profile;
-                                note.comments.push(comment);
+                        note.comments.forEach(function (m) {
+                            if (m.id === comment.id) {
+                                var index = note.comments.indexOf(comment);
+                                note.comments.splice(index, 1);
+                                console.log("Removed note comment: ", comment);
                             }
                         })
                     }
-                }
-            }))).subscribe();
+                    if (a.type == 'added' || a.type == 'modified') {
+                        const comment = a.payload.doc.data() as Comment;
+                        if (comment.timestamp) {
+                            comment.id = a.payload.doc.id;
+                            this.membersService.getMember(comment.uid).subscribe(m => {
+                                if (!comment.profile) {
+                                    comment.profile = m.profile;
+                                    note.comments.push(comment);
+                                }
+                            })
+                        }
+                    }
+                })),
+                shareReplay(1)
+            ).subscribe();
     }
 
     getNote(id: string) {

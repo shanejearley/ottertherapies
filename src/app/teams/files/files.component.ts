@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ModalController, ToastController, IonRouterOutlet } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet, AlertController } from '@ionic/angular';
 import { Plugins } from '@capacitor/core';
 const { Browser } = Plugins;
 import { AngularFirestore } from '@angular/fire/firestore'
@@ -57,7 +57,8 @@ export class FilesComponent implements OnInit {
     private teamsService: TeamsService,
     private documentScanner: DocumentScanner,
     private modalController: ModalController,
-    public toastController: ToastController,
+    private toastController: ToastController,
+    private alertController: AlertController,
     private sanitizer: DomSanitizer,
     private db: AngularFirestore,
     private groupsService: GroupsService,
@@ -107,7 +108,24 @@ export class FilesComponent implements OnInit {
         this.photoData = res;
         this.generatePdf(res);
       })
-      .catch((error: any) => console.error(error));
+      .catch((error: any) => {
+        if (error == 'cordova_not_available') {
+          this.useMobileAlert();
+        } else {
+          console.log(error);
+        }
+      });
+  }
+
+  async useMobileAlert() {
+    const alert = await this.alertController.create({
+      // header: 'One sec!',
+      // subHeader: 'Scanning is a mobile feature',
+      message: 'Use the Otter mobile app to scan documents with your camera!',
+      buttons: ['OK']
+    });
+
+    await alert.present();
   }
 
   async scanModal() {

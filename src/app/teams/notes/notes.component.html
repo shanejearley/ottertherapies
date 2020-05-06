@@ -46,7 +46,7 @@
               (keyup.enter)="postNote()" (keydown.enter)="onKeydown($event)">
             </ion-textarea>
             <ion-button fill="clear" (click)="postNote()" slot="end">
-              <ion-icon slot="icon-only" name="'send' + '-outline'"></ion-icon>
+              <ion-icon slot="icon-only" [name]="'send' + '-outline'"></ion-icon>
             </ion-button>
           </ion-item>
         </ion-card-content>
@@ -83,7 +83,7 @@
               <ion-col size="6">
                 <ion-row class="ion-justify-content-center">
                   <ion-button fill="clear" (click)="flagNote(n)">
-                    <ion-icon [color]="!n.flag ? 'medium' : 'warning'" name="'flag' + '-outline'"></ion-icon>
+                    <ion-icon [color]="!n.flag ? 'medium' : 'warning'" [name]="'flag' + '-outline'"></ion-icon>
                     <ion-text [color]="!n.flag ? 'medium' : 'warning'" class="ion-padding-start">
                       Flag
                     </ion-text>
@@ -95,7 +95,7 @@
                   <ion-button fill="clear" (click)="showNote(n)">
                     <ion-icon 
                       [color]="!n.show ? 'medium' : 'primary'" 
-                      name="'chatbox' + '-outline'">
+                      [name]="'chatbox' + '-outline'">
                     </ion-icon>
                     <ion-text [color]="!n.show ? 'medium' : 'primary'" class="ion-padding-start">
                       Comments
@@ -137,7 +137,7 @@
                   [(ngModel)]="n.newComment" (keyup.enter)="postComment(n)" (keydown.enter)="onKeydown($event)">
                 </ion-textarea>
                 <ion-button fill="clear" (click)="postComment(n)" slot="end">
-                  <ion-icon slot="icon-only" name="'send' + '-outline'"></ion-icon>
+                  <ion-icon slot="icon-only" [name]="'send' + '-outline'"></ion-icon>
                 </ion-button>
               </ion-item>
             </div>

@@ -32,19 +32,24 @@ export class BrowseComponent {
     downloadURL: string;
     teamId: string;
     count: number;
-    public files: NgxFileDropEntry[] = [];
+    folder;
+    public ngxFiles: NgxFileDropEntry[] = [];
+    public files: File[] = [];
 
     public dropped(files: NgxFileDropEntry[]) {
-        this.files = files;
         for (const droppedFile of files) {
             if (droppedFile.fileEntry.isFile) {
                 const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
                 fileEntry.file((file: File) => {
-                    console.log(droppedFile.relativePath, file);
+                    this.ngxFiles.push(droppedFile);
+                    this.files.push(file);
+                    console.log(droppedFile, file);
                 });
             } else {
                 const fileEntry = droppedFile.fileEntry as FileSystemDirectoryEntry;
-                console.log(droppedFile.relativePath, fileEntry);
+                console.log(droppedFile, fileEntry);
+                this.ngxFiles.push(droppedFile);
+                //this.files.push(file);
             }
         }
     }
@@ -70,6 +75,20 @@ export class BrowseComponent {
         this.profile$ = this.store.select<Profile>('profile');
         this.groups$ = this.store.select<Group[]>('groups');
         this.members$ = this.store.select<Member[]>('members');
+        this.groups$.pipe(tap((groups) => {
+            if (groups) {
+                groups.forEach(g => {
+                    g.isChecked = false;
+                })
+            }
+        })).subscribe();
+        this.members$.pipe(tap((members) => {
+            if (members) {
+                members.forEach(m => {
+                    m.isChecked = false;
+                })
+            }
+        })).subscribe();
     }
 
     ionViewWillEnter() {
@@ -82,21 +101,27 @@ export class BrowseComponent {
         });
     }
 
+    reset() {
+        this.files = [];
+        this.folder = null;
+    }
+
     async loopFiles() {
-        this.count = 0;
-        for (let i = 0; i < this.files.length + 1; i++) {
-            const droppedFile = this.files[i];
-            if (droppedFile && droppedFile.fileEntry.isFile) {
-                const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
-                fileEntry.file((file: File) => {
-                    this.loopFolders(file);
-                });
-            }
-            if (droppedFile && !droppedFile.fileEntry.isFile) {
-                const fileEntry = droppedFile.fileEntry as FileSystemDirectoryEntry;
-                this.loopFolders(fileEntry);
-            }
-        }
+        console.log(this.folder);
+        // this.count = 0;
+        // for (let i = 0; i < this.files.length + 1; i++) {
+        //     const droppedFile = this.files[i];
+        //     if (droppedFile && droppedFile.fileEntry.isFile) {
+        //         const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
+        //         fileEntry.file((file: File) => {
+        //             this.loopFolders(file);
+        //         });
+        //     }
+        //     if (droppedFile && !droppedFile.fileEntry.isFile) {
+        //         const fileEntry = droppedFile.fileEntry as FileSystemDirectoryEntry;
+        //         this.loopFolders(fileEntry);
+        //     }
+        // }
     }
 
     loopFolders(file) {

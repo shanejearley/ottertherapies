@@ -67,6 +67,22 @@ exports.scraper = functions.https.onCall(async (data, context) => {
 
 });
 
+const addTeamClaims = async (uid, teamId) => {
+    return admin.auth().setCustomUserClaims(uid, { [teamId]: true });
+}
+
+const removeTeamClaims = async (uid, teamId) => {
+    return admin.auth().setCustomUserClaims(uid, { [teamId]: false })
+}
+
+const addGroupClaims = async (uid, groupId) => {
+    return admin.auth().setCustomUserClaims(uid, { [groupId]: true })
+}
+
+const removeGroupClaims = async (uid, groupId) => {
+    return admin.auth().setCustomUserClaims(uid, { [groupId]: false })
+}
+
 const notifyUser = async (uid, context) => {
 
     // get users tokens and send notifications
@@ -75,29 +91,23 @@ const notifyUser = async (uid, context) => {
         const userRef = firestore.collection('users').doc(userId)
         const snapshot = await userRef.get();
         const user = snapshot.data();
-        //user.badge = user.badge ? user.badge + 1 : 1;
+        user.badge = user.badge ? user.badge + 1 : 1;
         // Message details for end user
+
         const payload = {
             notification: {
                 title: `New ${context}!`,
-                body: `A team member sent you a new ${context}`
+                body: `A team member sent you a new ${context}`,
+                badge: `${user.badge}`
             }
         }
-
-        // const payload = {
-        //     notification: {
-        //         title: `New ${context}!`,
-        //         body: `A team member sent you a new ${context}`,
-        //         badge: `${user.badge}`
-        //     }
-        // }
 
         const tokens = user.fcmTokens ? Object.keys(user.fcmTokens) : [];
         if (!tokens.length) {
             throw new Error('User does not have any tokens!');
         }
         console.log("Sending to tokens: ", tokens);
-        //userRef.update(user);
+        userRef.update(user);
         return admin.messaging().sendToDevice(tokens, payload);
     }
     catch (err) {
@@ -235,6 +245,7 @@ exports.memberOnJoin = functions.firestore
         var teamId = context.params.teamId;
         console.log("memberUid", context.params.memberUid);
         var memberUid = context.params.memberUid;
+        await addTeamClaims(memberUid, teamId);
         await firestore.collection('teams').doc(teamId).collection('pendingMembers').doc(memberUid).delete();
         await firestore.collection("teams").doc(teamId).collection("members").get()
             .then(async (querySnapshot) => {
@@ -276,6 +287,7 @@ exports.groupMemberOnJoin = functions.firestore
         var groupId = context.params.groupId;
         console.log("memberUid", context.params.memberUid);
         var memberUid = context.params.memberUid;
+        await addGroupClaims(memberUid, groupId);
         return firestore.collection("users").doc(memberUid).collection("teams").doc(teamId).collection("groups").doc(groupId).set({
             id: groupId
         }, { merge: true })
@@ -298,6 +310,7 @@ exports.groupMemberOnRemove = functions.firestore
         var groupId = context.params.groupId;
         console.log("memberUid", context.params.memberUid);
         var memberUid = context.params.memberUid;
+        await removeGroupClaims(memberUid, groupId);
         return firestore.collection("users").doc(memberUid).collection("teams").doc(teamId).collection("groups").doc(groupId).delete()
             .then(function () {
                 return console.log("Removed group reference for ", groupId, " from the user profile of ", memberUid);
@@ -317,6 +330,7 @@ exports.memberOnRemove = functions.firestore
         console.log("memberUid", context.params.memberUid);
         var memberUid = context.params.memberUid;
         try {
+            await removeTeamClaims(memberUid, teamId);
             await firestore.collection("teams").doc(teamId).collection("members").get()
                 .then(async (querySnapshot) => {
                     var members = querySnapshot.docs.map(doc => doc.data());

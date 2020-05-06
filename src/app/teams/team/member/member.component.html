@@ -147,7 +147,7 @@
         <ion-list class="message--list">
             <div *ngIf="(member$ | async)?.files.length; else elseFile">
                 <ion-item class="message--list" *ngFor="let f of (member$ | async)?.files; let i = index">
-                    <ion-icon slot="start" name="'document' + '-outline'"></ion-icon>
+                    <ion-icon slot="start" [name]="'document' + '-outline'"></ion-icon>
                     <ion-label>
                         <h2>{{ f.name }}</h2>
                         <h3 *ngIf="f.uid !== (profile$ | async)?.uid; else elseUserName">
@@ -158,10 +158,10 @@
                         </ng-template>
                     </ion-label>
                     <ion-button fill="clear" (click)="removeMemberFile(directId,f.id,f.url)" slot="end">
-                        <ion-icon slot="icon-only" color="danger" name="'trash' + '-outline'"></ion-icon>
+                        <ion-icon slot="icon-only" color="danger" [name]="'trash' + '-outline'"></ion-icon>
                     </ion-button>
                     <ion-button fill="clear" (click)="previewFile(f)" slot="end">
-                        <ion-icon slot="icon-only" name="'download' + '-outline'">
+                        <ion-icon slot="icon-only" [name]="'download' + '-outline'">
                         </ion-icon>
                     </ion-button>
                 </ion-item>
@@ -187,7 +187,7 @@
                         (ionFocus)="scrollOnFocus()">
                     </ion-textarea>
                     <ion-button class="message--button ion-padding-start" (click)="sendMessage()">
-                        <ion-icon name="'send' + '-outline'"></ion-icon>
+                        <ion-icon [name]="'send' + '-outline'"></ion-icon>
                     </ion-button>
                 </ion-row>
             </ion-col>

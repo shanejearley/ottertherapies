@@ -7,7 +7,7 @@ import { Store } from 'src/store';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service'
 
 import { Observable } from 'rxjs';
-import { tap, filter, map } from 'rxjs/operators';
+import { tap, filter, map, shareReplay } from 'rxjs/operators';
 
 import { MembersService } from '../members/members.service';
 import { AngularFireFunctions } from '@angular/fire/functions';
@@ -76,18 +76,23 @@ export class ResourcesService {
                         }
                     }
                     return this.store.set('resources', this.resources)
-                })))
+                })),
+                shareReplay(1)
+            )
         return this.resources$;
     }
 
     getInfo(resource: Resource) {
         this.fns.httpsCallable('scraper')({ text: `${resource.url}` })
-            .pipe(tap(next => {
-                if (!next) {
-                    return;
-                }
-                resource.preview = next;
-            })).subscribe()
+            .pipe(
+                tap(next => {
+                    if (!next) {
+                        return;
+                    }
+                    resource.preview = next;
+                }),
+                shareReplay(1)
+            ).subscribe()
     }
 
     getResource(id: string) {
