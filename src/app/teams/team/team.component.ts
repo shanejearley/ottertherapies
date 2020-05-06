@@ -47,9 +47,9 @@ export class TeamComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
     this.members$ = this.store.select<Member[]>('members');
+    this.profile$ = this.store.select<Profile>('profile');
     this.profile$.pipe(tap(profile => {
       if (profile) {
         this.member$ = this.membersService.getMember(profile.uid);

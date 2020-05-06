@@ -14,172 +14,166 @@
     </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="profile--content" #contentArea [class.scroll-ios]="ios">
-    <div [ngSwitch]="segment" id="segment">
-        <ion-grid *ngSwitchCase="'info'" class="ion-no-padding">
-            <ion-row class="profile--pic--header ion-justify-content-center ion-padding" *ngIf="(member$ | async)?.profile">
-                <ion-col class="ion-justify-content-center ion-padding" size="auto">
-                    <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
-                        <img *ngIf="(member$ | async)?.profile.url; else elseMemberAvatar" src="{{ (member$ | async)?.profile.url }}">
-                        <ng-template #elseMemberAvatar>
-                            <ngx-avatar *ngIf="(member$ | async)?.profile.displayName; else elseEmailAvatar"
-                                name="{{ (member$ | async)?.profile.displayName }}" [size]="150" [round]="false"
-                                [cornerRadius]="150">
-                            </ngx-avatar>
-                            <ng-template #elseEmailAvatar>
-                                <ngx-avatar name="{{ (profile$ | async)?.email }}" [size]="150" [round]="false"
-                                    [cornerRadius]="150"></ngx-avatar>
+<ion-content [fullscreen]="true" class="profile--content" #contentArea [class.scroll-ios]="ios" [ngSwitch]="segment">
+    <ion-grid *ngSwitchCase="'info'" class="ion-no-padding">
+        <ion-row class="profile--pic--header ion-justify-content-center ion-padding" *ngIf="(member$ | async)?.profile">
+            <ion-col class="ion-justify-content-center ion-padding" size="auto">
+                <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
+                    <img *ngIf="(member$ | async)?.profile.url; else elseMemberAvatar"
+                        src="{{ (member$ | async)?.profile.url }}">
+                    <ng-template #elseMemberAvatar>
+                        <ngx-avatar *ngIf="(member$ | async)?.profile.displayName; else elseEmailAvatar"
+                            name="{{ (member$ | async)?.profile.displayName }}" [size]="150" [round]="false"
+                            [cornerRadius]="150">
+                        </ngx-avatar>
+                        <ng-template #elseEmailAvatar>
+                            <ngx-avatar name="{{ (profile$ | async)?.email }}" [size]="150" [round]="false"
+                                [cornerRadius]="150"></ngx-avatar>
+                        </ng-template>
+                    </ng-template>
+                </ion-thumbnail>
+            </ion-col>
+        </ion-row>
+        <ion-row class="profile--info--row ion-align-items-stretch">
+            <ion-col class="profile--info--col ion-align-self-stretch">
+                <ion-card class="profile--info--card ion-no-margin ion-align-self-stretch">
+                    <ion-card-content>
+                        <div id="container">
+                            <ion-list>
+                                <ion-list-header>
+                                    Member Info
+                                </ion-list-header>
+                                <ion-item lines="none" *ngIf="(member$ | async)?.profile">
+                                    <ion-icon slot="start" name="person-outline"></ion-icon>
+                                    <ion-label>
+                                        <h2><strong>{{ (member$ | async)?.profile.displayName }}</strong></h2>
+                                    </ion-label>
+                                </ion-item>
+                                <ion-item lines="none" *ngIf="(member$ | async)?.profile">
+                                    <ion-icon slot="start" name="mail-outline"></ion-icon>
+                                    <ion-label>
+                                        <h2>{{ (member$ | async)?.profile.email }}</h2>
+                                    </ion-label>
+                                </ion-item>
+                                <ion-item lines="none" *ngIf="(member$ | async)?.profile">
+                                    <ion-icon slot="start" name="people-outline"></ion-icon>
+                                    <ion-label>
+                                        <h2>{{ (member$ | async)?.profile.role }}</h2>
+                                    </ion-label>
+                                </ion-item>
+                            </ion-list>
+                        </div>
+                    </ion-card-content>
+                </ion-card>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+    <div id="message--container" *ngSwitchCase="'messages'">
+        <ion-list class="theme--list">
+            <ion-item class="theme--item" lines="none"></ion-item>
+
+            <div *ngFor="let m of (member$ | async)?.messages; trackBy: trackFn; let last = last; let i = index">
+
+                <ion-row class="ion-justify-content-center"
+                    *ngIf="(member$ | async)?.messages[i-1] && m.timestamp.toMillis() - (member$ | async)?.messages[i-1].timestamp.toMillis() > 1800000 || !(member$ | async)?.messages[i-1]">
+                    <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time"
+                        color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
+                    <ng-template #elseDate>
+                        <ion-text class="message--time" color="medium">Today,
+                            {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
+                    </ng-template>
+                </ion-row>
+
+                <ion-item class="theme--item" lines="none">
+                    <ion-row class="member--row" slot="start"
+                        *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage">
+                        <ion-avatar class="dialog--member"
+                            *ngIf="m.profile && (member$ | async)?.messages[i+1] && m.profile !== (member$ | async)?.messages[i+1].profile || m.profile && !(member$ | async)?.messages[i+1] || (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
+                            <img *ngIf="(member$ | async)?.profile.url; else elseTextAvatar"
+                                src="{{ (member$ | async)?.profile.url }}">
+                            <ng-template #elseTextAvatar>
+                                <ngx-avatar name="{{ (member$ | async)?.profile.displayName }}" [size]="40">
+                                </ngx-avatar>
                             </ng-template>
-                        </ng-template>
-                    </ion-thumbnail>
-                </ion-col>
-            </ion-row>
-            <ion-row class="profile--info--row ion-align-items-stretch">
-                <ion-col class="profile--info--col ion-align-self-stretch">
-                    <ion-card class="profile--info--card ion-no-margin ion-align-self-stretch">
-                        <ion-card-content>
-                            <div id="container">
-                                <ion-list>
-                                    <ion-list-header>
-                                        Member Info
-                                    </ion-list-header>
-                                    <ion-item lines="none" *ngIf="(member$ | async)?.profile">
-                                        <ion-icon slot="start" name="person-outline"></ion-icon>
-                                        <ion-label>
-                                            <h2><strong>{{ (member$ | async)?.profile.displayName }}</strong></h2>
-                                        </ion-label>
-                                    </ion-item>
-                                    <ion-item lines="none" *ngIf="(member$ | async)?.profile">
-                                        <ion-icon slot="start" name="mail-outline"></ion-icon>
-                                        <ion-label>
-                                            <h2>{{ (member$ | async)?.profile.email }}</h2>
-                                        </ion-label>
-                                        <ion-button fill="clear" slot="end">
-                                            <ion-icon slot="icon-only" name="lock-closed-outline"></ion-icon>
-                                        </ion-button>
-                                    </ion-item>
-                                    <ion-item lines="none" *ngIf="(member$ | async)?.profile">
-                                        <ion-icon slot="start" name="people-outline"></ion-icon>
-                                        <ion-label>
-                                            <h2>{{ (member$ | async)?.profile.role }}</h2>
-                                        </ion-label>
-                                    </ion-item>
-                                </ion-list>
-                            </div>
-                        </ion-card-content>
-                    </ion-card>
-                </ion-col>
-            </ion-row>
-        </ion-grid>
-        <div id="message--container" *ngSwitchCase="'messages'">
-            <ion-list class="theme--list">
-                <ion-item class="theme--item" lines="none"></ion-item>
+                        </ion-avatar>
 
-                <div *ngFor="let m of (member$ | async)?.messages; trackBy: trackFn; let last = last; let i = index">
-
-                    <ion-row class="ion-justify-content-center"
-                        *ngIf="(member$ | async)?.messages[i-1] && m.timestamp.toMillis() - (member$ | async)?.messages[i-1].timestamp.toMillis() > 1800000 || !(member$ | async)?.messages[i-1]">
-                        <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time"
-                            color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
-                        <ng-template #elseDate>
-                            <ion-text class="message--time" color="medium">Today,
-                                {{ m.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
-                        </ng-template>
-                    </ion-row>
-
-                    <ion-item class="theme--item" lines="none">
-                        <ion-row class="member--row" slot="start"
-                            *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage">
-                            <ion-avatar class="dialog--member"
-                                *ngIf="m.profile && (member$ | async)?.messages[i+1] && m.profile !== (member$ | async)?.messages[i+1].profile || m.profile && !(member$ | async)?.messages[i+1] || (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
-                                <img *ngIf="(member$ | async)?.profile.url; else elseTextAvatar"
-                                    src="{{ (member$ | async)?.profile.url }}">
-                                <ng-template #elseTextAvatar>
-                                    <ngx-avatar name="{{ (member$ | async)?.profile.displayName }}" [size]="40">
-                                    </ngx-avatar>
-                                </ng-template>
-                            </ion-avatar>
-
-                            <ion-col class="member--col" size="auto">
-                                <!-- <ion-row class="message--name">
+                        <ion-col class="member--col" size="auto">
+                            <!-- <ion-row class="message--name">
                           <ion-text class="message--name" color="medium">{{ (member$ | async)?.profile.displayName }}</ion-text>
                         </ion-row> -->
 
-                                <ion-card color="light" class="dialog member message--card">
+                            <ion-card color="light" class="dialog member message--card">
+                                <ion-card-content>
+                                    <h2 text-wrap>{{ m.body }}</h2>
+                                </ion-card-content>
+                            </ion-card>
+
+                        </ion-col>
+                    </ion-row>
+
+                    <ng-template #elseUserMessage>
+                        <ion-row class="user--row" slot="end">
+                            <ion-col class="user--col">
+
+                                <!-- <ion-row>
+                            <ion-text class="message--name" color="medium">{{ (profile$ | async)?.displayName }}</ion-text>
+                          </ion-row> -->
+
+                                <ion-card *ngIf="m.profile" color="primary" class="dialog message--card message--user">
                                     <ion-card-content>
                                         <h2 text-wrap>{{ m.body }}</h2>
                                     </ion-card-content>
                                 </ion-card>
 
                             </ion-col>
+                            <ion-avatar class="dialog--user"
+                                *ngIf="m.profile && m.uid === (profile$ | async)?.uid && (member$ | async)?.messages[i+1] && m.profile !== (member$ | async)?.messages[i+1].profile || m.profile && m.uid === (profile$ | async)?.uid && !(member$ | async)?.messages[i+1] || m.profile && m.uid === (profile$ | async)?.uid && (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
+                                <img *ngIf="(profile$ | async)?.url; else elseTextAvatar"
+                                    src="{{ (profile$ | async)?.url }}">
+                                <ng-template #elseTextAvatar>
+                                    <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40">
+                                    </ngx-avatar>
+                                </ng-template>
+                            </ion-avatar>
                         </ion-row>
+                    </ng-template>
+                </ion-item>
+            </div>
 
-                        <ng-template #elseUserMessage>
-                            <ion-row class="user--row" slot="end">
-                                <ion-col class="user--col">
-
-                                    <!-- <ion-row>
-                            <ion-text class="message--name" color="medium">{{ (profile$ | async)?.displayName }}</ion-text>
-                          </ion-row> -->
-
-                                    <ion-card *ngIf="m.profile" color="primary"
-                                        class="dialog message--card message--user">
-                                        <ion-card-content>
-                                            <h2 text-wrap>{{ m.body }}</h2>
-                                        </ion-card-content>
-                                    </ion-card>
-
-                                </ion-col>
-                                <ion-avatar class="dialog--user"
-                                    *ngIf="m.profile && m.uid === (profile$ | async)?.uid && (member$ | async)?.messages[i+1] && m.profile !== (member$ | async)?.messages[i+1].profile || m.profile && m.uid === (profile$ | async)?.uid && !(member$ | async)?.messages[i+1] || m.profile && m.uid === (profile$ | async)?.uid && (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
-                                    <img *ngIf="(profile$ | async)?.url; else elseTextAvatar"
-                                        src="{{ (profile$ | async)?.url }}">
-                                    <ng-template #elseTextAvatar>
-                                        <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40">
-                                        </ngx-avatar>
-                                    </ng-template>
-                                </ion-avatar>
-                            </ion-row>
+            <ion-item class="theme--item" lines="none"></ion-item>
+        </ion-list>
+    </div>
+    <div id="file--container" *ngSwitchCase="'files'">
+        <ion-list class="message--list">
+            <div *ngIf="(member$ | async)?.files.length; else elseFile">
+                <ion-item class="message--list" *ngFor="let f of (member$ | async)?.files; let i = index">
+                    <ion-icon slot="start" name="'document' + '-outline'"></ion-icon>
+                    <ion-label>
+                        <h2>{{ f.name }}</h2>
+                        <h3 *ngIf="f.uid !== (profile$ | async)?.uid; else elseUserName">
+                            {{ (member$ | async)?.profile.displayName }}
+                        </h3>
+                        <ng-template #elseUserName>
+                            <h3>{{ (profile$ | async)?.displayName }}</h3>
                         </ng-template>
-                    </ion-item>
-                </div>
-
-                <ion-item class="theme--item" lines="none"></ion-item>
-            </ion-list>
-        </div>
-        <div id="file--container" *ngSwitchCase="'files'">
-            <ion-list class="message--list">
-                <div *ngIf="(member$ | async)?.files.length; else elseFile">
-                    <ion-item class="message--list" *ngFor="let f of (member$ | async)?.files; let i = index">
-                        <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
-                        <ion-label>
-                            <h2>{{ f.name }}</h2>
-                            <h3 *ngIf="f.uid !== (profile$ | async)?.uid; else elseUserName">
-                                {{ (member$ | async)?.profile.displayName }}
-                            </h3>
-                            <ng-template #elseUserName>
-                                <h3>{{ (profile$ | async)?.displayName }}</h3>
-                            </ng-template>
-                        </ion-label>
-                        <ion-button fill="clear" (click)="removeMemberFile(directId,f.id,f.url)" slot="end">
-                            <ion-icon slot="icon-only" color="danger" [ios]="'trash' + '-outline'"
-                                [md]="'trash' + '-sharp'"></ion-icon>
-                        </ion-button>
-                        <ion-button fill="clear" (click)="previewFile(f)" slot="end">
-                            <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'">
-                            </ion-icon>
-                        </ion-button>
-                    </ion-item>
-                </div>
-                <ng-template #elseFile>
-                    <ion-item class="message--list">
-                        <ion-label>
-                            <h2><strong>No files yet</strong></h2>
-                        </ion-label>
-                    </ion-item>
-                </ng-template>
-            </ion-list>
-        </div>
+                    </ion-label>
+                    <ion-button fill="clear" (click)="removeMemberFile(directId,f.id,f.url)" slot="end">
+                        <ion-icon slot="icon-only" color="danger" name="'trash' + '-outline'"></ion-icon>
+                    </ion-button>
+                    <ion-button fill="clear" (click)="previewFile(f)" slot="end">
+                        <ion-icon slot="icon-only" name="'download' + '-outline'">
+                        </ion-icon>
+                    </ion-button>
+                </ion-item>
+            </div>
+            <ng-template #elseFile>
+                <ion-item class="message--list">
+                    <ion-label>
+                        <h2><strong>No files yet</strong></h2>
+                    </ion-label>
+                </ion-item>
+            </ng-template>
+        </ion-list>
     </div>
 </ion-content>
 
@@ -193,7 +187,7 @@
                         (ionFocus)="scrollOnFocus()">
                     </ion-textarea>
                     <ion-button class="message--button ion-padding-start" (click)="sendMessage()">
-                        <ion-icon [ios]="'send' + '-outline'" [md]="'send' + '-sharp'"></ion-icon>
+                        <ion-icon name="'send' + '-outline'"></ion-icon>
                     </ion-button>
                 </ion-row>
             </ion-col>

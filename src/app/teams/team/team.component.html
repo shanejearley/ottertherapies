@@ -16,7 +16,7 @@
 
   <ion-fab *ngIf="memberStatus == 'Admin'" horizontal="end" vertical="top" slot="fixed" edge>
     <ion-fab-button (click)="editTeamModal()">
-      <ion-icon [ios]="'people' + '-outline'" [md]="'people' + '-sharp'"></ion-icon>
+      <ion-icon name="'people' + '-outline'"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 
@@ -46,7 +46,7 @@
                   <h3>{{ m.profile.email }}</h3>
                   <p>{{ m.profile.role }}</p>
                 </ion-label>
-                <ion-icon slot="end" *ngIf="m.status == 'Admin'" [ios]="'key' + '-outline'" [md]="'key' + '-sharp'"></ion-icon>
+                <ion-icon slot="end" *ngIf="m.status == 'Admin'" name="'key' + '-outline'"></ion-icon>
               </ion-item>
             </ion-card-header>
           </ion-card>
@@ -71,7 +71,7 @@
                   <h3>{{ m.profile.email }}</h3>
                   <p>{{ m.profile.role }}</p>
                 </ion-label>
-                <ion-icon slot="end" *ngIf="m.status == 'Admin'" [ios]="'key' + '-outline'" [md]="'key' + '-sharp'"></ion-icon>
+                <ion-icon slot="end" *ngIf="m.status == 'Admin'" name="'key' + '-outline'"></ion-icon>
               </ion-item>
             </ion-card-header>
           </ion-card>
@@ -82,7 +82,7 @@
           <ion-item lines="none" class="theme--item">
             <p>Pending:
               <ion-chip *ngFor="let p of (member$ | async)?.pending">
-                <ion-icon [ios]="'person' + '-outline'" [md]="'person' + '-sharp'"></ion-icon>
+                <ion-icon name="'person' + '-outline'"></ion-icon>
                 <ion-label *ngIf="p.profile; else pending">{{ p.profile.email }}</ion-label>
                 <ng-template #pending>
                   <ion-label>{{ p.email }}</ion-label>

@@ -3,21 +3,24 @@
     <ion-menu contentId="main-content" type="overlay" [disabled]="!menu" color="tertiary">
       <ion-content>
         <ion-list id="inbox-list" lines="none">
-          <ion-list-header class="top" *ngIf="(team$ | async); else elseHeader">{{ (team$ | async)?.name }}</ion-list-header>
+          <ion-list-header class="top menu--header" *ngIf="(team$ | async); else elseHeader">{{ (team$ | async)?.name }}
+          </ion-list-header>
           <ng-template #elseHeader>
-            <ion-list-header class="top">Select Team</ion-list-header>
+            <ion-list-header class="top menu--header">Select Team</ion-list-header>
           </ng-template>
 
           <ion-menu-toggle auto-hide="false">
             <ion-item>
               <ion-button color="light" routerDirection="backward" [routerLink]="'/Teams'" size="default">
-                Your Teams <ion-badge class="ion-margin-start" color="danger" *ngIf="(badge$ | async) > 0">{{ (badge$ | async) }}</ion-badge>
+                Your Teams <ion-badge class="ion-margin-start" color="danger" *ngIf="(badge$ | async) > 0">
+                  {{ (badge$ | async) }}</ion-badge>
               </ion-button>
 
               <ion-thumbnail slot="end" class="avatar-thumbnail">
                 <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url }}">
                 <ng-template #elseAvatar>
-                  <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="55" [round]="false" [cornerRadius]="55"></ngx-avatar>
+                  <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="55" [round]="false"
+                    [cornerRadius]="55"></ngx-avatar>
                 </ng-template>
               </ion-thumbnail>
 
@@ -31,32 +34,20 @@
           </ion-list-header>
           <div *ngIf="(team$ | async); else elseItem">
             <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
-              <ion-item *ngIf="p.title !== 'Profile'" (click)="selectedIndex = i" routerDirection="root"
-                [routerLink]="['/Teams', teamId, p.title]" detail="false"
-                [class.selected]="p.title == page">
-                <ion-icon slot="start" [name]="p.icon"></ion-icon>
+              <ion-item *ngIf="p.title !== 'Profile'" routerDirection="root" [routerLink]="['/Teams', teamId, p.title]"
+                detail="false" [class.selected]="p.title == page">
+                <ion-icon slot="start" [name]="p.title == page ? p.icon : p.icon + '-outline'"></ion-icon>
                 <ion-label>{{ p.title }}</ion-label>
-                <ion-badge
-                  color="light"
-                  slot="end" 
-                  *ngIf="p.title == 'Events'">
+                <ion-badge color="light" slot="end" *ngIf="p.title == 'Events'">
                 </ion-badge>
-                <ion-badge
-                  color="light"
-                  slot="end" 
+                <ion-badge color="light" slot="end"
                   *ngIf="p.title == 'Messages' && (team$ | async)?.unreadMessages > 0">
                   {{ (team$ | async)?.unreadMessages }}
                 </ion-badge>
-                <ion-badge
-                  color="light" 
-                  slot="end"
-                  *ngIf="p.title == 'Files' && (team$ | async)?.unreadFiles > 0">
+                <ion-badge color="light" slot="end" *ngIf="p.title == 'Files' && (team$ | async)?.unreadFiles > 0">
                   {{ (team$ | async)?.unreadFiles }}
                 </ion-badge>
-                <ion-badge
-                  color="light"
-                  slot="end" 
-                  *ngIf="p.title == 'Notes' && (team$ | async)?.unreadNotes > 0">
+                <ion-badge color="light" slot="end" *ngIf="p.title == 'Notes' && (team$ | async)?.unreadNotes > 0">
                   {{ (team$ | async)?.unreadNotes }}
                 </ion-badge>
               </ion-item>
@@ -72,7 +63,7 @@
                   <ion-row></ion-row>
                   <ion-card color="light" class="dialog message--card message--member">
                     <ion-card-content>
-                      <ion-label text-wrap>Your options will appear here when you select a team!</ion-label>
+                      <ion-label text-wrap>Select an existing team or create a new one!</ion-label>
                     </ion-card-content>
                   </ion-card>
                   <ion-row></ion-row>
@@ -87,22 +78,33 @@
         </ion-list-header>
 
         <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
-          <ion-item lines="none" *ngIf="p.title == 'Profile'" (click)="selectedIndex = i" routerDirection="root"
+
+          <ion-item lines="none" *ngIf="p.title == 'Profile'" routerDirection="root"
             [routerLink]="['/Teams', teamId, p.title]" detail="false" [class.selected]="p.title == page">
-            <ion-icon slot="start" [name]="p.icon"></ion-icon>
+            <ion-icon slot="start" [name]="p.title == page ? p.icon : p.icon + '-outline'"></ion-icon>
             <ion-label>{{ p.title }}</ion-label>
           </ion-item>
+
         </ion-menu-toggle>
 
         <ion-menu-toggle auto-hide="false">
           <ion-item lines="none" (click)="onLogout()" detail="false" button>
-            <ion-icon slot="start" name="power"></ion-icon>
+            <ion-icon slot="start" name="power-outline"></ion-icon>
             <ion-label>Logout</ion-label>
           </ion-item>
         </ion-menu-toggle>
 
+        <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
+
+          <ion-item lines="none" *ngIf="p.title == 'Privacy'" (click)="showPrivacy()" detail="false" [class.selected]="p.title == page" button>
+            <ion-icon slot="start" [name]="p.title == page ? p.icon : p.icon + '-outline'"></ion-icon>
+            <ion-label>{{ p.title }}</ion-label>
+          </ion-item>
+
+        </ion-menu-toggle>
+
         <ion-item lines="none">
-          <ion-icon slot="start" name="moon"></ion-icon>
+          <ion-icon slot="start" name="moon-outline"></ion-icon>
           <ion-label>
             Dark Mode
           </ion-label>

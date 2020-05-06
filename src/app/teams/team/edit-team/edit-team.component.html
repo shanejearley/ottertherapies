@@ -20,17 +20,15 @@
                     <h3>{{ m.profile.displayName }}</h3>
                     <p>{{ m.profile.email }}</p>
                 </ion-label>
-                <ion-icon *ngIf="m.status == 'Admin'" [ios]="'key' + '-outline'" [md]="'key' + '-sharp'"></ion-icon>
+                <ion-icon *ngIf="m.status == 'Admin'" name="'key' + '-outline'"></ion-icon>
                 <ion-button slot="end" fill="clear" *ngIf="m.uid !== (profile$ | async)?.uid; else elseIcon"
                     (click)="removeMember(m)">
-                    <ion-icon color="medium" slot="icon-only" [ios]="'close-circle' + '-outline'"
-                        [md]="'close-circle' + '-sharp'">
+                    <ion-icon color="medium" slot="icon-only" name="'close-circle' + '-outline'">
                     </ion-icon>
                 </ion-button>
                 <ng-template #elseIcon>
                     <ion-button slot="end" fill="clear">
-                        <ion-icon color="medium" slot="icon-only" [ios]="'lock-closed' + '-outline'"
-                            [md]="'lock-closed' + '-sharp'">
+                        <ion-icon color="medium" slot="icon-only" name="'lock-closed' + '-outline'">
                         </ion-icon>
                     </ion-button>
                 </ng-template>
@@ -53,18 +51,17 @@
                 </ion-label>
                 <ion-button slot="end" fill="clear"
                     (click)="removePendingMember(p)">
-                    <ion-icon color="medium" slot="icon-only" [ios]="'close-circle' + '-outline'"
-                        [md]="'close-circle' + '-sharp'">
+                    <ion-icon color="medium" slot="icon-only" name="'close-circle' + '-outline'">
                     </ion-icon>
                 </ion-button>
             </ion-item>
         </div>
         <ion-item lines="none" class="theme--item">
-            <ion-icon slot="start" [ios]="'people' + '-outline'" [md]="'people' + '-sharp'"></ion-icon>
+            <ion-icon slot="start" name="'people' + '-outline'"></ion-icon>
             <ion-input [(ngModel)]="email" (keyup.enter)="addMember()" placeholder="Add members"
                 [color]="error ? 'danger' : ''"></ion-input>
             <ion-button slot="end" fill="clear" (click)="addMember()">
-                <ion-icon slot="icon-only" [ios]="'person-add' + '-outline'" [md]="'person-add' + '-sharp'">
+                <ion-icon slot="icon-only" name="'person-add' + '-outline'">
                 </ion-icon>
             </ion-button>
         </ion-item>
@@ -72,9 +69,9 @@
             <ion-item lines="none" class="theme--item">
                 <p>Add:
                     <ion-chip *ngFor="let n of newMembers; let i = index;">
-                        <ion-icon [ios]="'person' + '-outline'" [md]="'person' + '-sharp'"></ion-icon>
+                        <ion-icon name="'person' + '-outline'"></ion-icon>
                         <ion-label>{{ n }}</ion-label>
-                        <ion-icon [ios]="'close-circle' + '-outline'" [md]="'close-circle' + '-sharp'"
+                        <ion-icon name="'close-circle' + '-outline'"
                             (click)="removeNewMember(n)">
                         </ion-icon>
                     </ion-chip>

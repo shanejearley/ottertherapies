@@ -6,6 +6,9 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Badge } from '@ionic-native/badge/ngx';
 
+import { Plugins } from '@capacitor/core';
+const { Browser } = Plugins;
+
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { tap, map, reduce } from 'rxjs/operators';
@@ -54,7 +57,6 @@ export class AppComponent implements OnInit, AfterContentChecked {
   android: boolean;
   total: number;
   teams: Team[];
-  public selectedIndex = 0;
   public appPages = [
     {
       title: 'Dashboard',
@@ -91,6 +93,10 @@ export class AppComponent implements OnInit, AfterContentChecked {
     {
       title: 'Profile',
       icon: 'person'
+    },
+    {
+      title: 'Privacy',
+      icon: 'shield-checkmark'
     }
   ];
 
@@ -130,6 +136,10 @@ export class AppComponent implements OnInit, AfterContentChecked {
     }
   }
 
+  async showPrivacy() {
+    await Browser.open({ url: 'https://ottertherapies.com/wp-content/uploads/2020/05/Otter-Privacy-Notice-.pdf' });
+  }
+
   initializeApp() {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
@@ -160,15 +170,12 @@ export class AppComponent implements OnInit, AfterContentChecked {
   }
 
   ngOnInit() {
+    //const path = window.location.pathname.split('Teams/:id/')[1];
     this.dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     this.user$ = this.store.select<User>('user');
     this.profile$ = this.store.select<Profile>('profile');
     this.teams$ = this.store.select<Team[]>('teams');
     this.subscribeUser();
-    const path = window.location.pathname.split('Teams/:id/')[1];
-    if (path !== undefined) {
-      this.selectedIndex = this.appPages.findIndex(page => page.title.toLowerCase() === path.toLowerCase());
-    }
     this.router.events.subscribe(val => {
       if (val instanceof RoutesRecognized) {
         this.teamId = val.state.root.firstChild.params['id'];

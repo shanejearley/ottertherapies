@@ -263,10 +263,6 @@ ion-card.profile--info--card {
       flex-direction: column !important;
   }
 
-  #segment {
-    min-height: 100% !important;
-  }
-
   ion-grid {
       display: flex;
       flex-flow: column;
@@ -287,10 +283,6 @@ ion-card.profile--info--card {
       flex-direction: column !important;
   }
 
-  #segment {
-      min-height: 100% !important;
-  }
-
   ion-grid {
       display: flex;
       flex-flow: column;
@@ -307,4 +299,20 @@ ion-card.profile--info--card {
 .md .thumbnail--list {
   padding-top: 8px !important;
   padding-bottom: 8px !important;
+}
+
+
+/// customizing md headers like duo
+.md ion-list-header {
+  font-size: .75rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.05rem;
+}
+/// keeping menu header style
+.md ion-list-header.menu--header {
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
 }

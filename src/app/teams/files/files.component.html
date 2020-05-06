@@ -16,18 +16,18 @@
 
   <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
     <ion-fab-button>
-      <ion-icon [ios]="'add' + '-outline'" [md]="'add' + '-sharp'"></ion-icon>
+      <ion-icon name="'add' + '-outline'"></ion-icon>
     </ion-fab-button>
 
     <ion-fab-list side="bottom">
       <ion-fab-button title="Scan Document" (click)="scanDoc()">
-        <ion-icon [ios]="'scan' + '-outline'" [md]="'scan' + '-sharp'"></ion-icon>
+        <ion-icon name="'scan' + '-outline'"></ion-icon>
       </ion-fab-button>
       <ion-fab-button title="Upload File" (click)="browseModal()">
-        <ion-icon [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
+        <ion-icon name="'document' + '-outline'"></ion-icon>
       </ion-fab-button>
       <ion-fab-button title="Create Folder" (click)="createGroupModal()">
-        <ion-icon [ios]="'folder' + '-outline'" [md]="'folder' + '-sharp'"></ion-icon>
+        <ion-icon name="'folder' + '-outline'"></ion-icon>
       </ion-fab-button>
     </ion-fab-list>
   </ion-fab>
@@ -65,17 +65,17 @@
             <ion-list inset="true" lines="none">
               <div *ngIf="g.files.length; else elseFile">
                 <ion-item *ngFor="let f of g.files; let i = index" lines="inset">
-                  <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
+                  <ion-icon slot="start" name="'document' + '-outline'"></ion-icon>
                   <ion-label>
                     <h2>{{ f.name }}</h2>
                     <h3>{{ f.profile.displayName }}</h3>
                   </ion-label>
                   <ion-button fill="clear" (click)="removeGroupFile(g.id,f.id,f.url)" slot="end">
-                    <ion-icon color="danger" slot="icon-only" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
+                    <ion-icon color="danger" slot="icon-only" name="'trash' + '-outline'">
                     </ion-icon>
                   </ion-button>
                   <ion-button fill="clear" (click)="previewFile(f)" slot="end">
-                    <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'">
+                    <ion-icon slot="icon-only" name="'download' + '-outline'">
                     </ion-icon>
                   </ion-button>
                 </ion-item>
@@ -91,7 +91,7 @@
                 <ion-col size="12" class="ion-justify-content-center">
                   <ion-row class="ion-justify-content-center">
                     <ion-button fill="clear" (click)="editGroupModal(g.id)">
-                      <ion-icon [ios]="'people' + '-outline'" [md]="'people' + '-sharp'">
+                      <ion-icon name="'people' + '-outline'">
                       </ion-icon>
                       <ion-text class="ion-padding-start">
                         Group Details
@@ -132,7 +132,7 @@
             <ion-list inset="true" lines="none">
               <div *ngIf="m.files.length; else elseFile">
                 <ion-item *ngFor="let f of m.files; let i = index" lines="none">
-                  <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
+                  <ion-icon slot="start" name="'document' + '-outline'"></ion-icon>
                   <ion-label>
                     <h2>{{ f.name }}</h2>
                     <h3 *ngIf="f.uid !== (profile$ | async)?.uid; else elseUserName">{{ m.profile.displayName }}</h3>
@@ -141,11 +141,11 @@
                     </ng-template>
                   </ion-label>
                   <ion-button fill="clear" (click)="removeMemberFile(m.uid,f.id,f.url)" slot="end">
-                    <ion-icon slot="icon-only" color="danger" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
+                    <ion-icon slot="icon-only" color="danger" name="'trash' + '-outline'">
                     </ion-icon>
                   </ion-button>
                   <ion-button fill="clear" (click)="previewFile(f)" slot="end">
-                    <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'">
+                    <ion-icon slot="icon-only" name="'download' + '-outline'">
                     </ion-icon>
                   </ion-button>
                 </ion-item>
@@ -188,17 +188,17 @@
             <ion-list inset="true" lines="none">
               <div *ngIf="m.files.length; else elseFile">
                 <ion-item *ngFor="let f of m.files; let i = index" lines="none">
-                  <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
+                  <ion-icon slot="start" name="'document' + '-outline'"></ion-icon>
                   <ion-label>
                     <h2>{{ f.name }}</h2>
                     <h3>{{ m.profile.displayName }}</h3>
                   </ion-label>
                   <ion-button fill="clear" (click)="removeMemberFile(m.uid,f.id,f.url)" slot="end">
-                    <ion-icon slot="icon-only" color="danger" [ios]="'trash' + '-outline'" [md]="'trash' + '-sharp'">
+                    <ion-icon slot="icon-only" color="danger" name="'trash' + '-outline'">
                     </ion-icon>
                   </ion-button>
                   <ion-button fill="clear" (click)="previewFile(f)" slot="end">
-                    <ion-icon slot="icon-only" [ios]="'download' + '-outline'" [md]="'download' + '-sharp'">
+                    <ion-icon slot="icon-only" name="'download' + '-outline'">
                     </ion-icon>
                   </ion-button>
                 </ion-item>

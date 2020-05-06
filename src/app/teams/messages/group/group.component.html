@@ -6,7 +6,7 @@
     <ion-title *ngIf="(group$ | async)">{{ (group$ | async)?.name }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="editGroupModal()">
-        <ion-icon name="people"></ion-icon>
+        <ion-icon name="people-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -21,7 +21,7 @@
 
   <!-- <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
     <ion-fab-button (click)="editGroupModal()">
-      <ion-icon [ios]="'people' + '-outline'" [md]="'people' + '-sharp'"></ion-icon>
+      <ion-icon name="'people' + '-outline'"></ion-icon>
     </ion-fab-button>
   </ion-fab> -->
 
@@ -102,7 +102,7 @@
           (keyup.enter)="sendMessage()" (keydown.enter)="onKeydown($event)" (ionFocus)="scrollOnFocus()">
         </ion-textarea>
         <ion-button class="message--button ion-padding-start" (click)="sendMessage()">
-          <ion-icon [ios]="'send' + '-outline'" [md]="'send' + '-sharp'"></ion-icon>
+          <ion-icon name="'send' + '-outline'"></ion-icon>
         </ion-button>
       </ion-row>
     </ion-col>

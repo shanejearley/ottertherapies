@@ -24,7 +24,7 @@
                 File(s)
             </ion-list-header>
             <ion-item lines="none" *ngFor="let item of files; let i=index">
-                <ion-icon slot="start" [ios]="'document' + '-outline'" [md]="'document' + '-sharp'"></ion-icon>
+                <ion-icon slot="start" name="'document' + '-outline'"></ion-icon>
                 <ion-label>
                     <h2>{{ item.relativePath }}</h2>
                 </ion-label>

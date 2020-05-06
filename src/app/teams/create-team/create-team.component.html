@@ -10,35 +10,33 @@
     <ion-list class="theme--list">
 
         <ion-item lines='none'>
-            <ion-icon slot="start" [ios]="'happy' + '-outline'" [md]="'happy' + '-sharp'"></ion-icon>
+            <ion-icon slot="start" name="'happy' + '-outline'"></ion-icon>
             <h3>
                 <ion-input placeholder="Add child first name" [(ngModel)]="child"></ion-input>
             </h3>
         </ion-item>
 
         <ion-item lines='none'>
-            <ion-icon slot="start" [ios]="'people' + '-outline'" [md]="'people' + '-sharp'"></ion-icon>
+            <ion-icon slot="start" name="'people' + '-outline'"></ion-icon>
             <ion-input placeholder="Add members by email" [(ngModel)]="member" (keyup.enter)="addMember()"></ion-input>
             <ion-button fill="clear"  (click)="addMember()" slot="end">
-                <ion-icon slot="icon-only" [ios]="'person-add' + '-outline'" [md]="'person-add' + '-sharp'"></ion-icon>
+                <ion-icon slot="icon-only" name="'person-add' + '-outline'"></ion-icon>
             </ion-button>
         </ion-item>
 
         <ion-item lines="none">
             <p>
                 <ion-chip *ngFor="let member of newMembers" outline color="primary">
-                    <ion-icon [ios]="'person' + '-outline'" [md]="'person' + '-sharp'"></ion-icon>
+                    <ion-icon name="'person' + '-outline'"></ion-icon>
                     <ion-label>{{ member }}</ion-label>
                     <ion-icon 
                         *ngIf="member !== email; else elseIcon"
-                        [ios]="'close-circle' + '-outline'" 
-                        [md]="'close-circle' + '-sharp'"
+                        name="'close-circle' + '-outline'"
                         (click)="removeMember(member)">
                     </ion-icon>
                     <ng-template #elseIcon>
                         <ion-icon 
-                            [ios]="'lock-closed' + '-outline'" 
-                            [md]="'lock-closed' + '-sharp'">
+                            name="'lock-closed' + '-outline'">
                         </ion-icon>
                     </ng-template>
                 </ion-chip>
