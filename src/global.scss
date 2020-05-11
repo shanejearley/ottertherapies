@@ -97,7 +97,7 @@ ion-card.empty--list {
 }
 
 ion-tab-button.notification--button {
-  max-width: 50px;
+  max-width: 75px;
   margin-inline-start: 0;
   color: var(--ion-color-medium);
 }
@@ -156,11 +156,25 @@ ion-avatar.dialog--user {
   width: 40px;
 }
 
+ion-card-content.message--content {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+ion-item.message--item {
+  --min-height: 0 !important;
+  div.item-native {
+    min-height: 0 !important;
+  }
+}
+
 ion-row.user--row {
   max-width: 75% !important;
 }
 
 ion-col.user--col {
+  padding-top: 0.5px !important;
+  padding-bottom: 0.5px !important;
   margin-inline-end: 40px !important;
 }
 
@@ -169,6 +183,8 @@ ion-row.member--row {
 }
 
 ion-col.member--col {
+  padding-top: 0.5px !important;
+  padding-bottom: 0.5px !important;
   margin-inline-start: 40px !important;
 }
 
@@ -315,4 +331,59 @@ ion-card.profile--info--card {
   font-weight: 600 !important;
   text-transform: none !important;
   letter-spacing: 0 !important;
+}
+
+:host ::ng-deep {
+  .error {
+    color: #a94442;
+    //background: #f2dede;
+    border: 1px solid #e4b3b3;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+    font-weight: 400;
+    margin: 10px 0 0;
+    margin-inline-start: 2px;
+    margin-inline-end: 2px;
+  }
+}
+
+.error {
+  color: #a94442;
+  //background: #f2dede;
+  border: 1px solid #e4b3b3;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  margin: 10px 0 0;
+  margin-inline-start: 2px;
+  margin-inline-end: 2px;
+}
+
+.md ion-list.upload--list {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+ion-item.upload--item {
+  --border-width: 0 !important;
+  --inner-border-width: 0 !important;
+}
+
+ion-card.dialog {
+  box-shadow: none !important;
+}
+
+ion-card.tile--card {
+  ion-card-header {
+    padding-inline-start: 16px !important;
+    padding-inline-end: 16px !important;
+    // padding-top: 16px !important;
+    // padding-bottom: 16px !important;
+  }
+}
+
+strong {
+  font-size: 16px !important;
 }

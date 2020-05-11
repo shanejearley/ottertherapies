@@ -19,6 +19,7 @@ import { SharedModule } from './shared/shared.module';
 import { Store } from 'src/store';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
+import { UploadTaskComponent } from './teams/files/upload-task/upload-task.component';
 
 @NgModule({
   declarations: [AppComponent],

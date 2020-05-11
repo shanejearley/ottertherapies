@@ -9,14 +9,14 @@
 <ion-content fullscreen>
     <ion-list class="theme--list">
 
-        <ion-item lines='none'>
+        <ion-item lines='none' class="theme--item">
             <ion-icon slot="start" [name]="'happy' + '-outline'"></ion-icon>
             <h3>
                 <ion-input placeholder="Add child first name" [(ngModel)]="child"></ion-input>
             </h3>
         </ion-item>
 
-        <ion-item lines='none'>
+        <ion-item lines='none' class="theme--item">
             <ion-icon slot="start" [name]="'people' + '-outline'"></ion-icon>
             <ion-input placeholder="Add members by email" [(ngModel)]="member" (keyup.enter)="addMember()"></ion-input>
             <ion-button fill="clear"  (click)="addMember()" slot="end">
@@ -24,7 +24,7 @@
             </ion-button>
         </ion-item>
 
-        <ion-item lines="none">
+        <ion-item lines="none" class="theme--item">
             <p>
                 <ion-chip *ngFor="let member of newMembers" outline color="primary">
                     <ion-icon [name]="'person' + '-outline'"></ion-icon>

@@ -50,16 +50,12 @@ ion-thumbnail.dialog {
   position: absolute;
 }
 
-ion-label.note--label {
-  margin-inline-start: 55px !important;
-}
-
 ion-col.note--input {
   margin-inline-start: 32.5px !important;
 }
 
 ion-textarea.note--input {
-  margin-inline-start: 55px !important;
+  //margin-inline-start: 55px !important;
   padding-left: 10px;
   padding-right: 10px;
   border-radius: 4px;
@@ -91,3 +87,8 @@ ion-text.notes--time {
 //   margin-inline-start: 45px !important;
 //   //margin-inline-start: 0 !important;
 // }
+
+ion-avatar.comment--avatar {
+  height: 40px !important;
+  width: 40px !important;
+}

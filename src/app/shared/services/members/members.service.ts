@@ -52,7 +52,7 @@ export interface File {
   type: string,
   uid: string,
   url: string,
-  profile: Profile
+  profile: Observable<Profile>
 }
 
 export interface Message {
@@ -60,7 +60,7 @@ export interface Message {
   id: string,
   uid: string,
   timestamp: firestore.FieldValue,
-  profile: Profile
+  profile: Observable<Profile>
 }
 
 @Injectable()
@@ -115,7 +115,7 @@ export class MembersService {
     member.files = [];
     if (member.uid !== this.uid) {
       this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
-      this.filesCol = this.db.collection<File>(`teams/${this.teamId}/direct/${this.pathId}/files`);
+      this.filesCol = this.db.collection<File>(`teams/${this.teamId}/direct/${this.pathId}/files`, ref => ref.orderBy('timestamp'));
       this.filesCol.stateChanges(['added', 'modified', 'removed'])
         .pipe(
           map(actions => actions.map(a => {
@@ -133,17 +133,22 @@ export class MembersService {
               const file = a.payload.doc.data() as File;
               if (file.timestamp) {
                 file.id = a.payload.doc.id;
-                this.getMember(file.uid).subscribe(m => {
-                  file.profile = m.profile;
+                const exists = member.files.find(m => m.id === file.id)
+                if (file.timestamp && !exists) {
+                  file.profile = this.getProfile(file.uid);
                   member.files.push(file);
-                })
+                } else if (file.timestamp && exists) {
+                    let fileIndex = member.files.findIndex(m => m.id == file.id);
+                    file.profile = member.files[fileIndex].profile;
+                    member.files[fileIndex] = file;
+                }
               }
             }
           })),
           shareReplay(1)
         ).subscribe();
     } else {
-      this.filesCol = this.db.collection<File>(`users/${this.uid}/teams/${this.teamId}/files`);
+      this.filesCol = this.db.collection<File>(`users/${this.uid}/teams/${this.teamId}/files`, ref => ref.orderBy('timestamp'));
       this.filesCol.stateChanges(['added', 'modified', 'removed'])
         .pipe(
           map(actions => actions.map(a => {
@@ -161,10 +166,15 @@ export class MembersService {
               const file = a.payload.doc.data() as File;
               if (file.timestamp) {
                 file.id = a.payload.doc.id;
-                this.getMember(file.uid).subscribe(m => {
-                  file.profile = m.profile;
+                const exists = member.files.find(m => m.id === file.id)
+                if (file.timestamp && !exists) {
+                  file.profile = this.getProfile(file.uid);
                   member.files.push(file);
-                })
+                } else if (file.timestamp && exists) {
+                    let fileIndex = member.files.findIndex(m => m.id == file.id);
+                    file.profile = member.files[fileIndex].profile;
+                    member.files[fileIndex] = file;
+                }
               }
             }
           })),
@@ -195,12 +205,15 @@ export class MembersService {
             const message = a.payload.doc.data() as Message;
             if (message.timestamp) {
               message.id = a.payload.doc.id;
-              this.getMember(message.uid).subscribe(m => {
-                if (m.profile && !message.profile) {
-                  message.profile = m.profile;
-                  member.messages.push(message);
-                }
-              })
+              const exists = member.messages.find(m => m.id === message.id)
+              if (message.timestamp && !exists) {
+                message.profile = this.getProfile(message.uid);
+                member.messages.push(message);
+              } else if (message.timestamp && exists) {
+                  let messageIndex = member.messages.findIndex(m => m.id == message.id);
+                  message.profile = member.messages[messageIndex].profile;
+                  member.messages[messageIndex] = message;
+              }
             }
           }
         })),
@@ -256,6 +269,13 @@ export class MembersService {
       .pipe(
         filter(Boolean),
         map((member: Member[]) => member.find((member: Member) => member.uid === uid)));
+  }
+
+  getProfile(uid: string) {
+    return this.store.select<Member[]>('members')
+      .pipe(
+        filter(Boolean),
+        map((member: Member[]) => member.find((member: Member) => member.uid === uid).profile));
   }
 
   checkLastMessage(memberUid: string) {

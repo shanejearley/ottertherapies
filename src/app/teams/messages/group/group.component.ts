@@ -42,6 +42,9 @@ export class GroupComponent implements OnInit {
   time: number;
   data: any;
   messages: Message[];
+  group: Group;
+  groupSub: Subscription;
+  watch: boolean;
 
   constructor(
     private store: Store,
@@ -56,33 +59,35 @@ export class GroupComponent implements OnInit {
   ) { }
 
   ngAfterViewInit() {
-    this.group$.pipe(tap(group => {
+    this.watch = true;
+    this.groupSub = this.group$.pipe(tap(group => {
       if (group && group.messages.length) {
-        this.messages = group.messages;
+        console.log('update!', group.messages);
+        this.group = group;
         this.scrollToBottom(0);
-        this.checkUnread();
-        this.mutationObserver = new MutationObserver((mutations) => {
-          this.scrollToBottom(500);
+        if (this.watch) {
           this.checkUnread();
-        })
-        this.mutationObserver.observe(this.scroll.nativeElement, {
-          childList: true
-        });
+          this.mutationObserver = new MutationObserver((mutations) => {
+            this.scrollToBottom(500);
+            this.checkUnread();
+          })
+          this.mutationObserver.observe(this.scroll.nativeElement, {
+            childList: true
+          });
+        }
       }
     })).subscribe()
   }
 
   checkUnread() {
-    this.group$.pipe(tap(group => {
-      if (group.unread.unreadMessages > 0) {
+    if (this.group.unread && this.group.unread.unreadMessages > 0) {
+      this.groupsService.checkLastMessage(this.groupId);
+    }
+    setTimeout(() => {
+      if (this.group.unread && this.group.unread.unreadMessages > 0) {
         this.groupsService.checkLastMessage(this.groupId);
-      }
-      setTimeout(() => {
-        if (group.unread.unreadMessages > 0) {
-          this.groupsService.checkLastMessage(this.groupId);
-        } 
-      }, 5000)
-    })).subscribe();
+      } 
+    }, 5000)
   }
 
   scrollToBottom(duration) {
@@ -112,10 +117,6 @@ export class GroupComponent implements OnInit {
     return this.authService.user.uid;
   }
 
-  public trackFn(index, item) {
-    return item ? item.id : undefined;
-  }
-
   ngOnInit() {
     this.ios = this.config.get('mode') === 'ios';
     this.date = new Date();
@@ -139,10 +140,6 @@ export class GroupComponent implements OnInit {
         tap(param => { this.teamId = param.id }),
         switchMap(param => this.teamsService.getTeam(param.id))
       );
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   async editGroupModal() {
@@ -170,6 +167,14 @@ export class GroupComponent implements OnInit {
       duration: 2000
     });
     toast.present();
+  }
+
+  ngOnDestroy() {
+    this.watch = false;
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    if (this.groupSub && !this.groupSub.closed) {
+      this.groupSub.unsubscribe();
+    }
   }
 
 }

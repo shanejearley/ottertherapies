@@ -56,17 +56,6 @@ ion-card.dashboard--team {
   --background: none;
 }
 
-.ios {
-  ion-card.dashboard--card {
-    ion-card-header {
-      padding-inline-start: 16px !important;
-      padding-inline-end: 16px !important;
-      // padding-top: 16px !important;
-      // padding-bottom: 16px !important;
-    }
-  }
-}
-
 ion-icon.dashboard--icon {
   font-size: 48px !important;
 }
@@ -97,8 +86,4 @@ ion-item {
     top: 10px;
     position: absolute;
   }
-}
-
-strong {
-  font-size: 15px !important;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterContentChecked } from '@angular/core';
+import { Component, OnInit, AfterContentChecked, AfterViewInit, AfterContentInit } from '@angular/core';
 import { Router, RoutesRecognized } from '@angular/router';
 
 import { Platform, Config } from '@ionic/angular';
@@ -23,13 +23,14 @@ import { PendingService } from './shared/services/pending/pending.service';
 import { EventsService } from './shared/services/events/events.service';
 import { Store } from 'src/store';
 import { ResourcesService } from './shared/services/resources/resources.service';
+import { BadgeService } from './shared/services/badge/badge.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss']
 })
-export class AppComponent implements OnInit, AfterContentChecked {
+export class AppComponent implements OnInit {
   user$: Observable<User>;
   profile$: Observable<Profile>;
   teams$: Observable<Team[]>;
@@ -55,7 +56,6 @@ export class AppComponent implements OnInit, AfterContentChecked {
   desktop: boolean;
   ios: boolean;
   android: boolean;
-  total: number;
   teams: Team[];
   public appPages = [
     {
@@ -117,7 +117,7 @@ export class AppComponent implements OnInit, AfterContentChecked {
     private pendingService: PendingService,
     private eventsService: EventsService,
     private resourcesService: ResourcesService,
-    private config: Config,
+    private badgeService: BadgeService,
     private badge: Badge
   ) {
     this.initializeApp();
@@ -136,8 +136,12 @@ export class AppComponent implements OnInit, AfterContentChecked {
     }
   }
 
+  // ngAfterContentInit() {
+  //   //this.badgeSub = this.badgeService.badge$.subscribe();
+  // }
+
   async showPrivacy() {
-    await Browser.open({ url: 'https://ottertherapies.com/wp-content/uploads/2020/05/Otter-Privacy-Notice-.pdf' });
+    await Browser.open({ url: 'https://ottertherapies.com/privacy-and-terms' });
   }
 
   initializeApp() {
@@ -149,8 +153,10 @@ export class AppComponent implements OnInit, AfterContentChecked {
         this.desktop = true;
       } else if (this.platform.is('ios')) {
         this.ios = true;
+        this.badge.set(0);
       } else if (this.platform.is('android')) {
         this.android = true;
+        this.badge.set(0);
       }
     });
   }
@@ -169,19 +175,38 @@ export class AppComponent implements OnInit, AfterContentChecked {
     return this.authService.user.uid;
   }
 
+  // ngAfterViewInit() {
+  //   this.badge$.pipe(map(badge => {
+  //     if (badge) {
+  //       console.log('BADGER BADGE', badge);
+  //       this.profileService.updateBadge(this.uid, badge);
+  //       if (this.ios || this.android) {
+  //       }
+  //     }
+  //   })).subscribe();
+  // }
+
   ngOnInit() {
     //const path = window.location.pathname.split('Teams/:id/')[1];
     this.dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     this.user$ = this.store.select<User>('user');
     this.profile$ = this.store.select<Profile>('profile');
     this.teams$ = this.store.select<Team[]>('teams');
+    // this.teams$.subscribe(ts => {
+    //   if (ts) {
+    //     let unreadMessages = 0;
+    //     ts.forEach(t => {
+    //       unreadMessages += t.unreadMessages;
+    //     })
+    //     console.log(unreadMessages);
+    //   }
+    // })
+    //this.badge$ = this.store.select<number>('badge');
     this.subscribeUser();
     this.router.events.subscribe(val => {
       if (val instanceof RoutesRecognized) {
         this.teamId = val.state.root.firstChild.params['id'];
         if (this.teamId !== this.lastId) {
-          this.store.set('notes', null);
-          this.store.set('events', null);
           this.team$ = this.teamsService.getTeam(this.teamId);
           this.subscribeUserTeam();
           this.lastId = this.teamId;
@@ -196,41 +221,39 @@ export class AppComponent implements OnInit, AfterContentChecked {
     });
   }
 
-  ngAfterContentChecked() {
-    this.badge$ = this.teams$.pipe(
-      map(teams => {
-        this.total = this.total || null;
-        this.teams = this.teams || null;
-        if (!teams) {
-          return;
-        }
-        return teams.reduce((total: number, team: Team) => total + team.unreadMessages + team.unreadFiles + team.unreadNotes, 0);
-      })
-    )
-  }
+  // ngAfterContentChecked() {
+  //   if (!this.teams) {
+  //     return;
+  //   }
+  //   this.badge$ = this.teams.reduce((total: number, team: Team) => total + team.unreadMessages + team.unreadFiles + team.unreadNotes, 0);
+  // }
 
   async subscribeUserTeam() {
     this.authService.authState
       .pipe(map((user) => {
         if (this.teamId && this.teamId !== 'undefined' && this.teamId !== ':id' && this.teamId !== null) {
-
-          this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe(() => {
-            this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
-            this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
-            this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
-            this.resourcesSub = this.resourcesService.resourcesObservable(user.uid, this.teamId).subscribe();
-          });
+          if (!this.membersSub || this.membersSub.closed) {
+            this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe(() => {
+              this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
+              this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
+              this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
+              this.resourcesSub = this.resourcesService.resourcesObservable(user.uid, this.teamId).subscribe();
+            });
+          }
 
         } else {
-
-          if (this.membersSub) { this.membersSub.unsubscribe() };
-          if (this.groupsSub) { this.groupsSub.unsubscribe() };
-          if (this.eventsSub) { this.eventsSub.unsubscribe() };
-          if (this.notesSub) { this.notesSub.unsubscribe() };
-          if (this.resourcesSub) { this.resourcesSub.unsubscribe() };
+          this.unsubscribeUserTeam();
         }
       }
       )).subscribe()
+  }
+
+  async unsubscribeUserTeam() {
+    if (this.membersSub) { this.membersSub.unsubscribe() };
+    if (this.groupsSub) { this.groupsSub.unsubscribe() };
+    if (this.eventsSub) { this.eventsSub.unsubscribe() };
+    if (this.notesSub) { this.notesSub.unsubscribe() };
+    if (this.resourcesSub) { this.resourcesSub.unsubscribe() };
   }
 
   async subscribeUser() {
@@ -245,14 +268,7 @@ export class AppComponent implements OnInit, AfterContentChecked {
             this.profileSub = this.profileService.profileObservable(user.uid).subscribe();
             this.teamsSub = this.teamsService.teamsObservable(user.uid).subscribe();
             this.pendingSub = this.pendingService.pendingObservable(user.uid).subscribe();
-            this.badge$.pipe(map(badge => {
-              if (badge) {
-                this.profileService.updateBadge(this.uid, badge);
-                if (this.ios || this.android) {
-                  this.badge.set(badge);
-                }
-              }
-            })).subscribe();
+            //this.badgeSub = this.badgeService.badge$.subscribe();
           } else if (user && !user.authenticated) {
             console.log('signed out')
           }

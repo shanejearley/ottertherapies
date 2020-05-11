@@ -23,10 +23,10 @@
   <div id="container">
 
     <ion-grid fixed>
-      <ion-row>
-        <ion-col size="12" size-md="6"
+      <ion-row class="half--margin--right half--margin--left">
+        <ion-col size="6" size-md="4"
           *ngFor="let m of (members$ | async); let i = index; let odd = odd; let even = even;">
-          <ion-card class="half--margin--top half--margin--bottom"
+          <ion-card class="half--margin--top half--margin--bottom half--margin--left half--margin--right"
             *ngIf="m.profile && m.uid !== (profile$ | async)?.uid" button routerDirection="forward"
             (click)="goTo('Team/Member', m.uid)">
             <ion-card-header>
@@ -43,14 +43,12 @@
                   <h2>
                     <strong>{{ m.profile.displayName }}</strong>
                   </h2>
-                  <h3>{{ m.profile.email }}</h3>
-                  <p>{{ m.profile.role }}</p>
+                  <p>{{ m.status == 'Admin' ? 'Admin' : 'Member' }}</p>
                 </ion-label>
-                <ion-icon slot="end" *ngIf="m.status == 'Admin'" [name]="'key' + '-outline'"></ion-icon>
               </ion-item>
             </ion-card-header>
           </ion-card>
-          <ion-card class="half--margin--top half--margin--bottom"
+          <ion-card class="half--margin--top half--margin--bottom half--margin--left half--margin--right"
             *ngIf="m.profile && m.uid == (profile$ | async)?.uid" button routerDirection="forward"
             (click)="goTo('Profile', '')">
             <ion-card-header>
@@ -68,10 +66,8 @@
                   <h2>
                     <strong>{{ m.profile.displayName }}</strong>
                   </h2>
-                  <h3>{{ m.profile.email }}</h3>
-                  <p>{{ m.profile.role }}</p>
+                  <p>{{ m.status == 'Admin' ? 'Admin' : 'Member' }}</p>
                 </ion-label>
-                <ion-icon slot="end" *ngIf="m.status == 'Admin'" [name]="'key' + '-outline'"></ion-icon>
               </ion-item>
             </ion-card-header>
           </ion-card>

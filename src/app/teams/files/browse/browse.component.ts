@@ -75,20 +75,6 @@ export class BrowseComponent {
         this.profile$ = this.store.select<Profile>('profile');
         this.groups$ = this.store.select<Group[]>('groups');
         this.members$ = this.store.select<Member[]>('members');
-        this.groups$.pipe(tap((groups) => {
-            if (groups) {
-                groups.forEach(g => {
-                    g.isChecked = false;
-                })
-            }
-        })).subscribe();
-        this.members$.pipe(tap((members) => {
-            if (members) {
-                members.forEach(m => {
-                    m.isChecked = false;
-                })
-            }
-        })).subscribe();
     }
 
     ionViewWillEnter() {
@@ -106,101 +92,8 @@ export class BrowseComponent {
         this.folder = null;
     }
 
-    async loopFiles() {
-        console.log(this.folder);
-        // this.count = 0;
-        // for (let i = 0; i < this.files.length + 1; i++) {
-        //     const droppedFile = this.files[i];
-        //     if (droppedFile && droppedFile.fileEntry.isFile) {
-        //         const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
-        //         fileEntry.file((file: File) => {
-        //             this.loopFolders(file);
-        //         });
-        //     }
-        //     if (droppedFile && !droppedFile.fileEntry.isFile) {
-        //         const fileEntry = droppedFile.fileEntry as FileSystemDirectoryEntry;
-        //         this.loopFolders(fileEntry);
-        //     }
-        // }
-    }
-
-    loopFolders(file) {
-        this.count += 1;
-        this.groups$.pipe(map(groups => {
-            groups.forEach(g => {
-                if (g.isChecked) {
-                    const fileId = this.db.createId();
-                    const filePath = `teams/${this.teamId}/groups/${g.id}/files/${fileId}`;
-                    const storageRef = this.storage.ref(filePath);
-                    const filesRef = this.db.collection<File>(`teams/${this.teamId}/groups/${g.id}/files`);
-                    const docRef = this.db.doc<File>(`teams/${this.teamId}/groups/${g.id}`);
-                    this.uploadFile(filePath, filesRef, storageRef, docRef, file, fileId);
-                }
-                if (g.isChecked && this.count == this.files.length) {
-                    g.isChecked = !g.isChecked;
-                }
-            })
-        })).subscribe()
-
-        this.members$.pipe(map(members => {
-            members.forEach(m => {
-                if (m.isChecked) {
-                    if (m.uid !== this.uid) {
-                        const fileId = this.db.createId();
-                        const pathId = this.uid < m.uid ? this.uid + m.uid : m.uid + this.uid;
-                        const filePath = `teams/${this.teamId}/direct/${pathId}/files/${fileId}`;
-                        const storageRef = this.storage.ref(filePath);
-                        const filesRef = this.db.collection<File>(`teams/${this.teamId}/direct/${pathId}/files`);
-                        const docRef = this.db.doc<File>(`teams/${this.teamId}/direct/${pathId}`);
-                        this.uploadFile(filePath, filesRef, storageRef, docRef, file, fileId);
-                    } else {
-                        const fileId = this.db.createId();
-                        const filePath = `users/${this.uid}/teams/${this.teamId}/files/${fileId}`;
-                        const storageRef = this.storage.ref(filePath);
-                        const filesRef = this.db.collection<File>(`users/${this.uid}/teams/${this.teamId}/files`);
-                        const docRef = this.db.doc<File>(`users/${this.uid}/teams/${this.teamId}`);
-                        this.uploadFile(filePath, filesRef, storageRef, docRef, file, fileId);
-                    }
-                }
-                if (m.isChecked && this.count == this.files.length) {
-                    m.isChecked = !m.isChecked;
-                }
-            })
-        })).subscribe()
-    }
-
     get uid() {
         return this.authService.user.uid;
     }
 
-    uploadFile(filePath, filesRef, storageRef, docRef, file, fileId) {
-        const task = this.storage.upload(filePath, file);
-        this.uploadPercent = task.percentageChanges();
-        task.snapshotChanges().pipe(
-            last(),
-            switchMap(() => storageRef.getDownloadURL())
-        ).subscribe((url: string) => {
-            this.downloadURL = url;
-            filesRef.doc(fileId).set({
-                name: file.name,
-                size: file.size,
-                timestamp: firestore.FieldValue.serverTimestamp(),
-                type: file.type,
-                uid: this.uid,
-                url: this.downloadURL,
-                profile: null
-            })
-            docRef.set({
-                lastFile: file.name,
-                lastFileId: fileId,
-                lastFileUid: this.uid
-            }, { merge: true })
-            if (this.count == this.files.length) {
-                console.log(this.count, this.files.length);
-                this.modalController.dismiss({
-                    response: 'success'
-                });
-            }
-        });
-    }
 }

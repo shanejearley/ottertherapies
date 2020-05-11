@@ -1,6 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 import { AvatarModule } from 'ngx-avatar';
@@ -10,21 +10,24 @@ import { FilesRoutingModule } from './files-routing.module';
 
 import { FilesComponent } from './files.component';
 import { ScanComponent } from './scan/scan.component';
-import { UploadComponent } from './upload/upload.component';
 import { BrowseComponent } from './browse/browse.component';
-import { UploadTaskComponent } from './upload-task/upload-task.component';
+
+import { SharedModule } from '../../shared/shared.module';
+
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     IonicModule,
     AvatarModule,
     FilesRoutingModule,
-    NgxFileDropModule
+    NgxFileDropModule,
+    SharedModule
   ],
-  entryComponents: [ScanComponent, UploadComponent, BrowseComponent],
+  entryComponents: [ScanComponent, BrowseComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [FilesComponent, ScanComponent, UploadComponent, BrowseComponent, UploadTaskComponent]
+  declarations: [FilesComponent, ScanComponent, BrowseComponent]
 })
 export class FilesModule {}

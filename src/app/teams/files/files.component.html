@@ -20,7 +20,7 @@
     </ion-fab-button>
 
     <ion-fab-list side="bottom">
-      <ion-fab-button title="Scan Documents" (click)="scanDoc()">
+      <ion-fab-button title="Scan Files" (click)="scanDoc()">
         <ion-icon name="scan-outline"></ion-icon>
       </ion-fab-button>
       <ion-fab-button title="Upload Files" (click)="browseModal()">
@@ -65,7 +65,7 @@
                   <ion-icon slot="start" name="document-text-outline"></ion-icon>
                   <ion-label>
                     <h2>{{ f.name }}</h2>
-                    <h3>{{ f.profile.displayName }}</h3>
+                    <h3>{{ (f.profile | async)?.displayName }}</h3>
                   </ion-label>
                   <ion-button fill="clear" (click)="removeGroupFile(g.id,f.id,f.url)" slot="end">
                     <ion-icon color="danger" slot="icon-only" name="trash-outline">

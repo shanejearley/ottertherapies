@@ -125,9 +125,11 @@ export class CreateEventComponent {
             if (members) {
                 if (search.length) {
                     this.filteredMembers = members.filter(o =>
-                        Object.keys(o).some(k => {
-                            if (typeof o[k] === 'string')
-                                return o[k].toLowerCase().includes(search.toLowerCase());
+                        Object.keys(o.profile).some(k => {
+                            if (typeof o.profile[k] === 'string' && k == 'displayName' || typeof o.profile[k] === 'string' && k == 'email') {
+                                console.log(o.profile[k], search);
+                                return o.profile[k].toLowerCase().includes(search.toLowerCase());
+                            }
                         })
                     );
                 } else {

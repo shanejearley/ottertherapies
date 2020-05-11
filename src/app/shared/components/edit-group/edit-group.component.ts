@@ -21,6 +21,7 @@ export class EditGroupComponent {
     members$: Observable<Member[]>;
     group$: Observable<Group>;
     group;
+    memberStatus;
     remove = [];
     teamId: string;
     groupId: string;
@@ -50,6 +51,13 @@ export class EditGroupComponent {
         this.members$ = this.store.select<Member[]>('members');
         this.members$.pipe(map(members => {
             if (this.group.members && this.group.members.length) {
+                console.log(this.group.members)
+                this.group.members.forEach(g => {
+                    if (this.uid === g.uid) {
+                        this.memberStatus = g.status;
+                        console.log(g.status);
+                    }
+                })
                 members.forEach(m => {
                     if (this.group.members.filter(groupMember => groupMember.uid == m.uid)[0]) {
                         m.isChecked = true;
@@ -120,9 +128,11 @@ export class EditGroupComponent {
             if (members) {
                 if (search.length) {
                     this.filteredMembers = members.filter(o =>
-                        Object.keys(o).some(k => {
-                            if (typeof o[k] === 'string')
-                                return o[k].toLowerCase().includes(search.toLowerCase());
+                        Object.keys(o.profile).some(k => {
+                            if (typeof o.profile[k] === 'string' && k == 'displayName' || typeof o.profile[k] === 'string' && k == 'email') {
+                                console.log(o.profile[k], search);
+                                return o.profile[k].toLowerCase().includes(search.toLowerCase());
+                            }
                         })
                     );
                 } else {

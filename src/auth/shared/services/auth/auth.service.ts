@@ -67,6 +67,7 @@ export class AuthService {
     return this.af.auth;
   }
 
+
   get user() {
     return this.af.auth.currentUser;
   }
@@ -87,7 +88,18 @@ export class AuthService {
   }
 
   async reloadUser() {
-    return this.af.auth.currentUser.reload();
+    return this.user.reload();
+  }
+
+  async checkClaims() {
+    try {
+      const idTokenResult = await this.user.getIdTokenResult(true)
+      console.log(idTokenResult);
+      return idTokenResult;
+    } catch(err) {
+      return console.log(err.message);
+    }
+
   }
 
   async loginUser(email: string, password: string) {

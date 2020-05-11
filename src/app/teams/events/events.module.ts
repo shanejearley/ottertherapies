@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 import { CalendarModule } from "ion2-calendar";
+import { AvatarModule } from 'ngx-avatar';
 
 import { EventsRoutingModule } from './events-routing.module';
 
@@ -17,7 +18,8 @@ import { EditEventComponent } from './edit-event/edit-event.component';
     FormsModule,
     IonicModule,
     EventsRoutingModule,
-    CalendarModule
+    CalendarModule,
+    AvatarModule
   ],
   entryComponents: [CreateEventComponent, EditEventComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],

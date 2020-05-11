@@ -12,6 +12,8 @@ import { ProfileComponent } from './profile.component';
 import { ProfilePictureComponent } from 'src/app/teams/profile/profile-picture/profile-picture.component';
 import { DeleteUserComponent } from './delete-user/delete-user.component';
 
+import { SharedModule } from '../../shared/shared.module';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -19,7 +21,8 @@ import { DeleteUserComponent } from './delete-user/delete-user.component';
     IonicModule,
     AvatarModule,
     ImageCropperModule,
-    ProfileRoutingModule
+    ProfileRoutingModule,
+    SharedModule
   ],
   entryComponents: [ProfilePictureComponent, DeleteUserComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],

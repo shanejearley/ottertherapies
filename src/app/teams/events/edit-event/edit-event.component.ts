@@ -24,6 +24,7 @@ export class EditEventComponent {
     members$: Observable<Member[]>;
     event$: Observable<Event>;
     event;
+    memberStatus;
     remove = [];
     teamId: string;
     eventId: string;
@@ -55,6 +56,12 @@ export class EditEventComponent {
         this.members$ = this.store.select<Member[]>('members');
         this.members$.pipe(map(members => {
             if (this.event.members && this.event.members.length) {
+                this.event.members.forEach(e => {
+                    console.log(e);
+                    if (this.uid === e.uid) {
+                        this.memberStatus = e.status;
+                    }
+                })
                 members.forEach(m => {
                     if (this.event.members.filter(eventMember => eventMember.uid == m.uid)[0]) {
                         m.isChecked = true;
@@ -129,9 +136,11 @@ export class EditEventComponent {
             if (members) {
                 if (search.length) {
                     this.filteredMembers = members.filter(o =>
-                        Object.keys(o).some(k => {
-                            if (typeof o[k] === 'string')
-                                return o[k].toLowerCase().includes(search.toLowerCase());
+                        Object.keys(o.profile).some(k => {
+                            if (typeof o.profile[k] === 'string' && k == 'displayName' || typeof o.profile[k] === 'string' && k == 'email') {
+                                console.log(o.profile[k], search);
+                                return o.profile[k].toLowerCase().includes(search.toLowerCase());
+                            }
                         })
                     );
                 } else {

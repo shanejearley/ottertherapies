@@ -4,6 +4,9 @@ import { AuthService } from '../shared/services/auth/auth.service';
 import { Config, ModalController, IonRouterOutlet, IonInput } from '@ionic/angular';
 import { MfaAddComponent } from './mfa-add/mfa-add.component';
 
+import { Plugins } from '@capacitor/core';
+const { Browser } = Plugins;
+
 @Component({
     selector: 'app-two-factor',
     styleUrls: ['two-factor.component.scss'],
@@ -30,6 +33,10 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
 
+    }
+
+    async showPrivacy() {
+        await Browser.open({ url: 'https://ottertherapies.com/privacy-and-terms' });
     }
 
     async verifyDeviceModal() {

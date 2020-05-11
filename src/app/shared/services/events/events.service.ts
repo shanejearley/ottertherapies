@@ -16,7 +16,7 @@ import { MembersService } from '../members/members.service';
 export interface Member {
     status: string,
     uid: string,
-    profile: Profile
+    profile: Observable<Profile>
 }
 
 export interface Event {
@@ -104,16 +104,12 @@ export class EventsService {
                         member.uid = a.payload.doc.id;
                         const exists = event.members.find(m => m.uid === member.uid)
                         if (!exists) {
-                            this.membersService.getMember(member.uid).subscribe(m => {
-                                member.profile = m.profile;
-                                event.members.push(member);
-                            })
+                            member.profile = this.membersService.getProfile(member.uid);
+                            event.members.push(member);
                         } else {
                             let memberIndex = event.members.findIndex(m => m.uid == member.uid);
-                            this.membersService.getMember(member.uid).subscribe(m => {
-                                member.profile = m.profile;
-                                event.members[memberIndex] = member;
-                            })
+                            member.profile = this.membersService.getProfile(member.uid);
+                            event.members[memberIndex] = member;
                         }
                     }
                 })),
@@ -151,10 +147,17 @@ export class EventsService {
         return this.eventsCol.add(newEvent).then(docRef => {
             this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${docRef.id}/members`);
             return event.members.forEach(m => {
-                return this.membersCol.doc(m.uid).set({
-                    uid: m.uid,
-                    status: "Member"
-                }, { merge: true })
+                if (m.uid == this.uid) {
+                    return this.membersCol.doc(m.uid).set({
+                        uid: m.uid,
+                        status: "Admin"
+                    }, { merge: true })
+                } else {
+                    return this.membersCol.doc(m.uid).set({
+                        uid: m.uid,
+                        status: "Member"
+                    }, { merge: true })
+                }
             })
         });
     }

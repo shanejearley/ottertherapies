@@ -72,8 +72,8 @@
             <ngx-file-drop style="width: 100%" dropZoneLabel="Drop files here" (onFileDrop)="dropped($event)"
                 (onFileOver)="fileOver($event)" (onFileLeave)="fileLeave($event)">
                 <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-                    Drop or
-                    <ion-button type="button" (click)="openFileSelector()">Browse Files</ion-button>
+                    <ion-row class="ion-justify-content-center"><ion-col><strong>Drop or browse files</strong></ion-col></ion-row>
+                    <ion-row class="ion-justify-content-center"><ion-col><ion-button type="button" (click)="openFileSelector()">Browse</ion-button></ion-col></ion-row>
                 </ng-template>
             </ngx-file-drop>
         </ion-item>
@@ -82,9 +82,9 @@
             <ion-list-header>
                 Uploads
             </ion-list-header>
-            <ion-list inset="true" class="theme--list">
+            <ion-list inset="true" class="theme--list upload--list">
                 <div *ngFor="let f of files; let i = index">
-                    <upload-task [folder]="folder" [file]="f"></upload-task>
+                    <upload-task *ngIf="f" [teamId]="teamId" [folder]="folder" [file]="f" [scan]="false"></upload-task>
                 </div>
             </ion-list>
         </div>

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ModalController, ToastController, IonRouterOutlet, AlertController } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet, AlertController, Platform } from '@ionic/angular';
 import { Plugins } from '@capacitor/core';
 const { Browser } = Plugins;
 import { AngularFirestore } from '@angular/fire/firestore'
@@ -15,7 +15,6 @@ import { TeamsService, Team } from '../../shared/services/teams/teams.service';
 import { GroupsService, Group } from '../../shared/services/groups/groups.service';
 import { MembersService, Member } from '../../shared/services/members/members.service';
 import { ScanComponent } from './scan/scan.component';
-import { UploadComponent } from './upload/upload.component';
 import { BrowseComponent } from './browse/browse.component';
 import { EditGroupComponent } from '../../shared/components/edit-group/edit-group.component';
 import { CreateGroupComponent } from '../../shared/components/create-group/create-group.component';
@@ -34,6 +33,9 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
   styleUrls: ['./files.component.scss'],
 })
 export class FilesComponent implements OnInit {
+  desktop: boolean;
+  ios: boolean;
+  android: boolean;
   pdfData: string;
   photoName: string;
   photo: SafeResourceUrl;
@@ -64,10 +66,24 @@ export class FilesComponent implements OnInit {
     private groupsService: GroupsService,
     private membersService: MembersService,
     private authService: AuthService,
-    private routerOutlet: IonRouterOutlet
+    private routerOutlet: IonRouterOutlet,
+    private platform: Platform
   ) { }
 
   ngOnInit() {
+    this.platform.ready().then(() => {
+      this.desktop = this.platform.is('desktop');
+      this.ios = this.platform.is('ios');
+      this.android = this.platform.is('android');
+      console.log(this.desktop, this.ios, this.android)
+      // if (this.platform.is('desktop')) {
+      //   this.desktop = true;
+      // } else if (this.platform.is('ios')) {
+      //   this.ios = true;
+      // } else if (this.platform.is('android')) {
+      //   this.android = true;
+      // }
+    })
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
     this.members$ = this.store.select<Member[]>('members');
@@ -97,24 +113,11 @@ export class FilesComponent implements OnInit {
   }
 
   scanDoc() {
-    let opts: DocumentScannerOptions = {
-      returnBase64: true
-    };
-    this.documentScanner.scanDoc(opts)
-      .then((res: string) => {
-        const randId = this.db.createId();
-        this.photoName = 'Scan' + randId.substr(0, 5);
-        this.photo = this.sanitizer.bypassSecurityTrustResourceUrl('data:image/jpg;base64,' + res);
-        this.photoData = res;
-        this.generatePdf(res);
-      })
-      .catch((error: any) => {
-        if (error == 'cordova_not_available') {
-          this.useMobileAlert();
-        } else {
-          console.log(error);
-        }
-      });
+    if (this.ios || this.android) {
+      this.scanModal();
+    } else if (this.desktop) {
+      this.useMobileAlert();
+    }
   }
 
   async useMobileAlert() {
@@ -132,41 +135,13 @@ export class FilesComponent implements OnInit {
     const modal = await this.modalController.create({
       component: ScanComponent,
       componentProps: {
-        'photo': this.photo
+        'teamId': this.teamId
       },
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;
-      if (this.data.response == 'upload') {
-        this.uploadModal();
-      }
-      if (this.data.response == 'retake') {
-        this.scanDoc();
-      }
-    });
-    return await modal.present();
-  }
-
-  async uploadModal() {
-    const modal = await this.modalController.create({
-      component: UploadComponent,
-      componentProps: {
-        'photo': this.photo,
-        'photoData': this.photoData,
-        'photoName': this.photoName,
-        'teamId': this.teamId,
-        'pdfData': this.pdfData
-      },
-      swipeToClose: true,
-      presentingElement: this.routerOutlet.nativeEl
-    });
-    modal.onWillDismiss().then(data => {
-      this.data = data.data;
-      if (this.data.response == 'success') {
-        this.presentToast();
-      }
     });
     return await modal.present();
   }

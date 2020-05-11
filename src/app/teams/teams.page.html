@@ -27,11 +27,12 @@
 
     <ion-list class="theme--list">
 
-      <ion-list-header>
+      <ion-list-header *ngIf="(teams$ | async) && (teams$ | async).length || (teams$ | async) && !(teams$ | async).length && !(pending$ | async).length">
         Your Teams
       </ion-list-header>
 
-      <ion-card *ngFor="let p of (teams$ | async); let i = index" button routerDirection="root" (click)="goTo(p.id)" class="theme--card">
+      <ion-card *ngFor="let p of (teams$ | async); let i = index" button routerDirection="root" (click)="goTo(p.id)"
+        class="theme--card">
         <ion-item lines="none" class="theme--item thumbnail--list">
           <ion-thumbnail slot="start">
             <ngx-avatar class="teams-avatar" name="{{ p.child }}" [size]="55" [round]="false" [cornerRadius]="10">
@@ -41,18 +42,35 @@
             <h2><strong>{{ p.name }}</strong></h2>
             <h3>Team Id: {{ p.publicId }}</h3>
           </ion-label>
-          <ion-tab-button *ngIf="p.unreadMessages + p.unreadFiles + p.unreadNotes > 0" slot="end" class="notification--button">
-            <ion-icon name="notifications-outline"></ion-icon>            
+          <ion-tab-button *ngIf="p.unreadMessages + p.unreadFiles + p.unreadNotes > 0" slot="end"
+            class="notification--button">
+            <ion-icon name="notifications-outline"></ion-icon>
             <ion-badge color="danger">{{ p.unreadMessages + p.unreadFiles + p.unreadNotes }}</ion-badge>
           </ion-tab-button>
         </ion-item>
       </ion-card>
-
-      <ion-item lines="none" class="theme--item thumbnail--list" *ngIf="(teams$ | async) && !(teams$ | async).length">
-        <ion-label>
-          <h2><strong>No teams yet</strong></h2>
-        </ion-label>
-      </ion-item>
+      <ion-list class="theme--list" inset="true" lines="none">
+        <ion-item class="theme--item thumbnail--list"
+          *ngIf="(teams$ | async) && !(teams$ | async).length && !(pending$ | async).length" detail="false"
+          lines="none">
+          <ion-row class="member--row" slot="start">
+            <ion-avatar class="dialog--member">
+              <img src="../../../assets/img/otter_head.svg">
+            </ion-avatar>
+            <ion-col class="member--col" size="auto">
+              <ion-row></ion-row>
+              <ion-card color="light" class="dialog message--card message--member">
+                <ion-card-content>
+                  <ion-label text-wrap>You have no teams yet. You can either wait to be added to a team, or you can
+                    press the "+" to create a new one!
+                  </ion-label>
+                </ion-card-content>
+              </ion-card>
+              <ion-row></ion-row>
+            </ion-col>
+          </ion-row>
+        </ion-item>
+      </ion-list>
 
       <ion-list-header *ngIf="(pending$ | async) && (pending$ | async).length">
         Pending Teams
@@ -71,7 +89,7 @@
           <ion-button>Join Team</ion-button>
         </ion-item>
       </ion-card>
-      
+
       <ion-item lines="none" class="theme--item"></ion-item>
 
     </ion-list>

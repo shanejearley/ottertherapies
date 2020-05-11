@@ -137,7 +137,7 @@ export class ProfileComponent implements OnInit {
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl,
       componentProps: {
-        'type': 'profile',
+        'teamId': null,
       }
     });
     modal.onWillDismiss().then(data => {

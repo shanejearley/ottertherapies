@@ -22,7 +22,7 @@ export interface Note {
     isChecked: boolean,
     commentCount: firestore.FieldValue,
     flag: boolean,
-    profile: Profile
+    profile: Observable<Profile>
 }
 
 export interface Comment {
@@ -30,7 +30,7 @@ export interface Comment {
     id: string,
     uid: string,
     timestamp: firestore.FieldValue,
-    profile: Profile
+    profile: Observable<Profile>
 }
 
 @Injectable()
@@ -56,6 +56,9 @@ export class NotesService {
     ) { }
 
     notesObservable(userId, teamId) {
+        this.store.set('notes', null);
+        this.notes$ = null;
+        this.notesCol = null;
         this.notes = [];
         this.notes.length = 0;
         this.notes$ = null;
@@ -76,13 +79,9 @@ export class NotesService {
                         note.id = a.payload.doc.id;
                         const exists = this.notes.find(n => n.id === note.id)
                         if (note.timestamp && !exists) {
-                            this.membersService.getMember(note.uid).subscribe(m => {
-                                if (!note.profile) {
-                                    note.profile = m.profile;
-                                    this.getComments(note);
-                                    this.notes.push(note);
-                                }
-                            })
+                            note.profile = this.membersService.getProfile(note.uid);
+                            this.getComments(note);
+                            this.notes.push(note);
                         }
                         if (note.timestamp && exists) {
                             this.notes.find(n => n.id == note.id).flag = note.flag;
@@ -119,12 +118,15 @@ export class NotesService {
                         const comment = a.payload.doc.data() as Comment;
                         if (comment.timestamp) {
                             comment.id = a.payload.doc.id;
-                            this.membersService.getMember(comment.uid).subscribe(m => {
-                                if (!comment.profile) {
-                                    comment.profile = m.profile;
-                                    note.comments.push(comment);
-                                }
-                            })
+                            const exists = note.comments.find(c => c.id === comment.id)
+                            if (comment.timestamp && !exists) {
+                                comment.profile = this.membersService.getProfile(comment.uid);
+                                note.comments.push(comment);
+                            } else if (comment.timestamp && exists) {
+                                let commentIndex = note.comments.findIndex(c => c.id == comment.id);
+                                comment.profile = note.comments[commentIndex].profile;
+                                note.comments[commentIndex] = comment;
+                            }
                         }
                     }
                 })),

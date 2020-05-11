@@ -12,8 +12,9 @@
           <ion-menu-toggle auto-hide="false">
             <ion-item>
               <ion-button color="light" routerDirection="backward" [routerLink]="'/Teams'" size="default">
-                Your Teams <ion-badge class="ion-margin-start" color="danger" *ngIf="(badge$ | async) > 0">
-                  {{ (badge$ | async) }}</ion-badge>
+                Your Teams 
+                <!-- <ion-badge class="ion-margin-start" color="danger" *ngIf="(badge$ | async) > 0">
+                  {{ (badge$ | async) }}</ion-badge> -->
               </ion-button>
 
               <ion-thumbnail slot="end" class="avatar-thumbnail">

@@ -36,7 +36,7 @@ export interface Group {
 export interface Member {
   status: string,
   uid: string,
-  profile: Profile
+  profile: Observable<Profile>
 }
 
 export interface File {
@@ -47,7 +47,7 @@ export interface File {
   type: string,
   uid: string,
   url: string,
-  profile: Profile
+  profile: Observable<Profile>
 }
 
 export interface Message {
@@ -55,7 +55,7 @@ export interface Message {
   id: string,
   uid: string,
   timestamp: firestore.FieldValue,
-  profile: Profile
+  profile: Observable<Profile>
 }
 
 @Injectable()
@@ -144,16 +144,12 @@ export class GroupsService {
             member.uid = a.payload.doc.id;
             const exists = group.members.find(m => m.uid === member.uid)
             if (!exists) {
-              this.membersService.getMember(member.uid).subscribe(m => {
-                member.profile = m.profile;
-                group.members.push(member);
-              })
+              member.profile = this.membersService.getProfile(member.uid);
+              group.members.push(member);
             } else {
               let memberIndex = group.members.findIndex(m => m.uid == member.uid);
-              this.membersService.getMember(member.uid).subscribe(m => {
-                member.profile = m.profile;
-                group.members[memberIndex] = member;
-              })
+              member.profile = this.membersService.getProfile(member.uid);
+              group.members[memberIndex] = member;
             }
           }
         })),
@@ -183,11 +179,15 @@ export class GroupsService {
             }
             if (a.type == 'added' || a.type == 'modified') {
               if (file.timestamp) {
-                console.log('file', file);
-                this.membersService.getMember(file.uid).subscribe(m => {
-                  file.profile = m.profile;
+                const exists = group.files.find(f => f.id === file.id)
+                if (file.timestamp && !exists) {
+                  file.profile = this.membersService.getProfile(file.uid);
                   group.files.push(file);
-                })
+                } else if (file.timestamp && exists) {
+                    let fileIndex = group.files.findIndex(f => f.id == file.id);
+                    file.profile = this.membersService.getProfile(file.uid);
+                    group.files[fileIndex] = file;
+                }
               }
             }
           })),
@@ -223,12 +223,15 @@ export class GroupsService {
               const message = a.payload.doc.data() as Message;
               if (message.timestamp) {
                 message.id = a.payload.doc.id;
-                this.membersService.getMember(message.uid).subscribe(m => {
-                  if (m.profile) {
-                    message.profile = m.profile;
-                    group.messages.push(message);
-                  }
-                })
+                const exists = group.messages.find(m => m.id === message.id)
+                if (message.timestamp && !exists) {
+                  message.profile = this.membersService.getProfile(message.uid);
+                  group.messages.push(message);
+                } else if (message.timestamp && exists) {
+                    let messageIndex = group.messages.findIndex(m => m.id == message.id);
+                    message.profile = this.membersService.getProfile(message.uid);
+                    group.messages[messageIndex] = message;
+                }
               }
             }
           })),

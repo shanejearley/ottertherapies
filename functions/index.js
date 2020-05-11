@@ -11,6 +11,8 @@ const fetch = require('node-fetch');
 
 admin.initializeApp();
 const firestore = admin.firestore();
+const storage = admin.storage();
+const bucket = storage.bucket();
 const FieldValue = admin.firestore.FieldValue;
 
 const scrapeMetatags = (text) => {
@@ -67,20 +69,89 @@ exports.scraper = functions.https.onCall(async (data, context) => {
 
 });
 
+//...currentTokens, [token]: true
+
 const addTeamClaims = async (uid, teamId) => {
-    return admin.auth().setCustomUserClaims(uid, { [teamId]: true });
+    await admin.auth().getUser(uid).then((userRecord) => {
+        // The claims can be accessed on the user record.
+        const customClaims = userRecord.customClaims || {};
+        return admin.auth().setCustomUserClaims(uid, { ...customClaims, [teamId]: true }).then(() => {
+            return admin.auth().getUser(uid).then((userRecord) => {
+                // The claims can be accessed on the user record.
+                return console.log(userRecord.customClaims);
+            }).catch(err => { return console.log(err) })
+        }).catch(err => { return console.log(err) })
+    }).catch(err => { return console.log(err) })
 }
 
 const removeTeamClaims = async (uid, teamId) => {
-    return admin.auth().setCustomUserClaims(uid, { [teamId]: false })
+    await admin.auth().getUser(uid).then((userRecord) => {
+        // The claims can be accessed on the user record.
+        const customClaims = userRecord.customClaims || {};
+        return admin.auth().setCustomUserClaims(uid, { ...customClaims, [teamId]: false }).then(() => {
+            return admin.auth().getUser(uid).then((userRecord) => {
+                // The claims can be accessed on the user record.
+                return console.log(userRecord.customClaims);
+            }).catch(err => { return console.log(err) })
+        }).catch(err => { return console.log(err) })
+    }).catch(err => { return console.log(err) })
 }
 
 const addGroupClaims = async (uid, groupId) => {
-    return admin.auth().setCustomUserClaims(uid, { [groupId]: true })
+    await admin.auth().getUser(uid).then((userRecord) => {
+        // The claims can be accessed on the user record.
+        const customClaims = userRecord.customClaims || {};
+        return admin.auth().setCustomUserClaims(uid, { ...customClaims, [groupId]: true }).then(() => {
+            return admin.auth().getUser(uid).then((userRecord) => {
+                // The claims can be accessed on the user record.
+                return console.log(userRecord.customClaims);
+            }).catch(err => { return console.log(err) })
+        }).catch(err => { return console.log(err) })
+    }).catch(err => { return console.log(err) })
 }
 
 const removeGroupClaims = async (uid, groupId) => {
-    return admin.auth().setCustomUserClaims(uid, { [groupId]: false })
+    await admin.auth().getUser(uid).then((userRecord) => {
+        // The claims can be accessed on the user record.
+        const customClaims = userRecord.customClaims || {};
+        return admin.auth().setCustomUserClaims(uid, { ...customClaims, [groupId]: false }).then(() => {
+            return admin.auth().getUser(uid).then((userRecord) => {
+                // The claims can be accessed on the user record.
+                return console.log(userRecord.customClaims);
+            }).catch(err => { return console.log(err) })
+        }).catch(err => { return console.log(err) })
+    }).catch(err => { return console.log(err) })
+}
+
+const notifyAdmin = async (context) => {
+    try {
+        const adminUid = 'NWdIuC9hlvSFSzr9MmA9bQsqX8O2'
+        const adminRef = firestore.collection('users').doc(adminUid)
+        const snapshot = await adminRef.get();
+        const user = snapshot.data();
+        //user.badge = user.badge ? user.badge + 1 : 1;
+        // Message details for end user
+
+        const payload = {
+            notification: {
+                title: `New ${context}!`,
+                body: `Someone has created a new ${context}`,
+                //badge: `${user.badge}`
+            }
+        }
+
+        const tokens = user.fcmTokens ? Object.keys(user.fcmTokens) : [];
+        if (!tokens.length) {
+            throw new Error('User does not have any tokens!');
+        }
+        console.log("Sending to tokens: ", tokens);
+        //userRef.update(user);
+        return admin.messaging().sendToDevice(tokens, payload);
+    }
+    catch (err) {
+        return console.log(err);
+    }
+
 }
 
 const notifyUser = async (uid, context) => {
@@ -91,14 +162,14 @@ const notifyUser = async (uid, context) => {
         const userRef = firestore.collection('users').doc(userId)
         const snapshot = await userRef.get();
         const user = snapshot.data();
-        user.badge = user.badge ? user.badge + 1 : 1;
+        //user.badge = user.badge ? user.badge + 1 : 1;
         // Message details for end user
 
         const payload = {
             notification: {
                 title: `New ${context}!`,
                 body: `A team member sent you a new ${context}`,
-                badge: `${user.badge}`
+                //badge: `${user.badge}`
             }
         }
 
@@ -107,7 +178,7 @@ const notifyUser = async (uid, context) => {
             throw new Error('User does not have any tokens!');
         }
         console.log("Sending to tokens: ", tokens);
-        userRef.update(user);
+        //userRef.update(user);
         return admin.messaging().sendToDevice(tokens, payload);
     }
     catch (err) {
@@ -118,6 +189,7 @@ const notifyUser = async (uid, context) => {
 exports.authOnCreate = functions.auth.user().onCreate((user) => {
     const uid = user.uid;
     const email = user.email; // The email of the user.
+    notifyAdmin("user");
     console.log('Creating document for user', user.uid, 'with email', email);
     return firestore.collection('users').doc(user.uid).set({
         uid: user.uid,
@@ -174,15 +246,25 @@ exports.authOnCreate = functions.auth.user().onCreate((user) => {
         })
 })
 
-exports.authOnDelete = functions.auth.user().onDelete((user) => {
+exports.authOnDelete = functions.auth.user().onDelete(async (user) => {
     //const uid = user.uid;
     //const email = user.email; // The email of the user.
-    console.log('Making user document for ', user.uid, 'anonymous');
-    return firestore.collection('users').doc(user.uid).set({
-        displayName: 'Deleted User',
-        email: 'N/A',
-        url: null
-    }, { merge: true })
+    try {
+        await bucket.deleteFiles({prefix: `users/${user.uid}/profile`});
+        console.log(`All the Firebase Storage files in users/${user.uid}/profile have been deleted`);
+    } catch (err) {
+        return console.log(err.message);
+    }
+    //delete user team files
+    const querySnapshot = await firestore.collection('users').doc(user.uid).collection('teams').get();
+    await firestore.collection('users').doc(user.uid).delete();
+    var teams = querySnapshot.docs.map(doc => doc.data());
+    console.log('Deleting user document for ', user.uid);
+    return teams.forEach(async t => {
+        await firestore.collection('teams').doc(t.id).collection('members').doc(user.uid).delete();
+        await bucket.deleteFiles({prefix: `users/${user.uid}/teams/${t.id}/files/`});
+        return console.log(`All the Firebase Storage files in users/${user.uid}/teams/${t.id}/files/ have been deleted`);
+    })
 });
 
 exports.pendingOnCreate = functions.firestore
@@ -265,10 +347,15 @@ exports.memberOnJoin = functions.firestore
             .then(function (querySnapshot) {
                 return querySnapshot.forEach(async function (doc) {
                     var groupId = doc.id;
-                    await firestore.collection("teams").doc(teamId).collection("groups").doc(groupId).collection("members").doc(memberUid).set({
-                        uid: memberUid,
-                        status: "Member"
-                    }, { merge: true });
+                    var groupAdminUid = doc.data().createdBy;
+                    if (memberUid === groupAdminUid) {
+                        return;
+                    } else {
+                        return firestore.collection("teams").doc(teamId).collection("groups").doc(groupId).collection("members").doc(memberUid).set({
+                            uid: memberUid,
+                            status: "Member"
+                        }, { merge: true });
+                    }
                 })
             })
             .catch(function (error) {
@@ -278,7 +365,7 @@ exports.memberOnJoin = functions.firestore
 
 exports.groupMemberOnJoin = functions.firestore
     .document('teams/{teamId}/groups/{groupId}/members/{memberUid}')
-    .onCreate((snapshot, context) => {
+    .onCreate(async (snapshot, context) => {
         console.log("snapshot", snapshot);
         console.log("context", context);
         console.log("teamId", context.params.teamId);
@@ -301,7 +388,7 @@ exports.groupMemberOnJoin = functions.firestore
 
 exports.groupMemberOnRemove = functions.firestore
     .document('teams/{teamId}/groups/{groupId}/members/{memberUid}')
-    .onDelete((snapshot, context) => {
+    .onDelete(async (snapshot, context) => {
         console.log("snapshot", snapshot);
         console.log("context", context);
         console.log("teamId", context.params.teamId);
@@ -336,17 +423,24 @@ exports.memberOnRemove = functions.firestore
                     var members = querySnapshot.docs.map(doc => doc.data());
                     return members.forEach(async member => {
                         if (member.uid !== memberUid) {
-                            console.log('Subtracting a ', memberUid, ' instance from ', member.uid);
-                            await firestore.collection("users").doc(member.uid).collection("teammates").doc(memberUid).set({ teams: FieldValue.increment(-1) }, { merge: true });
-                            console.log('Subtracting a ', member.uid, ' instance from ', memberUid)
-                            return firestore.collection("users").doc(memberUid).collection("teammates").doc(member.uid).set({ teams: FieldValue.increment(-1) }, { merge: true });
+                            const pathId = memberUid < member.uid ? memberUid + member.uid : member.uid + memberUid;
+                            try {
+                                console.log('Deleting unread with member on the doc for ', member.uid);
+                                await firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("unread").doc(pathId).delete();
+                                console.log('Subtracting a ', memberUid, ' instance from ', member.uid);
+                                await firestore.collection("users").doc(member.uid).collection("teammates").doc(memberUid).set({ teams: FieldValue.increment(-1) }, { merge: true });
+                                console.log('Subtracting a ', member.uid, ' instance from ', memberUid)
+                                return firestore.collection("users").doc(memberUid).collection("teammates").doc(member.uid).set({ teams: FieldValue.increment(-1) }, { merge: true });
+                            } catch (err) {
+                                return console.log('One of the user docs was not found or already deleted.')
+                            }
                         } else {
                             return;
                         }
                     })
                 })
             const querySnapshot = await firestore.collection("teams").doc(teamId).collection("groups").get();
-            return querySnapshot.forEach(async function (doc) {
+            await querySnapshot.forEach(async function (doc) {
                 var groupId = doc.id;
                 const querySnapshot_1 = await firestore.collection("teams").doc(teamId).collection("groups").doc(groupId).collection("members").where("uid", "==", memberUid).get()
                 if (!querySnapshot_1.empty) {
@@ -355,11 +449,26 @@ exports.memberOnRemove = functions.firestore
                 else {
                     console.log("member not in this group", groupId);
                 }
-                await firestore.collection("users").doc(memberUid).set({
-                    lastTeam: FieldValue.delete()
-                }, { merge: true });
-                return firestore.collection("users").doc(memberUid).collection("teams").doc(teamId).delete();
-            });
+                try {
+                    await firestore.collection("users").doc(memberUid).set({
+                        lastTeam: FieldValue.delete()
+                    }, { merge: true });
+                    return firestore.collection("users").doc(memberUid).collection("teams").doc(teamId).delete();
+                } catch (err) {
+                    return console.log('User doc or team doc already deleted');
+                }
+            })
+            const querySnapshot_1 = await firestore.collection("teams").doc(teamId).collection("events").get();
+            return querySnapshot_1.forEach(async function (doc) {
+                var eventId = doc.id;
+                const querySnapshot_2 = await firestore.collection("teams").doc(teamId).collection("events").doc(eventId).collection("members").where("uid", "==", memberUid).get()
+                if (!querySnapshot_2.empty) {
+                    await firestore.collection("teams").doc(teamId).collection("events").doc(eventId).collection("members").doc(memberUid).delete();
+                }
+                else {
+                    console.log("member not in this group", groupId);
+                }
+            })
         }
         catch (error) {
             return console.log("error", error);
@@ -546,6 +655,14 @@ exports.updateDirectFileCount = functions.firestore
             return console.log("No new direct Files with change");
         }
     });
+
+exports.teamOnCreate = functions.firestore
+    .document('teams/{teamId}')
+    .onCreate((snap, context) => {
+        console.log(snap);
+        console.log(context);
+        return notifyAdmin("team");
+    })
 
 exports.updateNoteCount = functions.firestore
     .document('teams/{teamId}/notes/{noteId}')

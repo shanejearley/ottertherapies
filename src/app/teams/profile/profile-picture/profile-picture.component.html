@@ -9,18 +9,14 @@
 <ion-content fullscreen>
     <ion-list class="theme--list">
 
-        <ion-item lines="none" class="theme--item">
-            <ion-grid>
-                <ion-row class="ion-justify-content-center">
-                    <ion-button size="medium">
-                        <label class="fileBtn">
-                            Browse
-                            <input type="file" (change)="fileChangeEvent($event)" />
-                        </label>
-                    </ion-button>
-                </ion-row>
-            </ion-grid>
-        </ion-item>
+        <div class="ion-padding">
+            <ion-button expand="block">
+                <label class="fileBtn">
+                    Browse
+                    <input type="file" (change)="fileChangeEvent($event)" />
+                </label>
+            </ion-button>
+        </div>
 
         <ion-item lines="none" class="theme--item">
             <ion-grid>
@@ -40,6 +36,12 @@
             </ion-grid>
         </ion-item>
 
+        <div *ngIf="croppedImage">
+            <ion-list inset="true" class="theme--list upload--list">
+                <upload-task [teamId]="teamId" [folder]="null" [profilePicture]="true" [file]="croppedImage" [scan]="false"></upload-task>
+            </ion-list>
+        </div>
+
         <!-- <ion-item lines="none" class="theme--item">
             <ion-grid>
                 <ion-row class="ion-justify-content-center">
@@ -55,7 +57,8 @@
 <ion-footer>
     <ion-toolbar>
         <ion-row class="ion-justify-content-center">
-            <ion-button (click)="updateProfilePicture()" expand="block">Upload</ion-button>
+            <ion-button color="danger" (click)="reset()" expand="block">Reset</ion-button>
+            <ion-button (click)="dismiss()" expand="block">Done</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

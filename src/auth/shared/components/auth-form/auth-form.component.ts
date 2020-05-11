@@ -1,6 +1,9 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
+import { Plugins } from '@capacitor/core';
+const { Browser } = Plugins;
+
 @Component({
   selector: 'auth-form',
   styleUrls: ['auth-form.component.scss'],
@@ -19,6 +22,10 @@ export class AuthFormComponent {
   constructor(
     private fb: FormBuilder
   ) {}
+
+  async showPrivacy() {
+    await Browser.open({ url: 'https://ottertherapies.com/privacy-and-terms' });
+  }
 
   onSubmit() {
     if (this.form.valid) {

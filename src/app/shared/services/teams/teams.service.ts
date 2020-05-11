@@ -57,6 +57,7 @@ export class TeamsService {
   unread$: Observable<Unread>;
   teams$: Observable<Team[]>;
   team$: Observable<Team>;
+  badgeTotal: number;
 
   constructor(
     private store: Store,

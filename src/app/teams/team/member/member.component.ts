@@ -42,6 +42,9 @@ export class MemberComponent implements OnInit {
     date: Date;
     time: number;
     segment: string = 'info';
+    memberSub: Subscription;
+    watch: boolean;
+    member: Member;
 
     constructor(
         private store: Store,
@@ -57,32 +60,39 @@ export class MemberComponent implements OnInit {
     }
     
     segmentChanged(event) {
-        this.member$.subscribe(member => {
-            if (member && member.messages.length) {
-                this.scrollToBottom(0);
-                this.checkUnread();
-            }
-        })
-        this.mutationObserver = new MutationObserver((mutations) => {
-            this.scrollToBottom(500);
-            this.checkUnread();
-        })
-        this.mutationObserver.observe(this.scroll.nativeElement, {
-            childList: true
-        });
+        if (event.detail.value == 'messages') {
+            this.watch = true;
+            this.memberSub = this.member$.subscribe(member => {
+                if (member && member.messages.length) {
+                    this.member = member;
+                    if (this.watch) {
+                        this.scrollToBottom(0);
+                        this.checkUnread();
+                        this.mutationObserver = new MutationObserver((mutations) => {
+                            this.scrollToBottom(500);
+                            this.checkUnread();
+                        })
+                        this.mutationObserver.observe(this.scroll.nativeElement, {
+                            childList: true
+                        });
+                    }
+                }
+            })
+        } else if (event.detail.value !== 'messages') {
+            this.watch = false;
+        }
+
     }
 
     checkUnread() {
-        this.member$.pipe(tap(member => {
-            if (member.unread.unreadMessages > 0) {
+        if (this.member.unread.unreadMessages > 0) {
+            this.membersService.checkLastMessage(this.directId);
+        }
+        setTimeout(() => {
+            if (this.member.unread.unreadMessages > 0) {
                 this.membersService.checkLastMessage(this.directId);
             }
-            setTimeout(() => {
-                if (member.unread.unreadMessages > 0) {
-                    this.membersService.checkLastMessage(this.directId);
-                }
-            }, 5000)
-        })).subscribe();
+        }, 5000)
     }
 
     scrollToBottom(duration) {
@@ -141,6 +151,10 @@ export class MemberComponent implements OnInit {
     }
 
     ngOnDestroy() {
+        this.watch = false;
+        if (this.memberSub && !this.memberSub.closed) {
+            this.memberSub.unsubscribe();
+        }
         this.subscriptions.forEach(sub => sub.unsubscribe());
     }
 

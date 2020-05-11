@@ -1,7 +1,42 @@
+rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if request.auth!=null;
+  
+    function signedIn() {
+      return request.auth.uid != null;
+    }
+    
+    function userAccess(userId) {
+    	return request.auth.uid == userId;
+    }
+    
+    function teamAccess(teamId) {
+    	return request.auth.token[teamId] == true;
+    }
+    
+    function groupAccess(groupId) {
+    	return request.auth.token[groupId] == true;
+    }
+    
+    function directAccess(directId) {
+    	return directId.matches('.*'+request.auth.uid) || directId.matches(request.auth.uid+'.*');
+    }
+  
+    match /users/{userId}/profile/{fileId} {
+      allow read, write: if signedIn() && userAccess(userId);
+    }
+    match /users/{userId}/teams/{teamId}/files/{fileId} {
+    	allow read, write: if signedIn() && userAccess(userId) && teamAccess(teamId);
+    }
+    match /teams/{teamId}/profile/{fileId} {
+    	allow read, write: if signedIn() && teamAccess(teamId);
+    }
+    match /teams/{teamId}/groups/{groupId}/files/{fileId} {
+      allow read, write: if signedIn() && teamAccess(teamId) && groupAccess(groupId);
+    }
+    match /teams/{teamId}/direct/{directId}/files/{fileId} {
+      allow read, write: if signedIn() && teamAccess(teamId) && directAccess(directId);
     }
   }
 }

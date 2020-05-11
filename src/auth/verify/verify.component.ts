@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import { AuthService } from '../shared/services/auth/auth.service';
 import { Router } from '@angular/router';
 
+import { Plugins } from '@capacitor/core';
+const { Browser } = Plugins;
+
 @Component({
     selector: 'app-verify',
     styleUrls: ['verify.component.scss'],
@@ -14,6 +17,10 @@ export class VerifyComponent {
         private authService: AuthService,
         private router: Router
     ) { }
+
+    async showPrivacy() {
+        await Browser.open({ url: 'https://ottertherapies.com/privacy-and-terms' });
+    }
 
     async continue() {
         try {

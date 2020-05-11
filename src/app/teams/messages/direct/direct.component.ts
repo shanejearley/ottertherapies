@@ -38,7 +38,9 @@ export class DirectComponent implements OnInit {
   public page: string;
   date: Date;
   time: number;
-  memberSub: Subscription
+  memberSub: Subscription;
+  watch: boolean;
+  member: Member;
 
   constructor(
     private store: Store,
@@ -50,33 +52,35 @@ export class DirectComponent implements OnInit {
   ) { }
 
   ngAfterViewInit() {
+    this.watch = true;
     this.subscriptions = [ this.memberSub ]
     this.memberSub = this.member$.pipe(tap(member => {
       if (member && member.messages.length) {
-        this.scrollToBottom(0);
-        this.checkUnread();
+        this.member = member;
+        if (this.watch) {
+          this.scrollToBottom(0);
+          this.checkUnread();
+          this.mutationObserver = new MutationObserver((mutations) => {
+            this.scrollToBottom(500);
+            this.checkUnread();
+          })
+          this.mutationObserver.observe(this.scroll.nativeElement, {
+            childList: true
+          });
+        }
       }
     })).subscribe()
-    this.mutationObserver = new MutationObserver((mutations) => {
-      this.scrollToBottom(500);
-      this.checkUnread();
-    })
-    this.mutationObserver.observe(this.scroll.nativeElement, {
-      childList: true
-    });
   }
 
   checkUnread() {
-    this.memberSub = this.member$.pipe(tap(member => {
-      if (member.unread && member.unread.unreadMessages > 0) {
+    if (this.member.unread && this.member.unread.unreadMessages > 0) {
+      this.membersService.checkLastMessage(this.directId);
+    }
+    setTimeout(() => {
+      if (this.member.unread && this.member.unread.unreadMessages > 0) {
         this.membersService.checkLastMessage(this.directId);
       }
-      setTimeout(() => {
-        if (member.unread && member.unread.unreadMessages > 0) {
-          this.membersService.checkLastMessage(this.directId);
-        }
-      }, 5000)
-    })).subscribe();
+    }, 5000)
   }
 
   scrollToBottom(duration) {
@@ -135,6 +139,7 @@ export class DirectComponent implements OnInit {
   }
 
   ngOnDestroy() {
+    this.watch = false;
     this.subscriptions.forEach(sub => {
       if (sub) {
         sub.unsubscribe()

@@ -19,6 +19,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ProfilePictureComponent {
     team$: Observable<Team>;
+    teamId: string;
     currentTeam;
     imageChangedEvent: any = '';
     croppedImage: any = '';
@@ -28,7 +29,6 @@ export class ProfilePictureComponent {
     profile$: Observable<Profile>;
     error: boolean;
     done: boolean = false;
-    type: string;
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,
@@ -70,26 +70,7 @@ export class ProfilePictureComponent {
     }
 
     ionViewWillEnter() {
-        this.type = this.navParams.get('type');
-        if (this.type === 'profile') {
-            this.profile$ = this.store.select<Profile>('profile');
-            this.profile$.pipe(tap(profile => {
-                this.currentProfile = profile;
-            })).subscribe();
-        } else if (this.type === 'child') {
-            this.team$ = this.activatedRoute.params
-                .pipe(switchMap(param => this.teamsService.getTeam(param.id)));
-            this.team$.subscribe(team => {
-                this.currentTeam = {
-                    id: team.id ? team.id : null,
-                    name: team.name ? team.name : null,
-                    publicId: team.publicId ? team.publicId : null,
-                    child: team.child ? team.child : null,
-                    bio: team.bio ? team.bio : null,
-                    url: team.url ? team.url : null,
-                }
-            })
-        }
+        this.teamId = this.navParams.get('teamId');
     }
 
     dismiss() {
@@ -98,27 +79,13 @@ export class ProfilePictureComponent {
         });
     }
 
-    get uid() {
-        return this.authService.user.uid;
+    reset() {
+        this.imageChangedEvent = null;
+        this.croppedImage = null;
     }
 
-    async updateProfilePicture() {
-        try {
-            if (this.type === 'profile') {
-                await this.profileService.updateProfilePicture(this.croppedImage, this.currentProfile);
-            } else if (this.type === 'child') {
-                console.log('build update function in service')
-                //await this.teamsService.updateProfilePicture(this.croppedImage, this.currentTeam);
-            }
-            return this.modalController.dismiss({
-                response: 'success'
-            });
-        } catch (err) {
-            console.log(err);
-            return this.modalController.dismiss({
-                response: err
-            })
-        }
+    get uid() {
+        return this.authService.user.uid;
     }
 
 }

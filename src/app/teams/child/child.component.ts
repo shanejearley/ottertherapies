@@ -80,7 +80,7 @@ export class ChildComponent implements OnInit {
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl,
       componentProps: {
-        'type': 'child',
+        'teamId': this.team.id,
       }
     });
     modal.onWillDismiss().then(data => {

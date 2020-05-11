@@ -49,12 +49,12 @@
         </ion-card>
       </div>
 
-      <ion-list-header>
+      <ion-list-header *ngIf="(members$ | async)?.length > 1">
         Direct Messages
       </ion-list-header>
 
       <div *ngFor="let m of (members$ | async); let i = index">
-        <ion-card *ngIf="m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Member' || m.profile && m.uid !== (profile$ | async)?.uid && m.status == 'Admin'"
+        <ion-card *ngIf="m.profile && m.uid !== (profile$ | async)?.uid"
           routerDirection="forward" (click)="goTo('Direct', m.uid)" button class="theme--card">
           <ion-item class="theme--item thumbnail--list" lines="none" detail="true">
             <ion-thumbnail slot="start" class="avatar-thumbnail">
