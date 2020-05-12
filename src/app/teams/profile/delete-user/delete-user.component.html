@@ -35,8 +35,8 @@
 
 <ion-footer>
     <ion-toolbar>
-        <ion-row class="ion-justify-content-center">
-            <ion-button [disabled]="!confirm.isChecked" (click)="deleteUser()" expand="block" color="danger">Delete Account</ion-button>
+        <ion-row class="ion-justify-content-end">
+            <ion-button fill="clear" [disabled]="!confirm.isChecked" (click)="deleteUser()" color="danger">Delete Account</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

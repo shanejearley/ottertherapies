@@ -97,7 +97,7 @@
 <ion-footer [translucent]="true">
     <ion-toolbar>
         <ion-row class="ion-justify-content-between">
-            <ion-button fill="clear" color="danger" (click)="removeGroup()">Delete</ion-button>
+            <ion-button fill="clear" color="danger" (click)="removeGroup()" [disabled]="memberStatus == 'Member'">Delete</ion-button>
             <ion-button fill="clear" (click)="updateGroup()" [disabled]="memberStatus == 'Member'">Save</ion-button>
         </ion-row>
     </ion-toolbar>

@@ -48,13 +48,13 @@
                 </ion-item>
                 <ion-item lines="none" *ngIf="(profile$ | async)">
                   <ion-icon slot="start" name="mail-outline"></ion-icon>
-                    <h2 class="full-width">
-                      <ion-input class="form" [(ngModel)]="profile.email">
-                      </ion-input>
-                    </h2>
-                  <ion-button fill="clear" slot="end">
+                  <h2 class="full-width">
+                    <ion-input class="form" [(ngModel)]="profile.email" disabled>
+                    </ion-input>
+                  </h2>
+                  <!-- <ion-button fill="clear" slot="end">
                     <ion-icon slot="icon-only" name="lock-closed-outline"></ion-icon>
-                  </ion-button>
+                  </ion-button> -->
                 </ion-item>
                 <ion-item lines="none" *ngIf="(profile$ | async)">
                   <ion-icon slot="start" name="people-outline"></ion-icon>
@@ -98,7 +98,7 @@
 <ion-footer [translucent]="true">
   <ion-toolbar>
     <ion-row class="ion-justify-content-between">
-      <ion-button (click)="deleteUser()" fill="clear" color="danger" expand="block">Delete</ion-button>
+      <ion-button (click)="deleteUser()" fill="clear" color="danger">Delete</ion-button>
       <ion-button fill="clear" (click)="updateProfile()">Save</ion-button>
     </ion-row>
   </ion-toolbar>
