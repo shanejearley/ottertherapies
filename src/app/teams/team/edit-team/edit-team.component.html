@@ -81,10 +81,11 @@
     </ion-list>
 </ion-content>
 
-<ion-footer>
+<ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-center">
-            <ion-button (click)="updateMembers()" expand="block">Save</ion-button>
+        <ion-row class="ion-justify-content-between">
+            <ion-button fill="clear" color="danger" expand="block">Delete</ion-button>
+            <ion-button fill="clear" (click)="updateMembers()" [disabled]="memberStatus == 'Member'">Save</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

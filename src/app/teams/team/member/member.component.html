@@ -15,6 +15,20 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="profile--content" #contentArea [class.scroll-ios]="ios" [ngSwitch]="segment">
+    <ion-fab *ngSwitchCase="'files'" horizontal="end" vertical="top" slot="fixed" edge>
+        <ion-fab-button>
+            <ion-icon name="add-outline"></ion-icon>
+        </ion-fab-button>
+
+        <ion-fab-list side="bottom">
+            <ion-fab-button title="Scan Files" (click)="scanDoc()">
+                <ion-icon name="scan-outline"></ion-icon>
+            </ion-fab-button>
+            <ion-fab-button title="Upload Files" (click)="browseModal()">
+                <ion-icon name="document-text-outline"></ion-icon>
+            </ion-fab-button>
+        </ion-fab-list>
+    </ion-fab>
     <ion-grid *ngSwitchCase="'info'" class="ion-no-padding">
         <ion-row class="profile--pic--header ion-justify-content-center ion-padding" *ngIf="(member$ | async)?.profile">
             <ion-col class="ion-justify-content-center ion-padding" size="auto">
@@ -84,7 +98,8 @@
                     </ng-template>
                 </ion-row>
 
-                <ion-item class="theme--item message--item" lines="none">
+                <ion-item class="theme--item message--item" lines="none"
+                    [class.changeUser]="(member$ | async)?.messages[i-1] && (member$ | async)?.messages[i-1].uid !== m.uid">
                     <ion-row class="member--row" slot="start"
                         *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage">
                         <ion-avatar class="dialog--member"
@@ -179,7 +194,8 @@
                         [(ngModel)]="newBody" (keyup.enter)="sendMessage()" (keydown.enter)="onKeydown($event)"
                         (ionFocus)="scrollOnFocus()">
                     </ion-textarea>
-                    <ion-button class="message--button ion-padding-start" (click)="sendMessage()" fill="clear" [disabled]="!newBody.length">
+                    <ion-button class="message--button ion-padding-start" (click)="sendMessage()" fill="clear"
+                        [disabled]="!newBody.length">
                         <ion-icon [name]="'send' + '-outline'"></ion-icon>
                     </ion-button>
                 </ion-row>

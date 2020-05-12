@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterContentChecked, AfterViewInit, AfterContentInit } from '@angular/core';
-import { Router, RoutesRecognized } from '@angular/router';
+import { Router, RoutesRecognized, GuardsCheckEnd } from '@angular/router';
 
 import { Platform, Config } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
@@ -204,17 +204,18 @@ export class AppComponent implements OnInit {
     //this.badge$ = this.store.select<number>('badge');
     this.subscribeUser();
     this.router.events.subscribe(val => {
-      if (val instanceof RoutesRecognized) {
+      console.log('ROUTER EVENT', val);
+      if (val instanceof GuardsCheckEnd) {
         this.teamId = val.state.root.firstChild.params['id'];
         if (this.teamId !== this.lastId) {
           this.team$ = this.teamsService.getTeam(this.teamId);
           this.subscribeUserTeam();
           this.lastId = this.teamId;
         }
-        if (val.state.root.firstChild.params['id']) {
+        if (val.state.root.firstChild.params['id'] && val.shouldActivate) {
           this.page = val.state.root.firstChild.url[2].path;
         }
-        if (!val.state.root.firstChild.params['id']) {
+        if (!val.state.root.firstChild.params['id'] && val.shouldActivate) {
           this.page = null;
         }
       }

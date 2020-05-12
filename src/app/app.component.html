@@ -36,8 +36,8 @@
           <div *ngIf="(team$ | async); else elseItem">
             <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
               <ion-item *ngIf="p.title !== 'Profile' && p.title !== 'Privacy'" routerDirection="root" [routerLink]="['/Teams', teamId, p.title]"
-                detail="false" [class.selected]="p.title == page">
-                <ion-icon slot="start" [name]="p.title == page ? p.icon : p.icon + '-outline'"></ion-icon>
+                detail="false" [class.selected]="p.title === page">
+                <ion-icon slot="start" [name]="p.title === page ? p.icon : p.icon + '-outline'"></ion-icon>
                 <ion-label>{{ p.title }}</ion-label>
                 <ion-badge color="light" slot="end" *ngIf="p.title == 'Events'">
                 </ion-badge>
@@ -81,8 +81,8 @@
         <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
 
           <ion-item lines="none" *ngIf="p.title == 'Profile'" routerDirection="root"
-            [routerLink]="['/Teams', teamId, p.title]" detail="false" [class.selected]="p.title == page">
-            <ion-icon slot="start" [name]="p.title == page ? p.icon : p.icon + '-outline'"></ion-icon>
+            [routerLink]="['/Teams', teamId, p.title]" detail="false" [class.selected]="p.title === page">
+            <ion-icon slot="start" [name]="p.title === page ? p.icon : p.icon + '-outline'"></ion-icon>
             <ion-label>{{ p.title }}</ion-label>
           </ion-item>
 
@@ -97,8 +97,8 @@
 
         <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
 
-          <ion-item lines="none" *ngIf="p.title == 'Privacy'" (click)="showPrivacy()" detail="false" [class.selected]="p.title == page" button>
-            <ion-icon slot="start" [name]="p.title == page ? p.icon : p.icon + '-outline'"></ion-icon>
+          <ion-item lines="none" *ngIf="p.title == 'Privacy'" (click)="showPrivacy()" detail="false" [class.selected]="p.title === page" button>
+            <ion-icon slot="start" [name]="p.title === page ? p.icon : p.icon + '-outline'"></ion-icon>
             <ion-label>{{ p.title }}</ion-label>
           </ion-item>
 

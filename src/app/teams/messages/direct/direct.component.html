@@ -31,7 +31,7 @@
           </ng-template>
         </ion-row>
 
-        <ion-item class="theme--item message--item" lines="none">
+        <ion-item class="theme--item message--item" lines="none" [class.changeUser]="(member$ | async)?.messages[i-1] && (member$ | async)?.messages[i-1].uid !== m.uid">
           <ion-row class="member--row" slot="start" *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage">
             <ion-avatar class="dialog--member" *ngIf="(member$ | async)?.messages[i+1] && m.uid !== (member$ | async)?.messages[i+1].uid || !(member$ | async)?.messages[i+1] || (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
               <img *ngIf="(member$ | async)?.profile.url; else elseTextAvatar"

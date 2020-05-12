@@ -12,6 +12,7 @@ import { DocumentScanner, DocumentScannerOptions } from '@ionic-native/document-
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
+import { tap } from 'rxjs/operators';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 export class Scan {
@@ -26,6 +27,7 @@ export class Scan {
     styleUrls: ['./scan.component.scss']
 })
 export class ScanComponent {
+    sourceId: string;
     error: string;
     scans: Scan[] = [];
     folder;
@@ -52,6 +54,14 @@ export class ScanComponent {
 
     ionViewWillEnter() {
         this.teamId = this.navParams.get('teamId');
+        this.sourceId = this.navParams.get('sourceId');
+        if (this.sourceId !== 'files') {
+            this.members$.pipe(tap(ms => {
+                if (ms) {
+                    this.folder = ms.find(m => m.uid === this.sourceId);
+                }
+            })).subscribe()
+        }
     }
 
     dismiss() {

@@ -14,23 +14,25 @@
         </ion-list-header>
 
         <ion-radio-group allow-empty-selection [(ngModel)]="folder">
-
-            <div *ngFor="let g of (groups$ | async); let i = index">
-                <ion-item lines="none" detail="false" class="theme--item">
-                    <ion-avatar slot="start">
-                        <ngx-avatar name="{{ g.name }}" [size]="40"></ngx-avatar>
-                    </ion-avatar>
-                    <ion-label>
-                        <h2>{{ g.name }}</h2>
-                        <h3>{{ g.members.length > 1 ? g.members.length + ' Members' : g.members.length + ' Member' }}
-                        </h3>
-                    </ion-label>
-                    <ion-radio slot="end" color="primary" [value]="g"></ion-radio>
-                    <!-- <ion-checkbox slot="end" [(ngModel)]="g.isChecked"></ion-checkbox> -->
-                </ion-item>
+            <div *ngIf="sourceId === 'files'">
+                <div *ngFor="let g of (groups$ | async); let i = index">
+                    <ion-item lines="none" detail="false" class="theme--item">
+                        <ion-avatar slot="start">
+                            <ngx-avatar name="{{ g.name }}" [size]="40"></ngx-avatar>
+                        </ion-avatar>
+                        <ion-label>
+                            <h2>{{ g.name }}</h2>
+                            <h3>{{ g.members.length > 1 ? g.members.length + ' Members' : g.members.length + ' Member' }}
+                            </h3>
+                        </ion-label>
+                        <ion-radio slot="end" color="primary" [value]="g"></ion-radio>
+                        <!-- <ion-checkbox slot="end" [(ngModel)]="g.isChecked"></ion-checkbox> -->
+                    </ion-item>
+                </div>
             </div>
+
             <div *ngFor="let m of (members$ | async); let i = index">
-                <ion-item lines="none" detail="false" *ngIf="m.profile && m.uid !== (profile$ | async)?.uid" class="theme--item">
+                <ion-item lines="none" detail="false" *ngIf="sourceId === 'files' && m.profile && m.uid !== (profile$ | async)?.uid || sourceId === m.uid" class="theme--item">
                     <ion-avatar slot="start">
                         <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                         <ng-template #elseMemberAvatar>
@@ -41,12 +43,12 @@
                         <h2>{{ m.profile.displayName }}</h2>
                         <h3>2 Members</h3>
                     </ion-label>
-                    <ion-radio slot="end" color="primary" [value]="m"></ion-radio>
+                    <ion-radio slot="end" color="primary" [value]="m" [disabled]="sourceId !== 'files'"></ion-radio>
                     <!-- <ion-checkbox slot="end" [(ngModel)]="m.isChecked"></ion-checkbox> -->
                 </ion-item>
             </div>
             <div *ngFor="let m of (members$ | async); let i = index">
-                <ion-item lines="none" detail="false" *ngIf="m.profile && m.uid === (profile$ | async)?.uid" class="theme--item">
+                <ion-item lines="none" detail="false" *ngIf="sourceId === 'files' && m.profile && m.uid === (profile$ | async)?.uid" class="theme--item">
                     <ion-avatar slot="start">
                         <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                         <ng-template #elseMemberAvatar>

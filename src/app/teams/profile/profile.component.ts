@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { HostListener } from '@angular/core';
+
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators'
@@ -12,16 +14,26 @@ import { ProfilePictureComponent } from './profile-picture/profile-picture.compo
 import { DeleteUserComponent } from './delete-user/delete-user.component';
 
 import { Store } from 'src/store';
-import { ModalController, ToastController, IonRouterOutlet } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet, ActionSheetController } from '@ionic/angular';
+import { ComponentCanDeactivate } from 'src/app/shared/guards/pending-changes.guard';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, ComponentCanDeactivate {
+  // @HostListener allows us to also guard against browser refresh, close, etc.
+  @HostListener('window:beforeunload')
+  canDeactivate(): Observable<boolean> | boolean {
+    if (this.profile.displayName !== this.currentProfile.displayName || this.profile.role !== this.currentProfile.role) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   firstTime: boolean = false;
-  edit: boolean = false;
   data: any;
   user$: Observable<User>;
   profile$: Observable<Profile>;
@@ -31,12 +43,13 @@ export class ProfileComponent implements OnInit {
   public team: string;
   public page: string;
   profile: Profile;
+  currentProfile: Profile;
   roleList: any[] = [
-    { name: 'Parent' }, 
-    { name: 'Guardian' }, 
+    { name: 'Parent' },
+    { name: 'Guardian' },
     { name: 'Teacher' },
     { name: 'Speech Therapist' },
-    { name: 'Occupational Therapist' }, 
+    { name: 'Occupational Therapist' },
     { name: 'Physical Therapist' },
     { name: 'Nurse' },
     { name: 'Physician' },
@@ -55,7 +68,8 @@ export class ProfileComponent implements OnInit {
     private modalController: ModalController,
     private toastController: ToastController,
     private router: Router,
-    private routerOutlet: IonRouterOutlet
+    private routerOutlet: IonRouterOutlet,
+    private actionSheetController: ActionSheetController
   ) { }
 
   ngOnInit() {
@@ -72,9 +86,11 @@ export class ProfileComponent implements OnInit {
           fcmTokens: profile.fcmTokens || null,
           badge: profile.badge || null
         }
+        if (!this.currentProfile) {
+          this.currentProfile = profile;
+        }
         if (!profile.displayName) {
           this.firstTime = true;
-          this.edit = true;
         } else {
           this.selected = this.profile.role;
           this.roleList.forEach(role => {
@@ -82,7 +98,7 @@ export class ProfileComponent implements OnInit {
               this.selected = role;
             }
           })
-        } 
+        }
       }
     })).subscribe()
     this.subscriptions = [
@@ -103,6 +119,30 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  async presentActionSheet() {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Warning: Permanent Action',
+      buttons: [{
+        text: 'Delete',
+        role: 'destructive',
+        icon: 'trash',
+        handler: () => {
+          console.log('Delete clicked');
+          this.presentDeleteUserToast();
+          this.authService.deleteUser();
+        }
+      }, {
+        text: 'Cancel',
+        icon: 'close',
+        role: 'cancel',
+        handler: () => {
+          console.log('Cancel clicked');
+        }
+      }]
+    });
+    await actionSheet.present();
+  }
+
   async deleteUserModal() {
     const modal = await this.modalController.create({
       component: DeleteUserComponent,
@@ -116,8 +156,7 @@ export class ProfileComponent implements OnInit {
     modal.onWillDismiss().then(data => {
       this.data = data.data;
       if (this.data.response == 'delete') {
-        this.presentDeleteUserToast();
-        this.authService.deleteUser();
+        this.presentActionSheet();
       }
     });
     await modal.present();
@@ -170,8 +209,13 @@ export class ProfileComponent implements OnInit {
   }
 
   async updateProfile() {
-    this.edit = false;
-    await this.profileService.updateProfile(this.uid, this.profile);
+    if (this.profile.displayName !== this.currentProfile.displayName || this.profile.role !== this.currentProfile.role) {
+      console.log('updating...');
+      this.currentProfile = null;
+      await this.profileService.updateProfile(this.uid, this.profile);
+    } else {
+      console.log('no update necessary');
+    }
     await this.presentProfileUpdateToast();
     if (this.firstTime) {
       this.firstTime = false;

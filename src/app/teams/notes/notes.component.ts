@@ -11,6 +11,7 @@ import { TeamsService, Team } from '../../shared/services/teams/teams.service';
 import { NotesService, Note } from '../../shared/services/notes/notes.service';
 
 import { Store } from 'src/store';
+import { ActionSheetController } from '@ionic/angular';
 
 @Component({
   selector: 'app-notes',
@@ -36,7 +37,8 @@ export class NotesComponent implements OnInit {
     private store: Store,
     private activatedRoute: ActivatedRoute,
     private teamsService: TeamsService,
-    private notesService: NotesService
+    private notesService: NotesService,
+    private actionSheetController: ActionSheetController
   ) { }
 
   ngOnInit() {
@@ -49,7 +51,8 @@ export class NotesComponent implements OnInit {
       if (notes) {
         this.notes = notes;
         this.notes.sort(this.dynamicSort('timestamp'));
-        notes.forEach(n => {
+        notes.forEach((n: Note) => {
+          n.newComment = '';
           if (n.unread && n.unread.unreadNotes > 0) {
             this.notesService.checkLastNote(n.id);
           }
@@ -63,6 +66,43 @@ export class NotesComponent implements OnInit {
     ];
     this.team$ = this.activatedRoute.params
       .pipe(switchMap(param => this.teamsService.getTeam(param.id)));
+  }
+
+  async removeNote(noteId: string) {
+    return this.presentActionSheet("note", noteId, null);
+  }
+
+  async removeComment(noteId: string, commentId: string) {
+    return this.presentActionSheet("comment", noteId, commentId);
+  }
+
+  async presentActionSheet(type: string, noteId: string, commentId: string) {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Warning: Permanent Action',
+      buttons: [{
+        text: 'Delete',
+        role: 'destructive',
+        icon: 'trash',
+        handler: () => {
+          console.log('Delete clicked');
+          if (type === 'note') {
+            return this.notesService.removeNote(noteId);
+            //
+          } else if (type === 'comment') {
+            return this.notesService.removeComment(noteId, commentId);
+            //
+          }
+        }
+      }, {
+        text: 'Cancel',
+        icon: 'close',
+        role: 'cancel',
+        handler: () => {
+          console.log('Cancel clicked');
+        }
+      }]
+    });
+    await actionSheet.present();
   }
 
   onSort(ev: { detail: { value: any; }; }) {
@@ -117,9 +157,9 @@ export class NotesComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    console.log('destroying');
-    if (this.notesSub && !this.notesSub.closed) { this.notesSub.unsubscribe }
-    if (this.notes) { this.notes = null }
+    // console.log('destroying');
+    // if (this.notesSub && !this.notesSub.closed) { this.notesSub.unsubscribe }
+    // if (this.notes) { this.notes = null }
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 

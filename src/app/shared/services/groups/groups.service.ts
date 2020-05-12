@@ -250,6 +250,11 @@ export class GroupsService {
         map((group: Group[]) => group.find((group: Group) => group.id === id)));
   }
 
+  async removeGroup(groupId: string) {
+    const groupDoc = this.db.doc<Group>(`teams/${this.teamId}/groups/${groupId}`);
+    return groupDoc.delete();
+  }
+
   checkLastMessage(groupId: string) {
     this.unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
     this.unreadUpdateDoc.set({

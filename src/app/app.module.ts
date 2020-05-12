@@ -20,6 +20,7 @@ import { Store } from 'src/store';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { UploadTaskComponent } from './teams/files/upload-task/upload-task.component';
+import { PendingChangesGuard } from './shared/guards/pending-changes.guard';
 
 @NgModule({
   declarations: [AppComponent],
@@ -44,6 +45,7 @@ import { UploadTaskComponent } from './teams/files/upload-task/upload-task.compo
     SplashScreen,
     DocumentScanner,
     Badge,
+    PendingChangesGuard,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

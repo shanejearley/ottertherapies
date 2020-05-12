@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { ModalController, ToastController, IonRouterOutlet, AlertController, Platform } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet, AlertController, Platform, ActionSheetController } from '@ionic/angular';
 import { Plugins } from '@capacitor/core';
 const { Browser } = Plugins;
 import { AngularFirestore } from '@angular/fire/firestore'
@@ -52,6 +52,7 @@ export class FilesComponent implements OnInit {
   public team: string;
   public page: string;
   public data: any;
+  private sheetData: any;
 
   constructor(
     private store: Store,
@@ -67,7 +68,8 @@ export class FilesComponent implements OnInit {
     private membersService: MembersService,
     private authService: AuthService,
     private routerOutlet: IonRouterOutlet,
-    private platform: Platform
+    private platform: Platform,
+    private actionSheetController: ActionSheetController
   ) { }
 
   ngOnInit() {
@@ -76,13 +78,6 @@ export class FilesComponent implements OnInit {
       this.ios = this.platform.is('ios');
       this.android = this.platform.is('android');
       console.log(this.desktop, this.ios, this.android)
-      // if (this.platform.is('desktop')) {
-      //   this.desktop = true;
-      // } else if (this.platform.is('ios')) {
-      //   this.ios = true;
-      // } else if (this.platform.is('android')) {
-      //   this.android = true;
-      // }
     })
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
@@ -101,6 +96,34 @@ export class FilesComponent implements OnInit {
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  async presentActionSheet(type: string, folderId: string, fileId: string, fileUrl: string) {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Warning: Permanent Action',
+      buttons: [{
+        text: 'Delete',
+        role: 'destructive',
+        icon: 'trash',
+        handler: () => {
+          console.log('Delete clicked');
+          if (type === 'group') {
+            console.log('Delete group file');
+            return this.groupsService.removeFile(folderId, fileId, fileUrl);
+          } else if (type === 'member') {
+            return this.membersService.removeFile(folderId, fileId, fileUrl);
+          }
+        }
+      }, {
+        text: 'Cancel',
+        icon: 'close',
+        role: 'cancel',
+        handler: () => {
+          console.log('Cancel clicked');
+        }
+      }]
+    });
+    await actionSheet.present();
   }
 
   generatePdf(data) {
@@ -135,7 +158,8 @@ export class FilesComponent implements OnInit {
     const modal = await this.modalController.create({
       component: ScanComponent,
       componentProps: {
-        'teamId': this.teamId
+        'teamId': this.teamId,
+        'sourceId': 'files'
       },
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl
@@ -150,7 +174,8 @@ export class FilesComponent implements OnInit {
     const modal = await this.modalController.create({
       component: BrowseComponent,
       componentProps: {
-        'teamId': this.teamId
+        'teamId': this.teamId,
+        'sourceId': 'files'
       },
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl
@@ -190,12 +215,12 @@ export class FilesComponent implements OnInit {
     }
   }
 
-  removeGroupFile(groupId, fileId, fileUrl) {
-    return this.groupsService.removeFile(groupId, fileId, fileUrl);
+  async removeGroupFile(groupId: string, fileId: string, fileUrl: string) {
+    return this.presentActionSheet("group", groupId, fileId, fileUrl);
   }
 
-  removeMemberFile(memberUid, fileId, fileUrl) {
-    return this.membersService.removeFile(memberUid, fileId, fileUrl);
+  async removeMemberFile(memberUid: string, fileId: string, fileUrl: string) {
+    return this.presentActionSheet("member", memberUid, fileId, fileUrl);
   }
 
   async previewFile(file) {

@@ -10,9 +10,14 @@
     <ion-list *ngIf="event" class="theme--list" lines="none">
         <ion-item class="theme--item" lines="none">
             <ion-icon slot="start"></ion-icon>
-            <h3 class="full-width">
+            <h3 class="full-width" *ngIf="memberStatus == 'Admin'; else readOnlyTitle">
                 <ion-input [(ngModel)]="event.name" placeholder="Add title" [disabled]="memberStatus == 'Member'" class="visible"></ion-input>
             </h3>
+            <ng-template #readOnlyTitle>
+                <ion-label>
+                    <h3>{{ event.name }}</h3>
+                </ion-label>
+            </ng-template>
         </ion-item>
         <ion-item lines="none" class="theme--item">
             <ion-icon slot="start"></ion-icon>
@@ -114,7 +119,12 @@
         </ion-list>
         <ion-item *ngIf="event.type == 'Event'" class="theme--item" lines="none">
             <ion-icon slot="start" [name]="'reader-outline'"></ion-icon>
-            <ion-textarea [(ngModel)]="event.info" placeholder="Add description" [disabled]="memberStatus == 'Member'"></ion-textarea>
+            <ion-textarea [(ngModel)]="event.info" placeholder="Add description" *ngIf="memberStatus == 'Admin'; else readOnlyDesc"></ion-textarea>
+            <ng-template #readOnlyDesc>
+                <ion-label>
+                    <h3>{{ event.info }}</h3>
+                </ion-label>
+            </ng-template>
         </ion-item>
         <ion-list *ngIf="memberStatus == 'Member'" class="theme--list" inset="true" lines="none">
             <ion-item detail="false" class="theme--item" lines="none">
@@ -137,10 +147,11 @@
     </ion-list>
 </ion-content>
 
-<ion-footer>
+<ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-center">
-            <ion-button (click)="updateEvent()" expand="block" [disabled]="memberStatus == 'Member'">Save</ion-button>
+        <ion-row class="ion-justify-content-between">
+            <ion-button fill="clear" color="danger" (click)="removeEvent()" [disabled]="memberStatus == 'Member'">Delete</ion-button>
+            <ion-button fill="clear" (click)="updateEvent()" [disabled]="memberStatus == 'Member'">Save</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

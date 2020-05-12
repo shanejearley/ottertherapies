@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AngularFireFunctions } from '@angular/fire/functions';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ActionSheetController } from '@ionic/angular';
 
 import { Plugins } from '@capacitor/core';
 const { Browser } = Plugins;
@@ -109,7 +109,8 @@ export class ResourcesComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private teamsService: TeamsService,
     public alertController: AlertController,
-    private resourcesService: ResourcesService
+    private resourcesService: ResourcesService,
+    private actionSheetController: ActionSheetController
   ) { }
 
   ngOnInit() {
@@ -128,6 +129,35 @@ export class ResourcesComponent implements OnInit {
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  async presentActionSheet(linkId: string) {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Warning: Permanent Action',
+      buttons: [{
+        text: 'Delete',
+        role: 'destructive',
+        icon: 'trash',
+        handler: () => {
+          console.log('Delete clicked');
+          this.resourcesService.removeLink(linkId);
+
+        }
+      }, {
+        text: 'Cancel',
+        icon: 'close',
+        role: 'cancel',
+        handler: () => {
+          console.log('Cancel clicked');
+        }
+      }]
+    });
+    await actionSheet.present();
+  }
+
+  async removeLink(linkId: string) {
+    console.log(linkId);
+    this.presentActionSheet(linkId);
   }
 
   getLocal(event) {

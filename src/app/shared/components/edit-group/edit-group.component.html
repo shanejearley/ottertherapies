@@ -81,7 +81,8 @@
                             <ion-row></ion-row>
                             <ion-card color="light" class="dialog message--card message--member">
                                 <ion-card-content>
-                                    <ion-label text-wrap>Ask the group creator or admin to make any necessary changes!</ion-label>
+                                    <ion-label text-wrap>Ask the group creator or admin to make any necessary changes!
+                                    </ion-label>
                                 </ion-card-content>
                             </ion-card>
                             <ion-row></ion-row>
@@ -93,10 +94,11 @@
     </ion-list>
 </ion-content>
 
-<ion-footer>
+<ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-center">
-            <ion-button (click)="updateGroup()" expand="block" [disabled]="memberStatus == 'Member'">Save</ion-button>
+        <ion-row class="ion-justify-content-between">
+            <ion-button fill="clear" color="danger" (click)="removeGroup()">Delete</ion-button>
+            <ion-button fill="clear" (click)="updateGroup()" [disabled]="memberStatus == 'Member'">Save</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

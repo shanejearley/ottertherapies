@@ -41,7 +41,7 @@
 
         <div *ngIf="m.profile as messageProfile">
 
-          <ion-item class="theme--item message--item" lines="none">
+          <ion-item class="theme--item message--item" lines="none" [class.changeUser]="(group$ | async)?.messages[i-1] && (group$ | async)?.messages[i-1].uid !== m.uid">
           
             <ion-row class="member--row" slot="start"
               *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage">

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavParams, ModalController } from '@ionic/angular';
+import { NavParams, ModalController, ActionSheetController } from '@ionic/angular';
 
 import moment from 'moment';
 
@@ -37,7 +37,8 @@ export class EditEventComponent {
         public modalController: ModalController,
         private store: Store,
         private authService: AuthService,
-        private eventsService: EventsService
+        private eventsService: EventsService,
+        private actionSheetController: ActionSheetController
     ) { }
 
     ngOnInit() {
@@ -77,6 +78,34 @@ export class EditEventComponent {
         this.modalController.dismiss({
             response: 'dismissed'
         });
+    }
+
+    async presentActionSheet() {
+        const actionSheet = await this.actionSheetController.create({
+          header: 'Warning: Permanent Action',
+          buttons: [{
+            text: 'Delete',
+            role: 'destructive',
+            icon: 'trash',
+            handler: async () => {
+              console.log('Delete clicked');
+              await this.eventsService.removeEvent(this.eventId);
+              return this.dismiss();
+            }
+          }, {
+            text: 'Cancel',
+            icon: 'close',
+            role: 'cancel',
+            handler: () => {
+              console.log('Cancel clicked');
+            }
+          }]
+        });
+        await actionSheet.present();
+    }
+
+    async removeEvent() {
+        return this.presentActionSheet();
     }
 
     get uid() {

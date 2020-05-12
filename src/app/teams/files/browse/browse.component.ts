@@ -1,5 +1,4 @@
-import { Component, Input } from '@angular/core';
-import { SafeResourceUrl } from '@angular/platform-browser';
+import { Component } from '@angular/core';
 import { NavParams, ModalController } from '@ionic/angular';
 
 import { AngularFirestore } from '@angular/fire/firestore';
@@ -24,6 +23,7 @@ import { Store } from 'src/store';
     styleUrls: ['./browse.component.scss'],
 })
 export class BrowseComponent {
+    sourceId: string;
     meta: Observable<any>;
     profile$: Observable<Profile>;
     groups$: Observable<Group[]>;
@@ -79,6 +79,14 @@ export class BrowseComponent {
 
     ionViewWillEnter() {
         this.teamId = this.navParams.get('teamId');
+        this.sourceId = this.navParams.get('sourceId');
+        if (this.sourceId !== 'files') {
+            this.members$.pipe(tap(ms => {
+                if (ms) {
+                    this.folder = ms.find(m => m.uid === this.sourceId);
+                }
+            })).subscribe()
+        }
     }
 
     dismiss() {

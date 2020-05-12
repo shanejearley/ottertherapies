@@ -250,7 +250,7 @@ exports.authOnDelete = functions.auth.user().onDelete(async (user) => {
     //const uid = user.uid;
     //const email = user.email; // The email of the user.
     try {
-        await bucket.deleteFiles({prefix: `users/${user.uid}/profile`});
+        await bucket.deleteFiles({ prefix: `users/${user.uid}/profile/` });
         console.log(`All the Firebase Storage files in users/${user.uid}/profile have been deleted`);
     } catch (err) {
         return console.log(err.message);
@@ -262,10 +262,81 @@ exports.authOnDelete = functions.auth.user().onDelete(async (user) => {
     console.log('Deleting user document for ', user.uid);
     return teams.forEach(async t => {
         await firestore.collection('teams').doc(t.id).collection('members').doc(user.uid).delete();
-        await bucket.deleteFiles({prefix: `users/${user.uid}/teams/${t.id}/files/`});
+        await bucket.deleteFiles({ prefix: `users/${user.uid}/teams/${t.id}/files/` });
         return console.log(`All the Firebase Storage files in users/${user.uid}/teams/${t.id}/files/ have been deleted`);
     })
 });
+
+exports.groupOnRemove = functions.firestore
+    .document('teams/{teamId}/groups/{groupId}')
+    .onDelete(async (snapshot, context) => {
+
+        console.log("snapshot", snapshot);
+        console.log("context", context);
+
+        console.log("teamId", context.params.teamId);
+        var teamId = context.params.teamId;
+        console.log("groupId", context.params.groupId);
+        var groupId = context.params.groupId;
+
+        const filesSnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('files').get();
+        var files = filesSnapshot.docs.map(doc => doc.data());
+        await bucket.deleteFiles({ prefix: `teams/${teamId}/groups/${groupId}/files/` });
+        await files.forEach(async file => {
+            return firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('files').doc(file.id).delete();
+        })
+
+        const messagesSnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('messages').get();
+        var messages = messagesSnapshot.docs.map(doc => doc.data());
+        await messages.forEach(async message => {
+            return firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('messages').doc(message.id).delete();
+        }) 
+
+        const membersSnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('members').get();
+        var members = membersSnapshot.docs.map(doc => doc.data());
+        return members.forEach(async member => {
+            await removeGroupClaims(member.uid, groupId);
+            await firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("groups").doc(groupId).delete();
+            await firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("unread").doc(groupId).delete();
+            return firestore.collection("teams").doc(teamId).collection("groups").doc(groupId).collection("members").doc(member.uid).delete();
+        })
+    })
+
+exports.eventOnRemove = functions.firestore
+    .document('teams/{teamId}/calendar/{eventId}')
+    .onDelete(async (snapshot, context) => {
+        console.log("snapshot", snapshot);
+        console.log("context", context);
+
+        console.log("teamId", context.params.teamId);
+        var teamId = context.params.teamId;
+        console.log("eventId", context.params.eventId);
+        var eventId = context.params.eventId;
+
+        const membersSnapshot = await firestore.collection('teams').doc(teamId).collection('calendar').doc(eventId).collection('members').get();
+        var members = membersSnapshot.docs.map(doc => doc.data());
+        return members.forEach(async member => {
+            return firestore.collection("teams").doc(teamId).collection("calendar").doc(eventId).collection("members").doc(member.uid).delete();
+        })
+    })
+
+exports.noteOnRemove = functions.firestore
+    .document('teams/{teamId}/notes/{noteId}')
+    .onDelete(async (snapshot, context) => {
+        console.log("snapshot", snapshot);
+        console.log("context", context);
+
+        console.log("teamId", context.params.teamId);
+        var teamId = context.params.teamId;
+        console.log("noteId", context.params.noteId);
+        var noteId = context.params.noteId;
+
+        const membersSnapshot = await firestore.collection('teams').doc(teamId).collection('members').get();
+        var members = membersSnapshot.docs.map(doc => doc.data());
+        return members.forEach(async member => {
+            return firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("unread").doc(noteId).delete();
+        })
+    })
 
 exports.pendingOnCreate = functions.firestore
     .document('teams/{teamId}/pendingMembers/{pendingMemberUid}')
@@ -389,8 +460,10 @@ exports.groupMemberOnJoin = functions.firestore
 exports.groupMemberOnRemove = functions.firestore
     .document('teams/{teamId}/groups/{groupId}/members/{memberUid}')
     .onDelete(async (snapshot, context) => {
+
         console.log("snapshot", snapshot);
         console.log("context", context);
+
         console.log("teamId", context.params.teamId);
         var teamId = context.params.teamId;
         console.log("groupId", context.params.groupId);

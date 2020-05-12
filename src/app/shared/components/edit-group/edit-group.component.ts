@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavParams, ModalController } from '@ionic/angular';
+import { NavParams, ModalController, ActionSheetController } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
@@ -34,7 +34,8 @@ export class EditGroupComponent {
         public modalController: ModalController,
         private store: Store,
         private authService: AuthService,
-        private groupsService: GroupsService
+        private groupsService: GroupsService,
+        private actionSheetController: ActionSheetController
     ) { }
 
     ngOnInit() {
@@ -77,6 +78,34 @@ export class EditGroupComponent {
 
     get uid() {
         return this.authService.user.uid;
+    }
+
+    async presentActionSheet() {
+        const actionSheet = await this.actionSheetController.create({
+          header: 'Warning: Permanent Action',
+          buttons: [{
+            text: 'Delete',
+            role: 'destructive',
+            icon: 'trash',
+            handler: async () => {
+              console.log('Delete clicked');
+              await this.groupsService.removeGroup(this.groupId);
+              return this.dismiss();
+            }
+          }, {
+            text: 'Cancel',
+            icon: 'close',
+            role: 'cancel',
+            handler: () => {
+              console.log('Cancel clicked');
+            }
+          }]
+        });
+        await actionSheet.present();
+    }
+
+    async removeGroup() {
+        return this.presentActionSheet();
     }
 
     updateGroup() {

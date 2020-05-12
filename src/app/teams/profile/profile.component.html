@@ -41,40 +41,31 @@
                 </ion-list-header>
                 <ion-item lines="none" *ngIf="(profile$ | async)">
                   <ion-icon slot="start" name="person-outline"></ion-icon>
-                  <ion-label *ngIf="edit == false; else editName">
-                    <h2 class="full-width"><strong>{{ (profile$ | async)?.displayName }}</strong></h2>
-                  </ion-label>
-                  <ng-template #editName>
-                    <h2 class="full-width"><strong>
-                        <ion-input class="form" [(ngModel)]="profile.displayName" placeholder="Add a display name">
-                        </ion-input>
-                      </strong></h2>
-                  </ng-template>
+                  <h2 class="full-width"><strong>
+                      <ion-input class="form" [(ngModel)]="profile.displayName" placeholder="Add a display name">
+                      </ion-input>
+                    </strong></h2>
                 </ion-item>
                 <ion-item lines="none" *ngIf="(profile$ | async)">
                   <ion-icon slot="start" name="mail-outline"></ion-icon>
-                  <ion-label>
-                    <h2 class="full-width">{{ (profile$ | async)?.email }}</h2>
-                  </ion-label>
+                    <h2 class="full-width">
+                      <ion-input class="form" [(ngModel)]="profile.email">
+                      </ion-input>
+                    </h2>
                   <ion-button fill="clear" slot="end">
                     <ion-icon slot="icon-only" name="lock-closed-outline"></ion-icon>
                   </ion-button>
                 </ion-item>
                 <ion-item lines="none" *ngIf="(profile$ | async)">
                   <ion-icon slot="start" name="people-outline"></ion-icon>
-                  <ion-label *ngIf="edit == false; else editRole">
-                    <h2 class="full-width">{{ (profile$ | async)?.role }}</h2>
-                  </ion-label>
-                  <ng-template #editRole>
-                    <h2 class="full-width">
-                      <ion-select placeholder="Select your team role" class="form" [(ngModel)]="profile.role"
-                        [selectedText]="profile.role">
-                        <ion-select-option [value]="role.name" *ngFor="let role of roleList">
-                          {{ role.name }}
-                        </ion-select-option>
-                      </ion-select>
-                    </h2>
-                  </ng-template>
+                  <h2 class="full-width">
+                    <ion-select placeholder="Select your team role" class="form" [(ngModel)]="profile.role"
+                      [selectedText]="profile.role">
+                      <ion-select-option [value]="role.name" *ngFor="let role of roleList">
+                        {{ role.name }}
+                      </ion-select-option>
+                    </ion-select>
+                  </h2>
                 </ion-item>
                 <ion-list *ngIf="firstTime" class="theme--list" inset="true" lines="none">
                   <ion-item detail="false" class="theme--item message--list" lines="none">
@@ -86,7 +77,8 @@
                         <ion-row></ion-row>
                         <ion-card color="light" class="dialog message--card message--member">
                           <ion-card-content>
-                            <ion-label text-wrap>Welcome to Otter! To get started, enter your display name and care role (right above me) and press save (down below me)</ion-label>
+                            <ion-label text-wrap>Welcome to Otter! To get started, enter your display name and care
+                              role.</ion-label>
                           </ion-card-content>
                         </ion-card>
                         <ion-row></ion-row>
@@ -106,11 +98,8 @@
 <ion-footer [translucent]="true">
   <ion-toolbar>
     <ion-row class="ion-justify-content-between">
-      <div>
-        <ion-button fill="clear" [disabled]="edit" (click)="edit = true">Edit</ion-button>
-        <ion-button fill="clear" [disabled]="!edit" (click)="updateProfile()">Save</ion-button>
-      </div>
-      <ion-button (click)="deleteUser()" fill="clear" color="danger" expand="block">Delete Account</ion-button>
+      <ion-button (click)="deleteUser()" fill="clear" color="danger" expand="block">Delete</ion-button>
+      <ion-button fill="clear" (click)="updateProfile()">Save</ion-button>
     </ion-row>
   </ion-toolbar>
 </ion-footer>

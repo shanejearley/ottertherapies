@@ -69,6 +69,14 @@ export class EventsService {
                     if (a.type == 'removed') {
                         const event = a.payload.doc.data() as Event;
                         event.id = a.payload.doc.id;
+                        this.events.forEach((e) => {
+                            if (e.id === event.id) {
+                                console.log('events', this.events);
+                                var index = this.events.indexOf(e);
+                                this.events.splice(index, 1);
+                                console.log("Removed event: ", e);
+                            }
+                        })
                     }
                     if (a.type == 'added' || a.type == 'modified') {
                         const event = a.payload.doc.data() as Event;
@@ -98,6 +106,14 @@ export class EventsService {
                     if (a.type == 'removed') {
                         const member = a.payload.doc.data() as Member;
                         member.uid = a.payload.doc.id;
+                        event.members.forEach((m) => {
+                            if (m.uid === member.uid) {
+                                console.log('members', event.members);
+                                var index = event.members.indexOf(m);
+                                event.members.splice(index, 1);
+                                console.log("Removed member: ", m);
+                            }
+                        })
                     }
                     if (a.type == 'added' || a.type == 'modified') {
                         const member = a.payload.doc.data() as Member;
@@ -122,6 +138,11 @@ export class EventsService {
             .pipe(
                 filter(Boolean),
                 map((event: Event[]) => event.find((event: Event) => event.id === id)));
+    }
+
+    async removeEvent(eventId: string) {
+        const eventDoc = this.db.doc<Event>(`teams/${this.teamId}/calendar/${eventId}`);
+        return eventDoc.delete();
     }
 
     getToday(day) {

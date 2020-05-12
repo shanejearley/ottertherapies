@@ -23,7 +23,7 @@
   <div id="container">
     <ion-list lines="none" class="theme--list">
 
-      <ion-card class="ion-padding" *ngFor="let link of (resources$ | async)" (click)="viewSite(link)" button>
+      <ion-card class="ion-padding" *ngFor="let link of (resources$ | async)" button>
         <ion-item class="theme--item" *ngIf="!link.preview; else linkPreview">
           <ion-label text-wrap>
             <h2><strong>{{ link.name }}</strong></h2>
@@ -33,10 +33,9 @@
         <ng-template #linkPreview>
           <ion-item class="theme--item" *ngFor="let linkData of link.preview.result">
             <ion-avatar class="resources--avatar" slot="start">
-              <img *ngIf="linkData.favicon; else otterHead" [src]="linkData.favicon">
-              <ng-template #otterHead>
+              <img *ngIf="linkData.favicon || linkData.image; else linkIcon" [src]="linkData.favicon ? linkData.favicon : linkData.image">
+              <ng-template #linkIcon>
                 <ion-icon name="link-outline"></ion-icon>
-                <!-- <img src="../../../assets/img/otter_head.svg"> -->
               </ng-template>
             </ion-avatar>
             <ion-label text-wrap>
@@ -44,12 +43,12 @@
               <h3>{{ linkData.description }}</h3>
               <p>{{ linkData.url }}</p>
             </ion-label>
-            <ion-thumbnail class="resources--thumbnail" slot="end">
-              <img *ngIf="linkData.image; else otterLogo" [src]="linkData.image" style="width: 100%;">
-              <ng-template #otterLogo>
-                <img src="../../../assets/img/otter_logo.svg">
-              </ng-template>
-            </ion-thumbnail>
+            <ion-button fill="clear" slot="end" (click)="removeLink(link.id)" *ngIf="link.id">
+              <ion-icon slot="icon-only" color="medium" name="trash-outline"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" slot="end" (click)="viewSite(link)">
+              <ion-icon slot="icon-only" color="medium" name="open-outline"></ion-icon>
+            </ion-button>
           </ion-item>
         </ng-template>
       </ion-card>

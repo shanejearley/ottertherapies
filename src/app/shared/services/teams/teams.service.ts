@@ -99,6 +99,7 @@ export class TeamsService {
     this.team$ = this.teamDoc.valueChanges()
       .pipe(
         tap(next => {
+          console.log('TEAM INFO UPDATE');
           team.name = next.name
           team.publicId = next.publicId
           team.child = next.child

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { IonContent, IonList, Config } from '@ionic/angular';
+import { IonContent, IonList, Config, ModalController, ToastController, IonRouterOutlet, AlertController, Platform } from '@ionic/angular';
 
 import { Plugins } from '@capacitor/core';
 const { Browser } = Plugins;
@@ -15,6 +15,8 @@ import { TeamsService, Team } from '../../../shared/services/teams/teams.service
 import { MembersService, Member, Message, Direct } from '../../../shared/services/members/members.service';
 
 import { Store } from 'src/store';
+import { ScanComponent } from '../../files/scan/scan.component';
+import { BrowseComponent } from '../../files/browse/browse.component';
 
 @Component({
     selector: 'app-member',
@@ -26,6 +28,8 @@ export class MemberComponent implements OnInit {
     @ViewChild(IonContent) contentArea: IonContent;
     @ViewChild(IonList, { read: ElementRef }) scroll: ElementRef;
     ios: boolean;
+    android: boolean;
+    desktop: boolean;
     private mutationObserver: MutationObserver;
     user$: Observable<User>;
     profile$: Observable<Profile>;
@@ -45,6 +49,7 @@ export class MemberComponent implements OnInit {
     memberSub: Subscription;
     watch: boolean;
     member: Member;
+    data: any;
 
     constructor(
         private store: Store,
@@ -52,13 +57,18 @@ export class MemberComponent implements OnInit {
         private authService: AuthService,
         private teamsService: TeamsService,
         private membersService: MembersService,
-        private config: Config
+        private config: Config,
+        private modalController: ModalController,
+        private toastController: ToastController,
+        private routerOutlet: IonRouterOutlet,
+        private alertController: AlertController,
+        private platform: Platform
     ) { }
 
     ngAfterViewInit() {
 
     }
-    
+
     segmentChanged(event) {
         if (event.detail.value == 'messages') {
             this.watch = true;
@@ -127,7 +137,12 @@ export class MemberComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.ios = this.config.get('mode') === 'ios';
+        this.platform.ready().then(() => {
+            this.desktop = this.platform.is('desktop');
+            this.ios = this.platform.is('ios');
+            this.android = this.platform.is('android');
+            console.log(this.desktop, this.ios, this.android)
+        })
         this.date = new Date();
         this.time = this.date.getTime();
         this.newBody = '';
@@ -164,6 +179,68 @@ export class MemberComponent implements OnInit {
 
     removeMemberFile(memberUid, fileId, fileUrl) {
         return this.membersService.removeFile(memberUid, fileId, fileUrl);
+    }
+
+    scanDoc() {
+        if (this.ios || this.android) {
+            this.scanModal();
+        } else if (this.desktop) {
+            this.useMobileAlert();
+        }
+    }
+
+    async useMobileAlert() {
+        const alert = await this.alertController.create({
+            // header: 'One sec!',
+            // subHeader: 'Scanning is a mobile feature',
+            message: 'Use the Otter mobile app to scan documents with your camera!',
+            buttons: ['OK']
+        });
+
+        await alert.present();
+    }
+
+    async scanModal() {
+        const modal = await this.modalController.create({
+            component: ScanComponent,
+            componentProps: {
+                'teamId': this.teamId,
+                'sourceId': this.directId
+            },
+            swipeToClose: true,
+            presentingElement: this.routerOutlet.nativeEl
+        });
+        modal.onWillDismiss().then(data => {
+            this.data = data.data;
+        });
+        return await modal.present();
+    }
+
+    async browseModal() {
+        const modal = await this.modalController.create({
+            component: BrowseComponent,
+            componentProps: {
+                'teamId': this.teamId,
+                'sourceId': this.directId
+            },
+            swipeToClose: true,
+            presentingElement: this.routerOutlet.nativeEl
+        });
+        modal.onWillDismiss().then(data => {
+            this.data = data.data;
+            if (this.data.response == 'success') {
+                this.presentToast();
+            }
+        });
+        return await modal.present();
+    }
+
+    async presentToast() {
+        const toast = await this.toastController.create({
+            message: 'Your upload was successful!',
+            duration: 2000
+        });
+        toast.present();
     }
 
 }

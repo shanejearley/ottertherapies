@@ -72,6 +72,9 @@
                   </ng-template>
                 </ion-text>
               </ion-label>
+              <ion-button slot="end" fill="clear" *ngIf="n.uid === (profile$ | async)?.uid" (click)="removeNote(n.id)">
+                <ion-icon slot="icon-only" color="medium" name="trash-outline"></ion-icon>
+              </ion-button>
               <!-- <ion-badge color="danger" *ngIf="g.unread && g.unread.unreadFiles > 0">
                 {{ g.unread.unreadFiles }}
               </ion-badge> -->
@@ -111,7 +114,7 @@
               <div *ngIf="n.comments.length" lines="none">
                 <ion-item lines="none" *ngFor="let c of n.comments; let i = index" class="notes--list">
                   <ion-avatar slot="start" class="comment--avatar">
-                    <img *ngIf="(c.profile | async) && (c.profile | async)?.url; else elseMemberAvatar" src="{{ (c.profile | async)?.url }}">
+                    <img *ngIf="(c.profile | async)?.url; else elseMemberAvatar" src="{{ (c.profile | async)?.url }}">
                     <ng-template #elseMemberAvatar>
                       <ngx-avatar name="{{ (c.profile | async)?.displayName }}" [size]="40"></ngx-avatar>
                     </ng-template>
@@ -124,6 +127,9 @@
                       <p class="notes--time">Today, {{ c.timestamp.toMillis() | date : 'shortTime' }}</p>
                     </ng-template>
                   </ion-label>
+                  <ion-button slot="end" fill="clear" *ngIf="c.uid === (profile$ | async)?.uid" (click)="removeComment(n.id, c.id)">
+                    <ion-icon slot="icon-only" color="medium" name="trash-outline"></ion-icon>
+                  </ion-button>
                 </ion-item>
               </div>
               <ion-item lines="none" class="notes--list">

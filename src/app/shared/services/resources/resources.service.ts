@@ -62,7 +62,12 @@ export class ResourcesService {
                     if (a.type == 'removed') {
                         const resource = a.payload.doc.data() as Resource;
                         resource.id = a.payload.doc.id;
-                        return;
+                        this.resources.forEach(r => {
+                            if (r.id === resource.id) {
+                                var index = this.resources.indexOf(r);
+                                this.resources.splice(index, 1);
+                            }
+                        });
                     }
                     if (a.type == 'added' || a.type == 'modified') {
                         const resource = a.payload.doc.data() as Resource;
@@ -100,6 +105,11 @@ export class ResourcesService {
             .pipe(
                 filter(Boolean),
                 map((resource: Resource[]) => resource.find((resource: Resource) => resource.id === id)));
+    }
+
+    removeLink(linkId: string) {
+        const resourceDoc = this.db.doc<Resource>(`teams/${this.teamId}/resources/${linkId}`)
+        return resourceDoc.delete();
     }
 
     addResource(resource: Resource) {

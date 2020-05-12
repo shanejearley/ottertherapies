@@ -22,7 +22,8 @@ export interface Note {
     isChecked: boolean,
     commentCount: firestore.FieldValue,
     flag: boolean,
-    profile: Observable<Profile>
+    profile: Observable<Profile>,
+    newComment: string
 }
 
 export interface Comment {
@@ -38,6 +39,7 @@ export class NotesService {
     private notesCol: AngularFirestoreCollection<Note>;
     private commentsCol: AngularFirestoreCollection<Comment>;
     private noteDoc: AngularFirestoreDocument<Note>;
+    private commentDoc: AngularFirestoreDocument<Comment>;
     private unreadDoc: AngularFirestoreDocument<Unread>;
     private unreadUpdateDoc: AngularFirestoreDocument;
     unread$: Observable<Unread>;
@@ -72,7 +74,14 @@ export class NotesService {
                     if (a.type == 'removed') {
                         const note = a.payload.doc.data() as Note;
                         note.id = a.payload.doc.id;
-                        return;
+                        this.notes.forEach((n) => {
+                            if (n.id === note.id) {
+                                console.log('notes', this.notes);
+                                var index = this.notes.indexOf(n);
+                                this.notes.splice(index, 1);
+                                console.log("Removed note: ", n);
+                            }
+                        })
                     }
                     if (a.type == 'added' || a.type == 'modified') {
                         const note = a.payload.doc.data() as Note;
@@ -106,11 +115,11 @@ export class NotesService {
                         ///remove based on file.id
                         const comment = a.payload.doc.data() as Comment;
                         comment.id = a.payload.doc.id;
-                        note.comments.forEach(function (m) {
-                            if (m.id === comment.id) {
-                                var index = note.comments.indexOf(comment);
+                        note.comments.forEach((c) => {
+                            if (c.id === comment.id) {
+                                var index = note.comments.indexOf(c);
                                 note.comments.splice(index, 1);
-                                console.log("Removed note comment: ", comment);
+                                console.log("Removed note comment: ", c);
                             }
                         })
                     }
@@ -159,7 +168,8 @@ export class NotesService {
             isChecked: null,
             commentCount: null,
             flag: false,
-            profile: null
+            profile: null,
+            newComment: null
         }
         this.notesCol = this.db.collection<Note>(`teams/${this.teamId}/notes`);
         this.notesCol.add(note);
@@ -187,6 +197,20 @@ export class NotesService {
         this.noteDoc.update({
             flag: !note.flag
         });
+    }
+
+    removeNote(noteId: string) {
+        const noteDoc = this.db.doc<Note>(`teams/${this.teamId}/notes/${noteId}`);
+        return noteDoc.delete();
+    }
+
+    async removeComment(noteId: string, commentId: string) {
+        const noteDoc = this.db.doc<Note>(`teams/${this.teamId}/notes/${noteId}`);
+        await noteDoc.update({
+            commentCount: firestore.FieldValue.increment(-1)
+        })
+        const commentDoc = this.db.doc<Comment>(`teams/${this.teamId}/notes/${noteId}/comments/${commentId}`);
+        return commentDoc.delete();
     }
 
 }
