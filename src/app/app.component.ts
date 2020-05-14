@@ -149,12 +149,17 @@ export class AppComponent implements OnInit {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
       if (this.platform.is('desktop')) {
+        console.log('PLATFORM DESKTOP');
         console.log('desktop')
         this.desktop = true;
-      } else if (this.platform.is('ios')) {
+      } 
+      if (this.platform.is('ios') && this.platform.is('capacitor')) {
+        console.log('PLATFORM IOS');
         this.ios = true;
         this.badge.set(0);
-      } else if (this.platform.is('android')) {
+      } 
+      if (this.platform.is('android') && this.platform.is('capacitor')) {
+        console.log('PLATFORM ANDROID');
         this.android = true;
         this.badge.set(0);
       }
@@ -204,7 +209,6 @@ export class AppComponent implements OnInit {
     //this.badge$ = this.store.select<number>('badge');
     this.subscribeUser();
     this.router.events.subscribe(val => {
-      console.log('ROUTER EVENT', val);
       if (val instanceof GuardsCheckEnd) {
         this.teamId = val.state.root.firstChild.params['id'];
         if (this.teamId !== this.lastId) {

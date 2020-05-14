@@ -18,7 +18,8 @@ export interface Profile {
     lastTeam: string,
     role: string,
     fcmTokens: object,
-    badge: number
+    badge: number,
+    gcalSync: boolean
 }
 
 export interface Item { name: string; }
@@ -63,7 +64,8 @@ export class ProfileService {
                         lastTeam: next.lastTeam ? next.lastTeam : null,
                         role: next.role ? next.role : null,
                         fcmTokens: next.fcmTokens ? next.fcmTokens : null,
-                        badge: next.badge ? next.badge : null
+                        badge: next.badge ? next.badge : null,
+                        gcalSync: next.gcalSync ? next.gcalSync : null
                     };
                     this.profile = profile;
                     this.store.set('profile', profile)

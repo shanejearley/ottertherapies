@@ -108,7 +108,7 @@
         </ion-list>
         <ion-item *ngIf="newEvent.type == 'Event'" class="theme--item">
             <ion-icon slot="start" [name]="'reader-outline'"></ion-icon>
-            <ion-textarea [(ngModel)]="newEvent.info" placeholder="Add description">
+            <ion-textarea [(ngModel)]="newEvent.info" placeholder="Add description" autocapitalize="sentences">
             </ion-textarea>
         </ion-item>
     </ion-list>

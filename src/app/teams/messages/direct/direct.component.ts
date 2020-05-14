@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { IonContent, IonList, Config } from '@ionic/angular';
+import { IonContent, IonList, Platform } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -9,7 +9,7 @@ import { switchMap, tap } from 'rxjs/operators'
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../../shared/services/teams/teams.service';
-import { MembersService, Member, Message, Direct } from '../../../shared/services/members/members.service';
+import { MembersService, Member } from '../../../shared/services/members/members.service';
 
 import { Store } from 'src/store';
 
@@ -23,6 +23,8 @@ export class DirectComponent implements OnInit {
   @ViewChild(IonContent) contentArea: IonContent;
   @ViewChild(IonList, { read: ElementRef }) scroll: ElementRef;
   ios: boolean;
+  android: boolean;
+  desktop: boolean;
   private mutationObserver: MutationObserver;
   user$: Observable<User>;
   profile$: Observable<Profile>;
@@ -48,12 +50,12 @@ export class DirectComponent implements OnInit {
     private authService: AuthService,
     private teamsService: TeamsService,
     private membersService: MembersService,
-    private config: Config
+    private platform: Platform
   ) { }
 
   ngAfterViewInit() {
     this.watch = true;
-    this.subscriptions = [ this.memberSub ]
+    this.subscriptions = [this.memberSub]
     this.memberSub = this.member$.pipe(tap(member => {
       if (member && member.messages.length) {
         this.member = member;
@@ -94,7 +96,13 @@ export class DirectComponent implements OnInit {
   scrollOnFocus() {
     setTimeout(() => {
       this.scrollToBottom(500);
-    }, 750)  
+    }, 750)
+  }
+
+  checkSendMessage() {
+    if (this.desktop) {
+      this.sendMessage();
+    }
   }
 
   sendMessage() {
@@ -102,8 +110,10 @@ export class DirectComponent implements OnInit {
     this.newBody = '';
   }
 
-  onKeydown(event){
-    event.preventDefault();
+  onKeydown(event) {
+    if (this.desktop) {
+      event.preventDefault();
+    }
   }
 
   get uid() {
@@ -115,7 +125,12 @@ export class DirectComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.ios = this.config.get('mode') === 'ios';
+    this.platform.ready().then(() => {
+      this.desktop = this.platform.is('desktop');
+      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
+      this.android = this.platform.is('android') && this.platform.is('capacitor');
+      console.log(this.desktop, this.ios, this.android)
+    })
     this.date = new Date();
     this.time = this.date.getTime();
     this.newBody = '';

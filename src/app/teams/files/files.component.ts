@@ -75,8 +75,8 @@ export class FilesComponent implements OnInit {
   ngOnInit() {
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
-      this.ios = this.platform.is('ios');
-      this.android = this.platform.is('android');
+      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
+      this.android = this.platform.is('android') && this.platform.is('capacitor');
       console.log(this.desktop, this.ios, this.android)
     })
     this.profile$ = this.store.select<Profile>('profile');

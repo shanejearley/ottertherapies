@@ -14,7 +14,7 @@ import { ProfilePictureComponent } from './profile-picture/profile-picture.compo
 import { DeleteUserComponent } from './delete-user/delete-user.component';
 
 import { Store } from 'src/store';
-import { ModalController, ToastController, IonRouterOutlet, ActionSheetController } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet, ActionSheetController, Platform } from '@ionic/angular';
 import { ComponentCanDeactivate } from 'src/app/shared/guards/pending-changes.guard';
 
 @Component({
@@ -46,6 +46,8 @@ export class ProfileComponent implements OnInit, ComponentCanDeactivate {
   currentProfile: Profile;
   roleList: any[] = [
     { name: 'Parent' },
+    { name: 'Family' },
+    { name: 'Sibling' },
     { name: 'Guardian' },
     { name: 'Teacher' },
     { name: 'Speech Therapist' },
@@ -58,21 +60,29 @@ export class ProfileComponent implements OnInit, ComponentCanDeactivate {
   selected: string;
   profileSub: Subscription;
 
+  ios: boolean;
+  android: boolean;
+  desktop: boolean;
 
   constructor(
     private store: Store,
-    private activatedRoute: ActivatedRoute,
     private authService: AuthService,
-    private teamsService: TeamsService,
     private profileService: ProfileService,
     private modalController: ModalController,
     private toastController: ToastController,
     private router: Router,
     private routerOutlet: IonRouterOutlet,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private platform: Platform
   ) { }
 
   ngOnInit() {
+    this.platform.ready().then(() => {
+      this.desktop = this.platform.is('desktop');
+      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
+      this.android = this.platform.is('android') && this.platform.is('capacitor');
+      console.log(this.desktop, this.ios, this.android)
+    })
     this.profile$ = this.store.select<Profile>('profile');
     this.profile$.pipe(tap(profile => {
       if (profile) {
@@ -84,7 +94,8 @@ export class ProfileComponent implements OnInit, ComponentCanDeactivate {
           lastTeam: profile.lastTeam || null,
           url: profile.url || null,
           fcmTokens: profile.fcmTokens || null,
-          badge: profile.badge || null
+          badge: profile.badge || null,
+          gcalSync: profile.gcalSync || null
         }
         if (!this.currentProfile) {
           this.currentProfile = profile;
@@ -232,8 +243,31 @@ export class ProfileComponent implements OnInit, ComponentCanDeactivate {
     })
   }
 
+  onToggle(ev) {
+    console.log(ev);
+    if (this.profile.gcalSync) {
+      console.log('turn on');
+      if (!this.ios) {
+        this.authService.linkGoogleAccount();
+      } else if (this.ios) {
+        this.authService.linkIosGoogleAccount();
+      }
+    } else if (!this.profile.gcalSync) {
+      if (!this.ios) {
+        this.authService.unlinkGoogleAccount();
+      } else if (this.ios) {
+        this.authService.unlinkIosGoogleAccount();
+      }
+      console.log('turn off')
+    }
+  }
+
   deleteUser() {
     return this.deleteUserModal();
+  }
+
+  showGcalHint() {
+    console.log("Show hint here...")
   }
 
 }

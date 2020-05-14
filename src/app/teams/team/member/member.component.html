@@ -116,7 +116,7 @@
 
                             <ion-card color="light" class="dialog member message--card">
                                 <ion-card-content class="message--content">
-                                    <h2 text-wrap>{{ m.body }}</h2>
+                                    <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
                                 </ion-card-content>
                             </ion-card>
 
@@ -129,7 +129,7 @@
 
                                 <ion-card *ngIf="m.profile" color="primary" class="dialog message--card message--user">
                                     <ion-card-content class="message--content">
-                                        <h2 text-wrap>{{ m.body }}</h2>
+                                        <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
                                     </ion-card-content>
                                 </ion-card>
 
@@ -191,8 +191,8 @@
             <ion-col size="12">
                 <ion-row class="ion-align-items-center ion-padding-horizontal">
                     <ion-textarea autoGrow="true" rows="1" class="message--input" placeholder="Message"
-                        [(ngModel)]="newBody" (keyup.enter)="sendMessage()" (keydown.enter)="onKeydown($event)"
-                        (ionFocus)="scrollOnFocus()">
+                        [(ngModel)]="newBody" (keyup.enter)="checkSendMessage()" (keydown.enter)="onKeydown($event)"
+                        (ionFocus)="scrollOnFocus()" autocapitalize="sentences">
                     </ion-textarea>
                     <ion-button class="message--button ion-padding-start" (click)="sendMessage()" fill="clear"
                         [disabled]="!newBody.length">

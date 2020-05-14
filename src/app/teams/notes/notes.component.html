@@ -43,7 +43,7 @@
               </ng-template>
             </ion-avatar>
             <ion-textarea autoGrow="true" rows="1" class="note--input" placeholder="Note" [(ngModel)]="newNote"
-              (keyup.enter)="postNote()" (keydown.enter)="onKeydown($event)">
+              (keyup.enter)="checkPostNote()" (keydown.enter)="onKeydown($event)" autocapitalize="sentences">
             </ion-textarea>
             <ion-button fill="clear" (click)="postNote()" slot="end" [disabled]="!newNote.length">
               <ion-icon slot="icon-only" [name]="'send' + '-outline'"></ion-icon>
@@ -80,7 +80,7 @@
               </ion-badge> -->
             </ion-item>
             <ion-item>
-              <h1>{{ n.body }}</h1>
+              <h1 style="white-space: pre-line;">{{ n.body }}</h1>
             </ion-item>
             <ion-item>
               <ion-col size="6">
@@ -120,7 +120,7 @@
                     </ng-template>
                   </ion-avatar>
                   <ion-label class="note--label" text-wrap>
-                    <h2><strong class="strong--comment">{{ (c.profile | async)?.displayName }}</strong>&nbsp;{{ c.body }}</h2>
+                    <h2 style="white-space: pre-line;"><strong class="strong--comment">{{ (c.profile | async)?.displayName }}</strong>&nbsp;{{ c.body }}</h2>
                     <p *ngIf="time - c.timestamp.toMillis() > 86400000; else elseDate">
                       {{ c.timestamp.toMillis() | date : 'short' }}</p>
                     <ng-template #elseDate>
@@ -140,7 +140,7 @@
                   </ng-template>
                 </ion-avatar>
                 <ion-textarea autoGrow="true" rows="1" class="note--input" placeholder="Comment"
-                  [(ngModel)]="n.newComment" (keyup.enter)="postComment(n)" (keydown.enter)="onKeydown($event)">
+                  [(ngModel)]="n.newComment" (keyup.enter)="checkPostComment(n)" (keydown.enter)="onKeydown($event)" autocapitalize="sentences">
                 </ion-textarea>
                 <ion-button fill="clear" (click)="postComment(n)" slot="end" [disabled]="!n.newComment.length">
                   <ion-icon slot="icon-only" [name]="'send' + '-outline'"></ion-icon>

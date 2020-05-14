@@ -119,13 +119,21 @@ export class MemberComponent implements OnInit {
         }, 750)
     }
 
+    checkSendMessage() {
+        if (this.desktop) {
+            this.sendMessage();
+        }
+    }
+
     sendMessage() {
         this.membersService.addMessage(this.newBody, this.directId);
         this.newBody = '';
     }
 
     onKeydown(event) {
-        event.preventDefault();
+        if (this.desktop) {
+            event.preventDefault();
+        }
     }
 
     get uid() {
@@ -139,8 +147,8 @@ export class MemberComponent implements OnInit {
     ngOnInit() {
         this.platform.ready().then(() => {
             this.desktop = this.platform.is('desktop');
-            this.ios = this.platform.is('ios');
-            this.android = this.platform.is('android');
+            this.ios = this.platform.is('ios') && this.platform.is('capacitor');
+            this.android = this.platform.is('android') && this.platform.is('capacitor');
             console.log(this.desktop, this.ios, this.android)
         })
         this.date = new Date();

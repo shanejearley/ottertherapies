@@ -9,6 +9,7 @@ import { tap } from 'rxjs/operators';
 
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
+import * as firebase from 'firebase/app'
 
 export interface User {
   email: string,
@@ -136,6 +137,59 @@ export class AuthService {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  async linkGoogleAccount() {
+    const profileDoc = this.db.doc(`users/${this.user.uid}`);
+    let provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('https://www.googleapis.com/auth/calendar');
+  
+    this.af.auth.currentUser.linkWithPopup(provider).then((result) => {
+      // Accounts successfully linked.
+      var credential = result.credential;
+      var user = result.user;
+      console.log(credential, user);
+      profileDoc.set({ gcalSync: true }, {merge: true})
+      
+      // ...
+    }).catch(function(error) {
+      console.log(error.message);
+      // Handle Errors here.
+      // ...
+    });
+  }
+
+  async unlinkGoogleAccount() {
+    //get provider data here
+    console.log(this.af.auth.currentUser.providerData)
+    // this.af.auth.currentUser.unlink(providerId).then(function() {
+    //   // Auth provider unlinked from account
+    //   // ...
+    // }).catch(function(error) {
+    //   // An error happened
+    //   // ...
+    // });
+  }
+
+  async linkIosGoogleAccount() {
+    // let provider = new firebase.auth.GoogleAuthProvider();
+    // provider.addScope('https://www.googleapis.com/auth/calendar');
+  
+    // this.af.auth.currentUser.linkWithPopup(provider).then((result) => {
+    //   // Accounts successfully linked.
+    //   var credential = result.credential;
+    //   var user = result.user;
+    //   console.log(credential, user);
+    //   // ...
+    // }).catch(function(error) {
+    //   console.log(error.message);
+    //   // Handle Errors here.
+    //   // ...
+    // });
+  }
+
+  async unlinkIosGoogleAccount() {
+    //
   }
 
 }

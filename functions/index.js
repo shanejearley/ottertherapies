@@ -279,17 +279,18 @@ exports.groupOnRemove = functions.firestore
         console.log("groupId", context.params.groupId);
         var groupId = context.params.groupId;
 
-        const filesSnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('files').get();
-        var files = filesSnapshot.docs.map(doc => doc.data());
         await bucket.deleteFiles({ prefix: `teams/${teamId}/groups/${groupId}/files/` });
-        await files.forEach(async file => {
-            return firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('files').doc(file.id).delete();
+
+        const filesSnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('files').get();
+        var files = filesSnapshot.docs.map(doc => doc.id);
+        await files.forEach(async fileId => {
+            return firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('files').doc(fileId).delete();
         })
 
         const messagesSnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('messages').get();
-        var messages = messagesSnapshot.docs.map(doc => doc.data());
-        await messages.forEach(async message => {
-            return firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('messages').doc(message.id).delete();
+        var messages = messagesSnapshot.docs.map(doc => doc.id);
+        await messages.forEach(async messageId => {
+            return firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('messages').doc(messageId).delete();
         }) 
 
         const membersSnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('members').get();

@@ -52,13 +52,13 @@
                 <ion-item lines="none" *ngIf="team">
                   <ion-icon slot="start" name="book-outline"></ion-icon>
                   <ion-label *ngIf="memberStatus == 'Member'; else editBio" text-wrap>
-                    <h2 class="full-width">{{ team.bio ? team.bio : 'Add a bio, or tell a short story' }}</h2>
+                    <h2 class="full-width" style="white-space: pre-line;">{{ team.bio ? team.bio : 'Add a bio, or tell a short story' }}</h2>
                   </ion-label>
 
                   <ng-template #editBio>
                     <h2 class="full-width">
                       <ion-textarea col="12" class="form" [(ngModel)]="team.bio"
-                        placeholder="Add a bio, or tell a short story">
+                        placeholder="Add a bio, or tell a short story" autocapitalize="sentences">
                       </ion-textarea>
                     </h2>
                   </ng-template>

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { IonContent, IonList, Config, IonRouterOutlet } from '@ionic/angular';
+import { IonContent, IonList, IonRouterOutlet, Platform } from '@ionic/angular';
 import { ModalController, ToastController } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
@@ -25,6 +25,8 @@ export class GroupComponent implements OnInit {
   @ViewChild(IonContent) contentArea: IonContent;
   @ViewChild(IonList, { read: ElementRef }) scroll: ElementRef;
   ios: boolean;
+  android: boolean;
+  desktop: boolean;
   private mutationObserver: MutationObserver;
   user$: Observable<User>;
   profile$: Observable<Profile>;
@@ -54,7 +56,7 @@ export class GroupComponent implements OnInit {
     private groupsService: GroupsService,
     public modalController: ModalController,
     public toastController: ToastController,
-    private config: Config,
+    private platform: Platform,
     private routerOutlet: IonRouterOutlet
   ) { }
 
@@ -86,7 +88,7 @@ export class GroupComponent implements OnInit {
     setTimeout(() => {
       if (this.group.unread && this.group.unread.unreadMessages > 0) {
         this.groupsService.checkLastMessage(this.groupId);
-      } 
+      }
     }, 5000)
   }
 
@@ -104,13 +106,21 @@ export class GroupComponent implements OnInit {
     }, 750)
   }
 
-  sendMessage() {
-    this.groupsService.addMessage(this.newBody, this.groupId);
-    this.newBody = '';
+  checkSendMessage() {
+    if (this.desktop) {
+      this.sendMessage();
+    }
   }
 
   onKeydown(event) {
-    event.preventDefault();
+    if (this.desktop) {
+      event.preventDefault();
+    }
+  }
+
+  sendMessage() {
+    this.groupsService.addMessage(this.newBody, this.groupId);
+    this.newBody = '';
   }
 
   get uid() {
@@ -118,7 +128,12 @@ export class GroupComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.ios = this.config.get('mode') === 'ios';
+    this.platform.ready().then(() => {
+      this.desktop = this.platform.is('desktop');
+      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
+      this.android = this.platform.is('android') && this.platform.is('capacitor');
+      console.log(this.desktop, this.ios, this.android)
+    })
     this.date = new Date();
     this.time = this.date.getTime();
     this.newBody = '';

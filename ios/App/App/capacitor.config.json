@@ -16,10 +16,16 @@
     },
     "CapacitorFirebaseAuth": {
       "providers": [
-        "phone"
+        "phone",
+        "google.com"
       ],
       "languageCode": "en",
-      "nativeAuth": false
+      "nativeAuth": false,
+      "permissions": {
+        "google": [
+          "https://www.googleapis.com/auth/calendar"
+        ]
+      }
     }
   }
 }

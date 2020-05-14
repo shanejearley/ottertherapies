@@ -59,9 +59,9 @@ export class TeamsPage implements OnInit {
     this.platform.ready().then(() => {
       if (this.platform.is('desktop')) {
         this.desktop = true;
-      } else if (this.platform.is('ios')) {
+      } else if (this.platform.is('ios') && this.platform.is('capacitor')) {
         this.ios = true;
-      } else if (this.platform.is('android')) {
+      } else if (this.platform.is('android') && this.platform.is('capacitor')) {
         this.android = true;
       }
       if (this.ios || this.android) {

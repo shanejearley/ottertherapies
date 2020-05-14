@@ -119,10 +119,10 @@
         </ion-list>
         <ion-item *ngIf="event.type == 'Event'" class="theme--item" lines="none">
             <ion-icon slot="start" [name]="'reader-outline'"></ion-icon>
-            <ion-textarea [(ngModel)]="event.info" placeholder="Add description" *ngIf="memberStatus == 'Admin'; else readOnlyDesc"></ion-textarea>
+            <ion-textarea [(ngModel)]="event.info" placeholder="Add description" *ngIf="memberStatus == 'Admin'; else readOnlyDesc" autocapitalize="sentences"></ion-textarea>
             <ng-template #readOnlyDesc>
                 <ion-label>
-                    <h3>{{ event.info }}</h3>
+                    <h3 style="white-space: pre-line;">{{ event.info }}</h3>
                 </ion-label>
             </ng-template>
         </ion-item>

@@ -1,5 +1,5 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { NavParams, ModalController, Config } from '@ionic/angular';
+import { NavParams, ModalController, Config, Platform } from '@ionic/angular';
 import firebase from 'firebase/app';
 import { cfaSignIn, cfaSignInPhoneOnCodeSent } from 'capacitor-firebase-auth';
 
@@ -23,6 +23,8 @@ export class MfaAddComponent implements AfterViewInit {
     code: string = "";
     error: boolean = false;
     ios: boolean;
+    android: boolean;
+    desktop: boolean;
     verificationId: string = '';
     codeNumber: string = '000000'
     constructor(
@@ -30,7 +32,7 @@ export class MfaAddComponent implements AfterViewInit {
         public modalController: ModalController,
         private authService: AuthService,
         private router: Router,
-        private config: Config
+        private platform: Platform
     ) { }
 
     get user () {
@@ -38,7 +40,12 @@ export class MfaAddComponent implements AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this.ios = this.config.get('mode') === 'ios';
+        this.platform.ready().then(() => {
+            this.desktop = this.platform.is('desktop');
+            this.ios = this.platform.is('ios') && this.platform.is('capacitor');
+            this.android = this.platform.is('android') && this.platform.is('capacitor');
+            console.log(this.desktop, this.ios, this.android)
+        })
 
         if (!this.ios) {
             this.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-button', {

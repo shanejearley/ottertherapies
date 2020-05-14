@@ -11,7 +11,7 @@ import { TeamsService, Team } from '../../shared/services/teams/teams.service';
 import { NotesService, Note } from '../../shared/services/notes/notes.service';
 
 import { Store } from 'src/store';
-import { ActionSheetController } from '@ionic/angular';
+import { ActionSheetController, Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-notes',
@@ -19,6 +19,9 @@ import { ActionSheetController } from '@ionic/angular';
   styleUrls: ['./notes.component.scss'],
 })
 export class NotesComponent implements OnInit {
+  ios: boolean;
+  android: boolean;
+  desktop: boolean;
   sortType: string;
   sortReverse: boolean = true;
   notes: Note[];
@@ -38,10 +41,17 @@ export class NotesComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private teamsService: TeamsService,
     private notesService: NotesService,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private platform: Platform
   ) { }
 
   ngOnInit() {
+    this.platform.ready().then(() => {
+      this.desktop = this.platform.is('desktop');
+      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
+      this.android = this.platform.is('android') && this.platform.is('capacitor');
+      console.log(this.desktop, this.ios, this.android)
+    })
     this.newNote = '';
     this.date = new Date();
     this.time = this.date.getTime();
@@ -138,6 +148,24 @@ export class NotesComponent implements OnInit {
     // }
   }
 
+  checkPostNote() {
+    if (this.desktop) {
+      this.postNote();
+    }
+  }
+
+  checkPostComment(n) {
+    if (this.desktop) {
+      this.postComment(n);
+    }
+  }
+
+  onKeydown(event) {
+    if (this.desktop) {
+      event.preventDefault();
+    }
+  }
+
   postComment(n) {
     this.notesService.addComment(n.newComment, n.id);
     n.newComment = '';
@@ -150,10 +178,6 @@ export class NotesComponent implements OnInit {
 
   flagNote(n: Note) {
     this.notesService.flagNote(n);
-  }
-
-  onKeydown(event) {
-    event.preventDefault();
   }
 
   ngOnDestroy() {
