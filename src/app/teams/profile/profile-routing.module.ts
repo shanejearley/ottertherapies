@@ -9,7 +9,6 @@ const routes: Routes = [
   {
     path: '',
     canActivate: [AuthGuard],
-    canDeactivate: [PendingChangesGuard],
     component: ProfileComponent
   }
 ];

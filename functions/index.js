@@ -339,6 +339,14 @@ exports.noteOnRemove = functions.firestore
         })
     })
 
+exports.eventOnWrite = functions.firestore
+    .document('teams/{teamId}/calendar/{eventId}')
+    .onWrite(async (snapshot, context) => {
+        console.log("snapshot", snapshot);
+        console.log("context", context);
+        return;
+    })
+
 exports.pendingOnCreate = functions.firestore
     .document('teams/{teamId}/pendingMembers/{pendingMemberUid}')
     .onWrite(async (change, context) => {

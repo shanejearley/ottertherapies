@@ -13,7 +13,7 @@ import { Member } from '../../shared/services/members/members.service';
 import { CreateGroupComponent } from '../../shared/components/create-group/create-group.component';
 
 import { Store } from 'src/store';
-import { ModalController, ToastController, IonRouterOutlet } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet, Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-messages',
@@ -31,6 +31,9 @@ export class MessagesComponent implements OnInit {
   public team: string;
   public page: string;
   data: any;
+  desktop: boolean;
+  ios: boolean;
+  android: boolean;
 
   constructor(
     private store: Store,
@@ -39,7 +42,8 @@ export class MessagesComponent implements OnInit {
     private teamsService: TeamsService,
     public modalController: ModalController,
     public toastController: ToastController,
-    private routerOutlet: IonRouterOutlet
+    private routerOutlet: IonRouterOutlet,
+    private platform: Platform
   ) { }
 
   public trackFn(index, item) {
@@ -47,6 +51,12 @@ export class MessagesComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.platform.ready().then(() => {
+      this.desktop = this.platform.is('desktop');
+      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
+      this.android = this.platform.is('android') && this.platform.is('capacitor');
+      console.log(this.desktop, this.ios, this.android)
+    })
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
     this.members$ = this.store.select<Member[]>('members');

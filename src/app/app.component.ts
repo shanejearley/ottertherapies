@@ -1,7 +1,7 @@
-import { Component, OnInit, AfterContentChecked, AfterViewInit, AfterContentInit } from '@angular/core';
+import { Component, OnInit, AfterContentChecked, AfterViewInit, AfterContentInit, HostListener, EventEmitter } from '@angular/core';
 import { Router, RoutesRecognized, GuardsCheckEnd } from '@angular/router';
 
-import { Platform, Config } from '@ionic/angular';
+import { Platform, Config, PopoverController, ModalController, IonRouterOutlet, ToastController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Badge } from '@ionic-native/badge/ngx';
@@ -9,9 +9,9 @@ import { Badge } from '@ionic-native/badge/ngx';
 import { Plugins } from '@capacitor/core';
 const { Browser } = Plugins;
 
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { tap, map, reduce } from 'rxjs/operators';
+import { tap, map, reduce, takeUntil } from 'rxjs/operators';
 
 import { AuthService, User } from '../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../auth/shared/services/profile/profile.service';
@@ -24,6 +24,8 @@ import { EventsService } from './shared/services/events/events.service';
 import { Store } from 'src/store';
 import { ResourcesService } from './shared/services/resources/resources.service';
 import { BadgeService } from './shared/services/badge/badge.service';
+import { EditProfileComponent } from './teams/profile/edit-profile/edit-profile.component';
+import { DarkService } from './shared/services/dark/dark.service';
 
 @Component({
   selector: 'app-root',
@@ -31,12 +33,14 @@ import { BadgeService } from './shared/services/badge/badge.service';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit {
+
   user$: Observable<User>;
   profile$: Observable<Profile>;
   teams$: Observable<Team[]>;
   badge$: Observable<number>;
   team$: Observable<Team>;
   groups$: Observable<Group[]>;
+
   authSub: Subscription;
   profileSub: Subscription;
   teamsSub: Subscription;
@@ -47,9 +51,15 @@ export class AppComponent implements OnInit {
   pendingSub: Subscription;
   resourcesSub: Subscription;
   badgeSub: Subscription;
+
   teamId: string;
   lastId: string;
+
+  root: string;
   page: string;
+  child: string;
+  prevPage: string;
+
   loggedIn: boolean;
   menu: boolean;
   init: boolean;
@@ -57,10 +67,11 @@ export class AppComponent implements OnInit {
   ios: boolean;
   android: boolean;
   teams: Team[];
-  public appPages = [
+
+  public teamPages = [
     {
-      title: 'Dashboard',
-      icon: 'grid'
+      title: 'Team',
+      icon: 'people'
     },
     {
       title: 'Events',
@@ -72,35 +83,18 @@ export class AppComponent implements OnInit {
     },
     {
       title: 'Files',
-      icon: 'document'
+      icon: 'document-text'
     },
     {
       title: 'Notes',
       icon: 'newspaper'
-    },
-    {
-      title: 'Team',
-      icon: 'people'
-    },
-    {
-      title: 'Child',
-      icon: 'happy'
-    },
-    {
-      title: 'Resources',
-      icon: 'help-buoy'
-    },
-    {
-      title: 'Profile',
-      icon: 'person'
-    },
-    {
-      title: 'Privacy',
-      icon: 'shield-checkmark'
     }
   ];
 
-  dark;
+  dark: boolean;
+  dark$: Observable<boolean>;
+
+  private readonly onDestroy = new Subject<void>();
 
   constructor(
     private store: Store,
@@ -118,7 +112,8 @@ export class AppComponent implements OnInit {
     private eventsService: EventsService,
     private resourcesService: ResourcesService,
     private badgeService: BadgeService,
-    private badge: Badge
+    private badge: Badge,
+    private darkService: DarkService
   ) {
     this.initializeApp();
 
@@ -148,19 +143,11 @@ export class AppComponent implements OnInit {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
-      if (this.platform.is('desktop')) {
-        console.log('PLATFORM DESKTOP');
-        console.log('desktop')
-        this.desktop = true;
-      } 
-      if (this.platform.is('ios') && this.platform.is('capacitor')) {
-        console.log('PLATFORM IOS');
-        this.ios = true;
-        this.badge.set(0);
-      } 
-      if (this.platform.is('android') && this.platform.is('capacitor')) {
-        console.log('PLATFORM ANDROID');
-        this.android = true;
+      this.desktop = this.platform.is('desktop');
+      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
+      this.android = this.platform.is('android') && this.platform.is('capacitor');
+      console.log(this.desktop, this.ios, this.android)
+      if (this.ios || this.android) {
         this.badge.set(0);
       }
     });
@@ -171,13 +158,17 @@ export class AppComponent implements OnInit {
   }
 
   change() {
-    console.log('called');
-    this.dark = !this.dark;
-    this.toggleDarkTheme(this.dark);
+    if (!this.ios && !this.android) {
+      this.darkService.toggle(!this.dark);
+    }
   }
 
   get uid() {
     return this.authService.user.uid;
+  }
+
+  get currentProfile() {
+    return this.profileService.currentProfile;
   }
 
   // ngAfterViewInit() {
@@ -192,8 +183,19 @@ export class AppComponent implements OnInit {
   // }
 
   ngOnInit() {
+    this.dark$ = this.store.select('dark');
+
+    this.darkService.dark$.pipe(
+      takeUntil(this.onDestroy),
+      tap(dark => {
+        this.toggleDarkTheme(dark);
+        this.dark = dark;
+      })
+    ).subscribe()
+    
     //const path = window.location.pathname.split('Teams/:id/')[1];
     this.dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.store.set('dark', this.dark);
     this.user$ = this.store.select<User>('user');
     this.profile$ = this.store.select<Profile>('profile');
     this.teams$ = this.store.select<Team[]>('teams');
@@ -216,12 +218,41 @@ export class AppComponent implements OnInit {
           this.subscribeUserTeam();
           this.lastId = this.teamId;
         }
+        if (val.state.root.firstChild.url[0]) {
+          this.root = val.state.root.firstChild.url[0].path;
+          if (this.root === 'auth') {
+            this.menu = false;
+            if (this.profileSub) {
+              this.profileSub.unsubscribe();
+              this.teamsSub.unsubscribe();
+              this.pendingSub.unsubscribe();
+            }
+            if (this.groupsSub) {
+              this.groupsSub.unsubscribe();
+              this.membersSub.unsubscribe();
+              this.notesSub.unsubscribe();
+              this.eventsSub.unsubscribe();
+              this.resourcesSub.unsubscribe();
+            }
+          }
+        }
+        if (!val.state.root.firstChild.url[0]) {
+          this.root = null;
+        }
         if (val.state.root.firstChild.params['id'] && val.shouldActivate) {
           this.page = val.state.root.firstChild.url[2].path;
+          if (val.state.root.firstChild.url[3]) {
+            this.child = val.state.root.firstChild.url[3].path;
+          }
+          if (!val.state.root.firstChild.url[3]) {
+            this.child = null;
+          }
         }
         if (!val.state.root.firstChild.params['id'] && val.shouldActivate) {
           this.page = null;
+          this.child = null;
         }
+        console.log('VAL STATE ROOT FIRST CHILD', val.state.root.firstChild)
       }
     });
   }
@@ -283,24 +314,11 @@ export class AppComponent implements OnInit {
   }
 
   async onLogout() {
-    this.menu = false;
-    //this.authSub.unsubscribe();
-    if (this.profileSub) {
-      this.profileSub.unsubscribe();
-      this.teamsSub.unsubscribe();
-      this.pendingSub.unsubscribe();
-    }
-    if (this.groupsSub) {
-      this.groupsSub.unsubscribe();
-      this.membersSub.unsubscribe();
-      this.notesSub.unsubscribe();
-      this.eventsSub.unsubscribe();
-      this.resourcesSub.unsubscribe();
-    }
     await this.authService.logoutUser();
   }
 
   ngOnDestroy() {
+    this.onDestroy.next();
     //this.authSub.unsubscribe();
     this.profileSub.unsubscribe();
     this.teamsSub.unsubscribe();

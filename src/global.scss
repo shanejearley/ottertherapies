@@ -64,36 +64,76 @@ ion-calendar {
 ion-calendar { background-color: transparent !important; } 
 ion-calendar { .dot{ small{ color: var(--ion-color-medium) !important; font-size: 40px !important; } }}
 
+ion-list.member--upload--list {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
 .md {
-    ion-calendar { button.days-btn{ small{ bottom: -20px !important} }}
-    ion-calendar { button.days-btn.on-selected{ small{ bottom: -30px !important} }}
+  ion-list.upload--list {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+  .thumbnail--list {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+  
+  /// customizing md headers like duo
+  ion-list-header {
+    font-size: .75rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.05rem;
+  }
+  /// keeping menu header style
+  ion-list-header.menu--header {
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+  .calendar {
+    .title { 
+      padding: 0 75px !important;
+    }
+  }
+  ion-fab-button.inner--fab {
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
+  }
+  ion-calendar { button.days-btn{ small{ bottom: -20px !important} }}
+  ion-calendar { button.days-btn.on-selected{ small{ bottom: -30px !important} }}
 }
 .ios {
-    ion-calendar { button.days-btn{ small{ bottom: -15px !important} }}
-    ion-calendar { button.days-btn.on-selected{ small{ bottom: -25px !important} }}
-}
-
-ion-card {
-    border-radius: 10px !important;
-}
-
-.ios {
+  .calendar {
+    .title { 
+      padding: 0 45px !important;
+    }
+  }
   ion-card.theme--card {
     padding-top: 16px;
     padding-bottom: 16px;
     margin-top: 10px;
     margin-bottom: 10px;
   }
+  ion-calendar { button.days-btn{ small{ bottom: -15px !important} }}
+  ion-calendar { button.days-btn.on-selected{ small{ bottom: -25px !important} }}
 }
 
-ion-list.theme--list {
-    background: transparent !important;
-    --ion-background-color: transparent !important;
+ion-card.clear--card {
+  --background: transparent !important;
+  box-shadow: none !important;
 }
 
 ion-card.empty--list {
   --background: transparent !important;
   box-shadow: none !important;
+}
+
+ion-list.theme--list {
+  background: transparent !important;
+  --ion-background-color: transparent !important;
 }
 
 ion-tab-button.notification--button {
@@ -215,18 +255,6 @@ ion-content.scroll-ios {
   }
 }
 
-.md .calendar {
-  .title { 
-    padding: 0 75px !important;
-  }
-}
-
-.ios .calendar {
-  .title { 
-    padding: 0 45px !important;
-  }
-}
-
 ion-input.form {
   --padding-start: 15px !important;
   max-width: 100% !important;
@@ -312,27 +340,6 @@ ion-card.profile--info--card {
 
 }
 
-.md .thumbnail--list {
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
-}
-
-
-/// customizing md headers like duo
-.md ion-list-header {
-  font-size: .75rem;
-  text-transform: uppercase;
-  font-weight: bold;
-  letter-spacing: 0.05rem;
-}
-/// keeping menu header style
-.md ion-list-header.menu--header {
-  font-size: 22px !important;
-  font-weight: 600 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-}
-
 :host ::ng-deep {
   .error {
     color: #a94442;
@@ -359,11 +366,6 @@ ion-card.profile--info--card {
   margin: 10px 0 0;
   margin-inline-start: 2px;
   margin-inline-end: 2px;
-}
-
-.md ion-list.upload--list {
-  padding-top: 0 !important;
-  margin-top: 0 !important;
 }
 
 ion-item.upload--item {
@@ -408,4 +410,18 @@ ion-fab-button[title]::after {
   box-shadow: 0 3px 5px -1px rgba(0,0,0,0.2), 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12);
   color: var(--ion-text-color);
   background-color: #f4f5f8;
+}
+
+.mobile-menu-style {
+  .popover-content {
+      --width: 100% !important;
+  }
+}
+
+ion-fab-button.inner--fab {
+  --box-shadow: none !important;
+}
+
+ion-card {
+  border-radius: 10px !important;
 }

@@ -1,42 +1,46 @@
 <ion-app>
-  <ion-split-pane contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay" [disabled]="!menu" color="tertiary">
-      <ion-content>
-        <ion-list id="inbox-list" lines="none">
-          <ion-list-header class="top menu--header" *ngIf="(team$ | async); else elseHeader">{{ (team$ | async)?.name }}
-          </ion-list-header>
-          <ng-template #elseHeader>
-            <ion-list-header class="top menu--header">Select Team</ion-list-header>
-          </ng-template>
+  <div *ngIf="!ios && !android">
+    <ion-split-pane contentId="main-content">
+      <ion-menu contentId="main-content" type="overlay" [disabled]="!menu" color="tertiary">
+        <ion-content>
+          <ion-list id="inbox-list" lines="none">
+            <ion-list-header class="top menu--header" *ngIf="(team$ | async); else elseHeader">
+              {{ (team$ | async)?.name }}
+            </ion-list-header>
+            <ng-template #elseHeader>
+              <ion-list-header class="top menu--header">Select Team</ion-list-header>
+            </ng-template>
 
-          <ion-menu-toggle auto-hide="false">
-            <ion-item>
-              <ion-button color="light" routerDirection="backward" [routerLink]="'/Teams'" size="default">
-                Your Teams 
-                <!-- <ion-badge class="ion-margin-start" color="danger" *ngIf="(badge$ | async) > 0">
-                  {{ (badge$ | async) }}</ion-badge> -->
-              </ion-button>
+            <ion-menu-toggle auto-hide="false">
+              <ion-item>
+                <ion-button color="light" routerDirection="backward" [routerLink]="'/Teams'" size="default">
+                  Your Teams
+                </ion-button>
 
-              <ion-thumbnail slot="end" class="avatar-thumbnail">
-                <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url }}">
-                <ng-template #elseAvatar>
-                  <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="55" [round]="false"
-                    [cornerRadius]="55"></ngx-avatar>
-                </ng-template>
-              </ion-thumbnail>
+                <ion-thumbnail slot="end" class="avatar-thumbnail">
+                  <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url }}">
+                  <ng-template #elseAvatar>
+                    <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar" name="{{ (profile$ | async)?.displayName }}" [size]="55" [round]="false"
+                      [cornerRadius]="55"></ngx-avatar>
+                      <ng-template #elseEmailAvatar>
+                        <ngx-avatar name="{{ (profile$ | async)?.email }}" [size]="55" [round]="false"
+                        [cornerRadius]="55">
+                        </ngx-avatar>
+                      </ng-template>
+                  </ng-template>
+                </ion-thumbnail>
 
-            </ion-item>
-          </ion-menu-toggle>
-        </ion-list>
+              </ion-item>
+            </ion-menu-toggle>
+          </ion-list>
 
-        <ion-list lines="none">
-          <ion-list-header>
-            Team
-          </ion-list-header>
-          <div *ngIf="(team$ | async); else elseItem">
-            <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
-              <ion-item *ngIf="p.title !== 'Profile' && p.title !== 'Privacy'" routerDirection="root" [routerLink]="['/Teams', teamId, p.title]"
-                detail="false" [class.selected]="p.title === page">
+          <ion-list lines="none" *ngIf="(team$ | async)">
+            <ion-list-header>
+              Team
+            </ion-list-header>
+            <ion-menu-toggle auto-hide="false" *ngFor="let p of teamPages; let i = index">
+              <ion-item routerDirection="root"
+                [routerLink]="['/Teams', teamId, p.title]" detail="false" [class.selected]="p.title === page">
                 <ion-icon slot="start" [name]="p.title === page ? p.icon : p.icon + '-outline'"></ion-icon>
                 <ion-label>{{ p.title }}</ion-label>
                 <ion-badge color="light" slot="end" *ngIf="p.title == 'Events'">
@@ -53,67 +57,63 @@
                 </ion-badge>
               </ion-item>
             </ion-menu-toggle>
-          </div>
-          <ng-template #elseItem>
-            <ion-item detail="false">
-              <ion-row class="member--row" slot="start">
-                <ion-avatar class="dialog--member">
-                  <img src="../assets/img/otter_head.svg">
-                </ion-avatar>
-                <ion-col class="member--col" size="auto">
-                  <ion-row></ion-row>
-                  <ion-card color="light" class="dialog message--card message--member">
-                    <ion-card-content>
-                      <ion-label text-wrap>Select an existing team or create a new one!</ion-label>
-                    </ion-card-content>
-                  </ion-card>
-                  <ion-row></ion-row>
-                </ion-col>
-              </ion-row>
+          </ion-list>
+
+          <ion-list-header>
+            Settings
+          </ion-list-header>
+
+          <ion-menu-toggle auto-hide="false">
+
+            <ion-item lines="none" routerDirection="root"
+              [routerLink]="['/Profile']" detail="false" [class.selected]="root === 'Profile'">
+              <ion-icon slot="start" [name]="'Profile' === root ? 'person' : 'person-outline'"></ion-icon>
+              <ion-label>Profile</ion-label>
             </ion-item>
-          </ng-template>
-        </ion-list>
 
-        <ion-list-header>
-          Settings
-        </ion-list-header>
+          </ion-menu-toggle>
 
-        <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
+          <ion-menu-toggle auto-hide="false">
+            <ion-item lines="none" (click)="onLogout()" detail="false" button>
+              <ion-icon slot="start" name="power-outline"></ion-icon>
+              <ion-label>Logout</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
 
-          <ion-item lines="none" *ngIf="p.title == 'Profile'" routerDirection="root"
-            [routerLink]="['/Teams', teamId, p.title]" detail="false" [class.selected]="p.title === page">
-            <ion-icon slot="start" [name]="p.title === page ? p.icon : p.icon + '-outline'"></ion-icon>
-            <ion-label>{{ p.title }}</ion-label>
+          <ion-menu-toggle auto-hide="false">
+
+            <ion-item lines="none" (click)="showPrivacy()" detail="false" button>
+              <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+              <ion-label>Privacy</ion-label>
+            </ion-item>
+
+          </ion-menu-toggle>
+
+          <ion-item lines="none">
+            <ion-icon slot="start" name="moon-outline"></ion-icon>
+            <ion-label>
+              Dark Mode
+            </ion-label>
+            <ion-toggle [checked]="(dark$ | async)" (ionChange)="change()"></ion-toggle>
           </ion-item>
 
-        </ion-menu-toggle>
+        </ion-content>
+      </ion-menu>
+      <ion-router-outlet id="main-content"></ion-router-outlet>
+    </ion-split-pane>
+  </div>
 
-        <ion-menu-toggle auto-hide="false">
-          <ion-item lines="none" (click)="onLogout()" detail="false" button>
-            <ion-icon slot="start" name="power-outline"></ion-icon>
-            <ion-label>Logout</ion-label>
-          </ion-item>
-        </ion-menu-toggle>
+  <div *ngIf="ios || android">
+    <ion-tabs>
+      <ion-tab-bar slot="bottom" *ngIf="(team$ | async) && page && !child">
+        <ion-tab-button routerDirection="root" [routerLink]="['/Teams', teamId, p.title]"
+          [class.selected]="p.title === page" *ngFor="let p of teamPages">
+          <ion-icon [name]="p.title === page ? p.icon : p.icon + '-outline'"></ion-icon>
+          <ion-label>{{ p.title }}</ion-label>
+          <ion-badge *ngIf="p.title === 'Messages'">2</ion-badge>
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ion-tabs>
+  </div>
 
-        <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
-
-          <ion-item lines="none" *ngIf="p.title == 'Privacy'" (click)="showPrivacy()" detail="false" [class.selected]="p.title === page" button>
-            <ion-icon slot="start" [name]="p.title === page ? p.icon : p.icon + '-outline'"></ion-icon>
-            <ion-label>{{ p.title }}</ion-label>
-          </ion-item>
-
-        </ion-menu-toggle>
-
-        <ion-item lines="none">
-          <ion-icon slot="start" name="moon-outline"></ion-icon>
-          <ion-label>
-            Dark Mode
-          </ion-label>
-          <ion-toggle [checked]="dark" (ionChange)="change()"></ion-toggle>
-        </ion-item>
-
-      </ion-content>
-    </ion-menu>
-    <ion-router-outlet id="main-content"></ion-router-outlet>
-  </ion-split-pane>
 </ion-app>

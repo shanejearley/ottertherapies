@@ -19,8 +19,8 @@ import { SharedModule } from './shared/shared.module';
 import { Store } from 'src/store';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { UploadTaskComponent } from './teams/files/upload-task/upload-task.component';
 import { PendingChangesGuard } from './shared/guards/pending-changes.guard';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [AppComponent],
@@ -28,6 +28,8 @@ import { PendingChangesGuard } from './shared/guards/pending-changes.guard';
   imports: [
     BrowserModule,
     HammerModule,
+    FormsModule,
+    ReactiveFormsModule,
     IonicModule.forRoot(),
     AuthModule,
     AppRoutingModule,

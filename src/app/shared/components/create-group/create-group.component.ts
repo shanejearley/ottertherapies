@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NavParams, ModalController } from '@ionic/angular';
 
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { map, tap, takeUntil } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service'
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -31,6 +31,10 @@ export class CreateGroupComponent {
     queryText = '';
     filteredMembers: Member[];
     error: boolean;
+
+    private readonly onDestroy = new Subject<void>();
+
+
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,
@@ -46,16 +50,19 @@ export class CreateGroupComponent {
     ionViewWillEnter() {
         this.teamId = this.navParams.get('teamId');
         this.members$ = this.store.select<Member[]>('members');
-        this.members$.pipe(map(members => {
-            members.forEach(m => {
-                if (m.uid == this.uid) {
-                    m.isChecked = true;
-                    this.newGroup.members.push(m);
-                } else {
-                    m.isChecked = false;
-                }
+        this.members$.pipe(
+            takeUntil(this.onDestroy),
+            map(members => {
+                members.forEach(m => {
+                    if (m.uid == this.uid) {
+                        m.isChecked = true;
+                        this.newGroup.members.push(m);
+                    } else {
+                        m.isChecked = false;
+                    }
+                })
             })
-        })).subscribe()
+        ).subscribe()
     }
 
     dismiss() {
@@ -101,34 +108,44 @@ export class CreateGroupComponent {
     }
 
     manualSearch() {
-        this.members$.pipe(map(members => {
-            if (members) {
-                if (members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]) {
-                    this.addMember(members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]);
-                } else {
-                    this.error = true;
-                    console.log('No member found');
+        this.members$.pipe(
+            takeUntil(this.onDestroy),
+            map(members => {
+                if (members) {
+                    if (members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]) {
+                        this.addMember(members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]);
+                    } else {
+                        this.error = true;
+                        console.log('No member found');
+                    }
                 }
-            }
-        })).subscribe();
+            })
+        ).subscribe();
     }
 
     filterMembers(search: string) {
-        this.members$.pipe(map(members => {
-            if (members) {
-                if (search.length) {
-                    this.filteredMembers = members.filter(o =>
-                        Object.keys(o.profile).some(k => {
-                            if (typeof o.profile[k] === 'string' && k == 'displayName' || typeof o.profile[k] === 'string' && k == 'email') {
-                                console.log(o.profile[k], search);
-                                return o.profile[k].toLowerCase().includes(search.toLowerCase());
-                            }
-                        })
-                    );
-                } else {
-                    this.filteredMembers = members;
+        this.members$.pipe(
+            takeUntil(this.onDestroy),
+            map(members => {
+                if (members) {
+                    if (search.length) {
+                        this.filteredMembers = members.filter(o =>
+                            Object.keys(o.profile).some(k => {
+                                if (typeof o.profile[k] === 'string' && k == 'displayName' || typeof o.profile[k] === 'string' && k == 'email') {
+                                    console.log(o.profile[k], search);
+                                    return o.profile[k].toLowerCase().includes(search.toLowerCase());
+                                }
+                            })
+                        );
+                    } else {
+                        this.filteredMembers = members;
+                    }
                 }
-            }
-        })).subscribe()
+            })
+        ).subscribe()
+    }
+
+    ngOnDestroy() {
+        this.onDestroy.next();
     }
 }

@@ -10,6 +10,7 @@ import { TeamRoutingModule } from './team-routing.module';
 
 import { TeamComponent } from './team.component';
 import { EditTeamComponent } from './edit-team/edit-team.component';
+import { EditChildComponent } from './edit-child/edit-child.component';
 
 @NgModule({
   imports: [
@@ -17,10 +18,10 @@ import { EditTeamComponent } from './edit-team/edit-team.component';
     FormsModule,
     IonicModule,
     AvatarModule,
-    TeamRoutingModule
+    TeamRoutingModule,
   ],
-  entryComponents: [ EditTeamComponent ],
+  entryComponents: [ EditTeamComponent, EditChildComponent ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [TeamComponent, EditTeamComponent]
+  declarations: [TeamComponent, EditTeamComponent, EditChildComponent]
 })
 export class TeamModule {}

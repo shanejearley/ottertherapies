@@ -59,3 +59,22 @@ ion-avatar.avatar--icon {
 .half--margin--top {
   margin-top: 5px;
 }
+
+ion-row.profile--pic--header {
+  background-image: url('../../../assets/shapes.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+ion-thumbnail.resources--thumbnail {
+  height: auto !important;
+}
+
+ion-avatar.resources--avatar {
+  --border-radius: 25% !important;
+  width: 20px !important;
+  height: 20px !important;
+  text-align: center !important;
+  line-height: 20px !important;
+}

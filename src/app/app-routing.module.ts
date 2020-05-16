@@ -13,13 +13,13 @@ const routes: Routes = [
   },
   {
     path: 'Teams/:id',
-    redirectTo: 'Teams/:id/Dashboard',
+    redirectTo: 'Teams/:id/Team',
     pathMatch: 'full'
   },
-  {
-    path: 'Teams/:id/Dashboard',
-    loadChildren: () => import('./teams/dashboard/dashboard.module').then(m => m.DashboardModule)
-  },
+  // {
+  //   path: 'Teams/:id/Dashboard',
+  //   loadChildren: () => import('./teams/dashboard/dashboard.module').then(m => m.DashboardModule)
+  // },
   {
     path: 'Teams/:id/Events',
     loadChildren: () => import('./teams/events/events.module').then(m => m.EventsModule)
@@ -40,16 +40,16 @@ const routes: Routes = [
     path: 'Teams/:id/Team',
     loadChildren: () => import('./teams/team/team.module').then(m => m.TeamModule)
   },
+  // {
+  //   path: 'Teams/:id/Child',
+  //   loadChildren: () => import('./teams/child/child.module').then(m => m.ChildModule)
+  // },
+  // {
+  //   path: 'Teams/:id/Resources',
+  //   loadChildren: () => import('./teams/resources/resources.module').then(m => m.ResourcesModule)
+  // },
   {
-    path: 'Teams/:id/Child',
-    loadChildren: () => import('./teams/child/child.module').then(m => m.ChildModule)
-  },
-  {
-    path: 'Teams/:id/Resources',
-    loadChildren: () => import('./teams/resources/resources.module').then(m => m.ResourcesModule)
-  },
-  {
-    path: 'Teams/:id/Profile',
+    path: 'Profile',
     loadChildren: () => import('./teams/profile/profile.module').then(m => m.ProfileModule)
   },
   {

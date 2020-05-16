@@ -129,7 +129,7 @@ export class MfaAddComponent implements AfterViewInit {
                 await this.user.multiFactor.enroll(multiFactorAssertion, mfaDisplayName);
                 this.authService.auth$.subscribe();
                 await this.addSuccess();
-                return this.router.navigate(['/Teams/:id/Profile']);
+                return this.router.navigate(['/Teams']);
             } catch (err) {
                 this.error = err.message;
                 this.addFailure();

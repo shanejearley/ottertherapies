@@ -136,6 +136,10 @@ ion-menu ion-item.selected ion-label {
   color: var(--ion-color-primary-contrast);
 }
 
+ion-tab-button.selected {
+  --color: var(--ion-color-primary);
+}
+
 ion-menu ion-list-header {
   color: var(--ion-color-primary-contrast);
 }

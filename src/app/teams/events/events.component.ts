@@ -17,7 +17,7 @@ import { Store } from 'src/store';
 
 import { CalendarComponentOptions } from 'ion2-calendar';
 import moment from 'moment';
-import { ModalController, ToastController, IonRouterOutlet } from '@ionic/angular';
+import { ModalController, ToastController, IonRouterOutlet, Platform } from '@ionic/angular';
 
 export interface DayConfig {
   date: Date;
@@ -59,6 +59,10 @@ export class EventsComponent implements OnInit {
   };
   personal: boolean = false;
 
+  desktop: boolean;
+  ios: boolean;
+  android: boolean;
+
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
@@ -68,7 +72,8 @@ export class EventsComponent implements OnInit {
     private eventsService: EventsService,
     private modalController: ModalController,
     private toastController: ToastController,
-    private routerOutlet: IonRouterOutlet
+    private routerOutlet: IonRouterOutlet,
+    private platform: Platform
   ) { }
 
   dayChange($event) {
@@ -196,6 +201,12 @@ export class EventsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.platform.ready().then(() => {
+      this.desktop = this.platform.is('desktop');
+      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
+      this.android = this.platform.is('android') && this.platform.is('capacitor');
+      console.log(this.desktop, this.ios, this.android)
+    })
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
     this.events$ = this.store.select<Event[]>('events');

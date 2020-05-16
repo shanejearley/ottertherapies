@@ -1,9 +1,15 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
+      <ion-back-button *ngIf="ios || android" text="Teams" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
     </ion-buttons>
-    <ion-title *ngIf="(team$ | async)">Events</ion-title>
+    <ion-title *ngIf="(team$ | async)">{{ (team$ | async)?.name }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="createEventModal()">
+        <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
   <ion-toolbar>
     <ion-segment (ionChange)="segmentChanged($event)" value="all">
@@ -18,11 +24,11 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="calendar--content">
-  <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
+  <!-- <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
     <ion-fab-button (click)="createEventModal()">
       <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>
-  </ion-fab>
+  </ion-fab> -->
   <ion-grid class="ion-no-padding">
     <ion-row class="calendar--header ion-justify-content-center">
       <ion-col class="ion-justify-content-center ion-padding" size="auto">

@@ -4,33 +4,33 @@
       <ion-back-button [defaultHref]="['/Teams', (team$ | async)?.id, 'Messages']"></ion-back-button>
     </ion-buttons>
     <ion-title *ngIf="(group$ | async)">{{ (group$ | async)?.name }}</ion-title>
-    <!-- <ion-buttons slot="end">
+    <ion-buttons slot="end">
       <ion-button (click)="editGroupModal()">
-        <ion-icon name="people-outline"></ion-icon>
+        <ion-icon name="people"></ion-icon>
       </ion-button>
-    </ion-buttons> -->
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" #contentArea [class.scroll-ios]="ios">
-  <ion-header collapse="condense">
+  <!-- <ion-header collapse="condense">
     <ion-toolbar class="large-title-fix">
       <ion-title size="large" *ngIf="(group$ | async)">{{ (group$ | async)?.name }}</ion-title>
     </ion-toolbar>
-  </ion-header>
+  </ion-header> -->
 
-  <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
+  <!-- <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
     <ion-fab-button (click)="editGroupModal()">
       <ion-icon name="people-outline"></ion-icon>
     </ion-fab-button>
-  </ion-fab>
+  </ion-fab> -->
 
   <div id="container">
     <ion-list #scroll class="message--list">
       <ion-item class="message--list" lines="none"></ion-item>
       <div *ngFor="let m of (group$ | async)?.messages; let i = index; let last = last">
 
-        <ion-row class="ion-justify-content-center" *ngIf="(group$ | async)?.messages[i-1] && m.timestamp.toMillis() - (group$ | async)?.messages[i-1].timestamp.toMillis() > 1800000 || !(group$ | async)?.messages[i-1]">
+        <ion-row class="ion-justify-content-center ion-padding" *ngIf="(group$ | async)?.messages[i-1] && m.timestamp.toMillis() - (group$ | async)?.messages[i-1].timestamp.toMillis() > 1800000 || !(group$ | async)?.messages[i-1]">
           <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time"
             color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
           <ng-template #elseDate>

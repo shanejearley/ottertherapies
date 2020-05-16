@@ -8,12 +8,12 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" #contentArea [class.scroll-ios]="ios">
-  <ion-header collapse="condense">
+  <!-- <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large" *ngIf="(member$ | async)?.profile">{{ (member$ | async)?.profile.displayName }}
       </ion-title>
     </ion-toolbar>
-  </ion-header>
+  </ion-header> -->
 
   <div id="container">
 
@@ -22,7 +22,7 @@
 
       <div *ngFor="let m of (member$ | async)?.messages; trackBy: trackFn; let last = last; let i = index">
 
-        <ion-row class="ion-justify-content-center" *ngIf="(member$ | async)?.messages[i-1] && m.timestamp.toMillis() - (member$ | async)?.messages[i-1].timestamp.toMillis() > 1800000 || !(member$ | async)?.messages[i-1]">
+        <ion-row class="ion-justify-content-center ion-padding" *ngIf="(member$ | async)?.messages[i-1] && m.timestamp.toMillis() - (member$ | async)?.messages[i-1].timestamp.toMillis() > 1800000 || !(member$ | async)?.messages[i-1]">
           <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time"
             color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
           <ng-template #elseDate>

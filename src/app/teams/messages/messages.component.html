@@ -1,18 +1,19 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
+      <ion-back-button *ngIf="ios || android" text="Teams" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
     </ion-buttons>
-    <ion-title *ngIf="(team$ | async)">Messages</ion-title>
+    <ion-title *ngIf="(team$ | async)">{{ (team$ | async)?.name }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
+  <!-- <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large" *ngIf="(team$ | async)">Messages</ion-title>
     </ion-toolbar>
-  </ion-header>
+  </ion-header> -->
 
   <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
     <ion-fab-button (click)="createGroupModal()">

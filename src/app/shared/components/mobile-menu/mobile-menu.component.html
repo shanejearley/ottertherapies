@@ -1,0 +1,34 @@
+<ion-card class="clear--card">
+    <ion-card-content>
+        <ion-list class="theme--list">
+            <ion-list-header>
+                Settings
+            </ion-list-header>
+
+            <ion-item class="theme--item" lines="none" routerDirection="root" (click)="goToProfile()" detail="false"
+                [class.selected]="root === 'Profile'">
+                <ion-icon slot="start" [name]="'Profile' === root ? 'person' : 'person-outline'">
+                </ion-icon>
+                <ion-label>Profile</ion-label>
+            </ion-item>
+
+            <ion-item class="theme--item" lines="none" (click)="onLogout()" detail="false" button>
+                <ion-icon slot="start" name="power-outline"></ion-icon>
+                <ion-label>Logout</ion-label>
+            </ion-item>
+
+            <ion-item class="theme--item" lines="none" (click)="showPrivacy()" detail="false" button>
+                <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+                <ion-label>Privacy</ion-label>
+            </ion-item>
+
+            <ion-item class="theme--item" lines="none">
+                <ion-icon slot="start" name="moon-outline"></ion-icon>
+                <ion-label>
+                    Dark Mode
+                </ion-label>
+                <ion-toggle [checked]="dark" (ionChange)="change()"></ion-toggle>
+            </ion-item>
+        </ion-list>
+    </ion-card-content>
+</ion-card>

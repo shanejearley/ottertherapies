@@ -1,0 +1,57 @@
+<ion-header translucent>
+    <ion-toolbar>
+        <ion-title>Edit Child</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="dismiss()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-card class="clear--card">
+                    <ion-card-content>
+                        <ion-list class="theme--list">
+                            <ion-list-header>
+                                Child Info
+                            </ion-list-header>
+                            <div *ngIf="error">
+                                <div class="error" *ngIf="error">
+                                    You need to enter a child name.
+                                </div>
+                            </div>
+                            <ion-item lines="none" *ngIf="team">
+                                <ion-icon slot="start" name="happy-outline"></ion-icon>
+                                <h2 class="full-width">
+                                    <strong>
+                                        <ion-input class="form" [(ngModel)]="team.child"
+                                            placeholder="Add the child first name">
+                                        </ion-input>
+                                    </strong>
+                                </h2>
+                            </ion-item>
+                            <ion-item lines="none" *ngIf="team">
+                                <ion-icon slot="start" name="book-outline"></ion-icon>
+                                <h2 class="full-width">
+                                    <ion-textarea col="12" class="form" [(ngModel)]="team.bio"
+                                        placeholder="Add a bio, or tell a short story" autocapitalize="sentences">
+                                    </ion-textarea>
+                                </h2>
+                            </ion-item>
+                        </ion-list>
+                    </ion-card-content>
+                </ion-card>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+
+</ion-content>
+
+<ion-footer [translucent]="true">
+    <ion-toolbar>
+        <ion-row class="ion-justify-content-end">
+            <ion-button fill="clear" (click)="updateTeamInfo()">Save</ion-button>
+        </ion-row>
+    </ion-toolbar>
+</ion-footer>

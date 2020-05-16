@@ -1,21 +1,42 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-chip class="ion-margin-start" *ngIf="ios || android" color="light" (click)="presentPopover($event)">
+        <ion-avatar>
+          <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
+          <ng-template #elseMemberAvatar>
+            <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar"
+              name="{{ (profile$ | async)?.email }}" [size]="24">
+            </ngx-avatar>
+            <ng-template #elseEmailAvatar>
+              <ngx-avatar name="{{ (profile$ | async)?.email }}" [size]="24">
+              </ngx-avatar>
+            </ng-template>
+          </ng-template>
+        </ion-avatar>
+        <ion-label>
+          <ion-icon name="chevron-down-outline"></ion-icon>
+        </ion-label>
+      </ion-chip>
+      <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
     </ion-buttons>
     <ion-title>
-      Teams
+      <!-- Teams -->
+      <img *ngIf="!ios && !android; else elseMobileLogo" src="../../assets/img/otter_logo.svg" width="10%">
+      <ng-template #elseMobileLogo>
+        <img src="../../assets/img/otter_logo.svg" width="30%">
+      </ng-template>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
 
-  <ion-header collapse="condense">
+  <!-- <ion-header collapse="condense">
     <ion-toolbar>
       <ion-title size="large">Teams</ion-title>
     </ion-toolbar>
-  </ion-header>
+  </ion-header> -->
 
   <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
     <ion-fab-button (click)="createTeamModal()">
@@ -27,7 +48,7 @@
 
     <ion-list class="theme--list">
 
-      <ion-list-header *ngIf="(teams$ | async) && (teams$ | async).length || (teams$ | async) && !(teams$ | async).length && !(pending$ | async).length">
+      <ion-list-header *ngIf="(teams$ | async) && (teams$ | async).length || (teams$ | async) && !(teams$ | async).length && (pending$ | async) && !(pending$ | async).length">
         Your Teams
       </ion-list-header>
 
@@ -51,7 +72,7 @@
       </ion-card>
       <ion-list class="theme--list" inset="true" lines="none">
         <ion-item class="theme--item thumbnail--list"
-          *ngIf="(teams$ | async) && !(teams$ | async).length && !(pending$ | async).length" detail="false"
+          *ngIf="(teams$ | async) && !(teams$ | async).length && (pending$ | async) && !(pending$ | async).length" detail="false"
           lines="none">
           <ion-row class="member--row" slot="start">
             <ion-avatar class="dialog--member">

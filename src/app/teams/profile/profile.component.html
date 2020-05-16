@@ -1,9 +1,13 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
+      <ion-back-button *ngIf="ios || android" text="Teams" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
     </ion-buttons>
     <ion-title>Profile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="editProfileModal(false)">Edit</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -11,11 +15,11 @@
   <ion-grid class="ion-no-padding">
     <ion-row class="profile--pic--header ion-justify-content-center ion-padding">
       <ion-col class="ion-justify-content-center ion-padding" size="auto">
-        <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
+        <ion-thumbnail class="avatar-thumbnail profile-thumbnail" *ngIf="(profile$ | async)">
           <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
           <ng-template #elseMemberAvatar>
             <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar"
-              name="{{ (profile$ | async)?.displayName }}" [size]="150" [round]="false" [cornerRadius]="150">
+              name="{{ (profile$ | async)?.email }}" [size]="150" [round]="false" [cornerRadius]="150">
             </ngx-avatar>
             <ng-template #elseEmailAvatar>
               <ngx-avatar name="{{ (profile$ | async)?.email }}" [size]="150" [round]="false" [cornerRadius]="150">
@@ -42,29 +46,28 @@
                 <ion-item lines="none" *ngIf="(profile$ | async)">
                   <ion-icon slot="start" name="person-outline"></ion-icon>
                   <h2 class="full-width"><strong>
-                      <ion-input class="form" [(ngModel)]="profile.displayName" placeholder="Add a display name">
+                      <ion-input class="form" [value]="(profile$ | async)?.displayName" placeholder="Add a display name" (ionFocus)="onFocus($event)" readonly>
                       </ion-input>
                     </strong></h2>
                 </ion-item>
                 <ion-item lines="none" *ngIf="(profile$ | async)">
                   <ion-icon slot="start" name="mail-outline"></ion-icon>
                   <h2 class="full-width">
-                    <ion-input class="form" [(ngModel)]="profile.email" disabled>
+                    <ion-input class="form" [value]="(profile$ | async)?.email" (ionFocus)="onFocus($event)" readonly>
                     </ion-input>
                   </h2>
-                  <!-- <ion-button fill="clear" slot="end">
-                    <ion-icon slot="icon-only" name="lock-closed-outline"></ion-icon>
-                  </ion-button> -->
                 </ion-item>
                 <ion-item lines="none" *ngIf="(profile$ | async)">
                   <ion-icon slot="start" name="people-outline"></ion-icon>
                   <h2 class="full-width">
-                    <ion-select placeholder="Select your team role" class="form" [(ngModel)]="profile.role"
-                      [selectedText]="profile.role">
+                    <ion-input class="form" [value]="(profile$ | async)?.role" (ionFocus)="onFocus($event)" readonly>
+                    </ion-input>
+                    <!-- <ion-select placeholder="Select your team role" class="form"
+                      [selectedText]="(profile$ | async)?.role" (ionFocus)="onFocus($event)" readonly>
                       <ion-select-option [value]="role.name" *ngFor="let role of roleList">
                         {{ role.name }}
                       </ion-select-option>
-                    </ion-select>
+                    </ion-select> -->
                   </h2>
                 </ion-item>
                 <!-- <ion-item lines="none" *ngIf="(profile$ | async)">
@@ -79,25 +82,6 @@
                   </ion-button>
                   <ion-toggle slot="end" [(ngModel)]="profile.gcalSync" (ionChange)="onToggle($event)"></ion-toggle>
                 </ion-item> -->
-                <ion-list *ngIf="firstTime" class="theme--list" inset="true" lines="none">
-                  <ion-item detail="false" class="theme--item message--list" lines="none">
-                    <ion-row class="member--row" slot="start">
-                      <ion-avatar class="dialog--member">
-                        <img src="../../../../assets/img/otter_head.svg">
-                      </ion-avatar>
-                      <ion-col class="member--col" size="auto">
-                        <ion-row></ion-row>
-                        <ion-card color="light" class="dialog message--card message--member">
-                          <ion-card-content>
-                            <ion-label text-wrap>Welcome to Otter! To get started, enter your display name and care
-                              role.</ion-label>
-                          </ion-card-content>
-                        </ion-card>
-                        <ion-row></ion-row>
-                      </ion-col>
-                    </ion-row>
-                  </ion-item>
-                </ion-list>
               </ion-list>
             </div>
           </ion-card-content>
@@ -106,12 +90,3 @@
     </ion-row>
   </ion-grid>
 </ion-content>
-
-<ion-footer [translucent]="true">
-  <ion-toolbar>
-    <ion-row class="ion-justify-content-between">
-      <ion-button (click)="deleteUser()" fill="clear" color="danger">Delete</ion-button>
-      <ion-button fill="clear" (click)="updateProfile()">Save</ion-button>
-    </ion-row>
-  </ion-toolbar>
-</ion-footer>

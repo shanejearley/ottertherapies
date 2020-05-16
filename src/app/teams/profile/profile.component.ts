@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { HostListener } from '@angular/core';
 
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators'
+import { switchMap, tap, takeUntil } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
@@ -15,25 +15,18 @@ import { DeleteUserComponent } from './delete-user/delete-user.component';
 
 import { Store } from 'src/store';
 import { ModalController, ToastController, IonRouterOutlet, ActionSheetController, Platform } from '@ionic/angular';
-import { ComponentCanDeactivate } from 'src/app/shared/guards/pending-changes.guard';
+import { EditProfileComponent } from './edit-profile/edit-profile.component';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
 })
-export class ProfileComponent implements OnInit, ComponentCanDeactivate {
-  // @HostListener allows us to also guard against browser refresh, close, etc.
-  @HostListener('window:beforeunload')
-  canDeactivate(): Observable<boolean> | boolean {
-    if (this.profile.displayName !== this.currentProfile.displayName || this.profile.role !== this.currentProfile.role) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+export class ProfileComponent implements OnInit, AfterViewInit {
 
   firstTime: boolean = false;
+  open: boolean = false;
+
   data: any;
   user$: Observable<User>;
   profile$: Observable<Profile>;
@@ -42,8 +35,11 @@ export class ProfileComponent implements OnInit, ComponentCanDeactivate {
   subscriptions: Subscription[] = [];
   public team: string;
   public page: string;
+
   profile: Profile;
   currentProfile: Profile;
+  profileCopy: Profile;
+
   roleList: any[] = [
     { name: 'Parent' },
     { name: 'Family' },
@@ -64,6 +60,8 @@ export class ProfileComponent implements OnInit, ComponentCanDeactivate {
   android: boolean;
   desktop: boolean;
 
+  private readonly onDestroy = new Subject<void>();
+
   constructor(
     private store: Store,
     private authService: AuthService,
@@ -83,102 +81,31 @@ export class ProfileComponent implements OnInit, ComponentCanDeactivate {
       this.android = this.platform.is('android') && this.platform.is('capacitor');
       console.log(this.desktop, this.ios, this.android)
     })
-    this.profile$ = this.store.select<Profile>('profile');
-    this.profile$.pipe(tap(profile => {
-      if (profile) {
-        this.profile = {
-          uid: profile.uid || null,
-          email: profile.email || null,
-          displayName: profile.displayName || null,
-          role: profile.role || null,
-          lastTeam: profile.lastTeam || null,
-          url: profile.url || null,
-          fcmTokens: profile.fcmTokens || null,
-          badge: profile.badge || null,
-          gcalSync: profile.gcalSync || null
-        }
-        if (!this.currentProfile) {
-          this.currentProfile = profile;
-        }
-        if (!profile.displayName) {
-          this.firstTime = true;
-        } else {
-          this.selected = this.profile.role;
-          this.roleList.forEach(role => {
-            if (role.name == this.selected) {
-              this.selected = role;
-            }
-          })
-        }
-      }
-    })).subscribe()
     this.subscriptions = [
       this.profileSub
-      //this.authService.auth$.subscribe(),
-      //this.profileService.profile$.subscribe(),
-      //this.teamsService.teams$.subscribe()
     ];
-    // this.team$ = this.activatedRoute.params
-    // .pipe(switchMap(param => this.teamsService.getTeam(param.id)));
   }
 
-  ngOnDestroy() {
-    this.subscriptions.forEach(sub => {
-      if (sub) {
-        sub.unsubscribe()
-      }
-    });
-  }
-
-  async presentActionSheet() {
-    const actionSheet = await this.actionSheetController.create({
-      header: 'Warning: Permanent Action',
-      buttons: [{
-        text: 'Delete',
-        role: 'destructive',
-        icon: 'trash',
-        handler: () => {
-          console.log('Delete clicked');
-          this.presentDeleteUserToast();
-          this.authService.deleteUser();
+  ngAfterViewInit() {
+    this.profile$ = this.store.select<Profile>('profile');
+    this.profile$.pipe(
+      takeUntil(this.onDestroy),
+      tap((profile:Profile) => {
+        this.currentProfile = profile;
+        if (this.currentProfile && !this.currentProfile.displayName && !this.firstTime) {
+          this.firstTime = true;
+          setTimeout(() => {
+            this.editProfileModal(true);
+          }, 1000)
         }
-      }, {
-        text: 'Cancel',
-        icon: 'close',
-        role: 'cancel',
-        handler: () => {
-          console.log('Cancel clicked');
-        }
-      }]
-    });
-    await actionSheet.present();
+      })
+    ).subscribe()
   }
 
-  async deleteUserModal() {
-    const modal = await this.modalController.create({
-      component: DeleteUserComponent,
-      swipeToClose: true,
-      presentingElement: this.routerOutlet.nativeEl
-      // componentProps: {
-      //   'teamId': this.teamId,
-      //   'groupId': this.groupId
-      // }
-    });
-    modal.onWillDismiss().then(data => {
-      this.data = data.data;
-      if (this.data.response == 'delete') {
-        this.presentActionSheet();
-      }
-    });
-    await modal.present();
-  }
-
-  async presentDeleteUserToast() {
-    const toast = await this.toastController.create({
-      message: 'We are sorry to see you go! &#128075;',
-      duration: 2000
-    });
-    toast.present();
+  onFocus(ev) {
+    if (!this.open) {
+      this.editProfileModal(false);
+    }
   }
 
   async profilePictureModal() {
@@ -219,30 +146,6 @@ export class ProfileComponent implements OnInit, ComponentCanDeactivate {
     return this.authService.user.uid;
   }
 
-  async updateProfile() {
-    if (this.profile.displayName !== this.currentProfile.displayName || this.profile.role !== this.currentProfile.role) {
-      console.log('updating...');
-      this.currentProfile = null;
-      await this.profileService.updateProfile(this.uid, this.profile);
-    } else {
-      console.log('no update necessary');
-    }
-    await this.presentProfileUpdateToast();
-    if (this.firstTime) {
-      this.firstTime = false;
-      return this.router.navigate(['/Teams']);
-    } else {
-      return;
-    }
-  }
-
-  onChange(ev) {
-    console.log(ev);
-    this.roleList.forEach(role => {
-      console.log(role);
-    })
-  }
-
   onToggle(ev) {
     console.log(ev);
     if (this.profile.gcalSync) {
@@ -262,12 +165,96 @@ export class ProfileComponent implements OnInit, ComponentCanDeactivate {
     }
   }
 
+  async editProfileModal(firstTime: boolean) {
+    this.open = true;
+    const modal = await this.modalController.create({
+      component: EditProfileComponent,
+      componentProps: {
+        'firstTime': firstTime
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl,
+      backdropDismiss: !firstTime,
+    });
+    modal.onWillDismiss().then(data => {
+      this.open = false;
+      this.data = data.data;
+      if (this.data.response == 'success') {
+        this.presentProfileUpdateToast();
+      }
+      if (this.data.response == 'delete') {
+        this.deleteUserModal();
+      }
+    });
+    return await modal.present();
+  }
+
+  async presentActionSheet() {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Warning: Permanent Action',
+      buttons: [{
+        text: 'Delete',
+        role: 'destructive',
+        icon: 'trash',
+        handler: () => {
+          console.log('Delete clicked');
+          this.presentDeleteUserToast();
+          this.authService.deleteUser();
+        }
+      }, {
+        text: 'Cancel',
+        icon: 'close',
+        role: 'cancel',
+        handler: () => {
+          console.log('Cancel clicked');
+        }
+      }]
+    });
+    await actionSheet.present();
+  }
+
   deleteUser() {
     return this.deleteUserModal();
   }
 
+  async deleteUserModal() {
+    const modal = await this.modalController.create({
+      component: DeleteUserComponent,
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
+      // componentProps: {
+      //   'teamId': this.teamId,
+      //   'groupId': this.groupId
+      // }
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'delete') {
+        this.presentActionSheet();
+      }
+    });
+    await modal.present();
+  }
+
+  async presentDeleteUserToast() {
+    const toast = await this.toastController.create({
+      message: 'We are sorry to see you go! &#128075;',
+      duration: 2000
+    });
+    toast.present();
+  }
+
   showGcalHint() {
     console.log("Show hint here...")
+  }
+
+  ngOnDestroy() {
+    this.onDestroy.next();
+    this.subscriptions.forEach(sub => {
+      if (sub) {
+        sub.unsubscribe()
+      }
+    });
   }
 
 }

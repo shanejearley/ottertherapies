@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NavParams, ModalController, ActionSheetController } from '@ionic/angular';
 
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { map, tap, takeUntil } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service'
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -29,6 +29,10 @@ export class EditGroupComponent {
     queryText = '';
     filteredMembers: Member[];
     error: boolean;
+
+    private readonly onDestroy = new Subject<void>();
+
+
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,
@@ -46,28 +50,34 @@ export class EditGroupComponent {
         this.teamId = this.navParams.get('teamId');
         this.groupId = this.navParams.get('groupId');
         this.group$ = this.groupsService.getGroup(this.groupId);
-        this.group$.pipe(tap(g => { 
-            this.group = g;
-        })).subscribe();
+        this.group$.pipe(
+            takeUntil(this.onDestroy),
+            tap(g => {
+                this.group = g;
+            })
+        ).subscribe();
         this.members$ = this.store.select<Member[]>('members');
-        this.members$.pipe(map(members => {
-            if (this.group.members && this.group.members.length) {
-                console.log(this.group.members)
-                this.group.members.forEach(g => {
-                    if (this.uid === g.uid) {
-                        this.memberStatus = g.status;
-                        console.log(g.status);
-                    }
-                })
-                members.forEach(m => {
-                    if (this.group.members.filter(groupMember => groupMember.uid == m.uid)[0]) {
-                        m.isChecked = true;
-                    } else {
-                        m.isChecked = false;
-                    }
-                })
-            }
-        })).subscribe()
+        this.members$.pipe(
+            takeUntil(this.onDestroy),
+            map(members => {
+                if (this.group.members && this.group.members.length) {
+                    console.log(this.group.members)
+                    this.group.members.forEach(g => {
+                        if (this.uid === g.uid) {
+                            this.memberStatus = g.status;
+                            console.log(g.status);
+                        }
+                    })
+                    members.forEach(m => {
+                        if (this.group.members.filter(groupMember => groupMember.uid == m.uid)[0]) {
+                            m.isChecked = true;
+                        } else {
+                            m.isChecked = false;
+                        }
+                    })
+                }
+            })
+        ).subscribe()
     }
 
     dismiss() {
@@ -82,24 +92,24 @@ export class EditGroupComponent {
 
     async presentActionSheet() {
         const actionSheet = await this.actionSheetController.create({
-          header: 'Warning: Permanent Action',
-          buttons: [{
-            text: 'Delete',
-            role: 'destructive',
-            icon: 'trash',
-            handler: async () => {
-              console.log('Delete clicked');
-              await this.groupsService.removeGroup(this.groupId);
-              return this.dismiss();
-            }
-          }, {
-            text: 'Cancel',
-            icon: 'close',
-            role: 'cancel',
-            handler: () => {
-              console.log('Cancel clicked');
-            }
-          }]
+            header: 'Warning: Permanent Action',
+            buttons: [{
+                text: 'Delete',
+                role: 'destructive',
+                icon: 'trash',
+                handler: async () => {
+                    console.log('Delete clicked');
+                    await this.groupsService.removeGroup(this.groupId);
+                    return this.dismiss();
+                }
+            }, {
+                text: 'Cancel',
+                icon: 'close',
+                role: 'cancel',
+                handler: () => {
+                    console.log('Cancel clicked');
+                }
+            }]
         });
         await actionSheet.present();
     }
@@ -140,34 +150,44 @@ export class EditGroupComponent {
     }
 
     manualSearch() {
-        this.members$.pipe(map(members => {
-            if (members) {
-                if (members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]) {
-                    this.addMember(members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]);
-                } else {
-                    this.error = true;
-                    console.log('No member found');
+        this.members$.pipe(
+            takeUntil(this.onDestroy),
+            map(members => {
+                if (members) {
+                    if (members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]) {
+                        this.addMember(members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]);
+                    } else {
+                        this.error = true;
+                        console.log('No member found');
+                    }
                 }
-            }
-        })).subscribe();
+            })
+        ).subscribe();
     }
 
     filterMembers(search: string) {
-        this.members$.pipe(map(members => {
-            if (members) {
-                if (search.length) {
-                    this.filteredMembers = members.filter(o =>
-                        Object.keys(o.profile).some(k => {
-                            if (typeof o.profile[k] === 'string' && k == 'displayName' || typeof o.profile[k] === 'string' && k == 'email') {
-                                console.log(o.profile[k], search);
-                                return o.profile[k].toLowerCase().includes(search.toLowerCase());
-                            }
-                        })
-                    );
-                } else {
-                    this.filteredMembers = members;
+        this.members$.pipe(
+            takeUntil(this.onDestroy),
+            map(members => {
+                if (members) {
+                    if (search.length) {
+                        this.filteredMembers = members.filter(o =>
+                            Object.keys(o.profile).some(k => {
+                                if (typeof o.profile[k] === 'string' && k == 'displayName' || typeof o.profile[k] === 'string' && k == 'email') {
+                                    console.log(o.profile[k], search);
+                                    return o.profile[k].toLowerCase().includes(search.toLowerCase());
+                                }
+                            })
+                        );
+                    } else {
+                        this.filteredMembers = members;
+                    }
                 }
-            }
-        })).subscribe()
+            })
+        ).subscribe()
+    }
+
+    ngOnDestroy() {
+        this.onDestroy.next();
     }
 }

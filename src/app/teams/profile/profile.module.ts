@@ -13,6 +13,7 @@ import { ProfilePictureComponent } from 'src/app/teams/profile/profile-picture/p
 import { DeleteUserComponent } from './delete-user/delete-user.component';
 
 import { SharedModule } from '../../shared/shared.module';
+import { EditProfileComponent } from './edit-profile/edit-profile.component';
 
 @NgModule({
   imports: [
@@ -24,8 +25,8 @@ import { SharedModule } from '../../shared/shared.module';
     ProfileRoutingModule,
     SharedModule
   ],
-  entryComponents: [ProfilePictureComponent, DeleteUserComponent],
+  entryComponents: [ProfilePictureComponent, DeleteUserComponent, EditProfileComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [ProfileComponent, ProfilePictureComponent, DeleteUserComponent]
+  declarations: [ProfileComponent, ProfilePictureComponent, DeleteUserComponent, EditProfileComponent]
 })
 export class ProfileModule {}
