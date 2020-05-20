@@ -48,6 +48,7 @@ export class AppComponent implements OnInit {
   membersSub: Subscription;
   notesSub: Subscription;
   eventsSub: Subscription;
+  recurringEventsSub: Subscription;
   pendingSub: Subscription;
   resourcesSub: Subscription;
   badgeSub: Subscription;
@@ -232,6 +233,7 @@ export class AppComponent implements OnInit {
               this.membersSub.unsubscribe();
               this.notesSub.unsubscribe();
               this.eventsSub.unsubscribe();
+              this.recurringEventsSub.unsubscribe();
               this.resourcesSub.unsubscribe();
             }
           }
@@ -272,6 +274,7 @@ export class AppComponent implements OnInit {
             this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe(() => {
               this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
               this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
+              this.recurringEventsSub = this.eventsService.recurringEventsObservable(user.uid, this.teamId).subscribe();
               this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
               this.resourcesSub = this.resourcesService.resourcesObservable(user.uid, this.teamId).subscribe();
             });
@@ -288,6 +291,7 @@ export class AppComponent implements OnInit {
     if (this.membersSub) { this.membersSub.unsubscribe() };
     if (this.groupsSub) { this.groupsSub.unsubscribe() };
     if (this.eventsSub) { this.eventsSub.unsubscribe() };
+    if (this.recurringEventsSub) { this.recurringEventsSub.unsubscribe() };
     if (this.notesSub) { this.notesSub.unsubscribe() };
     if (this.resourcesSub) { this.resourcesSub.unsubscribe() };
   }
@@ -328,6 +332,7 @@ export class AppComponent implements OnInit {
       this.membersSub.unsubscribe();
       this.notesSub.unsubscribe();
       this.eventsSub.unsubscribe();
+      this.recurringEventsSub.unsubscribe();
       this.resourcesSub.unsubscribe();
     }
   }

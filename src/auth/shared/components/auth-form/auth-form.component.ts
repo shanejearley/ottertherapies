@@ -1,7 +1,10 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Plugins } from '@capacitor/core';
+import { Observable, Subject } from 'rxjs';
+import { Store } from 'src/store';
+import { takeUntil, tap } from 'rxjs/operators';
 const { Browser } = Plugins;
 
 @Component({
@@ -9,7 +12,7 @@ const { Browser } = Plugins;
   styleUrls: ['auth-form.component.scss'],
   templateUrl: 'auth-form.component.html'
 })
-export class AuthFormComponent {
+export class AuthFormComponent implements OnInit {
 
   @Output()
   submitted = new EventEmitter<FormGroup>();
@@ -19,9 +22,25 @@ export class AuthFormComponent {
     password: ['', Validators.required]
   });
 
+  dark$: Observable<boolean>;
+  dark: boolean;
+
+  private readonly onDestroy = new Subject<void>();
+
   constructor(
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private store: Store
   ) {}
+
+  ngOnInit() {
+    this.dark$ = this.store.select('dark');
+    this.dark$.pipe(
+      takeUntil(this.onDestroy),
+      tap(dark => {
+        this.dark = dark;
+      })
+    ).subscribe();
+  }
 
   async showPrivacy() {
     await Browser.open({ url: 'https://ottertherapies.com/privacy-and-terms' });
@@ -41,6 +60,10 @@ export class AuthFormComponent {
   get emailFormat() {
     const control = this.form.get('email');
     return control.hasError('email') && control.touched;
+  }
+
+  ngOnDestroy() {
+    this.onDestroy.next();
   }
 
 }

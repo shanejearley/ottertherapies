@@ -19,18 +19,45 @@ import { EventsService } from 'src/app/shared/services/events/events.service';
     styleUrls: ['./create-event.component.scss']
 })
 export class CreateEventComponent {
+    date: Date;
+
     newEvent = {
         name: null,
         location: null,
-        startTime: moment().add(59, 'm').startOf('h').toString(),
-        endTime: moment().add(59, 'm').startOf('h').add(1, 'h').toString(),
+        startTime: null,
+        endTime: null,
         info: null,
         type: 'Event',
+        recurrence: 'once',
         members: []
     };
+
+    recurrences = [
+        'once',
+        'daily',
+        'weekly',
+        'monthly-last',
+        'monthly',
+        'annually',
+        'weekdays'
+    ]
+
+    dayFormat = moment(this.newEvent.startTime).format('MMM Do');
+    allWeekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    dayNumber = moment(this.newEvent.startTime).toDate().getDay();
+    lastDay = moment(this.newEvent.startTime).month() !== moment(this.newEvent.startTime).add('weeks', 1).month()
+    dayString = this.allWeekdays[this.dayNumber];
+    weekNumber = Math.ceil(moment(this.newEvent.startTime).toDate().getDate() / 7);
+    nthString = this.weekNumber === 1 ? '1st' : this.weekNumber === 2 ? '2nd' : this.weekNumber === 3 ? '3rd' : `${this.weekNumber}th`
+    nthWeekday: any = this.nthString + ' ' + this.dayString;
+
     profile$: Observable<Profile>;
     groups$: Observable<Group[]>;
     members$: Observable<Member[]>;
+    filterMembers$: Observable<Member[]>;
+
+    showFilter: boolean = false;
+
     teamId: string;
     selected: string;
     queryText = '';
@@ -57,10 +84,17 @@ export class CreateEventComponent {
                 }
             })
         })).subscribe()
+
+        this.filterMembers$ = this.members$.pipe(
+            map(members => this.queryText.length ? members.filter((member: Member) => member.profile.displayName.toLowerCase().includes(this.queryText.toLowerCase()) || member.profile.email.toLowerCase().includes(this.queryText.toLowerCase())) : members.filter((member: Member) => true))
+        )
     }
 
     ionViewWillEnter() {
         this.teamId = this.navParams.get('teamId');
+        this.date = this.navParams.get('date');
+        this.newEvent.startTime = moment(this.date).set('hour', moment().hour()).add(59, 'm').startOf('h').toString(),
+        this.newEvent.endTime = moment(this.date).set('hour', moment().hour()).add(59, 'm').startOf('h').add(1, 'h').toString()
     }
 
     dismiss() {
@@ -87,6 +121,13 @@ export class CreateEventComponent {
     }
 
     changeStart() {
+        this.dayFormat = moment(this.newEvent.startTime).format('MMM Do');
+        this.dayNumber = moment(this.newEvent.startTime).toDate().getDay();
+        this.lastDay = moment(this.newEvent.startTime).month() !== moment(this.newEvent.startTime).add('weeks', 1).month()
+        this.dayString = this.allWeekdays[this.dayNumber];
+        this.weekNumber = Math.ceil(moment(this.newEvent.startTime).toDate().getDate() / 7);
+        this.nthString = this.weekNumber === 1 ? '1st' : this.weekNumber === 2 ? '2nd' : this.weekNumber === 3 ? '3rd' : `${this.weekNumber}th`
+        this.nthWeekday = this.nthString + ' ' + this.dayString;
         this.newEvent.endTime = moment(this.newEvent.startTime).add(1, 'h').toString();
     }
 
@@ -118,24 +159,5 @@ export class CreateEventComponent {
                 }
             }
         })).subscribe();
-    }
-
-    filterMembers(search: string) {
-        this.members$.pipe(map(members => {
-            if (members) {
-                if (search.length) {
-                    this.filteredMembers = members.filter(o =>
-                        Object.keys(o.profile).some(k => {
-                            if (typeof o.profile[k] === 'string' && k == 'displayName' || typeof o.profile[k] === 'string' && k == 'email') {
-                                console.log(o.profile[k], search);
-                                return o.profile[k].toLowerCase().includes(search.toLowerCase());
-                            }
-                        })
-                    );
-                } else {
-                    this.filteredMembers = members;
-                }
-            }
-        })).subscribe()
     }
 }

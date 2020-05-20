@@ -20,11 +20,11 @@
       </ion-chip>
       <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
     </ion-buttons>
-    <ion-title>
+    <ion-title [class.title--center]="android">
       <!-- Teams -->
-      <img *ngIf="!ios && !android; else elseMobileLogo" src="../../assets/img/otter_logo.svg" width="10%">
+      <img *ngIf="!ios && !android; else elseMobileLogo" [src]="!dark ? '../../assets/img/otter_logo.svg' : '../../assets/img/otter_logo_dark.svg'" width="125px">
       <ng-template #elseMobileLogo>
-        <img src="../../assets/img/otter_logo.svg" width="30%">
+        <img [src]="!dark ? '../../assets/img/otter_logo.svg' : '../../assets/img/otter_logo_dark.svg'" width="125px">
       </ng-template>
     </ion-title>
   </ion-toolbar>

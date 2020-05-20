@@ -19,6 +19,10 @@ export class EditGroupComponent {
     profile$: Observable<Profile>;
     groups$: Observable<Group[]>;
     members$: Observable<Member[]>;
+    filterMembers$: Observable<Member[]>;
+
+    showFilter: boolean = false;
+
     group$: Observable<Group>;
     group;
     memberStatus;
@@ -78,6 +82,10 @@ export class EditGroupComponent {
                 }
             })
         ).subscribe()
+
+        this.filterMembers$ = this.members$.pipe(
+            map(members => this.queryText.length ? members.filter((member: Member) => member.profile.displayName.toLowerCase().includes(this.queryText.toLowerCase()) || member.profile.email.toLowerCase().includes(this.queryText.toLowerCase())) : members.filter((member: Member) => true))
+        )
     }
 
     dismiss() {
@@ -163,28 +171,6 @@ export class EditGroupComponent {
                 }
             })
         ).subscribe();
-    }
-
-    filterMembers(search: string) {
-        this.members$.pipe(
-            takeUntil(this.onDestroy),
-            map(members => {
-                if (members) {
-                    if (search.length) {
-                        this.filteredMembers = members.filter(o =>
-                            Object.keys(o.profile).some(k => {
-                                if (typeof o.profile[k] === 'string' && k == 'displayName' || typeof o.profile[k] === 'string' && k == 'email') {
-                                    console.log(o.profile[k], search);
-                                    return o.profile[k].toLowerCase().includes(search.toLowerCase());
-                                }
-                            })
-                        );
-                    } else {
-                        this.filteredMembers = members;
-                    }
-                }
-            })
-        ).subscribe()
     }
 
     ngOnDestroy() {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, DocumentChangeType, DocumentChangeAction, DocumentChange } from '@angular/fire/firestore';
 import { firestore } from 'firebase/app';
 import 'firebase/storage';
 import moment from 'moment';
@@ -8,10 +8,11 @@ import moment from 'moment';
 import { Store } from 'src/store';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service'
 
-import { Observable } from 'rxjs';
-import { filter, map, shareReplay } from 'rxjs/operators';
+import { Observable, combineLatest } from 'rxjs';
+import { filter, map, shareReplay, tap } from 'rxjs/operators';
 
 import { MembersService } from '../members/members.service';
+
 
 export interface Member {
     status: string,
@@ -28,6 +29,9 @@ export interface Event {
     info: string,
     location: string,
     type: string,
+    recurrence: string,
+    recurrenceId?: string,
+    until?: firestore.Timestamp,
     members: Member[]
 }
 
@@ -39,10 +43,12 @@ export class EventsService {
     teamId: string;
     uid: string;
     events$;
+    recurringEvents$;
     events: Event[];
+    recurringEvents: Event[];
     date: Date;
-    monthStart: firestore.Timestamp;
-    monthEnd: firestore.Timestamp;
+    lastMonthStart: firestore.Timestamp;
+    nextMonthEnd: firestore.Timestamp;
     members$;
 
     constructor(
@@ -53,16 +59,18 @@ export class EventsService {
     ) { }
 
     eventsObservable(userId, teamId, date) {
+        console.log('EVENTS OBSERVABLE');
         this.events = [];
         this.events.length = 0;
         this.events$ = null;
         this.uid = userId;
         this.teamId = teamId;
         this.date = date;
-        this.monthStart = firestore.Timestamp.fromDate(new Date(date.getFullYear(), date.getMonth(), 1));
-        this.monthEnd = firestore.Timestamp.fromDate(new Date(date.getFullYear(), date.getMonth() + 1, 0));
-        this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.orderBy('startTime').startAt(this.monthStart).endAt(this.monthEnd));
-        this.events$ = this.eventsCol.stateChanges(['added', 'modified', 'removed'])
+        /// optimization might include only loading the last week of the previous month and first week of the next month
+        this.lastMonthStart = firestore.Timestamp.fromDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
+        this.nextMonthEnd = firestore.Timestamp.fromDate(new Date(date.getFullYear(), date.getMonth() + 2, 0));
+        const eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'once').orderBy('startTime').startAt(this.lastMonthStart).endAt(this.nextMonthEnd));
+        this.events$ = eventsCol.stateChanges(['added', 'modified', 'removed'])
             .pipe(
                 map(actions => actions.map(a => {
                     console.log('ACTION', a);
@@ -75,6 +83,7 @@ export class EventsService {
                                 var index = this.events.indexOf(e);
                                 this.events.splice(index, 1);
                                 console.log("Removed event: ", e);
+                                return this.events;
                             }
                         })
                     }
@@ -95,6 +104,60 @@ export class EventsService {
                 })),
                 shareReplay(1))
         return this.events$;
+    }
+
+    recurringEventsObservable(userId, teamId) {
+        console.log('RECURRING EVENTS OBSERVABLE');
+        this.recurringEvents = [];
+        this.recurringEvents.length = 0;
+        this.recurringEvents$ = null;
+        this.uid = userId;
+        this.teamId = teamId;
+        const dailyEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'daily')).snapshotChanges()
+        const weeklyEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'weekly')).snapshotChanges()
+        const monthlyEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'monthly')).snapshotChanges()
+        const monthlyLastEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'monthly-last')).snapshotChanges()
+        const annuallyEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'annually')).snapshotChanges()
+        const weekdaysEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'weekdays')).snapshotChanges()
+        this.recurringEvents$ = combineLatest<any[]>(dailyEventsCol, weeklyEventsCol, monthlyEventsCol, monthlyLastEventsCol, annuallyEventsCol, weekdaysEventsCol)
+            .pipe(
+                map(actionsList => actionsList.map((actions) => {
+                    actions.map((a) => {
+                        console.log('ACTION', a);
+                        if (a.type == 'removed') {
+                            const event = a.payload.doc.data() as Event;
+                            event.id = a.payload.doc.id;
+                            this.recurringEvents.forEach((e) => {
+                                if (e.id === event.id) {
+                                    console.log('recurringEvents', this.recurringEvents);
+                                    var index = this.recurringEvents.indexOf(e);
+                                    this.recurringEvents.splice(index, 1);
+                                    console.log("Removed event: ", e);
+                                    return this.recurringEvents;
+                                }
+                            })
+                        }
+                        if (a.type == 'added' || a.type == 'modified') {
+                            const event = a.payload.doc.data() as Event;
+                            event.id = a.payload.doc.id;
+                            const exists = this.recurringEvents.find(e => e.id === event.id)
+                            if (event.startTime && !exists) {
+                                this.getMembers(event);
+                                this.recurringEvents.push(event);
+                            } else if (event.startTime && exists) {
+                                let eventIndex = this.recurringEvents.findIndex(e => e.id == event.id);
+                                event.members = this.recurringEvents[eventIndex].members;
+                                this.recurringEvents[eventIndex] = event;
+                            }
+                        } else {
+                            console.log('Else Case Recurring Event');
+                            return this.recurringEvents;
+                        }
+                        return this.store.set('recurringEvents', this.recurringEvents)
+                    })
+                })),
+                shareReplay(1))
+        return this.recurringEvents$;
     }
 
     getMembers(event: Event) {
@@ -145,13 +208,6 @@ export class EventsService {
         return eventDoc.delete();
     }
 
-    getToday(day) {
-        return this.store.select<Event[]>('events')
-            .pipe(
-                filter(Boolean),
-                map((events: Event[]) => events.filter((event: Event) => moment(event.startTime.toDate()).startOf('day').format('ll') == day)))
-    }
-
     addEvent(event) {
         const newEvent = {
             createdBy: this.uid,
@@ -162,6 +218,7 @@ export class EventsService {
             info: event.info,
             type: event.type,
             location: event.location,
+            recurrence: event.recurrence,
             members: null
         }
         this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
@@ -197,7 +254,8 @@ export class EventsService {
             name: event.name,
             info: event.info,
             type: event.type,
-            location: event.location
+            location: event.location,
+            recurrence: event.recurrence
         }
         this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
         return this.eventsCol.doc(event.id).update(updateEvent).then(() => {

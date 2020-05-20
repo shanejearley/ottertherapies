@@ -59,7 +59,7 @@
                                 <ion-icon slot="start" name="people-outline"></ion-icon>
                                 <h2 class="full-width">
                                     <ion-select placeholder="Select your team role" class="form" [(ngModel)]="profile.role"
-                                        [selectedText]="profile.role">
+                                        [selectedText]="profile.role" interface="popover">
                                         <ion-select-option [value]="role.name" *ngFor="let role of roleList">
                                             {{ role.name }}
                                         </ion-select-option>

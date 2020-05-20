@@ -1,16 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { Observable } from 'rxjs';
+import { firestore } from 'firebase/app';
+
+import { Observable, Subject, merge, combineLatest, concat, of, observable } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, map, tap } from 'rxjs/operators'
+import { switchMap, map, tap, takeUntil, mapTo, take, filter } from 'rxjs/operators'
 
 import { CreateEventComponent } from './create-event/create-event.component';
 import { EditEventComponent } from './edit-event/edit-event.component';
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
-import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
+import { Profile } from '../../../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from '../../shared/services/teams/teams.service';
-import { GroupsService, Group } from '../../shared/services/groups/groups.service';
+import { Group } from '../../shared/services/groups/groups.service';
 import { Event, EventsService } from '../../shared/services/events/events.service';
 
 import { Store } from 'src/store';
@@ -18,6 +20,9 @@ import { Store } from 'src/store';
 import { CalendarComponentOptions } from 'ion2-calendar';
 import moment from 'moment';
 import { ModalController, ToastController, IonRouterOutlet, Platform } from '@ionic/angular';
+
+import { DateAdapter } from '@rschedule/core';
+import { Rule, RuleOption } from '../../rschedule';
 
 export interface DayConfig {
   date: Date;
@@ -39,7 +44,12 @@ export class EventsComponent implements OnInit {
   teams$: Observable<Team[]>;
   team$: Observable<Team>;
   groups$: Observable<Group[]>;
+
   events$: Observable<Event[]>;
+  recurringEvents$: Observable<Event[]>;
+  combinedEvents$: Observable<Event[]>;
+  today$: Observable<Event[]>;
+
   subscriptions: Subscription[] = [];
   public team: string;
   public page: string;
@@ -48,7 +58,6 @@ export class EventsComponent implements OnInit {
   today = moment().startOf('day').format('ll');
   date = moment().startOf('day').format('ll');
   month = moment().startOf('day').month();
-  today$: Observable<Event[]>;
   type: 'string';
   _disableWeeks: number[] = [];
   eventsSource: DayConfig[] = [];
@@ -63,11 +72,12 @@ export class EventsComponent implements OnInit {
   ios: boolean;
   android: boolean;
 
+  private readonly onDestroy = new Subject<void>();
+
   constructor(
     private store: Store,
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
-    private profileService: ProfileService,
     private teamsService: TeamsService,
     private eventsService: EventsService,
     private modalController: ModalController,
@@ -80,12 +90,10 @@ export class EventsComponent implements OnInit {
     if ($event.month() !== this.month) {
       this.eventsService.eventsObservable(this.uid, this.teamId, $event._d).subscribe();
       this.date = $event.format('ll');
-      this.month = $event.month();
-      this.today$ = this.eventsService.getToday(this.date);
-      //addevents
+      this.today$ = this.getToday(this.date);
     } else {
       this.date = $event.format('ll');
-      this.today$ = this.eventsService.getToday(this.date);
+      this.today$ = this.getToday(this.date);
     }
   }
 
@@ -100,8 +108,11 @@ export class EventsComponent implements OnInit {
   }
 
   monthChange($event) {
+    console.log($event)
+    this.date = moment($event.newMonth.dateObj).format('ll')
     this.eventsService.eventsObservable(this.uid, this.teamId, $event.newMonth.dateObj).subscribe();
-    this.month = $event.newMonth.months;
+    this.configCalendar();
+    this.today$ = this.getToday(this.date);
   }
 
   get uid() {
@@ -120,6 +131,7 @@ export class EventsComponent implements OnInit {
       component: CreateEventComponent,
       componentProps: {
         'teamId': this.teamId,
+        'date': this.date
       },
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl
@@ -133,12 +145,13 @@ export class EventsComponent implements OnInit {
     return await modal.present();
   }
 
-  async editEventModal(eventId) {
+  async editEventModal(event: Event) {
     const modal = await this.modalController.create({
       component: EditEventComponent,
       componentProps: {
         'teamId': this.teamId,
-        'eventId': eventId
+        'date': this.date,
+        'event': event
       },
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl
@@ -147,6 +160,9 @@ export class EventsComponent implements OnInit {
       this.data = data.data;
       if (this.data.response == 'success') {
         this.presentUpdateToast();
+      }
+      if (this.data.response == 'deleted') {
+        this.configCalendar();
       }
     });
     return await modal.present();
@@ -169,26 +185,20 @@ export class EventsComponent implements OnInit {
   }
 
   configCalendar() {
-    this.events$.pipe(map(events => {
-      if (events) {
+    this.eventsSource = [];
+    this.combinedEvents$.pipe(
+      filter(Boolean),
+      takeUntil(this.onDestroy),
+      map((events: Event[]) => {
         events.forEach(e => {
           if (this.personal && e.members[this.uid] || !this.personal) {
-            if (moment(e.startTime.toDate()).startOf('day').format('ll') == this.date) {
-              console.log(e);
-              this.eventsSource.push({
-                date: e.startTime.toDate(),
-                marked: true,
-                subTitle: '•',
-                cssClass: 'dot && on-selected'
-              });
-            } else {
-              this.eventsSource.push({
-                date: e.startTime.toDate(),
-                marked: false,
-                subTitle: '•',
-                cssClass: 'dot'
-              });
-            }
+            console.log(e);
+            this.eventsSource.push({
+              date: e.startTime.toDate(),
+              marked: moment(e.startTime.toDate()).startOf('day').format('ll') == this.date ? true : false,
+              subTitle: '•',
+              cssClass: moment(e.startTime.toDate()).startOf('day').format('ll') == this.date ? 'dot && on-selected' : 'dot'
+            });
           }
         })
         this.options = {
@@ -196,8 +206,8 @@ export class EventsComponent implements OnInit {
           disableWeeks: [...this._disableWeeks],
           daysConfig: this.eventsSource
         };
-      }
-    })).subscribe()
+      })
+    ).subscribe()
   }
 
   ngOnInit() {
@@ -209,15 +219,20 @@ export class EventsComponent implements OnInit {
     })
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
+
     this.events$ = this.store.select<Event[]>('events');
-    this.today$ = this.eventsService.getToday(this.date);
+    this.recurringEvents$ = this.store.select<Event[]>('recurringEvents');
+    this.combinedEvents$ = combineLatest(this.events$, this.recurringEvents$)
+      .pipe(
+        takeUntil(this.onDestroy),
+        filter(Boolean),
+        map(([events, recurringEvents]) => events && recurringEvents ? [...events, ...recurringEvents] : events ? events : recurringEvents),
+        switchMap((allEvents: Event[]) => allEvents ? this.getIncidences(allEvents) : of(allEvents))
+      );
+
+    this.today$ = this.getToday(this.date);
     this.configCalendar();
-    //this.teams$ = this.store.select<Team[]>('teams');
-    this.subscriptions = [
-      //this.authService.auth$.subscribe(),
-      //this.profileService.profile$.subscribe(),
-      //this.teamsService.teams$.subscribe()
-    ];
+    this.subscriptions = [];
     this.team$ = this.activatedRoute.params
       .pipe(
         tap(param => { this.teamId = param.id }),
@@ -225,7 +240,73 @@ export class EventsComponent implements OnInit {
       );
   }
 
+  getToday(day) {
+    return this.combinedEvents$
+      .pipe(
+        filter(Boolean),
+        map((events: Event[]) => events.filter((event: Event) => moment(event.startTime.toDate()).startOf('day').format('ll') == day)))
+  }
+
+  getIncidences(allEvents: Event[]) {
+    allEvents.forEach(event => {
+      if (event.recurrence !== 'once') {
+
+        const weekdays: RuleOption.ByDayOfWeek[] = ['MO', 'TU', 'WE', 'TH', 'FR']
+        const selectDays: DateAdapter.Weekday[] = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
+        const weekday: DateAdapter.Weekday = selectDays[event.startTime.toDate().getDay()];
+        const weekNumber = event.recurrence === 'monthly-last' ? -1 : Math.ceil(event.startTime.toDate().getDate() / 7);
+        const monthlyDay: RuleOption.ByDayOfWeek[] = [[weekday, weekNumber]];
+        const frequency = event.recurrence === 'daily' ? 'DAILY' : event.recurrence === 'weekly' ? 'WEEKLY' : event.recurrence === 'monthly' || event.recurrence === 'monthly-last' ? 'MONTHLY' : event.recurrence === 'annually' ? 'YEARLY' : event.recurrence === 'weekdays' ? 'DAILY' : null;
+
+        const rule = event.recurrence === 'weekdays' ? new Rule({
+          frequency: frequency,
+          byDayOfWeek: weekdays,
+          start: event.startTime.toDate(),
+          end: event.until ? event.until.toDate() : moment(this.date).endOf('month').add('months', 1).toDate()
+        }) : event.recurrence === 'monthly' || event.recurrence === 'monthly-last' ? new Rule({
+          frequency: frequency,
+          byDayOfWeek: monthlyDay,
+          start: event.startTime.toDate(),
+          end: event.until ? event.until.toDate() : moment(this.date).endOf('month').add('months', 1).toDate()
+        }) : new Rule({
+          frequency: frequency,
+          start: event.startTime.toDate(),
+          end: event.until ? event.until.toDate() : moment(this.date).endOf('month').add('months', 1).toDate()
+        });
+
+        for (const { date } of rule.occurrences()) {
+
+          if (moment(date).toISOString() !== moment(event.startTime.toDate()).toISOString()) {
+
+            const instance: Event = {
+              id: null,
+              recurrenceId: event.id,
+              recurrence: 'once',
+              startTime: firestore.Timestamp.fromDate(moment(date).toDate()),
+              endTime: firestore.Timestamp.fromDate(moment(date).add('milliseconds', event.endTime.toMillis() - event.startTime.toMillis()).toDate()),
+              createdBy: event.createdBy,
+              name: event.name,
+              info: event.info,
+              location: event.location,
+              type: event.type,
+              members: event.members
+            }
+            const exists = allEvents.find((ev => ev.recurrenceId === instance.recurrenceId && ev.startTime === instance.startTime));
+            if (exists) {
+              allEvents[allEvents.indexOf(exists)] = instance;
+            } else {
+              allEvents.push(instance);
+            }
+          }
+
+        }
+      }
+    })
+    return of(allEvents);
+  }
+
   ngOnDestroy() {
+    this.onDestroy.next();
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 

@@ -1,6 +1,6 @@
 <div class="auth--div">
     <ion-card class="auth--card">
-        <img class="auth--logo" src="../assets/img/otter_logo.svg" width="35%">
+        <img class="auth--logo" [src]="!dark ? '../assets/img/otter_logo.svg' : '../assets/img/otter_logo_dark.svg'" width="125px">
         <ion-card-content>
             <h1>Email verification</h1>
             <ion-grid>

@@ -7,19 +7,19 @@
     </ion-toolbar>
 </ion-header>
 <ion-content fullscreen>
-    <ion-list class="theme--list">
-        <ion-item class="theme--item">
+    <ion-list class="theme--list" lines="none">
+        <ion-item class="theme--item" lines="none">
             <ion-icon slot="start"></ion-icon>
             <h3>
                 <ion-input [(ngModel)]="newGroup.name" placeholder="Add group name"></ion-input>
             </h3>
         </ion-item>
-        <ion-item class="theme--item">
+        <ion-item class="theme--item" lines="none">
             <ion-icon slot="start" name="people-outline"></ion-icon>
-            <ion-input [(ngModel)]="queryText" (ionChange)="filterMembers(queryText)" (keyup.enter)="manualSearch()" placeholder="Add members" [color]="error ? 'danger' : ''"></ion-input>
+            <ion-input [(ngModel)]="queryText" (ionFocus)="showFilter = true" (ionBlur)="showFilter = false" (keyup.enter)="manualSearch()" placeholder="Add members" [color]="error ? 'danger' : ''"></ion-input>
         </ion-item>
-        <ion-list class="member-list theme--list" inset="true" *ngIf="queryText !== ''">
-            <ion-item *ngFor="let m of filteredMembers; let i = index" lines="none" button color="light" class="theme--item" detail="false">
+        <ion-list class="member-list theme--list" inset="true" *ngIf="showFilter" lines="none">
+            <ion-item *ngFor="let m of (filterMembers$ | async); let i = index" lines="none" button color="light" class="theme--item" detail="false">
                 <ion-avatar slot="start">
                     <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                     <ng-template #elseMemberAvatar>
@@ -47,7 +47,7 @@
                 </ng-template>
             </ion-item>
         </ion-list>
-        <ion-list class="member-list theme--list" inset="true">
+        <ion-list class="member-list theme--list" inset="true" lines="none">
             <ion-item *ngFor="let m of newGroup.members; let i = index" lines="none" button class="theme--item" detail="false">
                 <ion-avatar slot="start">
                     <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">

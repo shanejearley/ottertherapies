@@ -2,7 +2,7 @@
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
-      <ion-back-button *ngIf="ios || android" text="Teams" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
+      <ion-back-button *ngIf="ios || android"  [text]="ios ? 'Teams' : null" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
     </ion-buttons>
     <ion-title *ngIf="(team$ | async)">{{ (team$ | async)?.name }}</ion-title>
     <ion-buttons slot="end">
@@ -76,9 +76,6 @@
               <ion-button slot="end" fill="clear" *ngIf="n.uid === (profile$ | async)?.uid" (click)="removeNote(n.id)">
                 <ion-icon slot="icon-only" color="medium" name="trash-outline"></ion-icon>
               </ion-button>
-              <!-- <ion-badge color="danger" *ngIf="g.unread && g.unread.unreadFiles > 0">
-                {{ g.unread.unreadFiles }}
-              </ion-badge> -->
             </ion-item>
             <ion-item>
               <h1 style="white-space: pre-line;">{{ n.body }}</h1>

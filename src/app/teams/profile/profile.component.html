@@ -2,7 +2,7 @@
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
-      <ion-back-button *ngIf="ios || android" text="Teams" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
+      <ion-back-button *ngIf="ios || android" [text]="ios ? 'Teams' : null" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
     </ion-buttons>
     <ion-title>Profile</ion-title>
     <ion-buttons slot="end">
@@ -63,7 +63,7 @@
                     <ion-input class="form" [value]="(profile$ | async)?.role" (ionFocus)="onFocus($event)" readonly>
                     </ion-input>
                     <!-- <ion-select placeholder="Select your team role" class="form"
-                      [selectedText]="(profile$ | async)?.role" (ionFocus)="onFocus($event)" readonly>
+                      [selectedText]="(profile$ | async)?.role" (ionFocus)="onFocus($event)" interface="popover" readonly>
                       <ion-select-option [value]="role.name" *ngFor="let role of roleList">
                         {{ role.name }}
                       </ion-select-option>

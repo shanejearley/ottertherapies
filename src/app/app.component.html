@@ -1,7 +1,7 @@
 <ion-app>
   <div *ngIf="!ios && !android">
     <ion-split-pane contentId="main-content">
-      <ion-menu contentId="main-content" type="overlay" [disabled]="!menu" color="tertiary">
+      <ion-menu contentId="main-content" type="overlay" [disabled]="!menu" color="tertiary" [class]="!dark ? 'light' : 'dark'">
         <ion-content>
           <ion-list id="inbox-list" lines="none">
             <ion-list-header class="top menu--header" *ngIf="(team$ | async); else elseHeader">
@@ -13,20 +13,21 @@
 
             <ion-menu-toggle auto-hide="false">
               <ion-item>
-                <ion-button color="light" routerDirection="backward" [routerLink]="'/Teams'" size="default">
+                <ion-button [color]="!dark ? 'light' : 'primary'" routerDirection="backward" [routerLink]="'/Teams'" size="default">
                   Your Teams
                 </ion-button>
 
                 <ion-thumbnail slot="end" class="avatar-thumbnail">
                   <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url }}">
                   <ng-template #elseAvatar>
-                    <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar" name="{{ (profile$ | async)?.displayName }}" [size]="55" [round]="false"
-                      [cornerRadius]="55"></ngx-avatar>
-                      <ng-template #elseEmailAvatar>
-                        <ngx-avatar name="{{ (profile$ | async)?.email }}" [size]="55" [round]="false"
+                    <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar"
+                      name="{{ (profile$ | async)?.displayName }}" [size]="55" [round]="false" [cornerRadius]="55">
+                    </ngx-avatar>
+                    <ng-template #elseEmailAvatar>
+                      <ngx-avatar name="{{ (profile$ | async)?.email }}" [size]="55" [round]="false"
                         [cornerRadius]="55">
-                        </ngx-avatar>
-                      </ng-template>
+                      </ngx-avatar>
+                    </ng-template>
                   </ng-template>
                 </ion-thumbnail>
 
@@ -39,8 +40,8 @@
               Team
             </ion-list-header>
             <ion-menu-toggle auto-hide="false" *ngFor="let p of teamPages; let i = index">
-              <ion-item routerDirection="root"
-                [routerLink]="['/Teams', teamId, p.title]" detail="false" [class.selected]="p.title === page">
+              <ion-item routerDirection="root" [routerLink]="['/Teams', teamId, p.title]" detail="false"
+                [class.selected]="p.title === page">
                 <ion-icon slot="start" [name]="p.title === page ? p.icon : p.icon + '-outline'"></ion-icon>
                 <ion-label>{{ p.title }}</ion-label>
                 <ion-badge color="light" slot="end" *ngIf="p.title == 'Events'">
@@ -65,8 +66,8 @@
 
           <ion-menu-toggle auto-hide="false">
 
-            <ion-item lines="none" routerDirection="root"
-              [routerLink]="['/Profile']" detail="false" [class.selected]="root === 'Profile'">
+            <ion-item lines="none" routerDirection="root" [routerLink]="['/Profile']" detail="false"
+              [class.selected]="root === 'Profile'">
               <ion-icon slot="start" [name]="'Profile' === root ? 'person' : 'person-outline'"></ion-icon>
               <ion-label>Profile</ion-label>
             </ion-item>
@@ -103,14 +104,22 @@
     </ion-split-pane>
   </div>
 
-  <div *ngIf="ios || android">
-    <ion-tabs>
-      <ion-tab-bar slot="bottom" *ngIf="(team$ | async) && page && !child">
+  <div *ngIf="ios || android" [class]="!dark ? 'light' : 'dark'">
+    <ion-tabs [class]="!dark ? 'light' : 'dark'">
+      <ion-tab-bar slot="bottom" *ngIf="(team$ | async) && page && !child" [class]="!dark ? 'light' : 'dark'">
         <ion-tab-button routerDirection="root" [routerLink]="['/Teams', teamId, p.title]"
-          [class.selected]="p.title === page" *ngFor="let p of teamPages">
-          <ion-icon [name]="p.title === page ? p.icon : p.icon + '-outline'"></ion-icon>
+          [class.selected]="p.title === page" *ngFor="let p of teamPages" [class]="!dark ? 'light' : 'dark'">
+          <ion-icon [name]="p.title === page ? p.icon : p.icon + '-outline'" [class]="!dark ? 'light' : 'dark'"></ion-icon>
           <ion-label>{{ p.title }}</ion-label>
-          <ion-badge *ngIf="p.title === 'Messages'">2</ion-badge>
+          <ion-badge *ngIf="p.title == 'Messages' && (team$ | async)?.unreadMessages > 0">
+            {{ (team$ | async)?.unreadMessages }}
+          </ion-badge>
+          <ion-badge *ngIf="p.title == 'Files' && (team$ | async)?.unreadFiles > 0">
+            {{ (team$ | async)?.unreadFiles }}
+          </ion-badge>
+          <ion-badge *ngIf="p.title == 'Notes' && (team$ | async)?.unreadNotes > 0">
+            {{ (team$ | async)?.unreadNotes }}
+          </ion-badge>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>

@@ -5,6 +5,9 @@ import { Config, ModalController, IonRouterOutlet, IonInput } from '@ionic/angul
 import { MfaAddComponent } from './mfa-add/mfa-add.component';
 
 import { Plugins } from '@capacitor/core';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
+import { Store } from 'src/store';
 const { Browser } = Plugins;
 
 @Component({
@@ -13,6 +16,11 @@ const { Browser } = Plugins;
     templateUrl: 'two-factor.component.html'
 })
 export class TwoFactorComponent implements OnInit, AfterViewInit {
+    dark$: Observable<boolean>;
+    dark: boolean;
+
+    private readonly onDestroy = new Subject<void>();
+
     recaptchaVerifier: any;
     appVerifier: any;
     request: boolean = false;
@@ -23,12 +31,19 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
     phoneMask: string = '(000) 000-0000';
     constructor(
         private authService: AuthService,
-        private config: Config,
+        private store: Store,
         private modalController: ModalController,
         private routerOutlet: IonRouterOutlet
     ) { }
 
     ngOnInit() {
+        this.dark$ = this.store.select('dark');
+        this.dark$.pipe(
+          takeUntil(this.onDestroy),
+          tap(dark => {
+            this.dark = dark;
+          })
+        ).subscribe();
     }
 
     ngAfterViewInit() {
@@ -85,6 +100,10 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
 
     async updatePhone(ev) {
         return this.userPhone = ev.detail.value.replace(/[- )(]/g, '');
+    }
+
+    ngOnDestroy() {
+        this.onDestroy.next();
     }
 
 }

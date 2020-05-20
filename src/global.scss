@@ -41,6 +41,8 @@
   }
 }
 ion-calendar {
+  padding-bottom: 0px !important;
+  padding-top: 0px !important;
   .title {
     ion-button {
       color: var(--ion-text-color) !important;
@@ -57,7 +59,10 @@ ion-calendar {
 
 ion-calendar { 
   .days-box { 
-    padding: 0.5rem 0 !important
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    padding-bottom: 0px !important;
+    padding-top: 0px !important;
   } 
 }
 
@@ -70,6 +75,13 @@ ion-list.member--upload--list {
 }
 
 .md {
+  ion-title.title--center {
+    width: 100%; 
+    position: absolute; 
+    left: 0; 
+    height: 0;
+    text-align: center;
+  }
   ion-list.upload--list {
     padding-top: 0 !important;
     margin-top: 0 !important;
@@ -103,7 +115,15 @@ ion-list.member--upload--list {
     margin-bottom: 8px !important;
   }
   ion-calendar { button.days-btn{ small{ bottom: -20px !important} }}
-  ion-calendar { button.days-btn.on-selected{ small{ bottom: -30px !important} }}
+  ion-calendar {
+    button.days-btn.on-selected { 
+      color: var(--ion-color-primary-contrast) !important; 
+      p { color: var(--ion-color-primary-contrast) !important; }
+      small { 
+        bottom: -30px !important
+      } 
+    }
+  }
 }
 .ios {
   .calendar {
@@ -118,7 +138,15 @@ ion-list.member--upload--list {
     margin-bottom: 10px;
   }
   ion-calendar { button.days-btn{ small{ bottom: -15px !important} }}
-  ion-calendar { button.days-btn.on-selected{ small{ bottom: -25px !important} }}
+  ion-calendar { 
+    button.days-btn.on-selected {
+      color: var(--ion-color-primary-contrast) !important; 
+      p { color: var(--ion-color-primary-contrast) !important; } 
+      small { 
+        bottom: -25px !important
+      } 
+    }
+  }
 }
 
 ion-card.clear--card {
@@ -277,6 +305,14 @@ ion-select.form {
   --background: var(--ion-color-light) !important;
 }
 
+ion-datetime.form {
+  --padding-end: 15px !important;
+  max-width: 100% !important;
+  border-radius: 10px !important;
+  background: var(--ion-color-light) !important;
+  --background: var(--ion-color-light) !important;
+}
+
 ion-icon.large-icon {
   font-size: 48px;
 }
@@ -424,4 +460,9 @@ ion-fab-button.inner--fab {
 
 ion-card {
   border-radius: 10px !important;
+}
+
+.popover-content {
+  --width: 400px;
+  --max-width: 100% !important;
 }
