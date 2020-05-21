@@ -65,9 +65,9 @@
         </ion-item>
         <ion-item *ngIf="newEvent.type == 'Event'" class="theme--item" lines="none">
             <ion-icon slot="start" [name]="'people-outline'"></ion-icon>
-            <ion-input class="form" [(ngModel)]="queryText" (ionFocus)="showFilter = true" (ionBlur)="showFilter = false" placeholder="Add guests" [color]="error ? 'danger' : ''"></ion-input>
+            <ion-input class="form" [(ngModel)]="queryText" placeholder="Add guests" [color]="error ? 'danger' : ''"></ion-input>
         </ion-item>
-        <ion-list class="guest-list theme--list" inset="true" *ngIf="showFilter" lines="none">
+        <ion-list class="guest-list theme--list" inset="true" lines="none">
             <ion-item *ngFor="let m of (filterMembers$ | async); let i = index" lines="none" button color="light"
                 class="theme--item" detail="false">
                 <ion-avatar slot="start">

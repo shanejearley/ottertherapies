@@ -21,8 +21,6 @@ export class EditGroupComponent {
     members$: Observable<Member[]>;
     filterMembers$: Observable<Member[]>;
 
-    showFilter: boolean = false;
-
     group$: Observable<Group>;
     group;
     memberStatus;

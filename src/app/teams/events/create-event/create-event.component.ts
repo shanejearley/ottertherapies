@@ -56,8 +56,6 @@ export class CreateEventComponent {
     members$: Observable<Member[]>;
     filterMembers$: Observable<Member[]>;
 
-    showFilter: boolean = false;
-
     teamId: string;
     selected: string;
     queryText = '';

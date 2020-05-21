@@ -59,7 +59,7 @@ export class EventsService {
     ) { }
 
     eventsObservable(userId, teamId, date) {
-        console.log('EVENTS OBSERVABLE');
+        this.store.set('events', null);
         this.events = [];
         this.events.length = 0;
         this.events$ = null;
@@ -107,7 +107,7 @@ export class EventsService {
     }
 
     recurringEventsObservable(userId, teamId) {
-        console.log('RECURRING EVENTS OBSERVABLE');
+        this.store.set('recurringEvents', null);
         this.recurringEvents = [];
         this.recurringEvents.length = 0;
         this.recurringEvents$ = null;

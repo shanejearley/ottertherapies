@@ -56,8 +56,6 @@ export class EditEventComponent {
     filteredMembers: Member[];
     error: boolean;
 
-    showFilter: boolean = false;
-
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,

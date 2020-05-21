@@ -25,8 +25,6 @@ export class CreateGroupComponent {
     members$: Observable<Member[]>;
     filterMembers$: Observable<Member[]>;
 
-    showFilter: boolean = false;
-
     group$: Observable<Group>;
     group;
     teamId: string;

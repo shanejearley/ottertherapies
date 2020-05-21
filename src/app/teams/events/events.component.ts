@@ -192,7 +192,6 @@ export class EventsComponent implements OnInit {
       map((events: Event[]) => {
         events.forEach(e => {
           if (this.personal && e.members[this.uid] || !this.personal) {
-            console.log(e);
             this.eventsSource.push({
               date: e.startTime.toDate(),
               marked: moment(e.startTime.toDate()).startOf('day').format('ll') == this.date ? true : false,
@@ -232,7 +231,6 @@ export class EventsComponent implements OnInit {
 
     this.today$ = this.getToday(this.date);
     this.configCalendar();
-    this.subscriptions = [];
     this.team$ = this.activatedRoute.params
       .pipe(
         tap(param => { this.teamId = param.id }),
@@ -291,10 +289,11 @@ export class EventsComponent implements OnInit {
               type: event.type,
               members: event.members
             }
-            const exists = allEvents.find((ev => ev.recurrenceId === instance.recurrenceId && ev.startTime === instance.startTime));
+            const exists = allEvents.find((ev => ev.recurrenceId === instance.recurrenceId && ev.startTime.toMillis() === instance.startTime.toMillis()));
             if (exists) {
               allEvents[allEvents.indexOf(exists)] = instance;
             } else {
+              console.log('INSTANCE DOES NOT EXIST YET')
               allEvents.push(instance);
             }
           }
@@ -307,7 +306,6 @@ export class EventsComponent implements OnInit {
 
   ngOnDestroy() {
     this.onDestroy.next();
-    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
 }
