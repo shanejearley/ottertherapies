@@ -2,14 +2,23 @@
     <ion-card class="auth--card">
         <img class="auth--logo" [src]="!dark ? '../assets/img/otter_logo.svg' : '../assets/img/otter_logo_dark.svg'" width="125px">
         <ion-card-content *ngIf="actionCode; else elseError">
-            <h1>{{ mode === 'resetPassword' ? 'Reset Password' : 'Email Verified!'</h1>
-            <ion-grid *ngIf="mode === 'resetPassword'">
+            <h1>{{ mode === 'resetPassword' ? 'Reset Password' : 'Email Verified!' }}</h1>
+            <ion-grid *ngIf="mode === 'resetPassword'; else elseClose">
                 <ion-row class="ion-justify-content-center">
                     <ion-col class="ion-justify-content-center" size="auto">
                         Enter a new password to sign in
                     </ion-col>
                 </ion-row>
             </ion-grid>
+            <ng-template #elseClose>
+                <ion-grid>
+                    <ion-row class="ion-justify-content-center">
+                        <ion-col class="ion-justify-content-center" size="auto">
+                            You can close this page.
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ng-template>
             <div class="error" *ngIf="error && mode === 'resetPassword'">
                 {{ error }}
             </div>
