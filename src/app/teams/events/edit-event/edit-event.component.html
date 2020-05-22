@@ -2,7 +2,9 @@
     <ion-toolbar>
         <ion-title>Event Details</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="dismiss()">Close</ion-button>
+            <ion-button (click)="dismiss()">
+                <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
@@ -82,7 +84,7 @@
 
         <ion-item class="theme--item" lines="none">
             <ion-icon slot="start" name="people-outline"></ion-icon>
-            <ion-label>Select guests</ion-label>
+            <ion-label>Check and select guests</ion-label>
         </ion-item>
         <ion-list class="form theme--list" lines="none" inset="true">
             <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item" detail="false">
@@ -96,7 +98,7 @@
                     <h3>{{ m.profile.displayName }}</h3>
                     <p>{{ m.profile.email }}</p>
                 </ion-label>
-                <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange(m)" [disabled]="m.uid === (profile$ | async)?.uid || !(memberStatus == 'Admin') || event.recurrenceId"></ion-checkbox>
+                <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange($event, m)" [disabled]="m.uid === (profile$ | async)?.uid || !(memberStatus == 'Admin') || event.recurrenceId"></ion-checkbox>
             </ion-item>
         </ion-list>
         <ion-item *ngIf="event.type == 'Event'" class="theme--item" lines="none">
@@ -141,15 +143,16 @@
                 </ion-row>
             </ion-item>
         </ion-list>
+        <ion-item class="theme--item" lines="none"></ion-item>
     </ion-list>
 </ion-content>
 
 <ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-between">
+        <ion-row class="ion-justify-content-between ion-padding">
             <ion-button fill="clear" color="danger" (click)="removeEvent()" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">Delete
             </ion-button>
-            <ion-button fill="clear" (click)="updateEvent()" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">Save</ion-button>
+            <ion-button color="tertiary" (click)="updateEvent()" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">Save</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

@@ -2,7 +2,9 @@
     <ion-toolbar>
         <ion-title>{{ (team$ | async)?.name }}</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="dismiss()">Close</ion-button>
+            <ion-button (click)="dismiss()">
+                <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
@@ -58,16 +60,16 @@
         </div>
         <ion-item lines="none" class="theme--item">
             <ion-icon slot="start" [name]="'people' + '-outline'"></ion-icon>
-            <ion-input [(ngModel)]="email" (keyup.enter)="addMember()" placeholder="Add members"
+            <ion-input class="form" [(ngModel)]="email" (keyup.enter)="addMember()" placeholder="Enter member by email"
                 [color]="error ? 'danger' : ''"></ion-input>
-            <ion-button slot="end" fill="clear" (click)="addMember()">
-                <ion-icon slot="icon-only" [name]="'person-add' + '-outline'">
-                </ion-icon>
+            <ion-button slot="end" size="medium" color="warning" (click)="addMember()" [disabled]="!email || !email.length">
+                <!-- <ion-icon [name]="'person-add' + '-outline'"></ion-icon> -->
+                Add Member
             </ion-button>
         </ion-item>
         <div *ngIf="newMembers.length">
             <ion-item lines="none" class="theme--item">
-                <p>Add:
+                <p>Add members:&nbsp;
                     <ion-chip *ngFor="let n of newMembers; let i = index;">
                         <ion-icon [name]="'person' + '-outline'"></ion-icon>
                         <ion-label>{{ n }}</ion-label>
@@ -83,9 +85,9 @@
 
 <ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-between">
-            <ion-button fill="clear" color="danger" [disabled]="memberStatus == 'Member'">Delete</ion-button>
-            <ion-button fill="clear" (click)="updateMembers()" [disabled]="memberStatus == 'Member'">Save</ion-button>
+        <ion-row class="ion-justify-content-end ion-padding">
+            <!-- <ion-button fill="clear" color="danger" [disabled]="memberStatus == 'Member'">Delete</ion-button> -->
+            <ion-button color="tertiary" (click)="updateMembers()" [disabled]="memberStatus == 'Member'">Save</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

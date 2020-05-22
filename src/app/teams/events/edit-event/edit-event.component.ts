@@ -178,18 +178,23 @@ export class EditEventComponent {
         this.event.updateEndTime = moment(this.event.updateStartTime).add(1, 'h').toString();
     }
 
-    onChange(m) {
-        console.log(this.event.members);
-        if (m.isChecked) {
-            return this.addGuest(m);
-        } else {
-            return this.removeGuest(m);
+    onChange(ev, m) {
+        if (ev.detail.checked) {
+            if (!this.event.members.find(g => g.uid === m.uid)) {
+                return this.addGuest(m);
+            } else {
+                return console.log('Member already added');
+            }
+        } else if (!ev.detail.checked) {
+            if (this.event.members.find(g => g.uid === m.uid)) {
+                return this.removeGuest(m);
+            } else {
+                return console.log('Member already removed');
+            }
         }
     }
 
     async removeGuest(m) {
-        const index = this.event.members.indexOf(m);
-        await this.event.members.splice(index, 1);
         return this.remove.push(m.uid);
     }
 

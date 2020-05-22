@@ -133,7 +133,7 @@ export class TeamComponent implements OnInit {
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl,
       componentProps: {
-        'teamId': this.team.id,
+        'teamId': this.teamId,
       }
     });
     modal.onWillDismiss().then(data => {

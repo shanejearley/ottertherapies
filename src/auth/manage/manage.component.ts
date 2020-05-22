@@ -19,6 +19,7 @@ export class ManageComponent implements OnInit {
     ios: boolean;
     android: boolean;
 
+    mode: string;
     actionCode: string;
     email: string;
     newPassword: string;
@@ -52,8 +53,15 @@ export class ManageComponent implements OnInit {
             .pipe(takeUntil(this.onDestroy))
             .subscribe(async params => {
                 if (!params) this.router.navigate(['/']);
+                this.mode = params['mode'];
                 this.actionCode = params['oobCode'];
-                this.email = await this.authService.userAuth.verifyPasswordResetCode(this.actionCode);
+                if (this.mode === 'verifyEmail') {
+                    await this.authService.userAuth.applyActionCode(this.actionCode);
+                }
+                if (this.mode === 'resetPassword') {
+                    this.email = await this.authService.userAuth.verifyPasswordResetCode(this.actionCode);
+                }
+                //resetPassword, recoverEmail, or verifyEmail
             })
 
         this.dark$ = this.store.select('dark');

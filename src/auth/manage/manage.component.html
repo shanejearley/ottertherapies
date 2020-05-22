@@ -2,29 +2,29 @@
     <ion-card class="auth--card">
         <img class="auth--logo" [src]="!dark ? '../assets/img/otter_logo.svg' : '../assets/img/otter_logo_dark.svg'" width="125px">
         <ion-card-content *ngIf="actionCode; else elseError">
-            <h1>Reset Password</h1>
-            <ion-grid>
+            <h1>{{ mode === 'resetPassword' ? 'Reset Password' : 'Email Verified!'</h1>
+            <ion-grid *ngIf="mode === 'resetPassword'">
                 <ion-row class="ion-justify-content-center">
                     <ion-col class="ion-justify-content-center" size="auto">
                         Enter a new password to sign in
                     </ion-col>
                 </ion-row>
             </ion-grid>
-            <div class="error" *ngIf="error">
+            <div class="error" *ngIf="error && mode === 'resetPassword'">
                 {{ error }}
             </div>
-            <ion-label class="auth--label">
+            <ion-label class="auth--label" *ngIf="mode === 'resetPassword'">
                 <ion-input class="auth--input" type="email" placeholder="Email address" [(ngModel)]="email" disabled>
                 </ion-input>
             </ion-label>
-            <ion-label class="auth--label">
+            <ion-label class="auth--label" *ngIf="mode === 'resetPassword'">
                 <ion-input class="auth--input" type="password" placeholder="Enter new password" [(ngModel)]="newPassword">
                 </ion-input>
             </ion-label>
-            <div class="auth--card__action">
+            <div class="auth--card__action" *ngIf="mode === 'resetPassword'">
                 <ion-button expand="block" (click)="resetPassword()">Reset</ion-button>
             </div>
-            <div class="auth--card__toggle">
+            <div class="auth--card__toggle" *ngIf="mode === 'resetPassword'">
                 <a [routerLink]="['/auth/login']" routerDirection="backwards">Nevermind, I remembered</a>
             </div>
         </ion-card-content>

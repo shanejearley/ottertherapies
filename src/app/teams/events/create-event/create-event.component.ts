@@ -57,7 +57,8 @@ export class CreateEventComponent {
 
     teamId: string;
     selected: string;
-    error: boolean;
+    error: string;
+    clicked: boolean;
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,
@@ -99,26 +100,27 @@ export class CreateEventComponent {
     }
 
     nameChange() {
-        if (this.newEvent.name && this.newEvent.name.length) {
-            this.error = false;
+        if (this.newEvent.name && this.newEvent.name.length && this.error === 'You need an event name.') {
+            this.error = null;
         }
     }
 
     addEvent() {
         if (!this.newEvent.name || !this.newEvent.name.length) {
-            this.error = true;
+            this.error = 'You need an event name.';
+            this.clicked = false;
         } else {
-            this.error = false;
+            this.error = null;
+            this.clicked = true;
             try {
                 this.eventsService.addEvent(this.newEvent);
-            } catch (err) {
                 return this.modalController.dismiss({
-                    response: err
-                })
+                    response: 'success'
+                });
+            } catch (err) {
+                this.error = err.message;
+                this.clicked = false;
             }
-            return this.modalController.dismiss({
-                response: 'success'
-            });
         }
     }
 

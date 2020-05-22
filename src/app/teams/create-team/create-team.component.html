@@ -2,30 +2,41 @@
     <ion-toolbar>
         <ion-title>Create Team</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="dismiss()">Close</ion-button>
+            <ion-button (click)="dismiss()">
+                <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
 <ion-content fullscreen>
     <ion-list class="theme--list">
 
+        <ion-item *ngIf="error" class="theme--item" lines="none">
+            <div *ngIf="error">
+                <div class="error" *ngIf="error">
+                    {{ error }}
+                </div>
+            </div>
+        </ion-item>
+
         <ion-item lines='none' class="theme--item">
             <ion-icon slot="start" [name]="'happy' + '-outline'"></ion-icon>
-            <h3>
-                <ion-input placeholder="Add child first name" [(ngModel)]="child"></ion-input>
+            <h3 class="full-width">
+                <ion-input class="form" placeholder="Enter child's first name" [(ngModel)]="child" (ionChange)="onChange()"></ion-input>
             </h3>
         </ion-item>
 
         <ion-item lines='none' class="theme--item">
             <ion-icon slot="start" [name]="'people' + '-outline'"></ion-icon>
-            <ion-input placeholder="Add members by email" [(ngModel)]="member" (keyup.enter)="addMember()"></ion-input>
-            <ion-button fill="clear"  (click)="addMember()" slot="end">
-                <ion-icon slot="icon-only" [name]="'person-add' + '-outline'"></ion-icon>
+            <ion-input class="form" placeholder="Enter member by email" [(ngModel)]="member" (keyup.enter)="addMember()"></ion-input>
+            <ion-button slot="end" size="medium" color="warning" (click)="addMember()" [disabled]="!member || !member.length">
+                <!-- <ion-icon [name]="'person-add' + '-outline'"></ion-icon> -->
+                Add Member
             </ion-button>
         </ion-item>
 
         <ion-item lines="none" class="theme--item">
-            <p>
+            <p>Members:&nbsp;
                 <ion-chip *ngFor="let member of newMembers" outline color="primary">
                     <ion-icon [name]="'person' + '-outline'"></ion-icon>
                     <ion-label>{{ member }}</ion-label>
@@ -48,8 +59,8 @@
 
 <ion-footer>
     <ion-toolbar>
-        <ion-row class="ion-justify-content-end">
-            <ion-button fill="clear" (click)="createTeam()">Create</ion-button>
+        <ion-row class="ion-justify-content-end ion-padding">
+            <ion-button color="tertiary" (click)="createTeam()" [disabled]="clicked">Create</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

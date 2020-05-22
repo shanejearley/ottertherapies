@@ -2,7 +2,9 @@
     <ion-toolbar>
         <ion-title>{{ firstTime ? 'Create' : 'Edit' }} Profile</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="dismiss()" [disabled]="firstTime">Close</ion-button>
+            <ion-button (click)="dismiss()" [disabled]="firstTime">
+                <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
@@ -77,9 +79,9 @@
 
 <ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-between">
+        <ion-row class="ion-justify-content-between ion-padding">
             <ion-button (click)="deleteUser()" fill="clear" color="danger">Delete</ion-button>
-            <ion-button fill="clear" (click)="updateProfile()">Save</ion-button>
+            <ion-button color="tertiary" (click)="updateProfile()">Save</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

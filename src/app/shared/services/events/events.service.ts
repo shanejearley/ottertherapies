@@ -168,14 +168,10 @@ export class EventsService {
                     if (a.type == 'removed') {
                         const member = a.payload.doc.data() as Member;
                         member.uid = a.payload.doc.id;
-                        event.members.forEach((m) => {
-                            if (m.uid === member.uid) {
-                                console.log('members', event.members);
-                                var index = event.members.indexOf(m);
-                                event.members.splice(index, 1);
-                                console.log("Removed member: ", m);
-                            }
-                        })
+                        const removeMember = event.members.find(m => m.uid === member.uid);
+                        const index = event.members.indexOf(removeMember);
+                        console.log('removing event member at index ', index);
+                        return event.members.splice(index, 1);
                     }
                     if (a.type == 'added' || a.type == 'modified') {
                         const member = a.payload.doc.data() as Member;

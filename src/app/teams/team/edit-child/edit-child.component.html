@@ -2,7 +2,9 @@
     <ion-toolbar>
         <ion-title>Edit Child</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="dismiss()">Close</ion-button>
+            <ion-button (click)="dismiss()">
+                <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
@@ -50,8 +52,8 @@
 
 <ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-end">
-            <ion-button fill="clear" (click)="updateTeamInfo()">Save</ion-button>
+        <ion-row class="ion-justify-content-end ion-padding">
+            <ion-button color="tertiary" (click)="updateTeamInfo()">Save</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

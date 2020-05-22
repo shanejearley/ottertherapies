@@ -50,6 +50,7 @@ ion-calendar {
   }
   ion-calendar-week {
     ion-toolbar {
+      z-index: 0 !important;
       ul {
         color: var(--ion-text-color) !important;
       }

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, HostListener, EventEmitter } from '@angular/core';
 import { Router, GuardsCheckEnd } from '@angular/router';
-import { ModalController, IonRouterOutlet, Platform, PopoverController } from '@ionic/angular';
+import { ModalController, IonRouterOutlet, Platform, PopoverController, ToastController, ActionSheetController } from '@ionic/angular';
 
 import {
   Plugins,
@@ -13,7 +13,7 @@ const { PushNotifications } = Plugins;
 
 import { Observable, Subscription, Subject } from 'rxjs';
 
-import { User } from '../../auth/shared/services/auth/auth.service';
+import { User, AuthService } from '../../auth/shared/services/auth/auth.service';
 import { Profile, ProfileService } from '../../auth/shared/services/profile/profile.service';
 import { CreateTeamComponent } from './create-team/create-team.component';
 
@@ -24,6 +24,8 @@ import { NotificationsService } from '../notifications.service';
 import { MobileMenuComponent } from '../shared/components/mobile-menu/mobile-menu.component';
 import { DarkService } from '../shared/services/dark/dark.service';
 import { takeUntil, tap } from 'rxjs/operators';
+import { EditProfileComponent } from './profile/edit-profile/edit-profile.component';
+import { DeleteUserComponent } from './profile/delete-user/delete-user.component';
 
 @Component({
   selector: 'app-teams',
@@ -42,6 +44,11 @@ export class TeamsPage implements OnInit {
   android: boolean;
   ios: boolean;
 
+  firstTime: boolean = true;
+
+  open: boolean = false;
+  data: any;
+
   dark: boolean;
   dark$: Observable<boolean>;
 
@@ -57,6 +64,9 @@ export class TeamsPage implements OnInit {
     private profileService: ProfileService,
     private platform: Platform,
     private popoverController: PopoverController,
+    private toastController: ToastController,
+    private actionSheetController: ActionSheetController,
+    private authService: AuthService
   ) { }
 
   get currentProfile() {
@@ -84,6 +94,89 @@ export class TeamsPage implements OnInit {
     return await popover.present();
   }
 
+  async editProfileModal(firstTime: boolean) {
+    this.open = true;
+    const modal = await this.modalController.create({
+      component: EditProfileComponent,
+      componentProps: {
+        'firstTime': firstTime
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl,
+      backdropDismiss: !firstTime,
+    });
+    modal.onWillDismiss().then(data => {
+      this.open = false;
+      this.data = data.data;
+      if (this.data.response == 'success') {
+        this.presentProfileUpdateToast();
+      }
+      if (this.data.response == 'delete') {
+        this.deleteUserModal();
+      }
+    });
+    return await modal.present();
+  }
+
+  async presentProfileUpdateToast() {
+    const toast = await this.toastController.create({
+      message: 'Your profile was updated! &#128079;',
+      duration: 2000
+    });
+    toast.present();
+  }
+
+  async deleteUserModal() {
+    const modal = await this.modalController.create({
+      component: DeleteUserComponent,
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
+      // componentProps: {
+      //   'teamId': this.teamId,
+      //   'groupId': this.groupId
+      // }
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response == 'delete') {
+        this.presentActionSheet();
+      }
+    });
+    await modal.present();
+  }
+
+  async presentActionSheet() {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Warning: Permanent Action',
+      buttons: [{
+        text: 'Delete',
+        role: 'destructive',
+        icon: 'trash',
+        handler: () => {
+          console.log('Delete clicked');
+          this.presentDeleteUserToast();
+          this.authService.deleteUser();
+        }
+      }, {
+        text: 'Cancel',
+        icon: 'close',
+        role: 'cancel',
+        handler: () => {
+          console.log('Cancel clicked');
+        }
+      }]
+    });
+    await actionSheet.present();
+  }
+
+  async presentDeleteUserToast() {
+    const toast = await this.toastController.create({
+      message: 'We are sorry to see you go! &#128075;',
+      duration: 2000
+    });
+    toast.present();
+  }
+
   ngOnInit() {
     this.dark$ = this.store.select('dark');
     this.dark$.pipe(
@@ -92,6 +185,19 @@ export class TeamsPage implements OnInit {
         this.dark = dark;
       })
     ).subscribe();
+
+    this.profile$ = this.store.select('profile');
+    this.profile$.pipe(
+      takeUntil(this.onDestroy),
+      tap(profile => {
+        if (profile && !profile.displayName) {
+          if (this.firstTime) {
+            this.editProfileModal(this.firstTime);
+            this.firstTime = false;
+          }
+        }
+      })
+    ).subscribe()
 
     this.router.events.subscribe(val => {
       if (val instanceof GuardsCheckEnd) {

@@ -26,7 +26,7 @@
                 <p>Upload status: 0%</p>
             </ion-label>
         </ng-template>
-        <ion-button slot="end" color="primary" (click)="startUpload()" [disabled]="downloadURL || !file.name.length && !fileName.length">
+        <ion-button slot="end" color="tertiary" size="medium" (click)="startUpload()" [disabled]="downloadURL || !profilePicture && !file.name.length && !fileName.length">
             Upload
         </ion-button>
         <ion-button slot="end" fill="clear" (click)="removeFile()" [disabled]="downloadURL">
@@ -49,7 +49,7 @@
             <ion-button color="secondary" (click)="task.pause()" [disabled]="!isActive(snap)">Pause</ion-button>
             <ion-button color="warning" (click)="task.cancel() && file = null" [disabled]="!isActive(snap)">Cancel
             </ion-button>
-            <ion-button color="tertiary" (click)="task.resume()" [disabled]="!(snap?.state === 'paused')">Resume
+            <ion-button color="success" (click)="task.resume()" [disabled]="!(snap?.state === 'paused')">Resume
             </ion-button>
 
         </ion-row>

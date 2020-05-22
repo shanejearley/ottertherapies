@@ -138,6 +138,10 @@ export class GroupsService {
           if (a.type == 'removed') {
             const member = a.payload.doc.data() as Member;
             member.uid = a.payload.doc.id;
+            const removeMember = group.members.find(m => m.uid === member.uid);
+            const index = group.members.indexOf(removeMember);
+            console.log('removing group member at index ', index);
+            return group.members.splice(index, 1);
           }
           if (a.type == 'added' || a.type == 'modified') {
             const member = a.payload.doc.data() as Member;

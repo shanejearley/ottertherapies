@@ -91,6 +91,9 @@ export class EditProfileComponent {
                 })
             } else {
                 console.log('no update necessary');
+                await this.modalController.dismiss({
+                    response: 'success'
+                })
             }
         } else {
             this.error = true;

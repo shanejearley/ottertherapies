@@ -38,3 +38,7 @@ ion-row.calendar--header {
   // background-repeat: no-repeat;
   // background-size: cover;
 }
+
+ion-toolbar.second-toolbar {
+  z-index: 1 !important;
+}

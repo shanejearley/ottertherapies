@@ -2,7 +2,9 @@
     <ion-toolbar>
         <ion-title>New Group</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="dismiss()">Close</ion-button>
+            <ion-button (click)="dismiss()">
+                <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
@@ -11,7 +13,7 @@
         <ion-item class="theme--item" lines="none" *ngIf="error">
             <div *ngIf="error">
                 <div class="error" *ngIf="error">
-                    You need a group name.
+                    {{ error }}
                 </div>
             </div>
         </ion-item>
@@ -23,7 +25,7 @@
         </ion-item>
         <ion-item class="theme--item" lines="none">
             <ion-icon slot="start" name="people-outline"></ion-icon>
-            <ion-label>Select members</ion-label>
+            <ion-label>Check and select members</ion-label>
         </ion-item>
         <ion-list class="form theme--list" lines="none" inset="true">
             <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item" detail="false">
@@ -45,8 +47,8 @@
 
 <ion-footer>
     <ion-toolbar>
-        <ion-row class="ion-justify-content-end">
-            <ion-button fill="clear" (click)="addGroup()">Create</ion-button>
+        <ion-row class="ion-justify-content-end ion-padding">
+            <ion-button color="tertiary" (click)="addGroup()" [disabled]="clicked">Create</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

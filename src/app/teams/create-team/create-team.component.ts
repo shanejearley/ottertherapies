@@ -11,6 +11,8 @@ import { Router } from '@angular/router';
     styleUrls: ['./create-team.component.scss']
 })
 export class CreateTeamComponent {
+    error: string;
+    clicked: boolean = false;
     child: string;
     newMembers = [];
     member: string;
@@ -45,11 +47,29 @@ export class CreateTeamComponent {
         this.newMembers.splice(index, 1);
     }
 
+    onChange() {
+        if (this.child && this.child.length && this.error === "Enter the child's first name") {
+            this.error = null;
+        }
+    }
+
     async createTeam() {
-        const newTeamId = this.db.createId();
-        await this.teamsService.addTeam(newTeamId, this.child, this.newMembers);
-        await this.router.navigate(['/Teams', newTeamId]);
-        return this.dismiss();
+        if (!this.child || !this.child.length) {
+            this.error = "Enter the child's first name";
+            this.clicked = false;
+        } else {
+            try {
+                this.error = null;
+                this.clicked = true;
+                const newTeamId = this.db.createId();
+                await this.teamsService.addTeam(newTeamId, this.child, this.newMembers);
+                await this.router.navigate(['/Teams', newTeamId]);
+                return this.dismiss();
+            } catch (err) {
+                this.error = err.message;
+                this.clicked = false;
+            }
+        }
     }
 
     dismiss() {        

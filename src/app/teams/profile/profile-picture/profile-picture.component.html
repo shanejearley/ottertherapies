@@ -2,7 +2,9 @@
     <ion-toolbar>
         <ion-title>Upload Picture</ion-title>
         <ion-buttons slot="end">
-            <ion-button (click)="dismiss()">Close</ion-button>
+            <ion-button (click)="dismiss()">
+                <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
@@ -56,9 +58,9 @@
 
 <ion-footer>
     <ion-toolbar>
-        <ion-row class="ion-justify-content-between">
+        <ion-row class="ion-justify-content-between ion-padding">
             <ion-button fill="clear" color="danger" (click)="reset()">Reset</ion-button>
-            <ion-button fill="clear" (click)="dismiss()">Done</ion-button>
+            <ion-button fill="clear" (click)="dismiss()">Close</ion-button>
         </ion-row>
     </ion-toolbar>
 </ion-footer>

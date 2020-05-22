@@ -23,6 +23,7 @@ import { ModalController, ToastController, IonRouterOutlet, Platform } from '@io
 
 import { DateAdapter } from '@rschedule/core';
 import { Rule, RuleOption } from '../../rschedule';
+import { Member } from 'src/app/shared/services/members/members.service';
 
 export interface DayConfig {
   date: Date;
@@ -67,6 +68,7 @@ export class EventsComponent implements OnInit {
     daysConfig: this.eventsSource
   };
   personal: boolean = false;
+  personalEvents: Event[];
 
   desktop: boolean;
   ios: boolean;
@@ -100,10 +102,14 @@ export class EventsComponent implements OnInit {
   segmentChanged(ev) {
     if (ev && ev.detail.value === 'yours') {
       this.personal = true;
-      this.configCalendar();
+      setTimeout(() => {
+        this.configCalendar();
+      }, 250)
     } else if (ev && ev.detail.value === 'all') {
       this.personal = false;
-      this.configCalendar();
+      setTimeout(() => {
+        this.configCalendar();
+      }, 250)
     }
   }
 
@@ -191,16 +197,26 @@ export class EventsComponent implements OnInit {
       filter(Boolean),
       takeUntil(this.onDestroy),
       map((events: Event[]) => {
-        events.forEach(e => {
-          if (this.personal && e.members[this.uid] || !this.personal) {
+        if (this.personal) {
+          this.personalEvents = events.filter((ev: Event) => ev.members.find(member => member.uid === this.uid));
+          this.personalEvents.forEach(e => {
             this.eventsSource.push({
               date: e.startTime.toDate(),
               marked: moment(e.startTime.toDate()).startOf('day').format('ll') == this.date ? true : false,
               subTitle: '•',
               cssClass: moment(e.startTime.toDate()).startOf('day').format('ll') == this.date ? 'dot && on-selected' : 'dot'
             });
-          }
-        })
+          })
+        } else {
+          events.forEach(e => {
+            this.eventsSource.push({
+              date: e.startTime.toDate(),
+              marked: moment(e.startTime.toDate()).startOf('day').format('ll') == this.date ? true : false,
+              subTitle: '•',
+              cssClass: moment(e.startTime.toDate()).startOf('day').format('ll') == this.date ? 'dot && on-selected' : 'dot'
+            });
+          })
+        }
         this.options = {
           from: new Date(1970, 1, 1),
           disableWeeks: [...this._disableWeeks],

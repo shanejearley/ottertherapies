@@ -126,6 +126,7 @@ export class EditGroupComponent {
     }
 
     updateGroup() {
+        console.log('Remove list', this.remove)
         if (!this.group.name || !this.group.name.length) {
             this.error = true;
         } else {
@@ -143,17 +144,23 @@ export class EditGroupComponent {
         }
     }
 
-    onChange(m) {
-        if (m.isChecked) {
-            return this.addMember(m);
-        } else {
-            return this.removeMember(m);
+    onChange(ev, m) {
+        if (ev.detail.checked) {
+            if (!this.group.members.find(g => g.uid === m.uid)) {
+                return this.addMember(m);
+            } else {
+                return console.log('Member already added');
+            }
+        } else if (!ev.detail.checked) {
+            if (this.group.members.find(g => g.uid === m.uid)) {
+                return this.removeMember(m);
+            } else {
+                return console.log('Member already removed');
+            }
         }
     }
 
     async removeMember(m) {
-        const index = this.group.members.indexOf(m);
-        await this.group.members.splice(index, 1);
         return this.remove.push(m.uid);
     }
 

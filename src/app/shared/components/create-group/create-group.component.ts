@@ -30,7 +30,9 @@ export class CreateGroupComponent {
     teamId: string;
     groupId: string;
     selected: string;
-    error: boolean;
+    error: string;
+
+    clicked: boolean;
 
     private readonly onDestroy = new Subject<void>();
 
@@ -77,30 +79,31 @@ export class CreateGroupComponent {
     }
 
     nameChange() {
-        if (this.newGroup.name && this.newGroup.name.length) {
-            this.error = false;
+        if (this.newGroup.name && this.newGroup.name.length && this.error === 'You need a group name.') {
+            this.error = null;
         }
     }
 
-    addGroup() {
+    async addGroup() {
         if (!this.newGroup.name || !this.newGroup.name.length) {
-            this.error = true;
+            this.error = 'You need a group name.';
+            this.clicked = false;
         } else {
-            this.error = false;
+            this.error = null;
             const newGroupId = this.db.createId();
             try {
-                this.groupsService.addGroup(newGroupId, this.newGroup).then((ev) => {
+                this.clicked = true;
+                await this.groupsService.addGroup(newGroupId, this.newGroup).then((ev) => {
                     console.log(ev);
                 });
-            } catch (err) {
-                console.log(err);
                 return this.modalController.dismiss({
-                    response: 'error'
-                })
+                    response: newGroupId
+                });
+            } catch (err) {
+                this.error = err.message;
+                this.clicked = false;
+                console.log(err);
             }
-            return this.modalController.dismiss({
-                response: newGroupId
-            });
         }
     }
 
