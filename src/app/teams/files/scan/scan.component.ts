@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser'
-import { NavParams, ModalController } from '@ionic/angular';
+import { NavParams, ModalController, IonSlides } from '@ionic/angular';
 import { Store } from 'src/store';
 import { Profile } from 'src/auth/shared/services/profile/profile.service';
 import { Group } from 'src/app/shared/services/groups/groups.service';
@@ -27,6 +27,9 @@ export class Scan {
     styleUrls: ['./scan.component.scss']
 })
 export class ScanComponent {
+    @ViewChild('slider', { static: false }) slides: IonSlides;
+    index: number = 0;
+
     sourceId: string;
     error: string;
     scans: Scan[] = [];
@@ -53,6 +56,8 @@ export class ScanComponent {
     }
 
     ionViewWillEnter() {
+        this.slides.update();
+        this.slides.lockSwipes(true);
         this.teamId = this.navParams.get('teamId');
         this.sourceId = this.navParams.get('sourceId');
         if (this.sourceId !== 'files') {
@@ -61,6 +66,27 @@ export class ScanComponent {
                     this.folder = ms.find(m => m.uid === this.sourceId);
                 }
             })).subscribe()
+        }
+    }
+
+    nextSlide() {
+        return this.slides.slideNext();
+    }
+
+    prevSlide() {
+        return this.slides.slidePrev();
+    }
+
+    async getSlideIndex() {
+        return this.index = await this.slides.getActiveIndex()
+    }
+
+    async folderChange() {
+        if (this.folder) {
+            await this.slides.lockSwipes(false);
+            return setTimeout(() => this.slides.slideNext(), 500)
+        } else {
+            console.log('Select a folder');
         }
     }
 

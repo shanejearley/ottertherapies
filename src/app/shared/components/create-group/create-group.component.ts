@@ -9,6 +9,7 @@ import { Profile } from '../../../../auth/shared/services/profile/profile.servic
 import { Member } from '../../../shared/services/members/members.service';
 import { Store } from 'src/store';
 import { GroupsService, Group } from 'src/app/shared/services/groups/groups.service';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 @Component({
     selector: 'app-create-group',
@@ -23,15 +24,12 @@ export class CreateGroupComponent {
     profile$: Observable<Profile>;
     groups$: Observable<Group[]>;
     members$: Observable<Member[]>;
-    filterMembers$: Observable<Member[]>;
 
     group$: Observable<Group>;
     group;
     teamId: string;
     groupId: string;
     selected: string;
-    queryText = '';
-    filteredMembers: Member[];
     error: boolean;
 
     private readonly onDestroy = new Subject<void>();
@@ -42,7 +40,8 @@ export class CreateGroupComponent {
         public modalController: ModalController,
         private store: Store,
         private authService: AuthService,
-        private groupsService: GroupsService
+        private groupsService: GroupsService,
+        private db: AngularFirestore
     ) { }
 
     ngOnInit() {
@@ -65,10 +64,6 @@ export class CreateGroupComponent {
                 })
             })
         ).subscribe()
-
-        this.filterMembers$ = this.members$.pipe(
-            map(members => this.queryText.length ? members.filter((member: Member) => member.profile.displayName.toLowerCase().includes(this.queryText.toLowerCase()) || member.profile.email.toLowerCase().includes(this.queryText.toLowerCase())) : members.filter((member: Member) => true))
-        )
     }
 
     dismiss() {
@@ -81,52 +76,49 @@ export class CreateGroupComponent {
         return this.authService.user.uid;
     }
 
-    addGroup() {
-        try {
-            this.groupsService.addGroup(this.newGroup).then((ev) => {
-                console.log(ev);
-            });
-        } catch (err) {
-            return this.modalController.dismiss({
-                response: err
-            })
+    nameChange() {
+        if (this.newGroup.name && this.newGroup.name.length) {
+            this.error = false;
         }
-        return this.modalController.dismiss({
-            response: 'success'
-        });
+    }
+
+    addGroup() {
+        if (!this.newGroup.name || !this.newGroup.name.length) {
+            this.error = true;
+        } else {
+            this.error = false;
+            const newGroupId = this.db.createId();
+            try {
+                this.groupsService.addGroup(newGroupId, this.newGroup).then((ev) => {
+                    console.log(ev);
+                });
+            } catch (err) {
+                console.log(err);
+                return this.modalController.dismiss({
+                    response: 'error'
+                })
+            }
+            return this.modalController.dismiss({
+                response: newGroupId
+            });
+        }
+    }
+
+    onChange(m) {
+        if (m.isChecked) {
+            return this.addMember(m);
+        } else {
+            return this.removeMember(m);
+        }
     }
 
     removeMember(m) {
-        m.isChecked = !m.isChecked;
-        var index = this.newGroup.members.indexOf(m);
-        this.newGroup.members.splice(index, 1);
+        const index = this.newGroup.members.indexOf(m);
+        return this.newGroup.members.splice(index, 1);
     }
 
     addMember(m) {
-        this.error = false;
-        if (!m.isChecked && m.uid !== this.uid) {
-            m.isChecked = !m.isChecked;
-            this.newGroup.members.push(m);
-        } else {
-            console.log('Already a member');
-        }
-        this.queryText = '';
-    }
-
-    manualSearch() {
-        this.members$.pipe(
-            takeUntil(this.onDestroy),
-            map(members => {
-                if (members) {
-                    if (members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]) {
-                        this.addMember(members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]);
-                    } else {
-                        this.error = true;
-                        console.log('No member found');
-                    }
-                }
-            })
-        ).subscribe();
+        return this.newGroup.members.push(m);
     }
 
     ngOnDestroy() {

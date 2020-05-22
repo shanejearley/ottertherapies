@@ -127,15 +127,14 @@ export class EventsService {
                         if (a.type == 'removed') {
                             const event = a.payload.doc.data() as Event;
                             event.id = a.payload.doc.id;
-                            this.recurringEvents.forEach((e) => {
-                                if (e.id === event.id) {
-                                    console.log('recurringEvents', this.recurringEvents);
-                                    var index = this.recurringEvents.indexOf(e);
-                                    this.recurringEvents.splice(index, 1);
-                                    console.log("Removed event: ", e);
-                                    return this.recurringEvents;
-                                }
-                            })
+                            try {
+                                const removeEv = this.recurringEvents.find((e: Event) => e.id === event.id);
+                                const index = this.recurringEvents.indexOf(removeEv);
+                                this.recurringEvents.splice(index, 1);
+                                return this.recurringEvents;
+                            } catch (err) {
+                                console.log(err);
+                            }
                         }
                         if (a.type == 'added' || a.type == 'modified') {
                             const event = a.payload.doc.data() as Event;
@@ -203,9 +202,21 @@ export class EventsService {
                 map((event: Event[]) => event.find((event: Event) => event.id === id)));
     }
 
+    async removeRecurring(eventId: string) {
+        try {
+            const removeEv = this.recurringEvents.find((e: Event) => e.id === eventId);
+            const index = this.recurringEvents.indexOf(removeEv);
+            this.recurringEvents.splice(index, 1);
+            return this.recurringEvents;
+        } catch (err) {
+            return console.log(err);
+        }
+    }
+
     async removeEvent(eventId: string) {
         const eventDoc = this.db.doc<Event>(`teams/${this.teamId}/calendar/${eventId}`);
-        return eventDoc.delete();
+        await eventDoc.delete();
+        return this.removeRecurring(eventId);
     }
 
     addEvent(event) {

@@ -22,7 +22,6 @@ export class EditEventComponent {
     profile$: Observable<Profile>;
     groups$: Observable<Group[]>;
     members$: Observable<Member[]>;
-    filterMembers$: Observable<Member[]>;
     event$: Observable<Event>;
     event;
 
@@ -52,8 +51,6 @@ export class EditEventComponent {
     teamId: string;
     eventId: string;
     selected: string;
-    queryText = '';
-    filteredMembers: Member[];
     error: boolean;
 
     constructor(
@@ -104,10 +101,6 @@ export class EditEventComponent {
                 }
             })
         ).subscribe()
-
-        this.filterMembers$ = this.members$.pipe(
-            map(members => this.queryText.length ? members.filter((member: Member) => member.profile.displayName.toLowerCase().includes(this.queryText.toLowerCase()) || member.profile.email.toLowerCase().includes(this.queryText.toLowerCase())) : members.filter((member: Member) => true))
-        )
     }
 
     dismiss() {
@@ -150,17 +143,28 @@ export class EditEventComponent {
         return this.authService.user.uid;
     }
 
-    updateEvent() {
-        try {
-            this.eventsService.updateEvent(this.event, this.remove);
-        } catch (err) {
-            return this.modalController.dismiss({
-                response: err
-            })
+    nameChange() {
+        if (this.event.name && this.event.name.length) {
+            this.error = false;
         }
-        return this.modalController.dismiss({
-            response: 'success'
-        });
+    }
+
+    updateEvent() {
+        if (!this.event.name || !this.event.name.length) {
+            this.error = true;
+        } else {
+            this.error = false;
+            try {
+                this.eventsService.updateEvent(this.event, this.remove);
+            } catch (err) {
+                return this.modalController.dismiss({
+                    response: err
+                })
+            }
+            return this.modalController.dismiss({
+                response: 'success'
+            });
+        }
     }
 
     changeStart() {
@@ -174,34 +178,22 @@ export class EditEventComponent {
         this.event.updateEndTime = moment(this.event.updateStartTime).add(1, 'h').toString();
     }
 
-    removeGuest(m) {
-        m.isChecked = !m.isChecked;
-        var index = this.event.members.indexOf(m);
-        this.event.members.splice(index, 1);
-        this.remove.push(m.uid);
+    onChange(m) {
+        console.log(this.event.members);
+        if (m.isChecked) {
+            return this.addGuest(m);
+        } else {
+            return this.removeGuest(m);
+        }
+    }
+
+    async removeGuest(m) {
+        const index = this.event.members.indexOf(m);
+        await this.event.members.splice(index, 1);
+        return this.remove.push(m.uid);
     }
 
     addGuest(m) {
-        this.error = false;
-        if (!m.isChecked && m.uid !== this.uid) {
-            m.isChecked = !m.isChecked;
-            this.event.members.push(m);
-        } else {
-            console.log('Already a guest');
-        }
-        this.queryText = '';
-    }
-
-    manualSearch() {
-        this.members$.pipe(map(members => {
-            if (members) {
-                if (members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]) {
-                    this.addGuest(members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]);
-                } else {
-                    this.error = true;
-                    console.log('No member found');
-                }
-            }
-        })).subscribe();
+        return this.event.members.push(m);
     }
 }

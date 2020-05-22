@@ -1,7 +1,7 @@
 <ion-list class="theme--list upload--list" *ngIf="file" lines="none" inset="true"> 
     <div>
         <div class="error" *ngIf="error">
-            Check that you selected a destination folder.
+            Incomplete team, folder, or file information.
         </div>
     </div>
 
@@ -26,7 +26,7 @@
                 <p>Upload status: 0%</p>
             </ion-label>
         </ng-template>
-        <ion-button slot="end" color="primary" (click)="startUpload()" [disabled]="downloadURL">
+        <ion-button slot="end" color="primary" (click)="startUpload()" [disabled]="downloadURL || !file.name.length && !fileName.length">
             Upload
         </ion-button>
         <ion-button slot="end" fill="clear" (click)="removeFile()" [disabled]="downloadURL">

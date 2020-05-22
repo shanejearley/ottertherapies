@@ -90,11 +90,25 @@ export class MessagesComponent implements OnInit {
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;
-      if (this.data.response == 'success') {
-        this.presentCreateToast();
+      if (this.data.response !== 'dismissed' && this.data.response !== 'error') {
+        this.presentCreatingToast();
+        setTimeout(() => {
+          this.presentCreateToast();
+        }, 2000)
+        setTimeout(() => {
+          return this.router.navigate([`../Teams/${this.teamId}/Messages/Group/${this.data.response}`]);
+        }, 4000)
       }
     });
     return await modal.present();
+  }
+
+  async presentCreatingToast() {
+    const toast = await this.toastController.create({
+      message: 'Creating your group...',
+      duration: 2000
+    });
+    toast.present();
   }
 
   async presentCreateToast() {

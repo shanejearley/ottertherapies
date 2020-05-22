@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { NavParams, ModalController } from '@ionic/angular';
+import { Component, ViewChild } from '@angular/core';
+import { NavParams, ModalController, IonSlides } from '@ionic/angular';
 
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
@@ -23,6 +23,9 @@ import { Store } from 'src/store';
     styleUrls: ['./browse.component.scss'],
 })
 export class BrowseComponent {
+    @ViewChild('slider', { static: false }) slides: IonSlides;
+    index: number = 0;
+
     sourceId: string;
     meta: Observable<any>;
     profile$: Observable<Profile>;
@@ -35,6 +38,18 @@ export class BrowseComponent {
     folder;
     public ngxFiles: NgxFileDropEntry[] = [];
     public files: File[] = [];
+
+    nextSlide() {
+        return this.slides.slideNext();
+    }
+
+    prevSlide() {
+        return this.slides.slidePrev();
+    }
+
+    async getSlideIndex() {
+        return this.index = await this.slides.getActiveIndex()
+    }
 
     public dropped(files: NgxFileDropEntry[]) {
         for (const droppedFile of files) {
@@ -78,6 +93,8 @@ export class BrowseComponent {
     }
 
     ionViewWillEnter() {
+        this.slides.update();
+        this.slides.lockSwipes(true);
         this.teamId = this.navParams.get('teamId');
         this.sourceId = this.navParams.get('sourceId');
         if (this.sourceId !== 'files') {
@@ -86,6 +103,15 @@ export class BrowseComponent {
                     this.folder = ms.find(m => m.uid === this.sourceId);
                 }
             })).subscribe()
+        }
+    }
+
+    async folderChange() {
+        if (this.folder) {
+            await this.slides.lockSwipes(false);
+            return setTimeout(() => this.slides.slideNext(), 500)
+        } else {
+            console.log('Select a folder');
         }
     }
 

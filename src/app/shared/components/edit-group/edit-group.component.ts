@@ -19,7 +19,6 @@ export class EditGroupComponent {
     profile$: Observable<Profile>;
     groups$: Observable<Group[]>;
     members$: Observable<Member[]>;
-    filterMembers$: Observable<Member[]>;
 
     group$: Observable<Group>;
     group;
@@ -28,8 +27,6 @@ export class EditGroupComponent {
     teamId: string;
     groupId: string;
     selected: string;
-    queryText = '';
-    filteredMembers: Member[];
     error: boolean;
 
     private readonly onDestroy = new Subject<void>();
@@ -80,10 +77,6 @@ export class EditGroupComponent {
                 }
             })
         ).subscribe()
-
-        this.filterMembers$ = this.members$.pipe(
-            map(members => this.queryText.length ? members.filter((member: Member) => member.profile.displayName.toLowerCase().includes(this.queryText.toLowerCase()) || member.profile.email.toLowerCase().includes(this.queryText.toLowerCase())) : members.filter((member: Member) => true))
-        )
     }
 
     dismiss() {
@@ -106,7 +99,9 @@ export class EditGroupComponent {
                 handler: async () => {
                     console.log('Delete clicked');
                     await this.groupsService.removeGroup(this.groupId);
-                    return this.dismiss();
+                    return this.modalController.dismiss({
+                        response: 'deleted'
+                    });
                 }
             }, {
                 text: 'Cancel',
@@ -124,51 +119,46 @@ export class EditGroupComponent {
         return this.presentActionSheet();
     }
 
-    updateGroup() {
-        try {
-            this.groupsService.updateGroup(this.group, this.remove);
-        } catch (err) {
-            return this.modalController.dismiss({
-                response: err
-            })
+    nameChange() {
+        if (this.group.name && this.group.name.length) {
+            this.error = false;
         }
-        return this.modalController.dismiss({
-            response: 'success'
-        });
     }
 
-    removeMember(m) {
-        m.isChecked = !m.isChecked;
-        var index = this.group.members.indexOf(m);
-        this.group.members.splice(index, 1);
-        this.remove.push(m.uid);
+    updateGroup() {
+        if (!this.group.name || !this.group.name.length) {
+            this.error = true;
+        } else {
+            this.error = false;
+            try {
+                this.groupsService.updateGroup(this.group, this.remove);
+            } catch (err) {
+                return this.modalController.dismiss({
+                    response: err
+                })
+            }
+            return this.modalController.dismiss({
+                response: 'success'
+            });
+        }
+    }
+
+    onChange(m) {
+        if (m.isChecked) {
+            return this.addMember(m);
+        } else {
+            return this.removeMember(m);
+        }
+    }
+
+    async removeMember(m) {
+        const index = this.group.members.indexOf(m);
+        await this.group.members.splice(index, 1);
+        return this.remove.push(m.uid);
     }
 
     addMember(m) {
-        this.error = false;
-        if (!m.isChecked && m.uid !== this.uid) {
-            m.isChecked = !m.isChecked;
-            this.group.members.push(m);
-        } else {
-            console.log('Already a member');
-        }
-        this.queryText = '';
-    }
-
-    manualSearch() {
-        this.members$.pipe(
-            takeUntil(this.onDestroy),
-            map(members => {
-                if (members) {
-                    if (members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]) {
-                        this.addMember(members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]);
-                    } else {
-                        this.error = true;
-                        console.log('No member found');
-                    }
-                }
-            })
-        ).subscribe();
+        return this.group.members.push(m);
     }
 
     ngOnDestroy() {

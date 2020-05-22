@@ -116,7 +116,7 @@ export class UploadTaskComponent implements OnInit {
             this.docRef = this.db.doc<File>(`teams/${this.teamId}`)
         } else {
             this.error = true;
-            return console.log("Incomplete team, folder, and file information");
+            return console.log("Incomplete team, folder, or file information");
         }
         this.storageRef = this.storage.ref(this.filePath);
 

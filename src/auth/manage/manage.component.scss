@@ -45,19 +45,7 @@
   text-align: center;
 
   &__action {
-    div {
-      margin: 10px 0 30px;
-    }
-    &__forgot {
-      display: block;
-      text-align: center;
-      color: #5e7386;
-      font-size: 14px;
-      margin-top: 10px !important;
-      margin-bottom: 10px !important;
-      cursor: pointer !important;
-      text-decoration: underline !important;
-    }
+    margin: 10px 0 30px;
   }
   &__toggle {
     border-radius: 0 0 4px 4px;

@@ -163,6 +163,7 @@ export class EventsComponent implements OnInit {
       }
       if (this.data.response == 'deleted') {
         this.configCalendar();
+        this.today$ = this.getToday(this.date);
       }
     });
     return await modal.present();

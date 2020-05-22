@@ -18,19 +18,19 @@ import { Unread } from '../teams/teams.service';
 export interface Group {
   createdBy: string,
   id: string,
-  lastFile: string,
-  lastFileId: string,
-  lastFileUid: string,
-  lastMessage: string,
-  lastMessageId: string,
-  lastMessageUid: string,
+  lastFile?: string,
+  lastFileId?: string,
+  lastFileUid?: string,
+  lastMessage?: string,
+  lastMessageId?: string,
+  lastMessageUid?: string,
   name: string,
   timestamp: firestore.FieldValue,
-  unread: Unread,
-  files: File[],
-  messages: Message[],
-  isChecked: boolean,
-  members: Member[];
+  unread?: Unread,
+  files?: File[],
+  messages?: Message[],
+  isChecked?: boolean,
+  members?: Member[];
 }
 
 export interface Member {
@@ -295,40 +295,29 @@ export class GroupsService {
     });
   }
 
-  addGroup(group) {
+  async addGroup(groupId, group) {
     const newGroup = {
       createdBy: this.uid,
-      id: null,
-      lastFile: null,
-      lastFileId: null,
-      lastFileUid: null,
-      lastMessage: null,
-      lastMessageId: null,
-      lastMessageUid: null,
+      id: groupId,
       name: group.name,
       timestamp: firestore.FieldValue.serverTimestamp(),
-      unread: null,
-      files: null,
-      messages: null,
       isChecked: false,
-      members: null
     }
     this.groupsCol = this.db.collection<Group>(`teams/${this.teamId}/groups`);
-    return this.groupsCol.add(newGroup).then(async docRef => {
-      this.membersCol = this.db.collection(`teams/${this.teamId}/groups/${docRef.id}/members`);
-      await this.membersCol.doc(this.uid).set({
-        uid: this.uid,
-        status: "Admin"
-      }, { merge: true })
-      return group.members.forEach(m => {
-        if (m.uid !== this.uid) {
-          return this.membersCol.doc(m.uid).set({
-            uid: m.uid,
-            status: "Member"
-          }, { merge: true })
-        }
-      })
-    });
+    await this.groupsCol.doc(groupId).set(newGroup, {merge: true})
+    this.membersCol = this.db.collection(`teams/${this.teamId}/groups/${groupId}/members`);
+    await this.membersCol.doc(this.uid).set({
+      uid: this.uid,
+      status: "Admin"
+    }, { merge: true })
+    return group.members.forEach(m => {
+      if (m.uid !== this.uid) {
+        return this.membersCol.doc(m.uid).set({
+          uid: m.uid,
+          status: "Member"
+        }, { merge: true })
+      }
+    })
   }
 
   removeMember(groupId: string, uid: string) {

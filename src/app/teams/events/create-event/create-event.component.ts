@@ -54,12 +54,9 @@ export class CreateEventComponent {
     profile$: Observable<Profile>;
     groups$: Observable<Group[]>;
     members$: Observable<Member[]>;
-    filterMembers$: Observable<Member[]>;
 
     teamId: string;
     selected: string;
-    queryText = '';
-    filteredMembers: Member[];
     error: boolean;
     constructor(
         public navParams: NavParams,
@@ -82,10 +79,6 @@ export class CreateEventComponent {
                 }
             })
         })).subscribe()
-
-        this.filterMembers$ = this.members$.pipe(
-            map(members => this.queryText.length ? members.filter((member: Member) => member.profile.displayName.toLowerCase().includes(this.queryText.toLowerCase()) || member.profile.email.toLowerCase().includes(this.queryText.toLowerCase())) : members.filter((member: Member) => true))
-        )
     }
 
     ionViewWillEnter() {
@@ -105,17 +98,28 @@ export class CreateEventComponent {
         return this.authService.user.uid;
     }
 
-    addEvent() {
-        try {
-            this.eventsService.addEvent(this.newEvent);
-        } catch (err) {
-            return this.modalController.dismiss({
-                response: err
-            })
+    nameChange() {
+        if (this.newEvent.name && this.newEvent.name.length) {
+            this.error = false;
         }
-        return this.modalController.dismiss({
-            response: 'success'
-        });
+    }
+
+    addEvent() {
+        if (!this.newEvent.name || !this.newEvent.name.length) {
+            this.error = true;
+        } else {
+            this.error = false;
+            try {
+                this.eventsService.addEvent(this.newEvent);
+            } catch (err) {
+                return this.modalController.dismiss({
+                    response: err
+                })
+            }
+            return this.modalController.dismiss({
+                response: 'success'
+            });
+        }
     }
 
     changeStart() {
@@ -129,33 +133,21 @@ export class CreateEventComponent {
         this.newEvent.endTime = moment(this.newEvent.startTime).add(1, 'h').toString();
     }
 
+    onChange(m) {
+        console.log(this.newEvent.members);
+        if (m.isChecked) {
+            return this.addGuest(m);
+        } else {
+            return this.removeGuest(m);
+        }
+    }
+
     removeGuest(m) {
-        m.isChecked = !m.isChecked;
-        var index = this.newEvent.members.indexOf(m);
-        this.newEvent.members.splice(index, 1);
+        const index = this.newEvent.members.indexOf(m);
+        return this.newEvent.members.splice(index, 1);
     }
 
     addGuest(m) {
-        this.error = false;
-        if (!m.isChecked && m.uid !== this.uid) {
-            m.isChecked = !m.isChecked;
-            this.newEvent.members.push(m);
-        } else {
-            console.log('Already a guest');
-        }
-        this.queryText = '';
-    }
-
-    manualSearch() {
-        this.members$.pipe(map(members => {
-            if (members) {
-                if (members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]) {
-                    this.addGuest(members.filter(m => m.profile.displayName == this.queryText || m.profile.email == this.queryText)[0]);
-                } else {
-                    this.error = true;
-                    console.log('No member found');
-                }
-            }
-        })).subscribe();
+        return this.newEvent.members.push(m);
     }
 }

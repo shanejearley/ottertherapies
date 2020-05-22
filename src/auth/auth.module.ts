@@ -23,7 +23,9 @@ export const ROUTES: Routes = [
       { path: 'login', loadChildren: () => import('./login/login.module').then(m => m.LoginModule) },
       { path: 'register', loadChildren: () => import('./register/register.module').then(m => m.RegisterModule) },
       { path: 'verify', loadChildren: () => import('./verify/verify.module').then(m => m.VerifyModule) },
-      { path: 'two-factor', loadChildren: () => import('./two-factor/two-factor.module').then(m => m.TwoFactorModule) }
+      { path: 'two-factor', loadChildren: () => import('./two-factor/two-factor.module').then(m => m.TwoFactorModule) },
+      { path: 'manage', loadChildren: () => import('./manage/manage.module').then(m => m.ManageModule) },
+      { path: 'reset', loadChildren: () => import('./reset/reset.module').then(m => m.ResetModule) }
     ]
   }
 ];

@@ -237,13 +237,38 @@ export class FilesComponent implements OnInit {
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl
     });
-    modal.onWillDismiss().then(data => {
+    modal.onWillDismiss().then(async data => {
       this.data = data.data;
       if (this.data.response == 'success') {
         this.presentUpdateToast();
       }
+      if (this.data.response == 'deleted') {
+        this.presentDeletingToast();
+        setTimeout(() => {
+          this.presentDeleteToast();
+        }, 2000)
+        // setTimeout(() => {
+        //   return this.router.navigate([`../../Teams/${this.teamId}/Messages`]);
+        // }, 4000)
+      }
     });
     return await modal.present();
+  }
+
+  async presentDeletingToast() {
+    const toast = await this.toastController.create({
+      message: 'Deleting your group...',
+      duration: 2000
+    });
+    toast.present();
+  }
+
+  async presentDeleteToast() {
+    const toast = await this.toastController.create({
+      message: 'Your group was deleted!',
+      duration: 2000
+    });
+    toast.present();
   }
 
   async presentUpdateToast() {
@@ -263,13 +288,27 @@ export class FilesComponent implements OnInit {
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl
     });
-    modal.onWillDismiss().then(data => {
+    modal.onWillDismiss().then(async data => {
       this.data = data.data;
-      if (this.data.response == 'success') {
-        this.presentCreateToast();
+      if (this.data.response !== 'dismissed' && this.data.response !== 'error') {
+        this.presentCreatingToast();
+        setTimeout(() => {
+          this.presentCreateToast();
+        }, 2000)
+        // setTimeout(() => {
+        //   return this.router.navigate([`../Teams/${this.teamId}/Messages/Group/${this.data.response}`]);
+        // }, 4000)
       }
     });
     return await modal.present();
+  }
+
+  async presentCreatingToast() {
+    const toast = await this.toastController.create({
+      message: 'Creating your group...',
+      duration: 2000
+    });
+    toast.present();
   }
 
   async presentCreateToast() {

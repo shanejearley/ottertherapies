@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterContentChecked, AfterViewInit, AfterContentInit, HostListener, EventEmitter } from '@angular/core';
+import { Component, OnInit, AfterContentChecked, AfterViewInit, AfterContentInit, HostListener, EventEmitter, NgZone } from '@angular/core';
 import { Router, RoutesRecognized, GuardsCheckEnd } from '@angular/router';
 
 import { Platform, Config, PopoverController, ModalController, IonRouterOutlet, ToastController } from '@ionic/angular';
@@ -11,21 +11,21 @@ const { Browser } = Plugins;
 
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { tap, map, reduce, takeUntil } from 'rxjs/operators';
+import { tap, map, takeUntil } from 'rxjs/operators';
 
 import { AuthService, User } from '../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../auth/shared/services/profile/profile.service';
 import { TeamsService, Team } from './shared/services/teams/teams.service';
 import { GroupsService, Group } from './shared/services/groups/groups.service';
-import { NotesService, Note } from './shared/services/notes/notes.service';
-import { MembersService, Member } from './shared/services/members/members.service';
+import { NotesService } from './shared/services/notes/notes.service';
+import { MembersService } from './shared/services/members/members.service';
 import { PendingService } from './shared/services/pending/pending.service';
 import { EventsService } from './shared/services/events/events.service';
 import { Store } from 'src/store';
 import { ResourcesService } from './shared/services/resources/resources.service';
 import { BadgeService } from './shared/services/badge/badge.service';
-import { EditProfileComponent } from './teams/profile/edit-profile/edit-profile.component';
 import { DarkService } from './shared/services/dark/dark.service';
+import { SwUpdate } from '@angular/service-worker';
 
 @Component({
   selector: 'app-root',
@@ -112,9 +112,10 @@ export class AppComponent implements OnInit {
     private pendingService: PendingService,
     private eventsService: EventsService,
     private resourcesService: ResourcesService,
-    private badgeService: BadgeService,
     private badge: Badge,
-    private darkService: DarkService
+    private darkService: DarkService,
+    private toastController: ToastController,
+    private swUpdate: SwUpdate
   ) {
     this.initializeApp();
 
@@ -184,6 +185,26 @@ export class AppComponent implements OnInit {
   // }
 
   ngOnInit() {
+    this.swUpdate.available.subscribe(async res => {
+      const updateToast = await this.toastController.create({
+        message: 'Update available!',
+        position: 'bottom',
+        buttons: [
+          {
+            role: 'cancel',
+            text: 'Reload'
+          }
+        ]
+      });
+
+      await updateToast.present();
+
+      updateToast
+        .onDidDismiss()
+        .then(() => this.swUpdate.activateUpdate())
+        .then(() => window.location.reload());
+    });
+
     this.dark$ = this.store.select('dark');
 
     this.darkService.dark$.pipe(
@@ -193,7 +214,7 @@ export class AppComponent implements OnInit {
         this.dark = dark;
       })
     ).subscribe()
-    
+
     //const path = window.location.pathname.split('Teams/:id/')[1];
     this.dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     this.store.set('dark', this.dark);

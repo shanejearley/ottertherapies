@@ -15,10 +15,15 @@ import { MfaVerifyComponent } from './mfa-verify/mfa-verify.component';
         <div>
           <auth-form (submitted)="loginUser($event)">
             <h1>Login</h1>
-            <a routerDirection="root" routerLink="/auth/register">Not registered?</a>
+
             <ion-button type="submit" expand="block">
               Login
             </ion-button>
+
+            <span routerDirection="forward" (click)="resetPassword()">Forgot password?</span>
+
+            <a routerDirection="root" routerLink="/auth/register">Not registered?</a>
+
             <div class="error" *ngIf="error">
               {{ error }}
             </div>
@@ -58,6 +63,11 @@ export class LoginComponent {
         // Handle other errors such as wrong password.
       }
     }
+  }
+
+  resetPassword() {
+    console.log('resetting');
+    this.router.navigate(['/auth/reset']);
   }
 
   async verifyDeviceModal() {

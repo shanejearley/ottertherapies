@@ -17,6 +17,8 @@ export class AuthFormComponent implements OnInit {
   @Output()
   submitted = new EventEmitter<FormGroup>();
 
+  login: boolean = true;
+
   form = this.fb.group({
     email: ['', Validators.email],
     password: ['', Validators.required]

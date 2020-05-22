@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent, IonList, IonRouterOutlet, Platform } from '@ionic/angular';
 import { ModalController, ToastController } from '@ionic/angular';
 
@@ -57,7 +57,8 @@ export class GroupComponent implements OnInit {
     public modalController: ModalController,
     public toastController: ToastController,
     private platform: Platform,
-    private routerOutlet: IonRouterOutlet
+    private routerOutlet: IonRouterOutlet,
+    private router: Router
   ) { }
 
   ngAfterViewInit() {
@@ -167,13 +168,38 @@ export class GroupComponent implements OnInit {
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl
     });
-    modal.onWillDismiss().then(data => {
+    modal.onWillDismiss().then(async data => {
       this.data = data.data;
       if (this.data.response == 'success') {
         this.presentToast();
       }
+      if (this.data.response == 'deleted') {
+        this.presentDeletingToast();
+        setTimeout(() => {
+          this.presentDeleteToast();
+        }, 2000)
+        setTimeout(() => {
+          return this.router.navigate([`../../Teams/${this.teamId}/Messages`]);
+        }, 4000)
+      }
     });
     return await modal.present();
+  }
+
+  async presentDeletingToast() {
+    const toast = await this.toastController.create({
+      message: 'Deleting your group...',
+      duration: 2000
+    });
+    toast.present();
+  }
+
+  async presentDeleteToast() {
+    const toast = await this.toastController.create({
+      message: 'Your group was deleted!',
+      duration: 2000
+    });
+    toast.present();
   }
 
   async presentToast() {

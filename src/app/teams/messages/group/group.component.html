@@ -13,17 +13,6 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" #contentArea [class.scroll-ios]="ios">
-  <!-- <ion-header collapse="condense">
-    <ion-toolbar class="large-title-fix">
-      <ion-title size="large" *ngIf="(group$ | async)">{{ (group$ | async)?.name }}</ion-title>
-    </ion-toolbar>
-  </ion-header> -->
-
-  <!-- <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
-    <ion-fab-button (click)="editGroupModal()">
-      <ion-icon name="people-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab> -->
 
   <div id="container">
     <ion-list #scroll class="message--list">
@@ -53,7 +42,9 @@
               </ion-avatar>
   
               <ion-col class="member--col" size="auto">
-  
+                
+                <ion-text color="medium" class="ion-padding-start message--time" *ngIf="(group$ | async)?.messages[i-1] && m.uid !== (group$ | async)?.messages[i-1].uid || !(group$ | async)?.messages[i-1] || (group$ | async)?.messages[i-1] && (group$ | async)?.messages[i-1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">{{ (messageProfile | async)?.displayName }}</ion-text>
+
                 <ion-card color="light" class="dialog member message--card">
                   <ion-card-content class="message--content">
                     <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>

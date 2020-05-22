@@ -8,17 +8,19 @@
 </ion-header>
 <ion-content fullscreen>
     <ion-list *ngIf="event" class="theme--list" lines="none">
+        <ion-item class="theme--item" lines="none" *ngIf="error">
+            <div *ngIf="error">
+                <div class="error" *ngIf="error">
+                    You need a group name.
+                </div>
+            </div>
+        </ion-item>
         <ion-item class="theme--item" lines="none">
             <ion-icon slot="start"></ion-icon>
-            <h3 class="full-width" *ngIf="memberStatus == 'Admin'; else readOnlyTitle">
-                <ion-input [(ngModel)]="event.name" placeholder="Add title" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
+            <h3 class="full-width">
+                <ion-input (ionChange)="nameChange()" [(ngModel)]="event.name" placeholder="Add title" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
                     class="visible"></ion-input>
             </h3>
-            <ng-template #readOnlyTitle>
-                <ion-label>
-                    <h3>{{ event.name }}</h3>
-                </ion-label>
-            </ng-template>
         </ion-item>
         <ion-item lines="none" class="theme--item">
             <ion-icon slot="start"></ion-icon>
@@ -78,71 +80,28 @@
             </ion-grid>
         </ion-item>
 
-        <ion-item *ngIf="event.type == 'Event'" class="theme--item" lines="none">
-            <ion-icon slot="start" [name]="'people-outline'"></ion-icon>
-            <ion-input class="form" [(ngModel)]="queryText" placeholder="Add guests" [color]="error ? 'danger' : ''"
-                [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"></ion-input>
+        <ion-item class="theme--item" lines="none">
+            <ion-icon slot="start" name="people-outline"></ion-icon>
+            <ion-label>Select guests</ion-label>
         </ion-item>
-        <ion-list *ngIf="(memberStatus == 'Admin')" class="guest-list theme--list" inset="true" lines="none">
-            <ion-item *ngFor="let m of (filterMembers$ | async); let i = index" lines="none" button color="light"
-                class="theme--item" detail="false">
+        <ion-list class="form theme--list" lines="none" inset="true">
+            <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item" detail="false">
                 <ion-avatar slot="start">
-                    <img *ngIf="m.profile && m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                     <ng-template #elseMemberAvatar>
-                        <ngx-avatar *ngIf="m.profile" name="{{ m.profile.displayName }}" size="40"></ngx-avatar>
+                        <ngx-avatar name="{{ m.profile.displayName }}" size="40"></ngx-avatar>
                     </ng-template>
                 </ion-avatar>
                 <ion-label>
                     <h3>{{ m.profile.displayName }}</h3>
                     <p>{{ m.profile.email }}</p>
                 </ion-label>
-                <ion-button slot="end" fill="clear" (click)="addGuest(m)" *ngIf="!m.isChecked; else checked">
-                    <ion-icon color="primary" slot="icon-only" [name]="'add-circle-outline'">
-                    </ion-icon>
-                </ion-button>
-                <ng-template #checked>
-                    <ion-button slot="end" fill="clear">
-                        <ion-icon slot="icon-only" [name]="'checkmark-circle-outline'">
-                        </ion-icon>
-                    </ion-button>
-                </ng-template>
-            </ion-item>
-        </ion-list>
-        <ion-list *ngIf="event.type == 'Event'" class="guest-list theme--list" inset="true" lines="none">
-            <ion-item *ngFor="let m of event.members; let i = index" lines="none" button class="theme--item"
-                detail="false">
-                <ion-avatar slot="start">
-                    <img *ngIf="(m.profile | async)?.url; else elseMemberAvatar" src="{{ (m.profile | async)?.url }}">
-                    <ng-template #elseMemberAvatar>
-                        <ngx-avatar name="{{ (m.profile | async)?.displayName }}" size="40"></ngx-avatar>
-                    </ng-template>
-                </ion-avatar>
-                <ion-label>
-                    <h3>{{ (m.profile | async)?.displayName }}</h3>
-                    <p>{{ (m.profile | async)?.email }}</p>
-                </ion-label>
-                <ion-button slot="end" fill="clear" *ngIf="m.uid !== (profile$ | async)?.uid; else elseIcon"
-                    (click)="removeGuest(m)" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
-                    <ion-icon color="medium" slot="icon-only" [name]="'close-circle-outline'">
-                    </ion-icon>
-                </ion-button>
-                <ng-template #elseIcon>
-                    <ion-button slot="end" fill="clear" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
-                        <ion-icon color="medium" slot="icon-only" [name]="'lock-closed-outline'">
-                        </ion-icon>
-                    </ion-button>
-                </ng-template>
+                <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange(m)" [disabled]="m.uid === (profile$ | async)?.uid || !(memberStatus == 'Admin') || event.recurrenceId"></ion-checkbox>
             </ion-item>
         </ion-list>
         <ion-item *ngIf="event.type == 'Event'" class="theme--item" lines="none">
             <ion-icon slot="start" [name]="'reader-outline'"></ion-icon>
-            <ion-textarea class="form" [(ngModel)]="event.info" placeholder="Add description"
-                *ngIf="memberStatus == 'Admin'; else readOnlyDesc" autocapitalize="sentences" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"></ion-textarea>
-            <ng-template #readOnlyDesc>
-                <ion-label>
-                    <h3 style="white-space: pre-line;">{{ event.info }}</h3>
-                </ion-label>
-            </ng-template>
+            <ion-textarea class="form" [(ngModel)]="event.info" placeholder="Add description" autocapitalize="sentences" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"></ion-textarea>
         </ion-item>
         <ion-list *ngIf="!(memberStatus == 'Admin')" class="theme--list" inset="true" lines="none">
             <ion-item detail="false" class="theme--item" lines="none">

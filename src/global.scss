@@ -72,6 +72,11 @@ ion-calendar { .dot{ small{ color: var(--ion-color-medium) !important; font-size
 ion-list.member--upload--list {
   padding-top: 0 !important;
   margin-top: 0 !important;
+  padding-inline-end: 32px !important;
+}
+
+ion-list.upload--list {
+  padding-inline-end: 32px !important;
 }
 
 .md {
@@ -283,6 +288,12 @@ ion-content.scroll-ios {
   }
 }
 
+ion-list.form {
+  margin-top: 0 !important;
+  border-radius: 10px !important;
+  background: var(--ion-color-light) !important;
+}
+
 ion-input.form {
   --padding-start: 15px !important;
   max-width: 100% !important;
@@ -465,4 +476,28 @@ ion-card {
 .popover-content {
   --width: 400px;
   --max-width: 100% !important;
+}
+
+ion-slides.fileupload--slides {
+  height: 100% !important;
+  ion-slide {
+    width: 100% !important;
+    ion-list {
+      width: 100%;
+      min-height: 100% !important;
+      max-height: 100% !important;
+      overflow-y: auto !important;
+    }
+  }
+}
+ion-content {
+  ion-fab.fileupload--fab {
+    text-align: center !important;
+    margin-inline-start: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    ion-button {
+      --box-shadow: 0 7px 8px -4px rgba(0, 0, 0, 0.2), 0 12px 17px 2px rgba(0, 0, 0, 0.14), 0 5px 22px 4px rgba(0, 0, 0, 0.12) !important;
+    }
+  }
 }

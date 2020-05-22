@@ -8,22 +8,27 @@
 </ion-header>
 <ion-content fullscreen>
     <ion-list *ngIf="group" class="theme--list" lines="none">
+        <ion-item class="theme--item" lines="none" *ngIf="error">
+            <div *ngIf="error">
+                <div class="error" *ngIf="error">
+                    You need a group name.
+                </div>
+            </div>
+        </ion-item>
         <ion-item class="theme--item" lines="none">
             <ion-icon slot="start"></ion-icon>
             <h3>
-                <ion-input [(ngModel)]="group.name" placeholder="Add group name" [disabled]="!(memberStatus == 'Admin')">
+                <ion-input (ionChange)="nameChange()" [(ngModel)]="group.name" placeholder="Add group name"
+                    [disabled]="!(memberStatus == 'Admin')">
                 </ion-input>
             </h3>
         </ion-item>
         <ion-item class="theme--item" lines="none">
             <ion-icon slot="start" name="people-outline"></ion-icon>
-            <ion-input [(ngModel)]="queryText" (keyup.enter)="manualSearch()"
-                placeholder="Add members" [color]="error ? 'danger' : ''" [disabled]="!(memberStatus == 'Admin')">
-            </ion-input>
+            <ion-label>Select members</ion-label>
         </ion-item>
-        <ion-list class="member-list theme--list" inset="true" lines="none">
-            <ion-item *ngFor="let m of (filterMembers$ | async); let i = index" lines="none" button color="light"
-                class="theme--item" detail="false">
+        <ion-list class="form theme--list" lines="none" inset="true">
+            <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item" detail="false">
                 <ion-avatar slot="start">
                     <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                     <ng-template #elseMemberAvatar>
@@ -34,62 +39,27 @@
                     <h3>{{ m.profile.displayName }}</h3>
                     <p>{{ m.profile.email }}</p>
                 </ion-label>
-                <ion-button slot="end" fill="clear" (click)="addMember(m)" *ngIf="!m.isChecked; else checked">
-                    <ion-icon color="primary" slot="icon-only" name="add-circle-outline">
-                    </ion-icon>
-                </ion-button>
-                <ng-template #checked>
-                    <ion-button slot="end" fill="clear">
-                        <ion-icon slot="icon-only" name="checkmark-circle-outline">
-                        </ion-icon>
-                    </ion-button>
-                </ng-template>
+                <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange(m)" [disabled]="m.uid === (profile$ | async)?.uid || !(memberStatus == 'Admin')"></ion-checkbox>
             </ion-item>
         </ion-list>
-        <ion-list *ngIf="(memberStatus == 'Admin')" class="member-list theme--list" inset="true" lines="none">
-            <ion-item *ngFor="let m of group.members; let i = index" lines="none" button class="theme--item"
-                detail="false">
-                <ion-avatar slot="start">
-                    <img *ngIf="(m.profile | async)?.url; else elseMemberAvatar" src="{{ (m.profile | async)?.url }}">
-                    <ng-template #elseMemberAvatar>
-                        <ngx-avatar name="{{ (m.profile | async)?.displayName }}" size="40"></ngx-avatar>
-                    </ng-template>
-                </ion-avatar>
-                <ion-label>
-                    <h3>{{ (m.profile | async)?.displayName }}</h3>
-                    <p>{{ (m.profile | async)?.email }}</p>
-                </ion-label>
-                <ion-button slot="end" fill="clear" *ngIf="m.uid !== (profile$ | async)?.uid; else elseIcon"
-                    (click)="removeMember(m)">
-                    <ion-icon color="medium" slot="icon-only" name="close-circle-outline">
-                    </ion-icon>
-                </ion-button>
-                <ng-template #elseIcon>
-                    <ion-button slot="end" fill="clear">
-                        <ion-icon color="medium" slot="icon-only" name="lock-closed-outline">
-                        </ion-icon>
-                    </ion-button>
-                </ng-template>
+        <ion-list *ngIf="!(memberStatus == 'Admin')" class="theme--list" inset="true" lines="none">
+            <ion-item detail="false" class="theme--item" lines="none">
+                <ion-row class="member--row" slot="start">
+                    <ion-avatar class="dialog--member">
+                        <img src="../../../../assets/img/otter_head.svg">
+                    </ion-avatar>
+                    <ion-col class="member--col" size="auto">
+                        <ion-row></ion-row>
+                        <ion-card color="light" class="dialog message--card message--member">
+                            <ion-card-content>
+                                <ion-label text-wrap>Ask the group creator or admin to make any necessary changes!
+                                </ion-label>
+                            </ion-card-content>
+                        </ion-card>
+                        <ion-row></ion-row>
+                    </ion-col>
+                </ion-row>
             </ion-item>
-            <ion-list *ngIf="!(memberStatus == 'Admin')" class="theme--list" inset="true" lines="none">
-                <ion-item detail="false" class="theme--item" lines="none">
-                    <ion-row class="member--row" slot="start">
-                        <ion-avatar class="dialog--member">
-                            <img src="../../../../assets/img/otter_head.svg">
-                        </ion-avatar>
-                        <ion-col class="member--col" size="auto">
-                            <ion-row></ion-row>
-                            <ion-card color="light" class="dialog message--card message--member">
-                                <ion-card-content>
-                                    <ion-label text-wrap>Ask the group creator or admin to make any necessary changes!
-                                    </ion-label>
-                                </ion-card-content>
-                            </ion-card>
-                            <ion-row></ion-row>
-                        </ion-col>
-                    </ion-row>
-                </ion-item>
-            </ion-list>
         </ion-list>
     </ion-list>
 </ion-content>
@@ -97,7 +67,8 @@
 <ion-footer [translucent]="true">
     <ion-toolbar>
         <ion-row class="ion-justify-content-between">
-            <ion-button fill="clear" color="danger" (click)="removeGroup()" [disabled]="!(memberStatus == 'Admin')">Delete</ion-button>
+            <ion-button fill="clear" color="danger" (click)="removeGroup()" [disabled]="!(memberStatus == 'Admin')">
+                Delete</ion-button>
             <ion-button fill="clear" (click)="updateGroup()" [disabled]="!(memberStatus == 'Admin')">Save</ion-button>
         </ion-row>
     </ion-toolbar>

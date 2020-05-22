@@ -8,18 +8,25 @@
 </ion-header>
 <ion-content fullscreen>
     <ion-list class="theme--list" lines="none">
+        <ion-item class="theme--item" lines="none" *ngIf="error">
+            <div *ngIf="error">
+                <div class="error" *ngIf="error">
+                    You need a group name.
+                </div>
+            </div>
+        </ion-item>
         <ion-item class="theme--item" lines="none">
             <ion-icon slot="start"></ion-icon>
-            <h3>
-                <ion-input [(ngModel)]="newGroup.name" placeholder="Add group name"></ion-input>
+            <h3 class="full-width">
+                <ion-input (ionChange)="nameChange()" class="form" [(ngModel)]="newGroup.name" placeholder="Add group name"></ion-input>
             </h3>
         </ion-item>
         <ion-item class="theme--item" lines="none">
             <ion-icon slot="start" name="people-outline"></ion-icon>
-            <ion-input [(ngModel)]="queryText" (keyup.enter)="manualSearch()" placeholder="Add members" [color]="error ? 'danger' : ''"></ion-input>
+            <ion-label>Select members</ion-label>
         </ion-item>
-        <ion-list class="member-list theme--list" inset="true" lines="none">
-            <ion-item *ngFor="let m of (filterMembers$ | async); let i = index" lines="none" button color="light" class="theme--item" detail="false">
+        <ion-list class="form theme--list" lines="none" inset="true">
+            <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item" detail="false">
                 <ion-avatar slot="start">
                     <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
                     <ng-template #elseMemberAvatar>
@@ -30,51 +37,7 @@
                     <h3>{{ m.profile.displayName }}</h3>
                     <p>{{ m.profile.email }}</p>
                 </ion-label>
-                <ion-button slot="end" fill="clear" (click)="addMember(m)" *ngIf="!m.isChecked; else checked">
-                    <ion-icon
-                        color="primary"
-                        slot="icon-only"
-                        name="add-circle-outline">
-                    </ion-icon>
-                </ion-button>
-                <ng-template #checked>
-                    <ion-button slot="end" fill="clear">
-                        <ion-icon
-                            slot="icon-only"
-                            name="checkmark-circle-outline">
-                        </ion-icon>
-                    </ion-button>
-                </ng-template>
-            </ion-item>
-        </ion-list>
-        <ion-list class="member-list theme--list" inset="true" lines="none">
-            <ion-item *ngFor="let m of newGroup.members; let i = index" lines="none" button class="theme--item" detail="false">
-                <ion-avatar slot="start">
-                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
-                    <ng-template #elseMemberAvatar>
-                        <ngx-avatar name="{{ m.profile.displayName }}" size="40"></ngx-avatar>
-                    </ng-template>
-                </ion-avatar>
-                <ion-label>
-                    <h3>{{ m.profile.displayName }}</h3>
-                    <p>{{ m.profile.email }}</p>
-                </ion-label>
-                <ion-button slot="end" fill="clear" *ngIf="m.uid !== (profile$ | async)?.uid; else elseIcon" (click)="removeMember(m)">
-                    <ion-icon
-                        color="medium"
-                        slot="icon-only"
-                        name="close-circle-outline">
-                    </ion-icon>
-                </ion-button>
-                <ng-template #elseIcon>
-                    <ion-button slot="end" fill="clear">
-                        <ion-icon
-                            color="medium" 
-                            slot="icon-only"
-                            name="lock-closed-outline">
-                        </ion-icon>
-                    </ion-button>
-                </ng-template>
+                <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange(m)" [disabled]="m.uid === (profile$ | async)?.uid"></ion-checkbox>
             </ion-item>
         </ion-list>
     </ion-list>

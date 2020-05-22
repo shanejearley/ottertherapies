@@ -1,0 +1,58 @@
+<div class="auth--div">
+    <ion-card class="auth--card">
+        <img class="auth--logo" [src]="!dark ? '../assets/img/otter_logo.svg' : '../assets/img/otter_logo_dark.svg'" width="125px">
+        <ion-card-content>
+            <h1>Reset Password</h1>
+            <ion-grid *ngIf="!ios && !android">
+                <ion-row class="ion-justify-content-center">
+                    <ion-col class="ion-justify-content-center" size="12">
+                        <ion-icon class="large-icon" name="mail-unread-outline"></ion-icon>
+                    </ion-col>
+                    <ion-col class="ion-justify-content-center" size="auto" *ngIf="!success">
+                        Submit your account email
+                    </ion-col>
+                    <ion-col class="ion-justify-content-center" size="auto" *ngIf="!success">
+                        We'll send you a reset link
+                    </ion-col>
+                    <ion-col class="ion-justify-content-center" size="auto" *ngIf="success">
+                        We sent your email a reset link
+                    </ion-col>
+                    <ion-col class="ion-justify-content-center" size="auto" *ngIf="success">
+                        (If you don't see it, check spam)
+                    </ion-col>
+                    <ion-col class="ion-justify-content-center" size="auto" *ngIf="success">
+                        (Or try submitting another email)
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+            <ion-grid *ngIf="ios || android">
+                <ion-row class="ion-justify-content-center">
+                    <ion-col class="ion-justify-content-center" size="12">
+                        <ion-icon class="large-icon" name="desktop-outline"></ion-icon>
+                    </ion-col>
+                    <ion-col class="ion-justify-content-center" size="auto">
+                        Reset not yet available on mobile
+                    </ion-col>
+                    <ion-col class="ion-justify-content-center" size="auto">
+                        Open a desktop browser and retry
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+            <ion-item *ngIf="ios || android" class="theme--item" lines="none"></ion-item>
+            <ion-label class="auth--label" *ngIf="!ios && !android">
+                <ion-input class="auth--input" type="email" placeholder="Email address"
+                    [(ngModel)]="email"></ion-input>
+            </ion-label>
+            <div class="error" *ngIf="error && !ios && !android">
+                {{ error }}
+            </div>
+            <div class="auth--card__action" *ngIf="!ios && !android">
+                <ion-button expand="block" (click)="sendResetEmail()">Send Email</ion-button>
+            </div>
+            <div class="auth--card__toggle">
+                <a [routerLink]="['/auth/login']" routerDirection="backwards">Back to login page</a>
+            </div>
+        </ion-card-content>
+    </ion-card>
+    <a (click)="showPrivacy()" button>Privacy & Terms</a>
+</div>
