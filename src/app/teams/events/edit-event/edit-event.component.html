@@ -69,7 +69,7 @@
                     </ion-col>
                     <ion-col class="date--col" size="12">
                         <ion-select class="form" [(ngModel)]="event.recurrence"
-                            [selectedText]="event.recurrence === 'once' ? 'Does not repeat' : event.recurrence === 'weekdays' ? 'Recurring on ' + event.recurrence : 'Recurring ' + event.recurrence"
+                            [selectedText]="event.recurrence === 'once' ? 'Does not repeat' : event.recurrence === 'monthly' ? 'Recurring monthly on the ' + nthWeekday : event.recurrence === 'monthly-last' ? 'Recurring monthly on the last ' + dayString : event.recurrence === 'weekly' ? 'Recurring weekly on ' + dayString : event.recurrence === 'weekdays' ? 'Recurring on weekdays' : event.recurrence === 'annually' ? 'Recurring annually on ' + dayFormat : 'Recurring ' + event.recurrence"
                             interface="popover" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
                             <div *ngFor="let r of recurrences">
                                 <ion-select-option [value]="r" *ngIf="r !== 'monthly-last' || r === 'monthly-last' && lastDay">

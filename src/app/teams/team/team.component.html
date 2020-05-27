@@ -45,7 +45,10 @@
               <ion-item lines="none" class="theme--item">
                 <ion-label>
                   <h2>
-                    <strong>{{ m.profile.displayName }}</strong>
+                    <strong>
+                      {{ m.profile.displayName }}
+                    </strong>
+                    <app-user-presence [uid]="m.uid"></app-user-presence>
                   </h2>
                   <p>{{ m.status == 'Admin' ? 'Admin' : 'Member' }}</p>
                 </ion-label>

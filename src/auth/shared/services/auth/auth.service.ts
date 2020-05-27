@@ -5,11 +5,12 @@ import { Store } from 'src/store';
 
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, shareReplay } from 'rxjs/operators';
 
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import * as firebase from 'firebase/app'
+import { AngularFireFunctions } from '@angular/fire/functions';
 
 export interface User {
   email: string,
@@ -57,7 +58,8 @@ export class AuthService {
     private store: Store,
     private af: AngularFireAuth,
     private db: AngularFirestore,
-    private router: Router
+    private router: Router,
+    private fns: AngularFireFunctions
   ) { }
 
   get afService() {
@@ -97,7 +99,7 @@ export class AuthService {
       const idTokenResult = await this.user.getIdTokenResult(true)
       console.log(idTokenResult);
       return idTokenResult;
-    } catch(err) {
+    } catch (err) {
       return console.log(err.message);
     }
 
@@ -139,24 +141,50 @@ export class AuthService {
     }
   }
 
+  authorizeGoogle() {
+    return this.fns.httpsCallable('getAuthURL')({ text: 'Get Popup Url' })
+      .pipe(
+        tap(next => {
+          if (!next) {
+            return;
+          }
+          return next;
+        }),
+        shareReplay(1)
+      )
+  }
+
+  saveGoogle(code: string) {
+    return this.fns.httpsCallable('createAndSaveTokens')({ code: code })
+      .pipe(
+        tap(next => {
+          if (!next) {
+            return;
+          }
+          return next;
+        }),
+        shareReplay(1)
+      )
+  }
+
   async linkGoogleAccount() {
-    const profileDoc = this.db.doc(`users/${this.user.uid}`);
-    let provider = new firebase.auth.GoogleAuthProvider();
-    provider.addScope('https://www.googleapis.com/auth/calendar');
-  
-    this.af.auth.currentUser.linkWithPopup(provider).then((result) => {
-      // Accounts successfully linked.
-      var credential = result.credential;
-      var user = result.user;
-      console.log(credential, user);
-      profileDoc.set({ gcalSync: true }, {merge: true})
-      
-      // ...
-    }).catch(function(error) {
-      console.log(error.message);
-      // Handle Errors here.
-      // ...
-    });
+    // const profileDoc = this.db.doc(`users/${this.user.uid}`);
+    // let provider = new firebase.auth.GoogleAuthProvider();
+    // provider.addScope('https://www.googleapis.com/auth/calendar');
+
+    // this.af.auth.currentUser.linkWithPopup(provider).then((result) => {
+    //   // Accounts successfully linked.
+    //   var credential = result.credential;
+    //   var user = result.user;
+    //   console.log(credential, user);
+    //   profileDoc.set({ gcalSync: true }, { merge: true })
+
+    //   // ...
+    // }).catch(function (error) {
+    //   console.log(error.message);
+    //   // Handle Errors here.
+    //   // ...
+    // });
   }
 
   async unlinkGoogleAccount() {
@@ -174,7 +202,7 @@ export class AuthService {
   async linkIosGoogleAccount() {
     // let provider = new firebase.auth.GoogleAuthProvider();
     // provider.addScope('https://www.googleapis.com/auth/calendar');
-  
+
     // this.af.auth.currentUser.linkWithPopup(provider).then((result) => {
     //   // Accounts successfully linked.
     //   var credential = result.credential;

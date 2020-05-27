@@ -117,7 +117,12 @@
                 </ng-template>
               </ion-thumbnail>
               <ion-label>
-                <h2><strong>{{ m.profile.displayName }}</strong></h2>
+                <h2>
+                  <strong>
+                    {{ m.profile.displayName }}
+                  </strong>
+                  <app-user-presence [uid]="m.uid"></app-user-presence>
+                </h2>
                 <h3>2 Members, {{ m.files.length > 1 ? m.files.length + ' Files' : m.files.length + ' File' }}</h3>
               </ion-label>
               <ion-tab-button *ngIf="m.unread && m.unread.unreadFiles > 0" slot="end" class="notification--button">
@@ -177,7 +182,12 @@
                 </ng-template>
               </ion-thumbnail>
               <ion-label>
-                <h2><strong>{{ m.profile.displayName }}</strong></h2>
+                <h2>
+                  <strong>
+                    {{ m.profile.displayName }}
+                  </strong>
+                  <app-user-presence [uid]="m.uid"></app-user-presence>
+                </h2>
                 <h3>1 Member, {{ m.files.length > 1 ? m.files.length + ' Files' : m.files.length + ' File' }}</h3>
               </ion-label>
             </ion-item>

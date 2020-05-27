@@ -1,10 +1,13 @@
 <div class="auth--div">
     <ion-card class="auth--card">
         <img class="auth--logo" [src]="!dark ? '../assets/img/otter_logo.svg' : '../assets/img/otter_logo_dark.svg'" width="125px">
-        <ion-card-content *ngIf="actionCode; else elseError">
+        <ion-card-content *ngIf="actionCode; else authCode">
             <h1>{{ mode === 'resetPassword' ? 'Reset Password' : 'Email Verified!' }}</h1>
             <ion-grid *ngIf="mode === 'resetPassword'; else elseClose">
                 <ion-row class="ion-justify-content-center">
+                    <ion-col class="ion-justify-content-center" size="12">
+                        <ion-icon class="large-icon" name="lock-closed-outline"></ion-icon>
+                    </ion-col>
                     <ion-col class="ion-justify-content-center" size="auto">
                         Enter a new password to sign in
                     </ion-col>
@@ -13,6 +16,9 @@
             <ng-template #elseClose>
                 <ion-grid>
                     <ion-row class="ion-justify-content-center">
+                        <ion-col class="ion-justify-content-center" size="12">
+                            <ion-icon class="large-icon" name="mail-outline"></ion-icon>
+                        </ion-col>
                         <ion-col class="ion-justify-content-center" size="auto">
                             You can close this page.
                         </ion-col>
@@ -37,10 +43,25 @@
                 <a [routerLink]="['/auth/login']" routerDirection="backwards">Nevermind, I remembered</a>
             </div>
         </ion-card-content>
-        <ng-template #elseError>
-            <ion-card-content>
-                <h1>Error! Try Again</h1>
+        <ng-template #authCode>
+            <ion-card-content *ngIf="code; else elseError">
+                <h1>Account Verified</h1>
+                <ion-grid>
+                    <ion-row class="ion-justify-content-center">
+                        <ion-col class="ion-justify-content-center" size="12">
+                            <ion-icon class="large-icon" name="logo-google"></ion-icon>
+                        </ion-col>
+                        <ion-col class="ion-justify-content-center" size="auto">
+                            You can close this page.
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
             </ion-card-content>
+            <ng-template #elseError>
+                <ion-card-content>
+                    <h1>Error! Try Again</h1>
+                </ion-card-content>
+            </ng-template>
         </ng-template>
     </ion-card>
     <a (click)="showPrivacy()" button>Privacy & Terms</a>

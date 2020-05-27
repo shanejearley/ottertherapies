@@ -1,11 +1,14 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { Plugins } from '@capacitor/core';
+const { Browser } = Plugins;
+
 import { HostListener } from '@angular/core';
 
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap, takeUntil } from 'rxjs/operators'
+import { switchMap, tap, takeUntil, filter } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
@@ -148,21 +151,29 @@ export class ProfileComponent implements OnInit, AfterViewInit {
 
   onToggle(ev) {
     console.log(ev);
-    if (this.profile.gcalSync) {
+    if (this.currentProfile.gcalSync) {
       console.log('turn on');
-      if (!this.ios) {
-        this.authService.linkGoogleAccount();
-      } else if (this.ios) {
-        this.authService.linkIosGoogleAccount();
+      if (!this.currentProfile.refresh_token) {
+        this.authService.authorizeGoogle()
+        .pipe(
+          takeUntil(this.onDestroy),
+          filter(Boolean),
+          tap((redirectUrl: any) => {
+            return this.signIntoGoogle(redirectUrl.url);
+          })
+        ).subscribe();
+      } else {
+        this.profileService.turnSyncOn();
       }
-    } else if (!this.profile.gcalSync) {
-      if (!this.ios) {
-        this.authService.unlinkGoogleAccount();
-      } else if (this.ios) {
-        this.authService.unlinkIosGoogleAccount();
-      }
-      console.log('turn off')
+
+    } else if (!this.currentProfile.gcalSync) {
+      console.log('turn off');
+      this.profileService.turnSyncOn();
     }
+  }
+
+  async signIntoGoogle(redirectUrl) {
+    await Browser.open({ url: redirectUrl });
   }
 
   async editProfileModal(firstTime: boolean) {

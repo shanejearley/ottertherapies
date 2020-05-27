@@ -11,7 +11,7 @@ import { EnlargeThumbnailComponent } from 'src/app/shared/components/enlarge-thu
 import { PopoverController } from '@ionic/angular';
 
 @Component({
-    selector: 'upload-task',
+    selector: 'app-upload-task',
     templateUrl: './upload-task.component.html',
     styleUrls: ['./upload-task.component.scss']
 })

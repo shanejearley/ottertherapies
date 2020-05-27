@@ -10,10 +10,233 @@ const getUrls = require('get-urls');
 const fetch = require('node-fetch');
 
 admin.initializeApp();
+
+const { google } = require('googleapis');
+
 const firestore = admin.firestore();
 const storage = admin.storage();
 const bucket = storage.bucket();
 const FieldValue = admin.firestore.FieldValue;
+
+const oauth2Client = new google.auth.OAuth2(
+    `${functions.config().googleapis.client_id}`,
+    `${functions.config().googleapis.client_secret}`,
+    `${functions.config().googleapis.redirect_uri}`
+);
+
+const addEvent = async (uid, event) => {
+
+    const tokens = (await admin.firestore().doc(`tokens/${uid}`).get()).data();
+    oauth2Client.setCredentials(tokens)
+
+    const calendar = google.calendar({
+        version: 'v3',
+        auth: oauth2Client
+    });
+
+    const selectDays = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
+    const weekday = selectDays[event.startTime.toDate().getDay()];
+    const weekNumber = event.recurrence === 'monthly-last' ? -1 : Math.ceil(event.startTime.toDate().getDate() / 7);
+
+    console.log(event.recurrence);
+
+    const frequency = event.recurrence === 'daily' ? "RRULE:FREQ=DAILY;" : event.recurrence === 'weekly' ? `RRULE:FREQ=WEEKLY;BYDAY=${weekday};` : event.recurrence === 'monthly' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'monthly-last' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'annually' ? "RRULE:FREQ=YEARLY;" : event.recurrence === 'weekdays' ? "RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR;" : null;
+
+    console.log([ frequency ])
+
+    const otterMessage = "***Modify this event and manage guests in the Otter app!";
+
+    const modifiedId = event.id.replace(/[^a-v0-9\s]/ig, '').toLowerCase();
+    console.log(modifiedId);
+
+    console.log(event.startTime.toDate());
+
+    try {
+        return calendar.events.insert({
+            calendarId: 'primary',
+            resource: { 
+                summary: event.name,
+                location: event.location,
+                description: event.info ? event.info + '\n\n' + otterMessage.bold().italics() : otterMessage.bold().italics(),
+                start: {
+                    dateTime: event.startTime.toDate(),
+                    timeZone: "Zulu"
+                },
+                end: {
+                    dateTime: event.endTime.toDate(),
+                    timeZone: "Zulu"
+                },
+                recurrence: [ frequency ],
+                reminders: {
+                    useDefault: true
+                },
+                organizer: {
+                    displayName: 'Otter Therapies'
+                },
+                id: modifiedId
+            }
+        })
+    } catch (err) {
+        return console.log(err.message);
+    }
+
+}
+
+const modifyEvent = async (uid, event) => {
+
+    const tokens = (await admin.firestore().doc(`tokens/${uid}`).get()).data();
+    oauth2Client.setCredentials(tokens)
+
+    const calendar = google.calendar({
+        version: 'v3',
+        auth: oauth2Client
+    });
+
+    const selectDays = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
+    const weekday = selectDays[event.startTime.toDate().getDay()];
+    const weekNumber = event.recurrence === 'monthly-last' ? -1 : Math.ceil(event.startTime.toDate().getDate() / 7);
+
+    console.log(event.recurrence);
+
+    const frequency = event.recurrence === 'daily' ? "RRULE:FREQ=DAILY;" : event.recurrence === 'weekly' ? `RRULE:FREQ=WEEKLY;BYDAY=${weekday};` : event.recurrence === 'monthly' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'monthly-last' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'annually' ? "RRULE:FREQ=YEARLY;" : event.recurrence === 'weekdays' ? "RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR;" : null;
+
+    console.log([ frequency ])
+
+    const otterMessage = "***Modify this event and manage guests in the Otter app!";
+
+    const modifiedId = event.id.replace(/[^a-v0-9\s]/ig, '').toLowerCase();
+    console.log(modifiedId);
+
+    try {
+        return calendar.events.patch({
+            calendarId: 'primary',
+            eventId: modifiedId,
+            resource: { 
+                summary: event.name,
+                location: event.location,
+                description: event.info ? event.info + '\n\n' + otterMessage.bold().italics() : otterMessage.bold().italics(),
+                start: {
+                    dateTime: event.startTime.toDate(),
+                    timeZone: "Zulu"
+                },
+                end: {
+                    dateTime: event.endTime.toDate(),
+                    timeZone: "Zulu"
+                },
+                recurrence: [ frequency ],
+                reminders: {
+                    useDefault: true
+                },
+                organizer: {
+                    displayName: 'Otter Therapies'
+                },
+                id: modifiedId
+            }
+        })
+    } catch (err) {
+        return console.log(err.message);
+    }
+}
+
+const removeEvent = async (uid, event) => {
+
+    const tokens = (await admin.firestore().doc(`tokens/${uid}`).get()).data();
+    oauth2Client.setCredentials(tokens)
+
+    const calendar = google.calendar({
+        version: 'v3',
+        auth: oauth2Client
+    });
+
+    const modifiedId = event.id.replace(/[^a-v0-9\s]/ig, '').toLowerCase();
+    console.log(modifiedId);
+
+    try {
+        return calendar.events.delete({
+            calendarId: 'primary',
+            eventId: modifiedId
+        })
+    } catch (err) {
+        return console.log(err.message);
+    }
+
+}
+
+exports.getAuthURL = functions.https.onCall(async (data, context) => {
+    const text = data.text;
+    if (!(typeof text === 'string') || text.length === 0) {
+        // Throwing an HttpsError so that the client gets the error details.
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            'one arguments "text" containing the message text to add.');
+    }
+    // Checking that the user is authenticated.
+    if (!context.auth) {
+        // Throwing an HttpsError so that the client gets the error details.
+        throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' +
+            'while authenticated.');
+    }
+
+    console.log(data);
+    console.log(context);
+
+    const scopes = [
+        'profile',
+        'email',
+        'https://www.googleapis.com/auth/calendar' // <-- sensitive scope
+    ];
+
+    try {
+
+        const url = await oauth2Client.generateAuthUrl({
+            access_type: 'offline',
+            scope: scopes
+        });
+
+        console.log(url);
+
+        return { url }
+
+    } catch (err) {
+
+        console.log(err.message);
+
+        throw new functions.https.HttpsError('invalid-response', 'The function must return a valid url');
+
+    }
+
+});
+
+exports.createAndSaveTokens = functions.https.onCall(async (data, context) => {
+    const code = data.code;
+    if (!(typeof code === 'string') || code.length === 0) {
+        // Throwing an HttpsError so that the client gets the error details.
+        throw new functions.https.HttpsError('invalid-argument', 'The function must be called with ' +
+            'one arguments "code" containing the code to add.');
+    }
+
+    // Checking that the user is authenticated.
+    if (!context.auth) {
+        // Throwing an HttpsError so that the client gets the error details.
+        throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' +
+            'while authenticated.');
+    }
+    console.log(context.auth);
+    console.log(data);
+    try {
+        const { tokens } = await oauth2Client.getToken(code);
+        console.log('tokens', tokens)
+        const { refresh_token, access_token } = tokens;
+
+
+        // Save to database
+        await admin.firestore().doc(`tokens/${context.auth.uid}`).set({ refresh_token })
+        await admin.firestore().doc(`users/${context.auth.uid}`).set({ refresh_token: true }, { merge: true })
+        return { response: 'success' }
+    } catch (err) {
+        console.log(err.message);
+        return { response: 'fail' }
+    }
+});
 
 const scrapeMetatags = (text) => {
 
@@ -291,7 +514,7 @@ exports.groupOnRemove = functions.firestore
         var messages = messagesSnapshot.docs.map(doc => doc.id);
         await messages.forEach(async messageId => {
             return firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('messages').doc(messageId).delete();
-        }) 
+        })
 
         const membersSnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('members').get();
         var members = membersSnapshot.docs.map(doc => doc.data());
@@ -303,21 +526,93 @@ exports.groupOnRemove = functions.firestore
         })
     })
 
-exports.eventOnRemove = functions.firestore
+exports.eventOnCreate = functions.firestore
     .document('teams/{teamId}/calendar/{eventId}')
-    .onDelete(async (snapshot, context) => {
-        console.log("snapshot", snapshot);
+    .onCreate(async (snap, context) => {
+
+        console.log("snap", snap);
         console.log("context", context);
+        const teamId = context.params.teamId;
+        const eventId = context.params.eventId;
+        let event = snap.data();
+        const membersSnapshot = await firestore.collection("teams").doc(teamId).collection("calendar").doc(eventId).collection("members").get();
+        const members = membersSnapshot.docs.map(doc => doc.data());
 
-        console.log("teamId", context.params.teamId);
-        var teamId = context.params.teamId;
-        console.log("eventId", context.params.eventId);
-        var eventId = context.params.eventId;
+        return members.forEach(async m => {
+            const profileDoc = await firestore.collection("users").doc(m.uid).get();
+            const profile = profileDoc.data();
+            if (profile.gcalSync) {
+                return addEvent(profile.uid, event);
+            } else {
+                return console.log('member is not syncing events');
+            }
+        })
+    })
 
-        const membersSnapshot = await firestore.collection('teams').doc(teamId).collection('calendar').doc(eventId).collection('members').get();
-        var members = membersSnapshot.docs.map(doc => doc.data());
-        return members.forEach(async member => {
-            return firestore.collection("teams").doc(teamId).collection("calendar").doc(eventId).collection("members").doc(member.uid).delete();
+exports.eventOnUpdate = functions.firestore
+    .document('teams/{teamId}/calendar/{eventId}')
+    .onUpdate(async (change, context) => {
+
+        console.log("change", change);
+        console.log("context", context);
+        const teamId = context.params.teamId;
+        const eventId = context.params.eventId;
+        let oldEvent = change.before.data();
+        let event = change.after.data();
+        const membersSnapshot = await firestore.collection("teams").doc(teamId).collection("calendar").doc(eventId).collection("members").get();
+        const members = membersSnapshot.docs.map(doc => doc.data());
+
+        return members.forEach(async m => {
+            const profileDoc = await firestore.collection("users").doc(m.uid).get();
+            const profile = profileDoc.data();
+            if (profile.gcalSync) {
+                if (oldEvent) {
+                    try {
+                        return modifyEvent(profile.uid, event);
+                    } catch (err) {
+                        console.log(err.message);
+                        try {
+                            await removeEvent(profile.uid, event);
+                            return addEvent(profile.uid, event);
+                        } catch (err) {
+                            return console.log(err.message);
+                        }
+                    }
+                } else {
+                    return addEvent(profile.uid, event);
+                }
+            } else {
+                return console.log('member is not syncing events');
+            }
+        })
+    })
+
+exports.eventOnDelete = functions.firestore
+    .document('teams/{teamId}/calendar/{eventId}')
+    .onDelete(async (snap, context) => {
+
+        console.log("snap", snap);
+        console.log("context", context);
+        const teamId = context.params.teamId;
+        const eventId = context.params.eventId;
+        let event = snap.data();
+        const membersSnapshot = await firestore.collection("teams").doc(teamId).collection("calendar").doc(eventId).collection("members").get();
+        const members = membersSnapshot.docs.map(doc => doc.data());
+
+        return members.forEach(async m => {
+            await firestore.collection("teams").doc(teamId).collection("calendar").doc(eventId).collection("members").doc(m.uid).delete();
+            await firestore.collection("users").doc(m.uid).collection("teams").doc(teamId).collection("unread").doc(eventId).delete();
+            const profileDoc = await firestore.collection("users").doc(m.uid).get();
+            const profile = profileDoc.data();
+            if (profile.gcalSync) {
+                try {
+                    return removeEvent(profile.uid, event);
+                } catch (err) {
+                    return console.log(err.message);
+                }
+            } else {
+                return console.log('member is not syncing events');
+            }
         })
     })
 
@@ -337,14 +632,6 @@ exports.noteOnRemove = functions.firestore
         return members.forEach(async member => {
             return firestore.collection("users").doc(member.uid).collection("teams").doc(teamId).collection("unread").doc(noteId).delete();
         })
-    })
-
-exports.eventOnWrite = functions.firestore
-    .document('teams/{teamId}/calendar/{eventId}')
-    .onWrite(async (snapshot, context) => {
-        console.log("snapshot", snapshot);
-        console.log("context", context);
-        return;
     })
 
 exports.pendingOnCreate = functions.firestore

@@ -113,47 +113,40 @@ export class EventsService {
         this.recurringEvents$ = null;
         this.uid = userId;
         this.teamId = teamId;
-        const dailyEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'daily')).snapshotChanges()
-        const weeklyEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'weekly')).snapshotChanges()
-        const monthlyEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'monthly')).snapshotChanges()
-        const monthlyLastEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'monthly-last')).snapshotChanges()
-        const annuallyEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'annually')).snapshotChanges()
-        const weekdaysEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'weekdays')).snapshotChanges()
-        this.recurringEvents$ = combineLatest<any[]>(dailyEventsCol, weeklyEventsCol, monthlyEventsCol, monthlyLastEventsCol, annuallyEventsCol, weekdaysEventsCol)
+        const recurringEventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', 'in', ['daily', 'weekly', 'monthly', 'monthly-last', 'annually', 'weekdays']).orderBy('startTime').startAt(this.lastMonthStart).endAt(this.nextMonthEnd));
+        this.recurringEvents$ = recurringEventsCol.stateChanges(['added', 'modified', 'removed'])
             .pipe(
-                map(actionsList => actionsList.map((actions) => {
-                    actions.map((a) => {
-                        console.log('ACTION', a);
-                        if (a.type == 'removed') {
-                            const event = a.payload.doc.data() as Event;
-                            event.id = a.payload.doc.id;
-                            try {
-                                const removeEv = this.recurringEvents.find((e: Event) => e.id === event.id);
-                                const index = this.recurringEvents.indexOf(removeEv);
-                                this.recurringEvents.splice(index, 1);
-                                return this.recurringEvents;
-                            } catch (err) {
-                                console.log(err);
-                            }
-                        }
-                        if (a.type == 'added' || a.type == 'modified') {
-                            const event = a.payload.doc.data() as Event;
-                            event.id = a.payload.doc.id;
-                            const exists = this.recurringEvents.find(e => e.id === event.id)
-                            if (event.startTime && !exists) {
-                                this.getMembers(event);
-                                this.recurringEvents.push(event);
-                            } else if (event.startTime && exists) {
-                                let eventIndex = this.recurringEvents.findIndex(e => e.id == event.id);
-                                event.members = this.recurringEvents[eventIndex].members;
-                                this.recurringEvents[eventIndex] = event;
-                            }
-                        } else {
-                            console.log('Else Case Recurring Event');
+                map(actions => actions.map(a => {
+                    console.log('ACTION', a);
+                    if (a.type == 'removed') {
+                        const event = a.payload.doc.data() as Event;
+                        event.id = a.payload.doc.id;
+                        try {
+                            const removeEv = this.recurringEvents.find((e: Event) => e.id === event.id);
+                            const index = this.recurringEvents.indexOf(removeEv);
+                            this.recurringEvents.splice(index, 1);
                             return this.recurringEvents;
+                        } catch (err) {
+                            console.log(err);
                         }
-                        return this.store.set('recurringEvents', this.recurringEvents)
-                    })
+                    }
+                    if (a.type == 'added' || a.type == 'modified') {
+                        const event = a.payload.doc.data() as Event;
+                        event.id = a.payload.doc.id;
+                        const exists = this.recurringEvents.find(e => e.id === event.id)
+                        if (event.startTime && !exists) {
+                            this.getMembers(event);
+                            this.recurringEvents.push(event);
+                        } else if (event.startTime && exists) {
+                            let eventIndex = this.recurringEvents.findIndex(e => e.id == event.id);
+                            event.members = this.recurringEvents[eventIndex].members;
+                            this.recurringEvents[eventIndex] = event;
+                        }
+                    } else {
+                        console.log('Else Case Recurring Event');
+                        return this.recurringEvents;
+                    }
+                    return this.store.set('recurringEvents', this.recurringEvents)
                 })),
                 shareReplay(1))
         return this.recurringEvents$;
@@ -198,27 +191,15 @@ export class EventsService {
                 map((event: Event[]) => event.find((event: Event) => event.id === id)));
     }
 
-    async removeRecurring(eventId: string) {
-        try {
-            const removeEv = this.recurringEvents.find((e: Event) => e.id === eventId);
-            const index = this.recurringEvents.indexOf(removeEv);
-            this.recurringEvents.splice(index, 1);
-            return this.recurringEvents;
-        } catch (err) {
-            return console.log(err);
-        }
-    }
-
     async removeEvent(eventId: string) {
         const eventDoc = this.db.doc<Event>(`teams/${this.teamId}/calendar/${eventId}`);
-        await eventDoc.delete();
-        return this.removeRecurring(eventId);
+        return eventDoc.delete();
     }
 
-    addEvent(event) {
+    async addEvent(eventId, event) {
         const newEvent = {
             createdBy: this.uid,
-            id: null,
+            id: eventId,
             startTime: firestore.Timestamp.fromDate(new Date(event.startTime)),
             endTime: firestore.Timestamp.fromDate(new Date(event.endTime)),
             name: event.name,
@@ -229,8 +210,49 @@ export class EventsService {
             members: null
         }
         this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
-        return this.eventsCol.add(newEvent).then(docRef => {
-            this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${docRef.id}/members`);
+        await this.eventsCol.doc(eventId).set(newEvent, { merge: true });
+        this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${eventId}/members`);
+        return event.members.forEach(m => {
+            if (m.uid == this.uid) {
+                return this.membersCol.doc(m.uid).set({
+                    uid: m.uid,
+                    status: "Admin"
+                }, { merge: true })
+            } else {
+                return this.membersCol.doc(m.uid).set({
+                    uid: m.uid,
+                    status: "Member"
+                }, { merge: true })
+            }
+        })
+    }
+
+    removeGuest(eventId: string, uid: string) {
+        this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${eventId}/members`);
+        return this.membersCol.doc(uid).delete();
+    }
+
+    async updateEvent(event, remove) {
+        const updateEvent = {
+            createdBy: this.uid,
+            id: event.id,
+            startTime: firestore.Timestamp.fromDate(new Date(event.updateStartTime)),
+            endTime: firestore.Timestamp.fromDate(new Date(event.updateEndTime)),
+            name: event.name,
+            info: event.info,
+            type: event.type,
+            location: event.location,
+            recurrence: event.recurrence
+        }
+        this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
+        await this.eventsCol.doc(event.id).update(updateEvent)
+        this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${event.id}/members`);
+        if (remove.length) {
+            return remove.forEach(r => {
+                return this.removeGuest(event.id, r);
+            })
+        }
+        if (event.members.length) {
             return event.members.forEach(m => {
                 if (m.uid == this.uid) {
                     return this.membersCol.doc(m.uid).set({
@@ -244,49 +266,6 @@ export class EventsService {
                     }, { merge: true })
                 }
             })
-        });
-    }
-
-    removeGuest(eventId: string, uid: string) {
-        this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${eventId}/members`);
-        return this.membersCol.doc(uid).delete();
-    }
-
-    updateEvent(event, remove) {
-        const updateEvent = {
-            createdBy: this.uid,
-            id: null,
-            startTime: firestore.Timestamp.fromDate(new Date(event.updateStartTime)),
-            endTime: firestore.Timestamp.fromDate(new Date(event.updateEndTime)),
-            name: event.name,
-            info: event.info,
-            type: event.type,
-            location: event.location,
-            recurrence: event.recurrence
         }
-        this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
-        return this.eventsCol.doc(event.id).update(updateEvent).then(() => {
-            this.membersCol = this.db.collection(`teams/${this.teamId}/calendar/${event.id}/members`);
-            if (remove.length) {
-                return remove.forEach(r => {
-                    return this.removeGuest(event.id, r);
-                })
-            }
-            if (event.members.length) {
-                return event.members.forEach(m => {
-                    if (m.uid == this.uid) {
-                        return this.membersCol.doc(m.uid).set({
-                            uid: m.uid,
-                            status: "Admin"
-                        }, { merge: true })
-                    } else {
-                        return this.membersCol.doc(m.uid).set({
-                            uid: m.uid,
-                            status: "Member"
-                        }, { merge: true })
-                    }
-                })
-            }
-        });
     }
 }

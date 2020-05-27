@@ -14,6 +14,8 @@ import { AngularFireMessagingModule } from '@angular/fire/messaging';
 import 'firebase/storage';
 // shared modules
 import { SharedModule } from './shared/shared.module';
+import { environment } from 'src/environments/environment';
+import { AngularFireDatabaseModule } from '@angular/fire/database';
 
 export const ROUTES: Routes = [
   {
@@ -30,15 +32,7 @@ export const ROUTES: Routes = [
   }
 ];
 
-export const firebaseConfig: FirebaseAppConfig = {
-  apiKey: "AIzaSyDf-uqPDM4tCCS707r-eeGlif49JmKbfYY",
-  authDomain: "ottertherapies.firebaseapp.com",
-  databaseURL: "https://ottertherapies.firebaseio.com",
-  projectId: "ottertherapies",
-  storageBucket: "ottertherapies.appspot.com",
-  messagingSenderId: "842164942057",
-  appId: "1:842164942057:web:959f9a4ba101fdd6d3ec78"
-};
+export const firebaseConfig: FirebaseAppConfig = environment.firebaseConfig;
 
 @NgModule({
   imports: [
@@ -52,6 +46,7 @@ export const firebaseConfig: FirebaseAppConfig = {
     AngularFireStorageModule,
     AngularFireFunctionsModule,
     AngularFireMessagingModule,
+    AngularFireDatabaseModule,
     SharedModule.forRoot()
   ],
   providers: [

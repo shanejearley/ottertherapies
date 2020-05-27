@@ -19,6 +19,8 @@ import { EnlargeThumbnailComponent } from './components/enlarge-thumbnail/enlarg
 import { BadgeService } from './services/badge/badge.service';
 import { MobileMenuComponent } from './components/mobile-menu/mobile-menu.component';
 import { DarkService } from './services/dark/dark.service';
+import { PresenceService } from './services/presence/presence.service';
+import { UserPresenceComponent } from './components/user-presence/user-presence.component';
 
 @NgModule({
   imports: [
@@ -26,8 +28,8 @@ import { DarkService } from './services/dark/dark.service';
     FormsModule,
     ReactiveFormsModule
   ],
-  exports: [UploadTaskComponent, EnlargeThumbnailComponent, MobileMenuComponent],
-  declarations: [UploadTaskComponent, EnlargeThumbnailComponent, MobileMenuComponent],
+  exports: [UploadTaskComponent, EnlargeThumbnailComponent, MobileMenuComponent, UserPresenceComponent],
+  declarations: [UploadTaskComponent, EnlargeThumbnailComponent, MobileMenuComponent, UserPresenceComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SharedModule {
@@ -46,7 +48,8 @@ export class SharedModule {
         ResourcesService,
         BadgeService,
         Badge,
-        DarkService
+        DarkService,
+        PresenceService
       ]
     };
   }

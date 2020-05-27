@@ -12,6 +12,7 @@ import { Group } from '../../../shared/services/groups/groups.service';
 import { Member } from '../../../shared/services/members/members.service';
 import { Store } from 'src/store';
 import { EventsService } from 'src/app/shared/services/events/events.service';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 @Component({
     selector: 'app-create-event',
@@ -64,7 +65,8 @@ export class CreateEventComponent {
         public modalController: ModalController,
         private store: Store,
         private authService: AuthService,
-        private eventsService: EventsService
+        private eventsService: EventsService,
+        private db: AngularFirestore
     ) { }
 
     ngOnInit() {
@@ -105,7 +107,9 @@ export class CreateEventComponent {
         }
     }
 
-    addEvent() {
+    async addEvent() {
+        const newEventId = this.db.createId();
+
         if (!this.newEvent.name || !this.newEvent.name.length) {
             this.error = 'You need an event name.';
             this.clicked = false;
@@ -113,7 +117,7 @@ export class CreateEventComponent {
             this.error = null;
             this.clicked = true;
             try {
-                this.eventsService.addEvent(this.newEvent);
+                await this.eventsService.addEvent(newEventId, this.newEvent);
                 return this.modalController.dismiss({
                     response: 'success'
                 });

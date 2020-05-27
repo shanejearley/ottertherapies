@@ -26,6 +26,7 @@ import { ResourcesService } from './shared/services/resources/resources.service'
 import { BadgeService } from './shared/services/badge/badge.service';
 import { DarkService } from './shared/services/dark/dark.service';
 import { SwUpdate } from '@angular/service-worker';
+import { PresenceService } from './shared/services/presence/presence.service';
 
 @Component({
   selector: 'app-root',
@@ -115,7 +116,8 @@ export class AppComponent implements OnInit {
     private badge: Badge,
     private darkService: DarkService,
     private toastController: ToastController,
-    private swUpdate: SwUpdate
+    private swUpdate: SwUpdate,
+    private presenceService: PresenceService
   ) {
     this.initializeApp();
 
@@ -339,7 +341,8 @@ export class AppComponent implements OnInit {
   }
 
   async onLogout() {
-    await this.authService.logoutUser();
+    await this.presenceService.setPresence('offline');
+    return this.authService.logoutUser();
   }
 
   ngOnDestroy() {

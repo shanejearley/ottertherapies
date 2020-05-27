@@ -3,7 +3,10 @@
     <ion-buttons slot="start">
       <ion-back-button [defaultHref]="['/Teams', (team$ | async)?.id, 'Messages']"></ion-back-button>
     </ion-buttons>
-    <ion-title *ngIf="(member$ | async)?.profile">{{ (member$ | async)?.profile.displayName }}</ion-title>
+    <ion-title *ngIf="member$ | async as member">
+      {{ member.profile ? member.profile.displayName : '' }}
+      <app-user-presence [uid]="member.uid"></app-user-presence>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 

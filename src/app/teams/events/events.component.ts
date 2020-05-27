@@ -50,6 +50,7 @@ export class EventsComponent implements OnInit {
   recurringEvents$: Observable<Event[]>;
   combinedEvents$: Observable<Event[]>;
   today$: Observable<Event[]>;
+  removedEvents: Event[] = [];
 
   subscriptions: Subscription[] = [];
   public team: string;
@@ -58,7 +59,7 @@ export class EventsComponent implements OnInit {
   public data: any;
   today = moment().startOf('day').format('ll');
   date = moment().startOf('day').format('ll');
-  month = moment().startOf('day').month();
+  month = moment().startOf('day').month() + 1;
   type: 'string';
   _disableWeeks: number[] = [];
   eventsSource: DayConfig[] = [];
@@ -89,7 +90,9 @@ export class EventsComponent implements OnInit {
   ) { }
 
   dayChange($event) {
-    if ($event.month() !== this.month) {
+    console.log($event.month() + 1)
+    if ($event.month() + 1 !== this.month) {
+      this.month = $event.month() + 1;
       this.eventsService.eventsObservable(this.uid, this.teamId, $event._d).subscribe();
       this.date = $event.format('ll');
       this.today$ = this.getToday(this.date);
@@ -115,6 +118,7 @@ export class EventsComponent implements OnInit {
 
   monthChange($event) {
     console.log($event)
+    this.month = $event.newMonth.months;
     this.date = moment($event.newMonth.dateObj).format('ll')
     this.eventsService.eventsObservable(this.uid, this.teamId, $event.newMonth.dateObj).subscribe();
     this.configCalendar();
@@ -166,8 +170,11 @@ export class EventsComponent implements OnInit {
       this.data = data.data;
       if (this.data.response == 'success') {
         this.presentUpdateToast();
+        this.configCalendar();
+        this.today$ = this.getToday(this.date);
       }
       if (this.data.response == 'deleted') {
+        this.removedEvents.push(event);
         this.configCalendar();
         this.today$ = this.getToday(this.date);
       }
@@ -243,7 +250,8 @@ export class EventsComponent implements OnInit {
         takeUntil(this.onDestroy),
         filter(Boolean),
         map(([events, recurringEvents]) => events && recurringEvents ? [...events, ...recurringEvents] : events ? events : recurringEvents),
-        switchMap((allEvents: Event[]) => allEvents ? this.getIncidences(allEvents) : of(allEvents))
+        switchMap((allEvents: Event[]) => allEvents ? this.getInstances(allEvents) : of(allEvents)),
+        switchMap((allEvents: Event[]) => allEvents ? this.removeInstances(allEvents) : of(allEvents))
       );
 
     this.today$ = this.getToday(this.date);
@@ -262,7 +270,7 @@ export class EventsComponent implements OnInit {
         map((events: Event[]) => events.filter((event: Event) => moment(event.startTime.toDate()).startOf('day').format('ll') == day)))
   }
 
-  getIncidences(allEvents: Event[]) {
+  getInstances(allEvents: Event[]) {
     allEvents.forEach(event => {
       if (event.recurrence !== 'once') {
 
@@ -289,6 +297,16 @@ export class EventsComponent implements OnInit {
           end: event.until ? event.until.toDate() : moment(this.date).endOf('month').add('months', 1).toDate()
         });
 
+        const existingInstances = allEvents.filter((ev => ev.recurrenceId === event.id));
+        if (existingInstances.length) {
+          existingInstances.forEach(e => {
+            const removeEvIndex = allEvents.indexOf(e);
+            allEvents.splice(removeEvIndex, 1);
+          })
+        } else {
+          console.log('INSTANCES DO NOT EXIST YET')
+        }
+
         for (const { date } of rule.occurrences()) {
 
           if (moment(date).toISOString() !== moment(event.startTime.toDate()).toISOString()) {
@@ -306,19 +324,21 @@ export class EventsComponent implements OnInit {
               type: event.type,
               members: event.members
             }
-            const exists = allEvents.find((ev => ev.recurrenceId === instance.recurrenceId && ev.startTime.toMillis() === instance.startTime.toMillis()));
-            if (exists) {
-              allEvents[allEvents.indexOf(exists)] = instance;
-            } else {
-              console.log('INSTANCE DOES NOT EXIST YET')
-              allEvents.push(instance);
-            }
+            allEvents.push(instance);
           }
 
         }
       }
     })
     return of(allEvents);
+  }
+
+  removeInstances(allEvents: Event[]) {
+    if (this.removedEvents.length) {
+      return of(allEvents.filter(ev => !this.removedEvents.find(removed => removed.id === ev.recurrenceId)));
+    } else {
+      return of(allEvents);
+    }
   }
 
   ngOnDestroy() {

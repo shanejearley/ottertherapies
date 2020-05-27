@@ -11,6 +11,7 @@ import { MessagesComponent } from './messages.component';
 import { GroupModule } from './group/group.module';
 import { DirectModule } from './direct/direct.module';
 import { CreateGroupComponent } from 'src/app/shared/components/create-group/create-group.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { CreateGroupComponent } from 'src/app/shared/components/create-group/cre
     AvatarModule,
     MessagesRoutingModule,
     GroupModule,
-    DirectModule
+    DirectModule,
+    SharedModule
   ],
   entryComponents: [CreateGroupComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],

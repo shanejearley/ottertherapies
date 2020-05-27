@@ -2,7 +2,8 @@
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
-      <ion-back-button *ngIf="ios || android"  [text]="ios ? 'Teams' : null" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
+      <ion-back-button *ngIf="ios || android" [text]="ios ? 'Teams' : null" routerDirection="backwards"
+        [defaultHref]="['/Teams']"></ion-back-button>
     </ion-buttons>
     <ion-title *ngIf="(team$ | async)">{{ (team$ | async)?.name }}</ion-title>
   </ion-toolbar>
@@ -43,7 +44,7 @@
               </ng-template>
             </ion-label>
             <ion-tab-button *ngIf="g.unread && g.unread.unreadMessages > 0" slot="end" class="notification--button">
-              <ion-icon name="chatbubbles-outline"></ion-icon>            
+              <ion-icon name="chatbubbles-outline"></ion-icon>
               <ion-badge color="danger">{{ g.unread.unreadMessages }}</ion-badge>
             </ion-tab-button>
           </ion-item>
@@ -55,8 +56,8 @@
       </ion-list-header>
 
       <div *ngFor="let m of (members$ | async); let i = index">
-        <ion-card *ngIf="m.profile && m.uid !== (profile$ | async)?.uid"
-          routerDirection="forward" (click)="goTo('Direct', m.uid)" button class="theme--card">
+        <ion-card *ngIf="m.profile && m.uid !== (profile$ | async)?.uid" routerDirection="forward"
+          (click)="goTo('Direct', m.uid)" button class="theme--card">
           <ion-item class="theme--item thumbnail--list" lines="none" detail="true">
             <ion-thumbnail slot="start" class="avatar-thumbnail">
               <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
@@ -66,14 +67,19 @@
               </ng-template>
             </ion-thumbnail>
             <ion-label>
-              <h2><strong>{{ m.profile.displayName }}</strong></h2>
+              <h2>
+                <strong>
+                  {{ m.profile.displayName }}
+                </strong>
+                <app-user-presence [uid]="m.uid"></app-user-presence>
+              </h2>
               <h3 *ngIf="m.direct && m.direct.lastMessage; else elseMessage">{{ m.direct.lastMessage }}</h3>
               <ng-template #elseMessage>
                 <h3>Start a new conversation</h3>
               </ng-template>
             </ion-label>
             <ion-tab-button *ngIf="m.unread && m.unread.unreadMessages > 0" slot="end" class="notification--button">
-              <ion-icon name="chatbubbles-outline"></ion-icon>            
+              <ion-icon name="chatbubbles-outline"></ion-icon>
               <ion-badge color="danger">{{ m.unread.unreadMessages }}</ion-badge>
             </ion-tab-button>
           </ion-item>

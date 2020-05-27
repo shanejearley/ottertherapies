@@ -19,7 +19,8 @@ export interface Profile {
     role: string,
     fcmTokens: object,
     badge: number,
-    gcalSync: boolean
+    gcalSync: boolean,
+    refresh_token: boolean
 }
 
 export interface Item { name: string; }
@@ -65,7 +66,8 @@ export class ProfileService {
                         role: next.role ? next.role : null,
                         fcmTokens: next.fcmTokens ? next.fcmTokens : null,
                         badge: next.badge ? next.badge : null,
-                        gcalSync: next.gcalSync ? next.gcalSync : null
+                        gcalSync: next.gcalSync ? next.gcalSync : null,
+                        refresh_token: next.refresh_token ? next.refresh_token : null
                     };
                     this.profile = profile;
                     this.store.set('profile', profile)
@@ -136,6 +138,18 @@ export class ProfileService {
         } else {
             return console.log('Badge up to date');
         }
+    }
+
+    turnSyncOn() {
+        return this.db.doc(`users/${this.uid}`).set({
+            gcalSync: true
+        }, { merge: true });
+    }
+
+    turnSyncOff() {
+        return this.db.doc(`users/${this.uid}`).set({
+            gcalSync: false
+        }, { merge: true });
     }
 
 }

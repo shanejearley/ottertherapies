@@ -106,7 +106,7 @@
                     </ion-list-header>
                     <ion-list inset="true" class="theme--list upload--list">
                         <div *ngFor="let f of files; let i = index">
-                            <upload-task *ngIf="f" [teamId]="teamId" [folder]="folder" [file]="f" [scan]="false"></upload-task>
+                            <app-upload-task *ngIf="f" [teamId]="teamId" [folder]="folder" [file]="f" [scan]="false"></app-upload-task>
                         </div>
                     </ion-list>
                 </div>

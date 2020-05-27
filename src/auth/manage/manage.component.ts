@@ -5,8 +5,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Plugins } from '@capacitor/core';
 import { Observable, Subject } from 'rxjs';
 import { Store } from 'src/store';
-import { takeUntil, tap } from 'rxjs/operators';
+import { takeUntil, tap, filter } from 'rxjs/operators';
 import { Platform, ToastController } from '@ionic/angular';
+import { ProfileService } from '../shared/services/profile/profile.service';
 const { Browser } = Plugins;
 
 @Component({
@@ -21,6 +22,7 @@ export class ManageComponent implements OnInit {
 
     mode: string;
     actionCode: string;
+    code: string;
     email: string;
     newPassword: string;
 
@@ -38,7 +40,8 @@ export class ManageComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private store: Store,
         private platform: Platform,
-        private toastController: ToastController
+        private toastController: ToastController,
+        private profileService: ProfileService
     ) { }
 
     ngOnInit() {
@@ -60,6 +63,25 @@ export class ManageComponent implements OnInit {
                 }
                 if (this.mode === 'resetPassword') {
                     this.email = await this.authService.userAuth.verifyPasswordResetCode(this.actionCode);
+                } 
+                else if (params) {
+                    console.log(params);
+                    const code = params['code'];
+                    this.code = code;
+                    console.log(code);
+                    this.authService.saveGoogle(code)
+                        .pipe(
+                            takeUntil(this.onDestroy),
+                            filter(Boolean),
+                            tap((data: any) => {
+                                console.log(data)
+                                if (data.response === 'success') {
+                                    this.profileService.turnSyncOn();
+                                } else if (data.response === 'fail') {
+                                    this.profileService.turnSyncOff();
+                                }
+                            })
+                        ).subscribe();
                 }
                 //resetPassword, recoverEmail, or verifyEmail
             })

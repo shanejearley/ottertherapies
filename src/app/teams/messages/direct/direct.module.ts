@@ -9,6 +9,7 @@ import { AvatarModule } from 'ngx-avatar';
 import { DirectRoutingModule } from './direct-routing.module';
 
 import { DirectComponent } from './direct.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { DirectComponent } from './direct.component';
     FormsModule,
     IonicModule,
     AvatarModule,
-    DirectRoutingModule
+    DirectRoutingModule,
+    SharedModule
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   declarations: [DirectComponent]

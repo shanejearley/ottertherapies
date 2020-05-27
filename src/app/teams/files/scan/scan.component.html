@@ -113,7 +113,7 @@
                     </ion-item>
         
                     <div *ngFor="let s of scans; let i = index" lines="none">
-                        <upload-task *ngIf="s" [teamId]="teamId" [folder]="folder" [file]="s.file" [scan]="s"></upload-task>
+                        <app-upload-task *ngIf="s" [teamId]="teamId" [folder]="folder" [file]="s.file" [scan]="s"></app-upload-task>
                     </div>
                 </div>
 
