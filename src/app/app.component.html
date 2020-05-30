@@ -18,7 +18,8 @@
                 </ion-button>
 
                 <ion-thumbnail slot="end" class="avatar-thumbnail">
-                  <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url }}">
+                  <img *ngIf="(profile$ | async)?.url_150; else elseAvatar" src="{{ (profile$ | async)?.url_150 }}">
+                  <!-- <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}"> -->
                   <ng-template #elseAvatar>
                     <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar"
                       name="{{ (profile$ | async)?.displayName }}" [size]="55" [round]="false" [cornerRadius]="55">

@@ -9,6 +9,7 @@ import { AvatarModule } from 'ngx-avatar';
 import { MemberRoutingModule } from './member-routing.module';
 
 import { MemberComponent } from './member.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { MemberComponent } from './member.component';
     FormsModule,
     IonicModule,
     AvatarModule,
-    MemberRoutingModule
+    MemberRoutingModule,
+    SharedModule
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   declarations: [MemberComponent]

@@ -27,6 +27,7 @@ export interface Team {
   child: string,
   bio: string,
   url: string,
+  url_150: string,
   createdBy: string,
   unread: Unread[],
   unreadMessages: number,
@@ -104,7 +105,8 @@ export class TeamsService {
           team.publicId = next.publicId
           team.child = next.child
           team.bio = next.bio
-          team.url = next.url
+          team.url = next.url,
+          team.url_150 = next.url_150,
           team.createdBy = next.createdBy
         }),
         shareReplay(1)
@@ -194,6 +196,7 @@ export class TeamsService {
         child: childName,
         bio: null,
         url: null,
+        url_150: null,
         createdBy: this.uid,
         unread: null,
         unreadMessages: null,

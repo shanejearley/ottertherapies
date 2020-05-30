@@ -16,7 +16,7 @@
     <ion-row class="profile--pic--header ion-justify-content-center ion-padding">
       <ion-col class="ion-justify-content-center ion-padding" size="auto">
         <ion-thumbnail class="avatar-thumbnail profile-thumbnail" *ngIf="(profile$ | async)">
-          <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
+          <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
           <ng-template #elseMemberAvatar>
             <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar"
               name="{{ (profile$ | async)?.email }}" [size]="150" [round]="false" [cornerRadius]="150">

@@ -89,7 +89,7 @@
         <ion-list class="form theme--list" lines="none" inset="true">
             <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item" detail="false">
                 <ion-avatar slot="start">
-                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
                     <ng-template #elseMemberAvatar>
                         <ngx-avatar name="{{ m.profile.displayName }}" size="40"></ngx-avatar>
                     </ng-template>

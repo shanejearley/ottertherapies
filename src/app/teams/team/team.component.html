@@ -35,7 +35,7 @@
             <ion-card-header>
               <ion-item lines="none" class="theme--item">
                 <ion-thumbnail slot="start" class="avatar-thumbnail">
-                  <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                  <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
                   <ng-template #elseMemberAvatar>
                     <ngx-avatar name="{{ m.profile.displayName }}" [size]="55" [round]="false" [cornerRadius]="55">
                     </ngx-avatar>
@@ -68,7 +68,7 @@
               <ion-item lines="none" class="theme--item">
                 <ion-label>
                   <h2>
-                    <strong>Manage</strong>
+                    <strong>Edit</strong>
                   </h2>
                   <p>Add/Remove</p>
                 </ion-label>
@@ -99,7 +99,7 @@
       <ion-col class="ion-justify-content-center ion-padding" size="auto">
 
         <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
-          <img *ngIf="(team$ | async)?.url; else elseChildAvatar" src="{{ (team$ | async)?.url }}">
+          <img *ngIf="(team$ | async)?.url; else elseChildAvatar" src="{{ (team$ | async)?.url_150 ? (team$ | async)?.url_150 : (team$ | async)?.url }}">
           <ng-template #elseChildAvatar>
             <ngx-avatar name="{{ (team$ | async)?.child }}" [size]="150" [round]="false" [cornerRadius]="150">
             </ngx-avatar>

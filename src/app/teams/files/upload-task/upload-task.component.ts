@@ -25,7 +25,6 @@ export class UploadTaskComponent implements OnInit {
 
     scanPreview: SafeResourceUrl;
     task: AngularFireUploadTask;
-    fileName: string = null;
     percentage: Observable<number>;
     snapshot: Observable<any>;
     downloadURL;
@@ -51,11 +50,6 @@ export class UploadTaskComponent implements OnInit {
 
     ionViewWillEnter() {
         //
-    }
-
-    onNameChange(ev: { detail: { value: string; }; }) {
-        console.log(ev.detail.value);
-        this.fileName = ev.detail.value;
     }
 
     removeFile() {
@@ -90,28 +84,28 @@ export class UploadTaskComponent implements OnInit {
         this.fileId = this.db.createId();
         if (this.teamId && this.folder && !this.folder.uid && this.folder.id) {
             this.error = false;
-            this.filePath = `teams/${this.teamId}/groups/${this.folder.id}/files/${this.fileId}`;
+            this.filePath = `teams/${this.teamId}/groups/${this.folder.id}/files/${this.file.name}`;
             this.filesRef = this.db.collection<File>(`teams/${this.teamId}/groups/${this.folder.id}/files`);
             this.docRef = this.db.doc<File>(`teams/${this.teamId}/groups/${this.folder.id}`);
         } else if (this.teamId && this.folder && this.folder.uid && this.folder.uid !== this.uid) {
             this.error = false;
             this.pathId = this.uid < this.folder.uid ? this.uid + this.folder.uid : this.folder.uid + this.uid;
-            this.filePath = `teams/${this.teamId}/direct/${this.pathId}/files/${this.fileId}`;
+            this.filePath = `teams/${this.teamId}/direct/${this.pathId}/files/${this.file.name}`;
             this.filesRef = this.db.collection<File>(`teams/${this.teamId}/direct/${this.pathId}/files`);
             this.docRef = this.db.doc<File>(`teams/${this.teamId}/direct/${this.pathId}`);
         } else if (this.teamId && this.folder && this.folder.uid && this.folder.uid == this.uid) {
             this.error = false;
-            this.filePath = `users/${this.uid}/teams/${this.teamId}/files/${this.fileId}`;
+            this.filePath = `users/${this.uid}/teams/${this.teamId}/files/${this.file.name}`;
             this.filesRef = this.db.collection<File>(`users/${this.uid}/teams/${this.teamId}/files`);
             this.docRef = this.db.doc<File>(`users/${this.uid}/teams/${this.teamId}`);
         } else if (!this.teamId && !this.folder && this.profilePicture) {
             this.error = false;
-            this.filePath = `users/${this.uid}/profile/${this.fileId}`;
+            this.filePath = `users/${this.uid}/profile/${this.file.name}`;
             this.filesRef = this.db.collection<File>(`users`);
             this.docRef = this.db.doc<File>(`users/${this.uid}`);
         } else if (this.teamId && !this.folder && this.profilePicture) {
             this.error = false;
-            this.filePath = `teams/${this.teamId}/profile/${this.fileId}`;
+            this.filePath = `teams/${this.teamId}/profile/${this.file.name}`;
             this.filesRef = this.db.collection<File>(`teams`);
             this.docRef = this.db.doc<File>(`teams/${this.teamId}`)
         } else {
@@ -144,7 +138,7 @@ export class UploadTaskComponent implements OnInit {
                     }, { merge: true })
                 } else {
                     this.filesRef.doc(this.fileId).set({
-                        name: this.fileName && this.fileName.length ? this.fileName : this.file.name,
+                        name: this.file.name,
                         size: this.file.size ? this.file.size : this.metadata.size,
                         timestamp: firestore.FieldValue.serverTimestamp(),
                         type: this.file.type,

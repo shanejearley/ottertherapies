@@ -76,10 +76,6 @@ ion-list.member--upload--list {
   padding-inline-end: 32px !important;
 }
 
-ion-list.upload--list {
-  padding-inline-end: 32px !important;
-}
-
 .md {
   ion-title.title--center {
     width: 100%; 
@@ -506,4 +502,70 @@ ion-content {
 div.text-top {
   display: inline-block;
   vertical-align: middle;
+}
+
+.file-button [type=file] {
+  overflow: hidden;
+  cursor: inherit;
+  display: block;
+  font-size: 999px;
+  filter: alpha(opacity=0);
+  min-height: 100%;
+  min-width: 100%;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  text-align: right;
+  top: 0;
+}
+
+
+.message--files {
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--ion-color-medium);
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 9px;
+  margin-bottom: 5px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.message--image {
+  border-radius: 4px;
+  width: 200px;
+}
+
+ion-button.message--file {
+  --box-shadow: none !important;
+  --size: 200px;
+  margin: 0 !important;
+  background: var(--ion-color-light);
+  border-radius: 4px;
+  height: auto;
+  width: 200px;
+  --padding-start: 0px;
+  --padding-end: 0px;
+}
+
+ion-button.message--file--height {
+  height: 200px !important;
+}
+
+ion-label.message--file--label {
+  text-transform: none !important;
+  width: 200px;
+}
+
+.message--image--button {
+  margin: 0;
+  top: 0;
+  position: absolute;
+  margin-left: -15px;
+}
+
+ion-progress-bar.message--image--progress {
+  width: 200px;
 }

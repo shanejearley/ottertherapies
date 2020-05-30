@@ -126,7 +126,7 @@ export class MemberComponent implements OnInit {
     }
 
     sendMessage() {
-        this.membersService.addMessage(this.newBody, this.directId);
+        this.membersService.addMessage(this.newBody, this.directId, "message", null);
         this.newBody = '';
     }
 

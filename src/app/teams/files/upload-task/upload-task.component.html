@@ -1,38 +1,38 @@
-<ion-list class="theme--list upload--list" *ngIf="file" lines="none" inset="true"> 
+<ion-list class="theme--list" *ngIf="file" lines="none" inset="true"> 
     <div>
         <div class="error" *ngIf="error">
             Incomplete team, folder, or file information.
         </div>
     </div>
 
-    <ion-item class="theme--item upload--item" *ngIf="!profilePicture">
+    <ion-item class="theme--item upload--item ion-padding-end" *ngIf="!profilePicture">
         <ion-icon slot="start" [name]="'document-text' + '-outline'" *ngIf="!scan; else viewPreview"></ion-icon>
         <ng-template #viewPreview>
             <ion-thumbnail slot="start" (click)="enlargePreview()" button>
                 <img [src]="scan.sanitizedPdf">
             </ion-thumbnail>
         </ng-template>
-        <ion-input class="form" [value]="file.name" (ionChange)="onNameChange($event)" placeholder="Add a file name">
-        </ion-input>
-
+        <h2 class="full-width">{{ file.name }}</h2>
     </ion-item>
-    <ion-item class="theme--item upload--item">
-        <ion-icon slot="start"></ion-icon>
-        <ion-label *ngIf="percentage | async as pct; else zeroPct">
-            <p>Upload status: {{ pct | number }}%</p>
-        </ion-label>
-        <ng-template #zeroPct>
-            <ion-label>
-                <p>Upload status: 0%</p>
-            </ion-label>
-        </ng-template>
-        <ion-button slot="end" color="tertiary" size="medium" (click)="startUpload()" [disabled]="downloadURL || !profilePicture && !file.name.length && !fileName.length">
+    <div>
+        <ion-button expand="block" color="tertiary" size="medium" (click)="startUpload()" [disabled]="downloadURL || !profilePicture && !file.name.length">
             Upload
         </ion-button>
-        <ion-button slot="end" fill="clear" (click)="removeFile()" [disabled]="downloadURL">
-            <ion-icon slot="icon-only" color="danger" name="close-circle-outline"></ion-icon>
-        </ion-button>
-    </ion-item>
+        <ion-item class="theme--item upload--item">
+            <ion-icon slot="start"></ion-icon>
+            <ion-label *ngIf="percentage | async as pct; else zeroPct">
+                <p>Upload status: {{ pct | number }}%</p>
+            </ion-label>
+            <ng-template #zeroPct>
+                <ion-label>
+                    <p>Upload status: 0%</p>
+                </ion-label>
+            </ng-template>
+            <ion-button slot="end" fill="clear" (click)="removeFile()" [disabled]="downloadURL">
+                <ion-icon slot="icon-only" color="danger" name="close-circle-outline"></ion-icon>
+            </ion-button>
+        </ion-item>
+    </div>
 
     <div *ngIf="percentage | async as pct">
         <ion-progress-bar [value]="pct / 100"></ion-progress-bar>

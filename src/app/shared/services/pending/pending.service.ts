@@ -25,6 +25,7 @@ export interface Pending {
   bio: string,
   notes: string,
   url: string,
+  url_150: string,
   createdBy: string
 }
 
@@ -79,7 +80,8 @@ export class PendingService {
           team.child = next.child
           team.bio = next.bio
           team.notes = next.notes
-          team.url = next.url
+          team.url = next.url,
+          team.url_150 = next.url_150,
           team.createdBy = next.createdBy
         }),
         shareReplay(1)

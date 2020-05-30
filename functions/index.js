@@ -9,13 +9,19 @@ const cheerio = require('cheerio');
 const getUrls = require('get-urls');
 const fetch = require('node-fetch');
 
+const { Storage } = require('@google-cloud/storage');
+const gcs = new Storage();
+const fs = require('fs-extra');
+const { tmpdir } = require('os');
+const { join, dirname } = require('path');
+const sharp = require('sharp');
+
 admin.initializeApp();
 
 const { google } = require('googleapis');
 
 const firestore = admin.firestore();
 const storage = admin.storage();
-const bucket = storage.bucket();
 const FieldValue = admin.firestore.FieldValue;
 
 const oauth2Client = new google.auth.OAuth2(
@@ -42,7 +48,7 @@ const addEvent = async (uid, event) => {
 
     const frequency = event.recurrence === 'daily' ? "RRULE:FREQ=DAILY;" : event.recurrence === 'weekly' ? `RRULE:FREQ=WEEKLY;BYDAY=${weekday};` : event.recurrence === 'monthly' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'monthly-last' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'annually' ? "RRULE:FREQ=YEARLY;" : event.recurrence === 'weekdays' ? "RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR;" : null;
 
-    console.log([ frequency ])
+    console.log([frequency])
 
     const otterMessage = "***Modify this event and manage guests in the Otter app!";
 
@@ -54,7 +60,7 @@ const addEvent = async (uid, event) => {
     try {
         return calendar.events.insert({
             calendarId: 'primary',
-            resource: { 
+            resource: {
                 summary: event.name,
                 location: event.location,
                 description: event.info ? event.info + '\n\n' + otterMessage.bold().italics() : otterMessage.bold().italics(),
@@ -66,7 +72,7 @@ const addEvent = async (uid, event) => {
                     dateTime: event.endTime.toDate(),
                     timeZone: "Zulu"
                 },
-                recurrence: [ frequency ],
+                recurrence: [frequency],
                 reminders: {
                     useDefault: true
                 },
@@ -100,7 +106,7 @@ const modifyEvent = async (uid, event) => {
 
     const frequency = event.recurrence === 'daily' ? "RRULE:FREQ=DAILY;" : event.recurrence === 'weekly' ? `RRULE:FREQ=WEEKLY;BYDAY=${weekday};` : event.recurrence === 'monthly' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'monthly-last' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'annually' ? "RRULE:FREQ=YEARLY;" : event.recurrence === 'weekdays' ? "RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR;" : null;
 
-    console.log([ frequency ])
+    console.log([frequency])
 
     const otterMessage = "***Modify this event and manage guests in the Otter app!";
 
@@ -111,7 +117,7 @@ const modifyEvent = async (uid, event) => {
         return calendar.events.patch({
             calendarId: 'primary',
             eventId: modifiedId,
-            resource: { 
+            resource: {
                 summary: event.name,
                 location: event.location,
                 description: event.info ? event.info + '\n\n' + otterMessage.bold().italics() : otterMessage.bold().italics(),
@@ -123,7 +129,7 @@ const modifyEvent = async (uid, event) => {
                     dateTime: event.endTime.toDate(),
                     timeZone: "Zulu"
                 },
-                recurrence: [ frequency ],
+                recurrence: [frequency],
                 reminders: {
                     useDefault: true
                 },
@@ -161,6 +167,69 @@ const removeEvent = async (uid, event) => {
     }
 
 }
+
+exports.resizeAvatar = functions.storage
+    .object()
+    .onFinalize(async object => {
+        try {
+            const bucket = gcs.bucket(object.bucket);
+            const filePath = object.name;
+
+            const fileName = filePath.split('/').pop();
+            const collectionName = filePath.split('/')[0];
+            const documentId = filePath.split('/')[1];
+            const folderName = filePath.split('/')[2];
+
+            const avatarFileName = 'avatar_' + fileName;
+
+            const workingDir = join(tmpdir(), `${collectionName}/${documentId}/profile/`);
+            const tmpFilePath = join(workingDir, fileName + '.jpeg');
+            const tmpAvatarPath = join(workingDir, avatarFileName + '.jpeg');
+
+            await fs.ensureDir(workingDir);
+
+            if (folderName !== 'profile') {
+                console.log('Not an image to resize, exiting function');
+                return false;
+            }
+
+            if (fileName.includes('avatar_')) {
+                console.log('posting url and exiting function');
+                const avatarFile = bucket.file(filePath)
+                const config = {
+                    action: 'read',
+                    expires: '01-01-2500'
+                };
+                const urlArray = await avatarFile.getSignedUrl(config);
+                const url = urlArray[0];
+                await admin.firestore().doc(`${collectionName}/${documentId}`).set({ url_150: url }, { merge: true });
+                return false;
+            }
+
+            console.log('downloading tmp file');
+
+            await bucket.file(filePath).download({
+                destination: tmpFilePath
+            });
+
+            console.log('resizing tmp file');
+
+            await sharp(tmpFilePath)
+                .resize(150, 150)
+                .toFile(tmpAvatarPath);
+
+            console.log('uploading resized tmp file');
+
+            return bucket.upload(tmpAvatarPath, {
+                destination: join(dirname(filePath), avatarFileName)
+            });
+
+        } catch (err) {
+            console.log(err.message);
+            return false;
+        }
+
+    });
 
 exports.getAuthURL = functions.https.onCall(async (data, context) => {
     const text = data.text;
@@ -286,64 +355,58 @@ exports.scraper = functions.https.onCall(async (data, context) => {
     const result = await scrapeMetatags(text);
 
     return { result };
-    // const uid = context.auth.uid;
-    // const scrape = await scrapeMetatags(data.text)
-    // console.log(scrape);
-
 });
 
-//...currentTokens, [token]: true
-
 const addTeamClaims = async (uid, teamId) => {
-    await admin.auth().getUser(uid).then((userRecord) => {
-        // The claims can be accessed on the user record.
+    try {
+        const userRecord = await admin.auth().getUser(uid);
         const customClaims = userRecord.customClaims || {};
-        return admin.auth().setCustomUserClaims(uid, { ...customClaims, [teamId]: true }).then(() => {
-            return admin.auth().getUser(uid).then((userRecord) => {
-                // The claims can be accessed on the user record.
-                return console.log(userRecord.customClaims);
-            }).catch(err => { return console.log(err) })
-        }).catch(err => { return console.log(err) })
-    }).catch(err => { return console.log(err) })
+        await admin.auth().setCustomUserClaims(uid, { ...customClaims, [teamId]: true });
+        const newUserRecord = await admin.auth().getUser(uid);
+        return console.log(newUserRecord.customClaims);
+    } catch (err) {
+        console.log(err.message);
+        return false;
+    }
 }
 
 const removeTeamClaims = async (uid, teamId) => {
-    await admin.auth().getUser(uid).then((userRecord) => {
-        // The claims can be accessed on the user record.
+    try {
+        const userRecord = await admin.auth().getUser(uid);
         const customClaims = userRecord.customClaims || {};
-        return admin.auth().setCustomUserClaims(uid, { ...customClaims, [teamId]: false }).then(() => {
-            return admin.auth().getUser(uid).then((userRecord) => {
-                // The claims can be accessed on the user record.
-                return console.log(userRecord.customClaims);
-            }).catch(err => { return console.log(err) })
-        }).catch(err => { return console.log(err) })
-    }).catch(err => { return console.log(err) })
+        await admin.auth().setCustomUserClaims(uid, { ...customClaims, [teamId]: false });
+        const newUserRecord = await admin.auth().getUser(uid);
+        return console.log(newUserRecord.customClaims);
+    } catch (err) {
+        console.log(err.message);
+        return false;
+    }
 }
 
 const addGroupClaims = async (uid, groupId) => {
-    await admin.auth().getUser(uid).then((userRecord) => {
-        // The claims can be accessed on the user record.
+    try {
+        const userRecord = await admin.auth().getUser(uid);
         const customClaims = userRecord.customClaims || {};
-        return admin.auth().setCustomUserClaims(uid, { ...customClaims, [groupId]: true }).then(() => {
-            return admin.auth().getUser(uid).then((userRecord) => {
-                // The claims can be accessed on the user record.
-                return console.log(userRecord.customClaims);
-            }).catch(err => { return console.log(err) })
-        }).catch(err => { return console.log(err) })
-    }).catch(err => { return console.log(err) })
+        await admin.auth().setCustomUserClaims(uid, { ...customClaims, [groupId]: true });
+        const newUserRecord = await admin.auth().getUser(uid);
+        return console.log(newUserRecord.customClaims);
+    } catch (err) {
+        console.log(err.message);
+        return false;
+    }
 }
 
 const removeGroupClaims = async (uid, groupId) => {
-    await admin.auth().getUser(uid).then((userRecord) => {
-        // The claims can be accessed on the user record.
+    try {
+        const userRecord = await admin.auth().getUser(uid);
         const customClaims = userRecord.customClaims || {};
-        return admin.auth().setCustomUserClaims(uid, { ...customClaims, [groupId]: false }).then(() => {
-            return admin.auth().getUser(uid).then((userRecord) => {
-                // The claims can be accessed on the user record.
-                return console.log(userRecord.customClaims);
-            }).catch(err => { return console.log(err) })
-        }).catch(err => { return console.log(err) })
-    }).catch(err => { return console.log(err) })
+        await admin.auth().setCustomUserClaims(uid, { ...customClaims, [groupId]: false });
+        const newUserRecord = await admin.auth().getUser(uid);
+        return console.log(newUserRecord.customClaims);
+    } catch (err) {
+        console.log(err.message);
+        return false;
+    }
 }
 
 const notifyAdmin = async (context) => {
@@ -473,6 +536,7 @@ exports.authOnDelete = functions.auth.user().onDelete(async (user) => {
     //const uid = user.uid;
     //const email = user.email; // The email of the user.
     try {
+        const bucket = storage.bucket();
         await bucket.deleteFiles({ prefix: `users/${user.uid}/profile/` });
         console.log(`All the Firebase Storage files in users/${user.uid}/profile have been deleted`);
     } catch (err) {
@@ -501,6 +565,8 @@ exports.groupOnRemove = functions.firestore
         var teamId = context.params.teamId;
         console.log("groupId", context.params.groupId);
         var groupId = context.params.groupId;
+
+        const bucket = storage.bucket();
 
         await bucket.deleteFiles({ prefix: `teams/${teamId}/groups/${groupId}/files/` });
 

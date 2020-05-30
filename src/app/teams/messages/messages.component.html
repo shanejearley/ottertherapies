@@ -60,7 +60,7 @@
           (click)="goTo('Direct', m.uid)" button class="theme--card">
           <ion-item class="theme--item thumbnail--list" lines="none" detail="true">
             <ion-thumbnail slot="start" class="avatar-thumbnail">
-              <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+              <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
               <ng-template #elseMemberAvatar>
                 <ngx-avatar name="{{ m.profile.displayName }}" [size]="55" [round]="false" [cornerRadius]="55">
                 </ngx-avatar>

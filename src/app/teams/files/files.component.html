@@ -110,7 +110,7 @@
             <ion-item class="theme--item thumbnail--list" lines="none" detail="true"
               [detailIcon]="!m.show ? 'chevron-down' : 'chevron-up'">
               <ion-thumbnail slot="start" class="avatar-thumbnail">
-                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
                 <ng-template #elseMemberAvatar>
                   <ngx-avatar name="{{ m.profile.displayName }}" [size]="55" [round]="false" [cornerRadius]="55">
                   </ngx-avatar>
@@ -175,7 +175,7 @@
             <ion-item class="theme--item thumbnail--list" lines="none" detail="true"
               [detailIcon]="!m.show ? 'chevron-down' : 'chevron-up'">
               <ion-thumbnail slot="start" class="avatar-thumbnail">
-                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
                 <ng-template #elseMemberAvatar>
                   <ngx-avatar name="{{ m.profile.displayName }}" [size]="55" [round]="false" [cornerRadius]="55">
                   </ngx-avatar>

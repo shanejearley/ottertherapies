@@ -14,7 +14,8 @@ import {
   map,
   switchMap,
   find,
-  shareReplay
+  shareReplay,
+  finalize
 } from 'rxjs/operators';
 import { of, empty } from 'rxjs';
 
@@ -34,14 +35,14 @@ export interface Member {
 }
 
 export interface Direct {
-  lastFile: string,
-  lastFileId: string,
-  lastFileUid: string,
-  lastMessage: string,
-  lastMessageId: string,
-  lastMessageUid: string,
-  members: boolean,
-  id: string
+  lastFile?: string,
+  lastFileId?: string,
+  lastFileUid?: string,
+  lastMessage?: string,
+  lastMessageId?: string,
+  lastMessageUid?: string,
+  members?: boolean,
+  id?: string
 }
 
 export interface File {
@@ -52,15 +53,19 @@ export interface File {
   type: string,
   uid: string,
   url: string,
-  profile: Observable<Profile>
+  profile?: Observable<Profile>,
+  style?: string
 }
 
 export interface Message {
   body: string,
-  id: string,
+  type?: string,
+  id?: string,
   uid: string,
   timestamp: firestore.FieldValue,
-  profile: Observable<Profile>
+  profile?: Observable<Profile>,
+  style?: string,
+  fileName?: string
 }
 
 @Injectable()
@@ -138,9 +143,9 @@ export class MembersService {
                   file.profile = this.getProfile(file.uid);
                   member.files.push(file);
                 } else if (file.timestamp && exists) {
-                    let fileIndex = member.files.findIndex(m => m.id == file.id);
-                    file.profile = member.files[fileIndex].profile;
-                    member.files[fileIndex] = file;
+                  let fileIndex = member.files.findIndex(m => m.id == file.id);
+                  file.profile = member.files[fileIndex].profile;
+                  member.files[fileIndex] = file;
                 }
               }
             }
@@ -171,9 +176,9 @@ export class MembersService {
                   file.profile = this.getProfile(file.uid);
                   member.files.push(file);
                 } else if (file.timestamp && exists) {
-                    let fileIndex = member.files.findIndex(m => m.id == file.id);
-                    file.profile = member.files[fileIndex].profile;
-                    member.files[fileIndex] = file;
+                  let fileIndex = member.files.findIndex(m => m.id == file.id);
+                  file.profile = member.files[fileIndex].profile;
+                  member.files[fileIndex] = file;
                 }
               }
             }
@@ -210,9 +215,9 @@ export class MembersService {
                 message.profile = this.getProfile(message.uid);
                 member.messages.push(message);
               } else if (message.timestamp && exists) {
-                  let messageIndex = member.messages.findIndex(m => m.id == message.id);
-                  message.profile = member.messages[messageIndex].profile;
-                  member.messages[messageIndex] = message;
+                let messageIndex = member.messages.findIndex(m => m.id == message.id);
+                message.profile = member.messages[messageIndex].profile;
+                member.messages[messageIndex] = message;
               }
             }
           }
@@ -308,24 +313,28 @@ export class MembersService {
     }
   }
 
-  addMessage(body: string, directId: string) {
+  async addMessage(body: string, directId: string, style: string, fileName: string) {
     const message: Message = {
       body: body,
       uid: this.uid,
       timestamp: firestore.FieldValue.serverTimestamp(),
-      id: null,
-      profile: null
+      style: style,
+      fileName: fileName
     }
-    this.pathId = this.uid < directId ? this.uid + directId : directId + this.uid;
-    this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/direct/${this.pathId}/messages`);
-    const directDoc = this.db.doc(`teams/${this.teamId}/direct/${this.pathId}`);
-    this.messagesCol.add(message).then((messageRef) => {
-      directDoc.set({
-        lastMessage: message.body,
+    const pathId = this.uid < directId ? this.uid + directId : directId + this.uid;
+    const messagesCol = this.db.collection<Message>(`teams/${this.teamId}/direct/${pathId}/messages`);
+    const directDoc = this.db.doc(`teams/${this.teamId}/direct/${pathId}`);
+    try {
+      const messageRef = await messagesCol.add(message);
+      return directDoc.set({
+        lastMessage: style === 'message' ? message.body : 'Attachment: 1 File',
         lastMessageId: messageRef.id,
         lastMessageUid: message.uid
       }, { merge: true })
-    });
+    } catch (err) {
+      console.log(err.message);
+      return false;
+    }
   }
 
   removeMember(removeId) {

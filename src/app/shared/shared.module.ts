@@ -21,6 +21,7 @@ import { MobileMenuComponent } from './components/mobile-menu/mobile-menu.compon
 import { DarkService } from './services/dark/dark.service';
 import { PresenceService } from './services/presence/presence.service';
 import { UserPresenceComponent } from './components/user-presence/user-presence.component';
+import { MessageFileComponent } from './components/message-file/message-file.component';
 
 @NgModule({
   imports: [
@@ -28,8 +29,20 @@ import { UserPresenceComponent } from './components/user-presence/user-presence.
     FormsModule,
     ReactiveFormsModule
   ],
-  exports: [UploadTaskComponent, EnlargeThumbnailComponent, MobileMenuComponent, UserPresenceComponent],
-  declarations: [UploadTaskComponent, EnlargeThumbnailComponent, MobileMenuComponent, UserPresenceComponent],
+  exports: [
+    UploadTaskComponent, 
+    EnlargeThumbnailComponent, 
+    MobileMenuComponent, 
+    UserPresenceComponent,
+    MessageFileComponent
+  ],
+  declarations: [
+    UploadTaskComponent, 
+    EnlargeThumbnailComponent, 
+    MobileMenuComponent, 
+    UserPresenceComponent,
+    MessageFileComponent
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SharedModule {

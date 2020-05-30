@@ -23,7 +23,7 @@
             <ion-col class="ion-justify-content-center ion-padding" size="auto">
                 <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
                     <img *ngIf="(member$ | async)?.profile.url; else elseMemberAvatar"
-                        src="{{ (member$ | async)?.profile.url }}">
+                        src="{{ (member$ | async)?.profile.url_150 ? (member$ | async)?.profile.url_150 : (member$ | async)?.profile.url }}">
                     <ng-template #elseMemberAvatar>
                         <ngx-avatar *ngIf="(member$ | async)?.profile.displayName; else elseEmailAvatar"
                             name="{{ (member$ | async)?.profile.displayName }}" [size]="150" [round]="false"
@@ -94,7 +94,7 @@
                         <ion-avatar class="dialog--member"
                             *ngIf="(member$ | async)?.messages[i+1] && m.uid !== (member$ | async)?.messages[i+1].uid || !(member$ | async)?.messages[i+1] || (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
                             <img *ngIf="(member$ | async)?.profile.url; else elseTextAvatar"
-                                src="{{ (member$ | async)?.profile.url }}">
+                                src="{{ (member$ | async)?.profile.url_150 ? (member$ | async)?.profile.url_150 : (member$ | async)?.profile.url }}">
                             <ng-template #elseTextAvatar>
                                 <ngx-avatar name="{{ (member$ | async)?.profile.displayName }}" [size]="40">
                                 </ngx-avatar>
@@ -126,7 +126,7 @@
                             <ion-avatar class="dialog--user"
                                 *ngIf="m.uid === (profile$ | async)?.uid && (member$ | async)?.messages[i+1] && m.uid !== (member$ | async)?.messages[i+1].uid || m.uid === (profile$ | async)?.uid && !(member$ | async)?.messages[i+1] || m.uid === (profile$ | async)?.uid && (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
                                 <img *ngIf="(profile$ | async)?.url; else elseTextAvatar"
-                                    src="{{ (profile$ | async)?.url }}">
+                                    src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
                                 <ng-template #elseTextAvatar>
                                     <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40">
                                     </ngx-avatar>

@@ -25,7 +25,8 @@
 
       <div *ngFor="let m of (member$ | async)?.messages; trackBy: trackFn; let last = last; let i = index">
 
-        <ion-row class="ion-justify-content-center ion-padding" *ngIf="(member$ | async)?.messages[i-1] && m.timestamp.toMillis() - (member$ | async)?.messages[i-1].timestamp.toMillis() > 1800000 || !(member$ | async)?.messages[i-1]">
+        <ion-row class="ion-justify-content-center ion-padding"
+          *ngIf="(member$ | async)?.messages[i-1] && m.timestamp.toMillis() - (member$ | async)?.messages[i-1].timestamp.toMillis() > 1800000 || !(member$ | async)?.messages[i-1]">
           <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time"
             color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
           <ng-template #elseDate>
@@ -34,11 +35,13 @@
           </ng-template>
         </ion-row>
 
-        <ion-item class="theme--item message--item" lines="none" [class.changeUser]="(member$ | async)?.messages[i-1] && (member$ | async)?.messages[i-1].uid !== m.uid">
+        <ion-item class="theme--item message--item" lines="none"
+          [class.changeUser]="(member$ | async)?.messages[i-1] && (member$ | async)?.messages[i-1].uid !== m.uid">
           <ion-row class="member--row" slot="start" *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage">
-            <ion-avatar class="dialog--member" *ngIf="(member$ | async)?.messages[i+1] && m.uid !== (member$ | async)?.messages[i+1].uid || !(member$ | async)?.messages[i+1] || (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
+            <ion-avatar class="dialog--member"
+              *ngIf="(member$ | async)?.messages[i+1] && m.uid !== (member$ | async)?.messages[i+1].uid || !(member$ | async)?.messages[i+1] || (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
               <img *ngIf="(member$ | async)?.profile.url; else elseTextAvatar"
-                src="{{ (member$ | async)?.profile.url }}">
+                src="{{ (member$ | async)?.profile.url_150 ? (member$ | async)?.profile.url_150 : (member$ | async)?.profile.url }}">
               <ng-template #elseTextAvatar>
                 <ngx-avatar name="{{ (member$ | async)?.profile.displayName }}" [size]="40"></ngx-avatar>
               </ng-template>
@@ -46,11 +49,22 @@
 
             <ion-col class="member--col" size="auto">
 
-              <ion-card color="light" class="dialog member message--card">
-                <ion-card-content class="message--content">
-                  <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
-                </ion-card-content>
-              </ion-card>
+              <ion-button *ngIf="m.style !== 'message'; else elseMemberText" fill="clear" class="message--file"
+                [class.message--file--height]="m.style === 'file'" (click)="previewFile(m)">
+                <img *ngIf="m.style === 'image'" class="message--image" [src]="m.body">
+                <ion-label *ngIf="m.style === 'file'" class="message--file--label">
+                  <ion-icon size="large" name="document-text-outline"></ion-icon>
+                  <h3>{{ m.fileName }}</h3>
+                </ion-label>
+              </ion-button>
+
+              <ng-template #elseMemberText>
+                <ion-card color="light" class="dialog member message--card">
+                  <ion-card-content class="message--content">
+                    <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
+                  </ion-card-content>
+                </ion-card>
+              </ng-template>
 
             </ion-col>
           </ion-row>
@@ -59,15 +73,28 @@
             <ion-row class="user--row" slot="end">
               <ion-col class="user--col">
 
-                <ion-card *ngIf="m.profile" color="primary" class="dialog message--card message--user">
-                  <ion-card-content class="message--content">
-                    <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
-                  </ion-card-content>
-                </ion-card>
+                <ion-button *ngIf="m.style !== 'message'; else elseUserText" fill="clear" class="message--file"
+                  [class.message--file--height]="m.style === 'file'" (click)="previewFile(m)">
+                  <img *ngIf="m.style === 'image'" class="message--image" [src]="m.body">
+                  <ion-label *ngIf="m.style === 'file'" class="message--file--label">
+                    <ion-icon size="large" name="document-text-outline"></ion-icon>
+                    <h3>{{ m.fileName }}</h3>
+                  </ion-label>
+                </ion-button>
+
+                <ng-template #elseUserText>
+                  <ion-card color="primary" class="dialog message--card message--user">
+                    <ion-card-content class="message--content">
+                      <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
+                    </ion-card-content>
+                  </ion-card>
+                </ng-template>
 
               </ion-col>
-              <ion-avatar class="dialog--user" *ngIf="m.uid === (profile$ | async)?.uid && (member$ | async)?.messages[i+1] && m.uid !== (member$ | async)?.messages[i+1].uid || m.uid === (profile$ | async)?.uid && !(member$ | async)?.messages[i+1] || m.uid === (profile$ | async)?.uid && (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
-                <img *ngIf="(profile$ | async)?.url; else elseTextAvatar" src="{{ (profile$ | async)?.url }}">
+              <ion-avatar class="dialog--user"
+                *ngIf="m.uid === (profile$ | async)?.uid && (member$ | async)?.messages[i+1] && m.uid !== (member$ | async)?.messages[i+1].uid || m.uid === (profile$ | async)?.uid && !(member$ | async)?.messages[i+1] || m.uid === (profile$ | async)?.uid && (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
+                <img *ngIf="(profile$ | async)?.url; else elseTextAvatar"
+                  src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
                 <ng-template #elseTextAvatar>
                   <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
                 </ng-template>
@@ -84,15 +111,49 @@
 
 <ion-footer [translucent]="true">
   <ion-toolbar>
-    <ion-col size="12">
-      <ion-row class="ion-align-items-center ion-padding-horizontal">
-        <ion-textarea autoGrow="true" rows="1" class="message--input" placeholder="Message" [(ngModel)]="newBody"
-          (keyup.enter)="checkSendMessage()" (keydown.enter)="onKeydown($event)" (ionFocus)="scrollOnFocus()" autocapitalize="sentences">
-        </ion-textarea>
-        <ion-button class="message--button ion-padding-start" (click)="sendMessage()" fill="clear" [disabled]="!newBody.length">
-          <ion-icon [name]="'send' + '-outline'"></ion-icon>
+    <ion-grid>
+      <ion-row *ngIf="newFiles.length" class="ion-align-items-center ion-padding-horizontal">
+        <ion-button class="message--button ion-padding-end" fill="clear" color="tertiary" disabled>
+          <ion-icon name=""></ion-icon>
+        </ion-button>
+        <ion-col class="message--files">
+          <ion-grid>
+            <ion-row>
+              <ion-col class="ion-padding" size="12" size-md="6" *ngFor="let file of newFiles">
+
+                <app-message-file #childFile [teamId]="teamId" [directId]="directId" [file]="file"
+                  (remove)="removeFile(file)"></app-message-file>
+
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+        <ion-button class="message--button ion-padding-start" fill="clear" color="tertiary" disabled>
+          <ion-icon name=""></ion-icon>
         </ion-button>
       </ion-row>
-    </ion-col>
+
+
+
+      <ion-row class="ion-align-items-center ion-padding-horizontal">
+        <ion-button class="message--button ion-padding-end" fill="clear" color="tertiary">
+          <ion-icon name="attach-outline"></ion-icon>
+          <label class="file-button">
+            <input type="file" (change)="fileChangeEvent($event)" />
+          </label>
+        </ion-button>
+        <ion-col>
+          <ion-textarea autoGrow="true" rows="1" class="message--input" placeholder="Message" [(ngModel)]="newBody"
+            (keyup.enter)="checkSendMessage()" (keydown.enter)="onKeydown($event)" (ionFocus)="scrollOnFocus()"
+            autocapitalize="sentences" (paste)="onPaste($event)">
+          </ion-textarea>
+        </ion-col>
+        <ion-button class="message--button ion-padding-start" (click)="sendMessage()" fill="clear"
+          [disabled]="!newBody.length && !newFiles.length">
+          <ion-icon name="send-outline"></ion-icon>
+        </ion-button>
+      </ion-row>
+    </ion-grid>
+
   </ion-toolbar>
 </ion-footer>

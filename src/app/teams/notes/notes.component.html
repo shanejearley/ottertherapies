@@ -38,7 +38,7 @@
           </ion-item>
           <ion-item class="notes--list" lines="none">
             <ion-avatar slot="start" class="">
-              <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
+              <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
               <ng-template #elseMemberAvatar>
                 <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
               </ng-template>
@@ -58,7 +58,7 @@
           <ion-card-content>
             <ion-item lines="none" class="notes--list">
               <ion-avatar slot="start">
-                <img *ngIf="(n.profile | async) && (n.profile | async)?.url; else elseMemberAvatar" src="{{ (n.profile | async)?.url }}">
+                <img *ngIf="(n.profile | async) && (n.profile | async)?.url; else elseMemberAvatar" src="{{ (n.profile | async)?.url_150 ? (n.profile | async)?.url_150 : (n.profile | async)?.url }}">
                 <ng-template #elseMemberAvatar>
                   <ngx-avatar *ngIf="(n.profile | async)" name="{{ (n.profile | async)?.displayName }}" [size]="40"></ngx-avatar>
                 </ng-template>
@@ -112,7 +112,7 @@
               <div *ngIf="n.comments.length" lines="none">
                 <ion-item lines="none" *ngFor="let c of n.comments; let i = index" class="notes--list">
                   <ion-avatar slot="start" class="comment--avatar">
-                    <img *ngIf="(c.profile | async)?.url; else elseMemberAvatar" src="{{ (c.profile | async)?.url }}">
+                    <img *ngIf="(c.profile | async)?.url; else elseMemberAvatar" src="{{ (c.profile | async)?.url_150 ? (c.profile | async)?.url_150 : (c.profile | async)?.url }}">
                     <ng-template #elseMemberAvatar>
                       <ngx-avatar name="{{ (c.profile | async)?.displayName }}" [size]="40"></ngx-avatar>
                     </ng-template>
@@ -132,7 +132,7 @@
               </div>
               <ion-item lines="none" class="notes--list">
                 <ion-avatar slot="start" class="">
-                  <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url }}">
+                  <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
                   <ng-template #elseMemberAvatar>
                     <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
                   </ng-template>

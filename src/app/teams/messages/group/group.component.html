@@ -35,7 +35,7 @@
             <ion-row class="member--row" slot="start"
               *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage">
               <ion-avatar *ngIf="(group$ | async)?.messages[i+1] && m.uid !== (group$ | async)?.messages[i+1].uid || !(group$ | async)?.messages[i+1] || (group$ | async)?.messages[i+1] && (group$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000" class="dialog--member">
-                <img *ngIf="(messageProfile | async)?.url; else elseTextAvatar" src="{{ (messageProfile | async)?.url }}">
+                <img *ngIf="(messageProfile | async)?.url; else elseTextAvatar" src="{{ (messageProfile | async)?.url_150 ? (messageProfile | async)?.url_150 : (messageProfile | async)?.url }}">
                 <ng-template #elseTextAvatar>
                   <ngx-avatar name="{{ (messageProfile | async)?.displayName }}" [size]="40"></ngx-avatar>
                 </ng-template>
@@ -66,7 +66,7 @@
   
                 </ion-col>
                 <ion-avatar class="dialog--user" *ngIf="(group$ | async)?.messages[i+1] && m.uid !== (group$ | async)?.messages[i+1].uid || !(group$ | async)?.messages[i+1] || (group$ | async)?.messages[i+1] && (group$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
-                  <img *ngIf="(messageProfile | async)?.url; else elseTextAvatar" src="{{ (messageProfile | async)?.url }}">
+                  <img *ngIf="(messageProfile | async)?.url; else elseTextAvatar" src="{{ (messageProfile | async)?.url_150 ? (messageProfile | async)?.url_150 : (messageProfile | async)?.url }}">
                   <ng-template #elseTextAvatar>
                     <ngx-avatar name="{{ (messageProfile | async)?.displayName }}" [size]="40"></ngx-avatar>
                   </ng-template>

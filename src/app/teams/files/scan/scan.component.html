@@ -45,7 +45,7 @@
                     <div *ngFor="let m of (members$ | async); let i = index">
                         <ion-item lines="none" detail="false" *ngIf="sourceId === 'files' && m.profile && m.uid !== (profile$ | async)?.uid || sourceId === m.uid" class="theme--item">
                             <ion-avatar slot="start">
-                                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
                                 <ng-template #elseMemberAvatar>
                                     <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
                                 </ng-template>
@@ -61,7 +61,7 @@
                     <div *ngFor="let m of (members$ | async); let i = index">
                         <ion-item lines="none" detail="false" *ngIf="sourceId === 'files' && m.profile && m.uid === (profile$ | async)?.uid" class="theme--item">
                             <ion-avatar slot="start">
-                                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url }}">
+                                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
                                 <ng-template #elseMemberAvatar>
                                     <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
                                 </ng-template>
@@ -111,10 +111,11 @@
                     <ion-item class="theme--item" lines="none">
                         <ion-note>Press thumbnails to preview scans</ion-note>
                     </ion-item>
-        
-                    <div *ngFor="let s of scans; let i = index" lines="none">
-                        <app-upload-task *ngIf="s" [teamId]="teamId" [folder]="folder" [file]="s.file" [scan]="s"></app-upload-task>
-                    </div>
+                    <ion-list inset="true" class="theme--list upload--list ion-margin-end ion-padding-end">
+                        <div *ngFor="let s of scans; let i = index" lines="none" class="ion-margin-end ion-padding-end">
+                            <app-upload-task *ngIf="s" [teamId]="teamId" [folder]="folder" [file]="s.file" [scan]="s"></app-upload-task>
+                        </div>
+                    </ion-list>
                 </div>
 
                 <ion-item class="theme--item" lines="none"></ion-item>
