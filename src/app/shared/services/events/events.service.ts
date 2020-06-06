@@ -233,7 +233,7 @@ export class EventsService {
         return this.membersCol.doc(uid).delete();
     }
 
-    async updateEvent(event, remove) {
+    async updateEventOnGcal(event) {
         const updateEvent = {
             createdBy: this.uid,
             id: event.id,
@@ -244,7 +244,23 @@ export class EventsService {
             type: event.type,
             location: event.location,
             recurrence: event.recurrence,
-            update: event.update
+            update: firestore.FieldValue.serverTimestamp()
+        }
+        this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
+        return this.eventsCol.doc(event.id).update(updateEvent);
+    }
+
+    async updateEvent(event, remove) {
+        const updateEvent = {
+            createdBy: this.uid,
+            id: event.id,
+            startTime: firestore.Timestamp.fromDate(new Date(event.updateStartTime)),
+            endTime: firestore.Timestamp.fromDate(new Date(event.updateEndTime)),
+            name: event.name,
+            info: event.info,
+            type: event.type,
+            location: event.location,
+            recurrence: event.recurrence
         }
         this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
         await this.eventsCol.doc(event.id).update(updateEvent)

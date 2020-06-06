@@ -58,7 +58,7 @@ const addEvent = async (uid, event) => {
     console.log(event.startTime.toDate());
 
     try {
-        return calendar.events.insert({
+        const newEvent = await calendar.events.insert({
             calendarId: 'primary',
             resource: {
                 summary: event.name,
@@ -79,11 +79,16 @@ const addEvent = async (uid, event) => {
                 organizer: {
                     displayName: 'Otter Therapies'
                 },
-                id: modifiedId
+                id: modifiedId,
+                visbility: 'default',
+                status: 'confirmed'
             }
         })
+        console.log('New event', newEvent.data.id, newEvent.data.summary);
+        return newEvent;
     } catch (err) {
-        return console.log(err.message);
+        console.log(err.message);
+        return false;
     }
 
 }
@@ -114,7 +119,19 @@ const modifyEvent = async (uid, event) => {
     console.log(modifiedId);
 
     try {
-        return calendar.events.patch({
+        const getEvent = await calendar.events.get({
+            calendarId: 'primary',
+            eventId: modifiedId
+        })
+
+        if (!getEvent.data.id) {
+            console.log('Event does not exist!')
+            return addEvent(uid, event);
+        }
+
+        console.log('Event exists!', getEvent.data.id, getEvent.data.summary);
+
+        const modifiedEvent = await calendar.events.patch({
             calendarId: 'primary',
             eventId: modifiedId,
             resource: {
@@ -136,11 +153,16 @@ const modifyEvent = async (uid, event) => {
                 organizer: {
                     displayName: 'Otter Therapies'
                 },
-                id: modifiedId
+                id: modifiedId,
+                visbility: 'default',
+                status: 'confirmed'
             }
-        })
+        });
+        console.log('Modified event', modifiedEvent.data.id, modifiedEvent.data.summary);
+        return modifiedEvent;
     } catch (err) {
-        return console.log(err.message);
+        console.log(err.message);
+        return false;
     }
 }
 
@@ -163,7 +185,8 @@ const removeEvent = async (uid, event) => {
             eventId: modifiedId
         })
     } catch (err) {
-        return console.log(err.message);
+        console.log(err.message);
+        return false;
     }
 
 }
@@ -604,15 +627,24 @@ exports.eventOnCreate = functions.firestore
         const membersSnapshot = await firestore.collection("teams").doc(teamId).collection("calendar").doc(eventId).collection("members").get();
         const members = membersSnapshot.docs.map(doc => doc.data());
 
-        return members.forEach(async m => {
-            const profileDoc = await firestore.collection("users").doc(m.uid).get();
-            const profile = profileDoc.data();
-            if (profile.gcalSync) {
-                return addEvent(profile.uid, event);
-            } else {
-                return console.log('member is not syncing events');
-            }
-        })
+        async function processMembers(members) {
+            const promises = members.map(async m => {
+                const profileDoc = await firestore.collection("users").doc(m.uid).get();
+                const profile = profileDoc.data();
+                if (profile.gcalSync) {
+                    console.log('Adding event for member');
+                    await addEvent(profile.uid, event);
+                } else {
+                    console.log('member is not syncing events');
+                }
+            })
+            // wait until all promises are resolved
+            await Promise.all(promises);
+            console.log('Done!');
+            return true;
+        }
+
+        return processMembers(members);
     })
 
 exports.eventOnUpdate = functions.firestore
@@ -628,29 +660,24 @@ exports.eventOnUpdate = functions.firestore
         const membersSnapshot = await firestore.collection("teams").doc(teamId).collection("calendar").doc(eventId).collection("members").get();
         const members = membersSnapshot.docs.map(doc => doc.data());
 
-        return members.forEach(async m => {
-            const profileDoc = await firestore.collection("users").doc(m.uid).get();
-            const profile = profileDoc.data();
-            if (profile.gcalSync) {
-                if (oldEvent) {
-                    try {
-                        return modifyEvent(profile.uid, event);
-                    } catch (err) {
-                        console.log(err.message);
-                        try {
-                            await removeEvent(profile.uid, event);
-                            return addEvent(profile.uid, event);
-                        } catch (err) {
-                            return console.log(err.message);
-                        }
-                    }
+        async function processMembers(members) {
+            const promises = members.map(async m => {
+                const profileDoc = await firestore.collection("users").doc(m.uid).get();
+                const profile = profileDoc.data();
+                if (profile.gcalSync) {
+                    console.log('modifying event for member');
+                    await modifyEvent(profile.uid, event);
                 } else {
-                    return addEvent(profile.uid, event);
+                    console.log('member is not syncing events');
                 }
-            } else {
-                return console.log('member is not syncing events');
-            }
-        })
+            })
+            // wait until all promises are resolved
+            await Promise.all(promises);
+            console.log('Done!');
+            return true;
+        }
+
+        return processMembers(members);
     })
 
 exports.eventOnDelete = functions.firestore
@@ -665,21 +692,30 @@ exports.eventOnDelete = functions.firestore
         const membersSnapshot = await firestore.collection("teams").doc(teamId).collection("calendar").doc(eventId).collection("members").get();
         const members = membersSnapshot.docs.map(doc => doc.data());
 
-        return members.forEach(async m => {
-            await firestore.collection("teams").doc(teamId).collection("calendar").doc(eventId).collection("members").doc(m.uid).delete();
-            await firestore.collection("users").doc(m.uid).collection("teams").doc(teamId).collection("unread").doc(eventId).delete();
-            const profileDoc = await firestore.collection("users").doc(m.uid).get();
-            const profile = profileDoc.data();
-            if (profile.gcalSync) {
-                try {
-                    return removeEvent(profile.uid, event);
-                } catch (err) {
-                    return console.log(err.message);
+        async function processMembers(members) {
+            const promises = members.map(async m => {
+                await firestore.collection("teams").doc(teamId).collection("calendar").doc(eventId).collection("members").doc(m.uid).delete();
+                await firestore.collection("users").doc(m.uid).collection("teams").doc(teamId).collection("unread").doc(eventId).delete();
+                const profileDoc = await firestore.collection("users").doc(m.uid).get();
+                const profile = profileDoc.data();
+                if (profile.gcalSync) {
+                    try {
+                        console.log('removing event for member');
+                        await removeEvent(profile.uid, event);
+                    } catch (err) {
+                        console.log(err.message);
+                    }
+                } else {
+                    console.log('member is not syncing events')
                 }
-            } else {
-                return console.log('member is not syncing events');
-            }
-        })
+            });
+            // wait until all promises are resolved
+            await Promise.all(promises);
+            console.log('Done!');
+            return true;
+        }
+
+        return processMembers(members);
     })
 
 exports.noteOnRemove = functions.firestore
@@ -1167,7 +1203,7 @@ exports.updateNoteCount = functions.firestore
 //             console.log('No code after this...');
 //             return false;
 //         }
-        
+
 //         console.log(`gs://${bucketName}/${file.name} moved to gs://${bucketName}/${destFilename}.`);
 //         return true;
 //     })

@@ -155,10 +155,7 @@ export class EditEventComponent {
 
     async addToGcal() {
         this.synced = true;
-        this.event.update = firestore.FieldValue.serverTimestamp();
-        setTimeout(() => {
-            return this.eventsService.updateEvent(this.event, this.remove);
-        }, 250)
+        return this.eventsService.updateEventOnGcal(this.event);
     }
 
     updateEvent() {
