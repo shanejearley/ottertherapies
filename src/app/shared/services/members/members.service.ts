@@ -245,19 +245,20 @@ export class MembersService {
   }
 
   checkLastMessage(memberUid: string) {
-    this.pathId = this.uid < memberUid ? this.uid + memberUid : memberUid + this.uid;
-    this.unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${this.pathId}`);
-    this.unreadUpdateDoc.set({
+    console.log('updating unread');
+    const pathId = this.uid < memberUid ? this.uid + memberUid : memberUid + this.uid;
+    const unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${pathId}`);
+    return unreadUpdateDoc.update({
       unreadMessages: 0
-    }, { merge: true });
+    });
   }
 
   checkLastFile(memberUid: string) {
-    this.pathId = this.uid < memberUid ? this.uid + memberUid : memberUid + this.uid;
-    this.unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${this.pathId}`);
-    this.unreadUpdateDoc.set({
+    const pathId = this.uid < memberUid ? this.uid + memberUid : memberUid + this.uid;
+    const unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${pathId}`);
+    return unreadUpdateDoc.update({
       unreadFiles: 0
-    }, { merge: true });
+    });
   }
 
   async removeFile(memberUid, fileId, fileUrl) {

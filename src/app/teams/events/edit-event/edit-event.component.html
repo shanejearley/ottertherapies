@@ -106,7 +106,7 @@
             <ion-textarea class="form" [(ngModel)]="event.info" placeholder="Add description" autocapitalize="sentences" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"></ion-textarea>
         </ion-item>
 
-        <ion-button *ngIf="(profile$ | async)?.gcalSync" class="ion-margin" expand="block" color="tertiary" (click)="addToGcal()" [disabled]="synced">
+        <ion-button *ngIf="(profile$ | async)?.gcalSync && memberStatus && !event.recurrenceId" class="ion-margin" expand="block" color="tertiary" (click)="addToGcal()" [disabled]="synced">
             <ion-icon name="google-outline" class="ion-margin-end"></ion-icon>
             Add to Google Calendar
         </ion-button>

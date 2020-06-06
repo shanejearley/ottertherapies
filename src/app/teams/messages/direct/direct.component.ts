@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList, HostListener, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { IonContent, IonList, Platform, AlertController } from '@ionic/angular';
 
@@ -7,7 +7,7 @@ const { Clipboard, Browser } = Plugins;
 
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap, takeUntil } from 'rxjs/operators'
+import { switchMap, tap, takeUntil, filter } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -90,25 +90,23 @@ export class DirectComponent implements OnInit {
     private alertController: AlertController
   ) { }
 
-  ngAfterViewInit() {
-    this.watch = true;
+  ionViewDidEnter() {
     this.member$
       .pipe(
         takeUntil(this.onDestroy),
-        tap(member => {
-          if (member && member.messages.length) {
+        filter(Boolean),
+        tap((member: Member) => {
+          if (member.messages && member.messages.length) {
             this.member = member;
-            if (this.watch) {
-              this.scrollToBottom(0);
+            this.checkUnread();
+            this.scrollToBottom(0);
+            this.mutationObserver = new MutationObserver((mutations) => {
+              this.scrollToBottom(500);
               this.checkUnread();
-              this.mutationObserver = new MutationObserver((mutations) => {
-                this.scrollToBottom(500);
-                this.checkUnread();
-              })
-              this.mutationObserver.observe(this.scroll.nativeElement, {
-                childList: true
-              });
-            }
+            })
+            this.mutationObserver.observe(this.scroll.nativeElement, {
+              childList: true
+            });
           }
         })
       ).subscribe()
@@ -116,6 +114,7 @@ export class DirectComponent implements OnInit {
 
   checkUnread() {
     if (this.member.unread && this.member.unread.unreadMessages > 0) {
+      console.log('checking unread');
       this.membersService.checkLastMessage(this.directId);
     }
     setTimeout(() => {
@@ -284,7 +283,6 @@ export class DirectComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.watch = false;
     this.onDestroy.next();
   }
 

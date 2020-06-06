@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, HostListener, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonContent, IonList, IonRouterOutlet, Platform, AlertController } from '@ionic/angular';
 import { ModalController, ToastController } from '@ionic/angular';
@@ -8,7 +8,7 @@ const { Clipboard, Browser } = Plugins;
 
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap, takeUntil } from 'rxjs/operators'
+import { switchMap, tap, takeUntil, filter } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -99,25 +99,22 @@ export class GroupComponent implements OnInit {
     private router: Router
   ) { }
 
-  ngAfterViewInit() {
-    this.watch = true;
+  ionViewDidEnter() {
     this.group$.pipe(
       takeUntil(this.onDestroy),
-      tap(group => {
-      if (group && group.messages.length) {
-        console.log('update!', group.messages);
+      filter(Boolean),
+      tap((group: Group) => {
+      if (group.messages && group.messages.length) {
         this.group = group;
+        this.checkUnread();
         this.scrollToBottom(0);
-        if (this.watch) {
+        this.mutationObserver = new MutationObserver((mutations) => {
+          this.scrollToBottom(500);
           this.checkUnread();
-          this.mutationObserver = new MutationObserver((mutations) => {
-            this.scrollToBottom(500);
-            this.checkUnread();
-          })
-          this.mutationObserver.observe(this.scroll.nativeElement, {
-            childList: true
-          });
-        }
+        })
+        this.mutationObserver.observe(this.scroll.nativeElement, {
+          childList: true
+        });
       }
     })).subscribe()
   }
@@ -340,7 +337,6 @@ export class GroupComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.watch = false;
     this.onDestroy.next();
   }
 

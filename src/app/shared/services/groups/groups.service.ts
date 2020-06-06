@@ -261,17 +261,17 @@ export class GroupsService {
   }
 
   checkLastMessage(groupId: string) {
-    this.unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
-    this.unreadUpdateDoc.set({
+    const unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
+    return unreadUpdateDoc.update({
       unreadMessages: 0,
-    }, { merge: true });
+    });
   }
 
   checkLastFile(groupId: string) {
-    this.unreadUpdateDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
-    this.unreadUpdateDoc.set({
+    const unreadUpdateDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
+    return unreadUpdateDoc.update({
       unreadFiles: 0
-    }, { merge: true });
+    });
   }
 
   async removeFile(groupId, fileId, fileUrl) {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, HostListener, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { IonContent, IonList, Config, ModalController, ToastController, IonRouterOutlet, AlertController, Platform, ActionSheetController } from '@ionic/angular';
 
@@ -7,7 +7,7 @@ const { Clipboard, Browser } = Plugins;
 
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap, takeUntil } from 'rxjs/operators'
+import { switchMap, tap, takeUntil, filter } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -27,7 +27,7 @@ import moment from 'moment';
     templateUrl: './member.component.html',
     styleUrls: ['./member.component.scss'],
 })
-export class MemberComponent implements OnInit {
+export class MemberComponent implements OnInit, AfterViewInit {
 
     @HostListener('dragover', ['$event'])
     onDragOver($event) {
@@ -82,7 +82,7 @@ export class MemberComponent implements OnInit {
     date: Date;
     time: number;
     segment: string = 'info';
-    watch: boolean;
+    watch: boolean = false;
     member: Member;
     data: any;
 
@@ -115,12 +115,12 @@ export class MemberComponent implements OnInit {
             this.watch = true;
             this.member$.pipe(
                 takeUntil(this.onDestroy),
-                tap(member => {
-                    if (member && member.messages.length) {
+                filter(Boolean),
+                tap((member: Member) => {
+                    if (member.messages && member.messages.length) {
                         this.member = member;
                         if (this.watch) {
                             this.scrollToBottom(0);
-                            this.checkUnread();
                             this.mutationObserver = new MutationObserver((mutations) => {
                                 this.scrollToBottom(500);
                                 this.checkUnread();
@@ -128,6 +128,7 @@ export class MemberComponent implements OnInit {
                             this.mutationObserver.observe(this.scroll.nativeElement, {
                                 childList: true
                             });
+                            this.checkUnread();
                         }
                     }
                 })).subscribe()

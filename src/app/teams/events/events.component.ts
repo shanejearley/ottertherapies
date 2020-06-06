@@ -107,11 +107,13 @@ export class EventsComponent implements OnInit {
       this.personal = true;
       setTimeout(() => {
         this.configCalendar();
+        this.today$ = this.getToday(this.date);
       }, 250)
     } else if (ev && ev.detail.value === 'all') {
       this.personal = false;
       setTimeout(() => {
         this.configCalendar();
+        this.today$ = this.getToday(this.date);
       }, 250)
     }
   }
@@ -267,7 +269,7 @@ export class EventsComponent implements OnInit {
     return this.combinedEvents$
       .pipe(
         filter(Boolean),
-        map((events: Event[]) => events.filter((event: Event) => moment(event.startTime.toDate()).startOf('day').format('ll') == day)))
+        map((events: Event[]) => this.personal ? events.filter((event: Event) => event.members.find(member => member.uid === this.uid) && moment(event.startTime.toDate()).startOf('day').format('ll') == day) : events.filter((event: Event) => moment(event.startTime.toDate()).startOf('day').format('ll') == day)))
   }
 
   getInstances(allEvents: Event[]) {
