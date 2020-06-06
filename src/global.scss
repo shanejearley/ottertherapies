@@ -73,7 +73,6 @@ ion-calendar { .dot{ small{ color: var(--ion-color-medium) !important; font-size
 ion-list.member--upload--list {
   padding-top: 0 !important;
   margin-top: 0 !important;
-  padding-inline-end: 32px !important;
 }
 
 .md {
@@ -501,7 +500,6 @@ ion-content {
 
 div.text-top {
   display: inline-block;
-  vertical-align: middle;
 }
 
 .file-button [type=file] {
@@ -531,21 +529,21 @@ div.text-top {
   margin-bottom: 5px;
   max-height: 200px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .message--image {
-  border-radius: 4px;
-  width: 200px;
+  width: 100%;
 }
 
 ion-button.message--file {
   --box-shadow: none !important;
-  --size: 200px;
   margin: 0 !important;
   background: var(--ion-color-light);
   border-radius: 4px;
   height: auto;
-  width: 200px;
+  width: 100%;
+  max-width: 200px;
   --padding-start: 0px;
   --padding-end: 0px;
 }
@@ -554,9 +552,12 @@ ion-button.message--file--height {
   height: 200px !important;
 }
 
+ion-button.message--file--output {
+  min-width: 200px;
+}
+
 ion-label.message--file--label {
   text-transform: none !important;
-  width: 200px;
 }
 
 .message--image--button {
@@ -567,5 +568,66 @@ ion-label.message--file--label {
 }
 
 ion-progress-bar.message--image--progress {
-  width: 200px;
+  max-width: 200px;
+}
+
+.wrap-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ellipsis-text {
+  display: flex !important;
+  justify-content: flex-start !important;
+}
+
+.presence--dot--component {
+  margin-top: 4px;
+  margin-left: 4px;
+}
+
+.presence--dot--title {
+  position: absolute;
+  margin-top: 3px;
+  margin-left: 4px;
+}
+
+.file--fab {
+  button, button:focus, .button.alt:focus {
+    outline: none !important;
+    background: transparent !important;
+  }
+  position: relative !important;
+  ion-fab-button.fab-button-close-active {
+    display: none !important;
+  }
+}
+
+.file--label--input-enabled {
+  pointer-events: unset !important;
+  max-width: unset !important;
+  flex: auto !important;
+}
+
+.file--label--input-disabled {
+  pointer-events: none !important;
+  max-width: unset !important;
+  flex: auto !important;
+  opacity: 0.5 !important;
+}
+
+.dropzone { 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column; 
+  min-width: 100%;
+  height: 200px;
+  border: 2px dashed var(--ion-color-warning);
+  border-radius: 5px;
+  margin: 10px 0;
+  &.hovering {
+      border: 2px solid var(--ion-color-warning);
+      color: #dadada !important;
+  }
 }

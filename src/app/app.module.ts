@@ -21,6 +21,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { PendingChangesGuard } from './shared/guards/pending-changes.guard';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -46,6 +47,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     StatusBar,
     SplashScreen,
     DocumentScanner,
+    InAppBrowser,
     Badge,
     PendingChangesGuard,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }

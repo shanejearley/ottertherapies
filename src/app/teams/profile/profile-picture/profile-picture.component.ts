@@ -39,21 +39,12 @@ export class ProfilePictureComponent {
         private teamsService: TeamsService
     ) { }
 
-    public fileOver(event) {
-        console.log(event);
-    }
-
-    public fileLeave(event) {
-        console.log(event);
-    }
-
     fileChangeEvent(event: any): void {
         console.log(event);
         this.imageChangedEvent = event;
     }
     imageCropped(event: ImageCroppedEvent) {
         this.croppedImage = event.base64;
-
     }
     imageLoaded() {
         // show cropper

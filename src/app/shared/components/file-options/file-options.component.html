@@ -1,0 +1,92 @@
+<ion-header translucent>
+  <ion-toolbar>
+    <ion-title>File Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+  <ion-list class="theme--list" lines="none">
+
+    <ion-card class="theme--card">
+      <ion-card-content>
+        <ion-item class="theme--item" lines="none" *ngIf="error">
+          <div *ngIf="error">
+            <div class="error" *ngIf="error">
+              {{ error }}
+            </div>
+          </div>
+        </ion-item>
+        <ion-item class="theme--item upload--item ion-padding-end" lines="true">
+
+          <ion-icon slot="start" color="primary" [name]="'document-text' + '-outline'"></ion-icon>
+          <ion-label class="file--label--input-enabled">
+            <h2 class="full-width">
+              <strong>
+                <ion-input (ionChange)="onChangeName($event)" class="form" [value]="updateName"
+                  placeholder="Enter a file name">
+                </ion-input>
+              </strong>
+            </h2>
+            <strong>{{ fileExt }}</strong>
+          </ion-label>
+
+        </ion-item>
+
+        <ion-item class="theme--item" lines="none">
+          <ion-label text-wrap>
+            <p>File saved in
+              {{ !folder.uid ? 'the ' + folder.name + ' group folder' : folder.uid !== uid ? 'your direct folder with ' + folder.profile.displayName : 'your private folder' }}
+            </p>
+            <p>
+              Uploaded by
+              {{ (file.profile | async) ? (file.profile | async)?.displayName : file.uid !== uid ? folder.profile.displayName : (profile$ | async)?.displayName }}
+              <ion-text *ngIf="time > file.timestamp.toMillis(); else elseDate" class="message--time"
+                color="medium">{{ file.timestamp.toMillis() | date : 'short' }}</ion-text>
+              <ng-template #elseDate>
+                <ion-text class="message--time" color="medium">Today,
+                  {{ file.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
+              </ng-template>
+            </p>
+          </ion-label>
+          <ion-fab-button *ngIf="saved == false" class="inner--fab" slot="end" color="warning"
+            (click)="updateFilename()" [disabled]="error">
+            <ion-icon name="save-outline"></ion-icon>
+          </ion-fab-button>
+          <ion-fab-button *ngIf="saved == true" class="inner--fab" slot="end" color="primary">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </ion-fab-button>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-button
+      *ngIf="ios || android || fileExt === '.png' || fileExt === '.jpg' || fileExt === '.jpeg' || fileExt === '.pdf'|| fileExt === '.gif'"
+      class="ion-margin" expand="block" color="secondary" (click)="previewFile()">
+      <ion-icon name="open-outline" class="ion-margin-end"></ion-icon>
+      Preview in browser
+    </ion-button>
+
+    <ion-button *ngIf="!ios && !android" class="ion-margin" expand="block" color="success" (click)="downloadFile()">
+      <ion-icon name="download-outline" class="ion-margin-end"></ion-icon>
+      Download to device
+    </ion-button>
+
+    <ion-button class="ion-margin" expand="block" color="tertiary" (click)="copyModal(file, folder)">
+      <ion-icon name="copy-outline" class="ion-margin-end"></ion-icon>
+      Copy to another folder
+    </ion-button>
+
+    <ion-button class="ion-margin" expand="block" color="danger" (click)="deleteFile()">
+      <ion-icon name="trash-outline" class="ion-margin-end"></ion-icon>
+      Delete from this folder
+    </ion-button>
+
+    <ion-item class="theme--item" lines="none"></ion-item>
+    <ion-item class="theme--item" lines="none"></ion-item>
+
+  </ion-list>
+</ion-content>

@@ -5,13 +5,14 @@
         </ion-buttons>
         <ion-title *ngIf="member$ | async as member">
             {{ member.profile ? member.profile.displayName : '' }}
-            <app-user-presence [uid]="member.uid"></app-user-presence>
+            <app-user-presence class="presence--dot--title" [uid]="member.uid"></app-user-presence>
         </ion-title>
     </ion-toolbar>
     <ion-toolbar>
         <ion-segment [(ngModel)]="segment" value="info" (ionChange)="segmentChanged($event)">
             <ion-segment-button value="info">Info</ion-segment-button>
-            <ion-segment-button value="messages" *ngIf="(member$ | async)?.uid !== (profile$ | async)?.uid">Messages</ion-segment-button>
+            <ion-segment-button value="messages" *ngIf="(member$ | async)?.uid !== (profile$ | async)?.uid">Messages
+            </ion-segment-button>
             <ion-segment-button value="files">Files</ion-segment-button>
         </ion-segment>
     </ion-toolbar>
@@ -79,7 +80,7 @@
 
                 <ion-row class="ion-justify-content-center ion-padding"
                     *ngIf="(member$ | async)?.messages[i-1] && m.timestamp.toMillis() - (member$ | async)?.messages[i-1].timestamp.toMillis() > 1800000 || !(member$ | async)?.messages[i-1]">
-                    <ion-text *ngIf="time - m.timestamp.toMillis() > 86400000; else elseDate" class="message--time"
+                    <ion-text *ngIf="time > m.timestamp.toMillis(); else elseDate" class="message--time"
                         color="medium">{{ m.timestamp.toMillis() | date : 'short' }}</ion-text>
                     <ng-template #elseDate>
                         <ion-text class="message--time" color="medium">Today,
@@ -103,11 +104,23 @@
 
                         <ion-col class="member--col" size="auto">
 
-                            <ion-card color="light" class="dialog member message--card">
-                                <ion-card-content class="message--content">
-                                    <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
-                                </ion-card-content>
-                            </ion-card>
+                            <ion-button *ngIf="m.style && m.style !== 'message'; else elseMemberText" fill="clear"
+                                class="message--file" [class.message--file--height]="m.style === 'file'"
+                                [class.message--file--output]="m.style === 'file'" (click)="previewFile(m)">
+                                <img *ngIf="m.style === 'image'" class="message--image" [src]="m.body">
+                                <ion-label *ngIf="m.style === 'file'" class="message--file--label">
+                                    <ion-icon size="large" name="document-text-outline"></ion-icon>
+                                    <h3>{{ m.fileName }}</h3>
+                                </ion-label>
+                            </ion-button>
+
+                            <ng-template #elseMemberText>
+                                <ion-card color="light" class="dialog member message--card">
+                                    <ion-card-content class="message--content">
+                                        <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
+                                    </ion-card-content>
+                                </ion-card>
+                            </ng-template>
 
                         </ion-col>
                     </ion-row>
@@ -116,11 +129,24 @@
                         <ion-row class="user--row" slot="end">
                             <ion-col class="user--col">
 
-                                <ion-card *ngIf="m.profile" color="primary" class="dialog message--card message--user">
-                                    <ion-card-content class="message--content">
-                                        <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
-                                    </ion-card-content>
-                                </ion-card>
+                                <ion-button *ngIf="m.style && m.style !== 'message'; else elseUserText" fill="clear"
+                                    class="message--file" [class.message--file--height]="m.style === 'file'"
+                                    [class.message--file--output]="m.style === 'file'" (click)="previewFile(m)">
+                                    <img *ngIf="m.style === 'image'" class="message--image" [src]="m.body">
+                                    <ion-label *ngIf="m.style === 'file'" class="message--file--label">
+                                        <ion-icon size="large" name="document-text-outline"></ion-icon>
+                                        <h3>{{ m.fileName }}</h3>
+                                    </ion-label>
+                                </ion-button>
+
+                                <ng-template #elseUserText>
+                                    <ion-card *ngIf="m.profile" color="primary"
+                                        class="dialog message--card message--user">
+                                        <ion-card-content class="message--content">
+                                            <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
+                                        </ion-card-content>
+                                    </ion-card>
+                                </ng-template>
 
                             </ion-col>
                             <ion-avatar class="dialog--user"
@@ -143,7 +169,8 @@
     <div id="file--container" *ngSwitchCase="'files'">
         <ion-list class="message--list" lines="none">
             <ion-item class="theme--item" (click)="scanDoc()" button lines="none">
-                <ion-fab-button slot="start" class="inner--fab" [class.ion-margin-top]="ios" [class.ion-margin-bottom]="ios">
+                <ion-fab-button slot="start" class="inner--fab" [class.ion-margin-top]="ios"
+                    [class.ion-margin-bottom]="ios">
                     <ion-icon name="scan-outline"></ion-icon>
                 </ion-fab-button>
                 <ion-label>
@@ -151,41 +178,31 @@
                 </ion-label>
             </ion-item>
             <ion-item class="theme--item" (click)="browseModal()" button lines="none">
-                <ion-fab-button slot="start" class="inner--fab" [class.ion-margin-top]="ios" [class.ion-margin-bottom]="ios">
+                <ion-fab-button slot="start" class="inner--fab" [class.ion-margin-top]="ios"
+                    [class.ion-margin-bottom]="ios">
                     <ion-icon name="document-text-outline"></ion-icon>
                 </ion-fab-button>
                 <ion-label>
                     <h2><strong>Upload Files</strong></h2>
                 </ion-label>
             </ion-item>
-            <ion-list inset="true" lines="none" *ngIf="(member$ | async)?.files.length; else elseFile" class="theme--list member--upload--list">
-                <ion-item class="theme--item" *ngFor="let f of (member$ | async)?.files; let i = index">
-                    <ion-icon slot="start" [name]="'document' + '-outline'"></ion-icon>
-                    <ion-label>
-                        <h2>{{ f.name }}</h2>
-                        <h3 *ngIf="f.uid !== (profile$ | async)?.uid; else elseUserName">
-                            {{ (member$ | async)?.profile.displayName }}
-                        </h3>
-                        <ng-template #elseUserName>
-                            <h3>{{ (profile$ | async)?.displayName }}</h3>
-                        </ng-template>
-                    </ion-label>
-                    <ion-button fill="clear" (click)="removeMemberFile(directId,f.id,f.url)" slot="end">
-                        <ion-icon slot="icon-only" color="danger" [name]="'trash' + '-outline'"></ion-icon>
-                    </ion-button>
-                    <ion-button fill="clear" (click)="previewFile(f)" slot="end">
-                        <ion-icon slot="icon-only" [name]="'download' + '-outline'">
-                        </ion-icon>
-                    </ion-button>
-                </ion-item>
-            </ion-list>
-            <ng-template #elseFile>
-                <ion-item class="message--list">
-                    <ion-label>
-                        <h2><strong>No files yet</strong></h2>
-                    </ion-label>
-                </ion-item>
-            </ng-template>
+            <div *ngIf="member$ | async as m">
+                <ion-list inset="true" lines="none" *ngIf="m.files.length; else elseFile"
+                    class="theme--list member--upload--list">
+                    <div *ngFor="let f of m.files; let i = index">
+                        <app-files-file [file]="f"
+                            [displayName]="f.uid !== (profile$ | async)?.uid ? m.profile.displayName : (profile$ | async)?.displayName"
+                            (options)="fileOptions(f, m)"></app-files-file>
+                    </div>
+                </ion-list>
+                <ng-template #elseFile>
+                    <ion-item class="message--list">
+                        <ion-label>
+                            <h2><strong>No files yet</strong></h2>
+                        </ion-label>
+                    </ion-item>
+                </ng-template>
+            </div>
         </ion-list>
     </div>
 </ion-content>
@@ -193,18 +210,49 @@
 <div [ngSwitch]="segment">
     <ion-footer *ngSwitchCase="'messages'" [translucent]="true">
         <ion-toolbar>
-            <ion-col size="12">
-                <ion-row class="ion-align-items-center ion-padding-horizontal">
-                    <ion-textarea autoGrow="true" rows="1" class="message--input" placeholder="Message"
-                        [(ngModel)]="newBody" (keyup.enter)="checkSendMessage()" (keydown.enter)="onKeydown($event)"
-                        (ionFocus)="scrollOnFocus()" autocapitalize="sentences">
-                    </ion-textarea>
-                    <ion-button class="message--button ion-padding-start" (click)="sendMessage()" fill="clear"
-                        [disabled]="!newBody.length">
-                        <ion-icon [name]="'send' + '-outline'"></ion-icon>
+
+            <ion-grid>
+                <ion-row *ngIf="newFiles.length" class="ion-align-items-center ion-padding-horizontal">
+                    <ion-button class="message--button ion-padding-end" fill="clear" color="tertiary" disabled>
+                        <ion-icon name=""></ion-icon>
+                    </ion-button>
+                    <ion-col class="message--files">
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col class="ion-padding" size="12" size-md="6" *ngFor="let file of newFiles">
+
+                                    <app-message-file #childFile [teamId]="teamId" [directId]="directId" [file]="file"
+                                        (remove)="removeFile(file)"></app-message-file>
+
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-col>
+                    <ion-button class="message--button ion-padding-start" fill="clear" color="tertiary" disabled>
+                        <ion-icon name=""></ion-icon>
                     </ion-button>
                 </ion-row>
-            </ion-col>
+
+                <ion-row class="ion-align-items-center ion-padding-horizontal">
+                    <ion-button class="message--button ion-padding-end" fill="clear" color="tertiary">
+                        <ion-icon name="attach-outline"></ion-icon>
+                        <label class="file-button">
+                            <input type="file" (change)="fileChangeEvent($event)" />
+                        </label>
+                    </ion-button>
+                    <ion-col>
+                        <ion-textarea autoGrow="true" rows="1" class="message--input" placeholder="Message"
+                            [(ngModel)]="newBody" (keyup.enter)="checkSendMessage()" (keydown.enter)="onKeydown($event)"
+                            (ionFocus)="scrollOnFocus()" autocapitalize="sentences" (paste)="onPaste($event)">
+                        </ion-textarea>
+                    </ion-col>
+                    <ion-button class="message--button ion-padding-start" (click)="sendMessage()" fill="clear"
+                        [disabled]="!newBody.length && !newFiles.length">
+                        <ion-icon name="send-outline"></ion-icon>
+                    </ion-button>
+                </ion-row>
+            </ion-grid>
+
         </ion-toolbar>
     </ion-footer>
 </div>

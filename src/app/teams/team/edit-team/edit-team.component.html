@@ -58,15 +58,22 @@
                 </ion-button>
             </ion-item>
         </div>
-        <ion-item lines="none" class="theme--item">
+
+        <ion-item lines='none' class="theme--item">
             <ion-icon slot="start" [name]="'people' + '-outline'"></ion-icon>
-            <ion-input class="form" [(ngModel)]="email" (keyup.enter)="addMember()" placeholder="Enter member by email"
-                [color]="error ? 'danger' : ''"></ion-input>
-            <ion-button slot="end" size="medium" color="warning" (click)="addMember()" [disabled]="!email || !email.length">
-                <!-- <ion-icon [name]="'person-add' + '-outline'"></ion-icon> -->
-                Add Member
-            </ion-button>
+            <ion-label text-wrap>
+                <h2>Enter and add members</h2>
+            </ion-label>
         </ion-item>
+
+        <div class="ion-margin-end ion-padding-end">
+            <ion-input class="form ion-margin-horizontal" placeholder="Enter member by email" [(ngModel)]="email" (keyup.enter)="addMember()"></ion-input>
+        </div>
+
+        <ion-button class="ion-padding-horizontal" expand="block" size="medium" color="warning" (click)="addMember()" [disabled]="!email || !email.length">
+            Add Member
+        </ion-button>
+
         <div *ngIf="newMembers.length">
             <ion-item lines="none" class="theme--item">
                 <p>Add members:&nbsp;
@@ -80,12 +87,16 @@
                 </p>
             </ion-item>
         </div>
+
+        <ion-item class="theme--item" lines="none"></ion-item>
+        <ion-item class="theme--item" lines="none"></ion-item>
+
     </ion-list>
 </ion-content>
 
 <ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-end ion-padding">
+        <ion-row class="ion-justify-content-end ion-padding-horizontal">
             <!-- <ion-button fill="clear" color="danger" [disabled]="memberStatus == 'Member'">Delete</ion-button> -->
             <ion-button color="tertiary" (click)="updateMembers()" [disabled]="memberStatus == 'Member'">Save</ion-button>
         </ion-row>

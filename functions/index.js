@@ -183,8 +183,8 @@ exports.resizeAvatar = functions.storage
             const avatarFileName = 'avatar_' + fileName;
 
             const workingDir = join(tmpdir(), `${collectionName}/${documentId}/profile/`);
-            const tmpFilePath = join(workingDir, fileName + '.jpeg');
-            const tmpAvatarPath = join(workingDir, avatarFileName + '.jpeg');
+            const tmpFilePath = join(workingDir, fileName);
+            const tmpAvatarPath = join(workingDir, avatarFileName);
 
             await fs.ensureDir(workingDir);
 
@@ -1128,3 +1128,122 @@ exports.updateNoteCount = functions.firestore
                 return console.log("error", error);
             });
     });
+
+// async function moveFile(bucketName, prefix, srcFileId, srcFilename, destFilename) {
+//     const options = {
+//         prefix: prefix,
+//     };
+
+//     const config = {
+//         action: 'read',
+//         expires: '01-01-2500'
+//     };
+
+//     console.log('source fileId', srcFileId);
+//     console.log('source filename', srcFilename);
+//     // Lists files in the bucket, filtered by a prefix
+//     const [files] = await storage.bucket(bucketName).getFiles(options);
+
+//     return files.forEach(async file => {
+//         // Moves the file within the bucket
+//         if (file.name === srcFileId) {
+//             console.log('Array find: ', files.findIndex(f => f.name === srcFileId));
+//             console.log(`File ${file.name} found.`);
+//             await storage.bucket(bucketName).file(srcFileId).move(destFilename);
+//             const newFile = storage.bucket(bucketName).file(destFilename);
+//             const urlArray = await newFile.getSignedUrl(config);
+//             const url = urlArray[0];
+//             await admin.firestore().doc(`${srcFileId}`).set({ url: url, updating: false }, { merge: true });
+//         } else if (file.name === srcFilename) {
+//             console.log('Array find: ', files.findIndex(f => f.name === srcFilename));
+//             console.log(`File ${file.name} found.`)
+//             await storage.bucket(bucketName).file(srcFilename).move(destFilename);
+//             const newFile = storage.bucket(bucketName).file(destFilename);
+//             const urlArray = await newFile.getSignedUrl(config);
+//             const url = urlArray[0];
+//             await admin.firestore().doc(`${srcFileId}`).set({ url: url, updating: false }, { merge: true });
+//         } else {
+//             console.log(`File ${file.name} not found.`);
+//             console.log('No code after this...');
+//             return false;
+//         }
+        
+//         console.log(`gs://${bucketName}/${file.name} moved to gs://${bucketName}/${destFilename}.`);
+//         return true;
+//     })
+// }
+
+// exports.updateGroupFileName = functions.firestore
+//     .document('teams/{teamId}/groups/{groupId}/files/{fileId}')
+//     .onUpdate((change, context) => {
+//         const teamId = context.params.teamId;
+//         const groupId = context.params.groupId;
+//         const fileId = context.params.fileId;
+//         const beforeFilename = change.before.data().name;
+//         const afterFilename = change.after.data().name;
+//         const prefix = `teams/${teamId}/groups/${groupId}/files/`;
+//         const srcFileId = `teams/${teamId}/groups/${groupId}/files/${fileId}`;
+//         const srcFilename = `teams/${teamId}/groups/${groupId}/files/${beforeFilename}`;
+//         const destFilename = `teams/${teamId}/groups/${groupId}/files/${afterFilename}`;
+//         const bucketName = functions.config().otterproject.storagebucket;
+//         if (afterFilename !== beforeFilename) {
+//             try {
+//                 return moveFile(bucketName, prefix, srcFileId, srcFilename, destFilename);
+//             } catch (err) {
+//                 console.log(err.message);
+//                 return false;
+//             }
+//         } else {
+//             return false;
+//         }
+//     })
+
+// exports.updateDirectFileName = functions.firestore
+//     .document('teams/{teamId}/direct/{pathId}/files/{fileId}')
+//     .onWrite((change, context) => {
+//         const teamId = context.params.teamId;
+//         const pathId = context.params.pathId;
+//         const fileId = context.params.fileId;
+//         const beforeFilename = change.before.data().name;
+//         const afterFilename = change.after.data().name
+//         const prefix = `teams/${teamId}/direct/${pathId}/files/`;
+//         const srcFileId = `teams/${teamId}/direct/${pathId}/files/${fileId}`;
+//         const srcFilename = `teams/${teamId}/direct/${pathId}/files/${beforeFilename}`;
+//         const destFilename = `teams/${teamId}/direct/${pathId}/files/${afterFilename}`;
+//         const bucketName = functions.config().otterproject.storagebucket;
+//         if (afterFilename !== beforeFilename) {
+//             try {
+//                 return moveFile(bucketName, prefix, srcFileId, srcFilename, destFilename);
+//             } catch (err) {
+//                 console.log(err.message);
+//                 return false;
+//             }
+//         } else {
+//             return false;
+//         }
+//     })
+
+// exports.updatePrivateFileName = functions.firestore
+//     .document('users/{userId}/teams/{teamId}/files/{fileId}')
+//     .onWrite((change, context) => {
+//         const userId = context.params.userId;
+//         const teamId = context.params.teamId;
+//         const fileId = context.params.fileId;
+//         const beforeFilename = change.before.data().name;
+//         const afterFilename = change.after.data().name
+//         const prefix = `users/${userId}/teams/${teamId}/files/`;
+//         const srcFileId = `users/${userId}/teams/${teamId}/files/${fileId}`;
+//         const srcFilename = `users/${userId}/teams/${teamId}/files/${beforeFilename}`;
+//         const destFilename = `users/${userId}/teams/${teamId}/files/${afterFilename}`;
+//         const bucketName = functions.config().otterproject.storagebucket;
+//         if (afterFilename !== beforeFilename) {
+//             try {
+//                 return moveFile(bucketName, prefix, srcFileId, srcFilename, destFilename);
+//             } catch (err) {
+//                 console.log(err.message);
+//                 return false;
+//             }
+//         } else {
+//             return false;
+//         }
+//     })

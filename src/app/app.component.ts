@@ -1,13 +1,13 @@
-import { Component, OnInit, AfterContentChecked, AfterViewInit, AfterContentInit, HostListener, EventEmitter, NgZone } from '@angular/core';
-import { Router, RoutesRecognized, GuardsCheckEnd } from '@angular/router';
+import { Component, OnInit, HostListener, NgZone } from '@angular/core';
+import { Router, GuardsCheckEnd, NavigationEnd } from '@angular/router';
 
-import { Platform, Config, PopoverController, ModalController, IonRouterOutlet, ToastController } from '@ionic/angular';
+import { Platform, ToastController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Badge } from '@ionic-native/badge/ngx';
 
 import { Plugins } from '@capacitor/core';
-const { Browser } = Plugins;
+const { App, Browser } = Plugins;
 
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -23,7 +23,6 @@ import { PendingService } from './shared/services/pending/pending.service';
 import { EventsService } from './shared/services/events/events.service';
 import { Store } from 'src/store';
 import { ResourcesService } from './shared/services/resources/resources.service';
-import { BadgeService } from './shared/services/badge/badge.service';
 import { DarkService } from './shared/services/dark/dark.service';
 import { SwUpdate } from '@angular/service-worker';
 import { PresenceService } from './shared/services/presence/presence.service';
@@ -34,6 +33,19 @@ import { PresenceService } from './shared/services/presence/presence.service';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit {
+
+  @HostListener('dragover', ['$event'])
+  onDragOver($event) {
+    $event.preventDefault();
+  }
+  @HostListener('dragleave', ['$event'])
+  onDragLeave($event) {
+    $event.preventDefault();
+  }
+  @HostListener('drop', ['$event'])
+  onDrop($event) {
+    $event.preventDefault();
+  }
 
   user$: Observable<User>;
   profile$: Observable<Profile>;
@@ -103,7 +115,11 @@ export class AppComponent implements OnInit {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
+    private badge: Badge,
+    private toastController: ToastController,
+    private swUpdate: SwUpdate,
     private router: Router,
+    private zone: NgZone,
     private authService: AuthService,
     private profileService: ProfileService,
     private teamsService: TeamsService,
@@ -113,11 +129,8 @@ export class AppComponent implements OnInit {
     private pendingService: PendingService,
     private eventsService: EventsService,
     private resourcesService: ResourcesService,
-    private badge: Badge,
+    private presenceService: PresenceService,
     private darkService: DarkService,
-    private toastController: ToastController,
-    private swUpdate: SwUpdate,
-    private presenceService: PresenceService
   ) {
     this.initializeApp();
 
@@ -154,6 +167,28 @@ export class AppComponent implements OnInit {
       if (this.ios || this.android) {
         this.badge.set(0);
       }
+    });
+    App.addListener('appUrlOpen', (data: any) => {
+      this.zone.run(() => {
+        // Example url: https://beerswift.app/tabs/tab2
+        // slug = /tabs/tab2
+        const slugOne = data.url.split(".app").pop();
+        const slugTwo = slugOne.split('https://ottertherapies.firebaseapp.com').pop();
+        const googleCalendarRedirect = slugTwo.includes('https://www.googleapis.com/auth/calendar');
+        console.log('SLUG', slugTwo);
+        if (slugTwo) {
+          if (!this.ios && !this.android || !googleCalendarRedirect) {
+            this.router.navigateByUrl(slugTwo);
+          } else if (googleCalendarRedirect) {
+            console.log('Rely on profile component.')
+            //this.router.navigateByUrl(slugTwo);
+          }
+        } else if (slugOne) {
+          this.router.navigateByUrl(slugOne);
+        }
+        // If no match, do nothing - let regular routing 
+        // logic take over
+      });
     });
   }
 
@@ -278,6 +313,12 @@ export class AppComponent implements OnInit {
           this.child = null;
         }
         console.log('VAL STATE ROOT FIRST CHILD', val.state.root.firstChild)
+      }
+      if (val instanceof NavigationEnd) {
+        if (window.location.hostname === 'ottertherapies.firebaseapp.com') {
+          console.log(`SWITCHING HOSTNAME AND GOING TO https://ottertherapies.web.app${val.url}`);
+          window.location.href = `https://ottertherapies.web.app${val.url}`;
+        }
       }
     });
   }

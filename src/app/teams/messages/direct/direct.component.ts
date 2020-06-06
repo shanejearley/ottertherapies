@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, ViewChildren, QueryList, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { IonContent, IonList, Platform } from '@ionic/angular';
+import { IonContent, IonList, Platform, AlertController } from '@ionic/angular';
 
 import { Plugins } from '@capacitor/core';
 const { Clipboard, Browser } = Plugins;
@@ -16,6 +16,8 @@ import { MembersService, Member } from '../../../shared/services/members/members
 
 import { Store } from 'src/store';
 import { MessageFileComponent } from 'src/app/shared/components/message-file/message-file.component';
+
+import moment from 'moment';
 
 @Component({
   selector: 'app-direct',
@@ -47,14 +49,16 @@ export class DirectComponent implements OnInit {
       }
     }
   }
-  finished = false;
-  @ViewChildren('childFile') childFiles:QueryList<MessageFileComponent>;
+  @ViewChildren('childFile') childFiles: QueryList<MessageFileComponent>;
+
   @ViewChild(IonContent) contentArea: IonContent;
   @ViewChild(IonList, { read: ElementRef }) scroll: ElementRef;
+  private mutationObserver: MutationObserver;
+
   ios: boolean;
   android: boolean;
   desktop: boolean;
-  private mutationObserver: MutationObserver;
+
   user$: Observable<User>;
   profile$: Observable<Profile>;
   team$: Observable<Team>;
@@ -63,12 +67,10 @@ export class DirectComponent implements OnInit {
   directId: string;
   pathId: string;
   teamId: string;
-  subscriptions: Subscription[] = [];
   public team: string;
   public page: string;
   date: Date;
   time: number;
-  memberSub: Subscription;
   watch: boolean;
   member: Member;
 
@@ -84,7 +86,8 @@ export class DirectComponent implements OnInit {
     private authService: AuthService,
     private teamsService: TeamsService,
     private membersService: MembersService,
-    private platform: Platform
+    private platform: Platform,
+    private alertController: AlertController
   ) { }
 
   ngAfterViewInit() {
@@ -130,6 +133,18 @@ export class DirectComponent implements OnInit {
     }
   }
 
+  scrollOnFocus() {
+    setTimeout(() => {
+      this.scrollToBottom(500);
+    }, 750)
+  }
+
+  checkSendMessage() {
+    if (this.desktop) {
+      this.sendMessage();
+    }
+  }
+
   async onPaste(ev) {
     console.log(ev);
     const result = await Clipboard.read();
@@ -142,28 +157,38 @@ export class DirectComponent implements OnInit {
     }
   }
 
+  async largeFileAlert() {
+    const alert = await this.alertController.create({
+      // header: 'One sec!',
+      // subHeader: 'Scanning is a mobile feature',
+      message: 'Your file is larger than our limit of 25MB! Try a smaller version.',
+      buttons: ['OK']
+    });
+
+    await alert.present();
+  }
+
   async fileRead(file) {
     const reader = new FileReader();
     return new Promise((resolve, reject) => {
       console.log(file);
-      if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/gif') {
-        reader.readAsDataURL(file);
-        reader.onerror = () => {
-          reader.abort();
-          reject(new DOMException("Problem parsing input file."))
-        }
-        reader.onload = () => {
-          resolve({ type: file.type, value: reader.result, name: file.name });
-        };
-      } else {
-        resolve({ type: file.type, value: file, name: file.name })
+      reader.readAsDataURL(file);
+      reader.onerror = () => {
+        reader.abort();
+        reject(new DOMException("Problem parsing input file."))
       }
+      reader.onload = () => {
+        resolve({ type: file.type, value: reader.result, name: file.name });
+      };
     })
   }
 
   async fileDropEvent(files) {
     const dropPromises = files.map(async file => {
       try {
+        if (file.size > 25000000) {
+          return this.largeFileAlert();
+        }
         const result = await this.fileRead(file);
         await this.newFiles.push(result);
         return this.scrollOnFocus();
@@ -177,6 +202,9 @@ export class DirectComponent implements OnInit {
   async fileChangeEvent(ev) {
     const file = ev.target.files[0];
     try {
+      if (file.size > 25000000) {
+        return this.largeFileAlert();
+      }
       const result = await this.fileRead(file);
       console.log('res', result)
       await this.newFiles.push(result);
@@ -193,18 +221,6 @@ export class DirectComponent implements OnInit {
 
   async previewFile(message) {
     await Browser.open({ url: message.body });
-  }
-
-  scrollOnFocus() {
-    setTimeout(() => {
-      this.scrollToBottom(500);
-    }, 750)
-  }
-
-  checkSendMessage() {
-    if (this.desktop) {
-      this.sendMessage();
-    }
   }
 
   resetSender() {
@@ -249,9 +265,9 @@ export class DirectComponent implements OnInit {
       this.android = this.platform.is('android') && this.platform.is('capacitor');
       console.log(this.desktop, this.ios, this.android)
     })
-    
+
     this.date = new Date();
-    this.time = this.date.getTime();
+    this.time = moment(this.date).startOf('day').toDate().getTime();
     this.newBody = '';
     this.profile$ = this.store.select<Profile>('profile');
     this.members$ = this.store.select<Member[]>('members');

@@ -42,12 +42,16 @@
                 <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange(m)" [disabled]="m.uid === (profile$ | async)?.uid"></ion-checkbox>
             </ion-item>
         </ion-list>
+
+        <ion-item class="theme--item" lines="none"></ion-item>
+        <ion-item class="theme--item" lines="none"></ion-item>
+
     </ion-list>
 </ion-content>
 
-<ion-footer>
+<ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-end ion-padding">
+        <ion-row class="ion-justify-content-end ion-padding-horizontal">
             <ion-button color="tertiary" (click)="addGroup()" [disabled]="clicked">Create</ion-button>
         </ion-row>
     </ion-toolbar>

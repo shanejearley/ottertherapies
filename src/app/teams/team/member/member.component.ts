@@ -1,13 +1,13 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener, ViewChildren, QueryList } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { IonContent, IonList, Config, ModalController, ToastController, IonRouterOutlet, AlertController, Platform } from '@ionic/angular';
+import { IonContent, IonList, Config, ModalController, ToastController, IonRouterOutlet, AlertController, Platform, ActionSheetController } from '@ionic/angular';
 
 import { Plugins } from '@capacitor/core';
-const { Browser } = Plugins;
+const { Clipboard, Browser } = Plugins;
 
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators'
+import { switchMap, tap, takeUntil } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -17,6 +17,10 @@ import { MembersService, Member, Message, Direct } from '../../../shared/service
 import { Store } from 'src/store';
 import { ScanComponent } from '../../files/scan/scan.component';
 import { BrowseComponent } from '../../files/browse/browse.component';
+import { MessageFileComponent } from 'src/app/shared/components/message-file/message-file.component';
+import { FileOptionsComponent } from 'src/app/shared/components/file-options/file-options.component';
+
+import moment from 'moment';
 
 @Component({
     selector: 'app-member',
@@ -24,19 +28,51 @@ import { BrowseComponent } from '../../files/browse/browse.component';
     styleUrls: ['./member.component.scss'],
 })
 export class MemberComponent implements OnInit {
-    finished = false;
+
+    @HostListener('dragover', ['$event'])
+    onDragOver($event) {
+        $event.preventDefault();
+    }
+
+    @HostListener('dragleave', ['$event'])
+    onDragLeave($event) {
+        $event.preventDefault();
+    }
+
+    @HostListener('drop', ['$event'])
+    onDrop($event) {
+        $event.preventDefault();
+        if (this.segment === 'messages') {
+            const fileList: FileList = $event.dataTransfer.files;
+            console.log(fileList);
+            let files = [];
+            for (let i = 0; i < fileList.length; i++) {
+                files.push(fileList.item(i));
+                console.log(files);
+                if (files.length = fileList.length) {
+                    console.log(files);
+                    this.fileDropEvent(files);
+                    files = [];
+                }
+            }
+        }
+    }
+
+    @ViewChildren('childFile') childFiles: QueryList<MessageFileComponent>;
+
     @ViewChild(IonContent) contentArea: IonContent;
     @ViewChild(IonList, { read: ElementRef }) scroll: ElementRef;
+    private mutationObserver: MutationObserver;
+
     ios: boolean;
     android: boolean;
     desktop: boolean;
-    private mutationObserver: MutationObserver;
+
     user$: Observable<User>;
     profile$: Observable<Profile>;
     team$: Observable<Team>;
     members$: Observable<Member[]>;
     member$: Observable<Member>;
-    newBody: string;
     directId: string;
     pathId: string;
     teamId: string;
@@ -46,10 +82,15 @@ export class MemberComponent implements OnInit {
     date: Date;
     time: number;
     segment: string = 'info';
-    memberSub: Subscription;
     watch: boolean;
     member: Member;
     data: any;
+
+    newBody: string;
+    newFiles: any = [];
+    sending: boolean;
+
+    private readonly onDestroy = new Subject<void>();
 
     constructor(
         private store: Store,
@@ -57,12 +98,12 @@ export class MemberComponent implements OnInit {
         private authService: AuthService,
         private teamsService: TeamsService,
         private membersService: MembersService,
-        private config: Config,
         private modalController: ModalController,
         private toastController: ToastController,
         private routerOutlet: IonRouterOutlet,
         private alertController: AlertController,
-        private platform: Platform
+        private platform: Platform,
+        private actionSheetController: ActionSheetController
     ) { }
 
     ngAfterViewInit() {
@@ -72,22 +113,24 @@ export class MemberComponent implements OnInit {
     segmentChanged(event) {
         if (event.detail.value == 'messages') {
             this.watch = true;
-            this.memberSub = this.member$.subscribe(member => {
-                if (member && member.messages.length) {
-                    this.member = member;
-                    if (this.watch) {
-                        this.scrollToBottom(0);
-                        this.checkUnread();
-                        this.mutationObserver = new MutationObserver((mutations) => {
-                            this.scrollToBottom(500);
+            this.member$.pipe(
+                takeUntil(this.onDestroy),
+                tap(member => {
+                    if (member && member.messages.length) {
+                        this.member = member;
+                        if (this.watch) {
+                            this.scrollToBottom(0);
                             this.checkUnread();
-                        })
-                        this.mutationObserver.observe(this.scroll.nativeElement, {
-                            childList: true
-                        });
+                            this.mutationObserver = new MutationObserver((mutations) => {
+                                this.scrollToBottom(500);
+                                this.checkUnread();
+                            })
+                            this.mutationObserver.observe(this.scroll.nativeElement, {
+                                childList: true
+                            });
+                        }
                     }
-                }
-            })
+                })).subscribe()
         } else if (event.detail.value !== 'messages') {
             this.watch = false;
         }
@@ -125,9 +168,103 @@ export class MemberComponent implements OnInit {
         }
     }
 
-    sendMessage() {
-        this.membersService.addMessage(this.newBody, this.directId, "message", null);
+    async onPaste(ev) {
+        console.log(ev);
+        const result = await Clipboard.read();
+        console.log('Got', result.type, 'from clipboard:', result.value);
+        if (result.type !== 'text/plain') {
+            await this.newFiles.push(result);
+            return this.scrollOnFocus();
+        } else {
+            return false;
+        }
+    }
+
+    async largeFileAlert() {
+        const alert = await this.alertController.create({
+            // header: 'One sec!',
+            // subHeader: 'Scanning is a mobile feature',
+            message: 'Your file is larger than our limit of 25MB! Try a smaller version.',
+            buttons: ['OK']
+        });
+
+        await alert.present();
+    }
+
+    async fileRead(file) {
+        const reader = new FileReader();
+        return new Promise((resolve, reject) => {
+            console.log(file);
+            reader.readAsDataURL(file);
+            reader.onerror = () => {
+                reader.abort();
+                reject(new DOMException("Problem parsing input file."))
+            }
+            reader.onload = () => {
+                resolve({ type: file.type, value: reader.result, name: file.name });
+            };
+        })
+    }
+
+    async fileDropEvent(files) {
+        const dropPromises = files.map(async file => {
+            try {
+                if (file.size > 25000000) {
+                    return this.largeFileAlert();
+                }
+                const result = await this.fileRead(file);
+                await this.newFiles.push(result);
+                return this.scrollOnFocus();
+            } catch (err) {
+                return console.log(err.message);
+            }
+        })
+        return Promise.all(dropPromises);
+    }
+
+    async fileChangeEvent(ev) {
+        const file = ev.target.files[0];
+        try {
+            if (file.size > 25000000) {
+                return this.largeFileAlert();
+            }
+            const result = await this.fileRead(file);
+            console.log('res', result)
+            await this.newFiles.push(result);
+            return this.scrollOnFocus();
+        } catch (err) {
+            return console.log(err.message);
+        }
+    }
+
+    async removeFile(file) {
+        const index = this.newFiles.indexOf(file);
+        return this.newFiles.splice(index, 1);
+    }
+
+    // async previewFile(message) {
+    //     await Browser.open({ url: message.body });
+    // }
+
+    resetSender() {
+        this.newFiles = [];
         this.newBody = '';
+        this.sending = false;
+    }
+
+    async sendMessage() {
+        this.sending = true;
+        if (this.newFiles.length && this.childFiles.length) {
+            const uploadPromises = this.childFiles.map(async child => {
+                const upload = await child.upload();
+                return console.log(upload);
+            });
+            await Promise.all(uploadPromises);
+        }
+        if (this.newBody.length) {
+            await this.membersService.addMessage(this.newBody, this.directId, "message", null);
+        }
+        return this.resetSender();
     }
 
     onKeydown(event) {
@@ -152,7 +289,7 @@ export class MemberComponent implements OnInit {
             console.log(this.desktop, this.ios, this.android)
         })
         this.date = new Date();
-        this.time = this.date.getTime();
+        this.time = moment(this.date).startOf('day').toDate().getTime();
         this.newBody = '';
         this.profile$ = this.store.select<Profile>('profile');
         this.members$ = this.store.select<Member[]>('members');
@@ -161,11 +298,6 @@ export class MemberComponent implements OnInit {
                 tap(param => { this.directId = param.directId }),
                 switchMap(param => this.membersService.getMember(param.directId))
             );
-        this.subscriptions = [
-            //this.authService.auth$.subscribe(),
-            //this.profileService.profile$.subscribe(),
-            //this.teamsService.teams$.subscribe()
-        ];
         this.team$ = this.activatedRoute.params
             .pipe(
                 tap(param => { this.teamId = param.id }),
@@ -175,18 +307,34 @@ export class MemberComponent implements OnInit {
 
     ngOnDestroy() {
         this.watch = false;
-        if (this.memberSub && !this.memberSub.closed) {
-            this.memberSub.unsubscribe();
-        }
-        this.subscriptions.forEach(sub => sub.unsubscribe());
+        this.onDestroy.next();
     }
 
     async previewFile(file) {
-        await Browser.open({ url: file.url });
+        await Browser.open({ url: file.url ? file.url : file.body });
     }
 
-    removeMemberFile(memberUid, fileId, fileUrl) {
-        return this.membersService.removeFile(memberUid, fileId, fileUrl);
+    async presentActionSheet(folder, fileId: string, fileUrl: string) {
+        const actionSheet = await this.actionSheetController.create({
+            header: 'Warning: Permanent Action',
+            buttons: [{
+                text: 'Delete',
+                role: 'destructive',
+                icon: 'trash',
+                handler: async () => {
+                    console.log('Delete clicked');
+                    this.membersService.removeFile(folder.uid, fileId, fileUrl);
+                }
+            }, {
+                text: 'Cancel',
+                icon: 'close',
+                role: 'cancel',
+                handler: () => {
+                    console.log('Cancel clicked');
+                }
+            }]
+        });
+        await actionSheet.present();
     }
 
     scanDoc() {
@@ -249,6 +397,27 @@ export class MemberComponent implements OnInit {
             duration: 2000
         });
         toast.present();
+    }
+
+    async fileOptions(file, folder) {
+        const modal = await this.modalController.create({
+            component: FileOptionsComponent,
+            componentProps: {
+                'teamId': this.teamId,
+                'file': file,
+                'folder': folder
+            },
+            swipeToClose: true,
+            presentingElement: this.routerOutlet.nativeEl
+        });
+        modal.onWillDismiss().then(data => {
+            this.data = data.data;
+            if (this.data.response === 'delete') {
+                console.log('delete');
+                this.presentActionSheet(folder, file.id, file.url);
+            }
+        });
+        return await modal.present();
     }
 
 }

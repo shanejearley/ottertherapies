@@ -9,6 +9,7 @@ import { AvatarModule } from 'ngx-avatar';
 import { GroupRoutingModule } from './group-routing.module';
 import { GroupComponent } from './group.component';
 import { EditGroupComponent } from '../../../shared/components/edit-group/edit-group.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { EditGroupComponent } from '../../../shared/components/edit-group/edit-g
     FormsModule,
     IonicModule,
     AvatarModule,
-    GroupRoutingModule
+    GroupRoutingModule,
+    SharedModule
   ],
   entryComponents: [EditGroupComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],

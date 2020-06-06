@@ -44,11 +44,11 @@
               </ion-item>
               <ion-item lines="none" class="theme--item">
                 <ion-label>
-                  <h2>
-                    <strong>
+                  <h2 class="ellipsis-text">
+                    <strong class="wrap-text">
                       {{ m.profile.displayName }}
                     </strong>
-                    <app-user-presence [uid]="m.uid"></app-user-presence>
+                    <app-user-presence class="presence--dot--component" [uid]="m.uid"></app-user-presence>
                   </h2>
                   <p>{{ m.status == 'Admin' ? 'Admin' : 'Member' }}</p>
                 </ion-label>
@@ -62,13 +62,13 @@
             <ion-card-header>
               <ion-item lines="none" class="theme--item">
                 <ion-fab-button slot="start" class="inner--fab">
-                  <ion-icon name="people-outline"></ion-icon>
+                  <ion-icon name="person-add-outline"></ion-icon>
                 </ion-fab-button>
               </ion-item>
               <ion-item lines="none" class="theme--item">
                 <ion-label>
                   <h2>
-                    <strong>Edit</strong>
+                    <strong>Edit Team</strong>
                   </h2>
                   <p>Add/Remove</p>
                 </ion-label>

@@ -47,15 +47,20 @@ export interface File {
   type: string,
   uid: string,
   url: string,
-  profile: Observable<Profile>
+  profile?: Observable<Profile>,
+  style?: string,
+  updating?: boolean
 }
 
 export interface Message {
   body: string,
-  id: string,
+  type?: string,
+  id?: string,
   uid: string,
   timestamp: firestore.FieldValue,
-  profile: Observable<Profile>
+  profile?: Observable<Profile>,
+  style?: string,
+  fileName?: string
 }
 
 @Injectable()
@@ -65,9 +70,7 @@ export class GroupsService {
   private filesCol: AngularFirestoreCollection<File>;
   private messagesCol: AngularFirestoreCollection<Message>;
   private groupDoc: AngularFirestoreDocument<Group>;
-  private unreadDoc: AngularFirestoreDocument<Unread>;
   private unreadUpdateDoc: AngularFirestoreDocument;
-  private fileDoc: AngularFirestoreDocument<File>;
   members$;
   unread$: Observable<Unread>;
   group$: Observable<Group>;
@@ -82,9 +85,7 @@ export class GroupsService {
     private store: Store,
     private db: AngularFirestore,
     private storage: AngularFireStorage,
-    private authService: AuthService,
     private membersService: MembersService,
-    private router: Router
   ) { }
 
   groupsObservable(userId, teamId) {
@@ -188,9 +189,9 @@ export class GroupsService {
                   file.profile = this.membersService.getProfile(file.uid);
                   group.files.push(file);
                 } else if (file.timestamp && exists) {
-                    let fileIndex = group.files.findIndex(f => f.id == file.id);
-                    file.profile = this.membersService.getProfile(file.uid);
-                    group.files[fileIndex] = file;
+                  let fileIndex = group.files.findIndex(f => f.id == file.id);
+                  file.profile = this.membersService.getProfile(file.uid);
+                  group.files[fileIndex] = file;
                 }
               }
             }
@@ -232,9 +233,9 @@ export class GroupsService {
                   message.profile = this.membersService.getProfile(message.uid);
                   group.messages.push(message);
                 } else if (message.timestamp && exists) {
-                    let messageIndex = group.messages.findIndex(m => m.id == message.id);
-                    message.profile = this.membersService.getProfile(message.uid);
-                    group.messages[messageIndex] = message;
+                  let messageIndex = group.messages.findIndex(m => m.id == message.id);
+                  message.profile = this.membersService.getProfile(message.uid);
+                  group.messages[messageIndex] = message;
                 }
               }
             }
@@ -280,23 +281,27 @@ export class GroupsService {
     return this.storage.storage.refFromURL(fileUrl).delete()
   }
 
-  addMessage(body: string, groupId: string) {
+  async addMessage(body: string, groupId: string, style: string, fileName: string) {
     const message: Message = {
       body: body,
       uid: this.uid,
       timestamp: firestore.FieldValue.serverTimestamp(),
-      id: null,
-      profile: null
+      style: style,
+      fileName: fileName
     }
-    this.messagesCol = this.db.collection<Message>(`teams/${this.teamId}/groups/${groupId}/messages`);
-    this.groupDoc = this.db.doc<Group>(`teams/${this.teamId}/groups/${groupId}`);
-    this.messagesCol.add(message).then((messageRef) => {
-      this.groupDoc.update({
-        lastMessage: body,
+    const messagesCol = this.db.collection<Message>(`teams/${this.teamId}/groups/${groupId}/messages`);
+    const groupDoc = this.db.doc<Group>(`teams/${this.teamId}/groups/${groupId}`);
+    try {
+      const messageRef = await messagesCol.add(message);
+      return groupDoc.update({
+        lastMessage: style === 'message' ? message.body : 'Attachment: 1 File',
         lastMessageId: messageRef.id,
         lastMessageUid: message.uid
       })
-    });
+    } catch (err) {
+      console.log(err.message);
+      return false;
+    }
   }
 
   async addGroup(groupId, group) {
@@ -308,7 +313,7 @@ export class GroupsService {
       isChecked: false,
     }
     this.groupsCol = this.db.collection<Group>(`teams/${this.teamId}/groups`);
-    await this.groupsCol.doc(groupId).set(newGroup, {merge: true})
+    await this.groupsCol.doc(groupId).set(newGroup, { merge: true })
     this.membersCol = this.db.collection(`teams/${this.teamId}/groups/${groupId}/members`);
     await this.membersCol.doc(this.uid).set({
       uid: this.uid,

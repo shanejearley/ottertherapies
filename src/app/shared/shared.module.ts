@@ -22,26 +22,40 @@ import { DarkService } from './services/dark/dark.service';
 import { PresenceService } from './services/presence/presence.service';
 import { UserPresenceComponent } from './components/user-presence/user-presence.component';
 import { MessageFileComponent } from './components/message-file/message-file.component';
+import { FilesFileComponent } from './components/files-file/files-file.component';
+import { DropzoneDirective } from './directives/dropzone/dropzone.directive';
+import { FileOptionsComponent } from './components/file-options/file-options.component';
+import { CopyFileComponent } from './components/copy-file/copy-file.component';
+import { AvatarModule } from 'ngx-avatar';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AvatarModule
   ],
   exports: [
     UploadTaskComponent, 
     EnlargeThumbnailComponent, 
     MobileMenuComponent, 
     UserPresenceComponent,
-    MessageFileComponent
+    MessageFileComponent,
+    FilesFileComponent,
+    DropzoneDirective,
+    FileOptionsComponent,
+    CopyFileComponent
   ],
   declarations: [
     UploadTaskComponent, 
     EnlargeThumbnailComponent, 
     MobileMenuComponent, 
     UserPresenceComponent,
-    MessageFileComponent
+    MessageFileComponent,
+    FilesFileComponent,
+    DropzoneDirective,
+    FileOptionsComponent,
+    CopyFileComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

@@ -67,11 +67,11 @@
               </ng-template>
             </ion-thumbnail>
             <ion-label>
-              <h2>
-                <strong>
+              <h2 class="ellipsis-text">
+                <strong class="wrap-text">
                   {{ m.profile.displayName }}
                 </strong>
-                <app-user-presence [uid]="m.uid"></app-user-presence>
+                <app-user-presence class="presence--dot--component" [uid]="m.uid"></app-user-presence>
               </h2>
               <h3 *ngIf="m.direct && m.direct.lastMessage; else elseMessage">{{ m.direct.lastMessage }}</h3>
               <ng-template #elseMessage>

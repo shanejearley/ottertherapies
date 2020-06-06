@@ -29,6 +29,7 @@ export class VerifyComponent implements OnInit {
     ) { }
 
     ngOnInit() {
+        this.error = false;
         this.dark$ = this.store.select('dark');
         this.dark$.pipe(
           takeUntil(this.onDestroy),

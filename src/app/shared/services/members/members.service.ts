@@ -7,17 +7,13 @@ import { firestore } from 'firebase/app';
 import { Store } from 'src/store';
 import { ProfileService, Profile } from '../../../../auth/shared/services/profile/profile.service'
 
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import {
   tap,
   filter,
   map,
-  switchMap,
-  find,
-  shareReplay,
-  finalize
+  shareReplay
 } from 'rxjs/operators';
-import { of, empty } from 'rxjs';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
 import { Unread } from '../teams/teams.service';
@@ -54,7 +50,8 @@ export interface File {
   uid: string,
   url: string,
   profile?: Observable<Profile>,
-  style?: string
+  style?: string,
+  updating?: boolean
 }
 
 export interface Message {
@@ -73,7 +70,6 @@ export class MembersService {
   private membersCol: AngularFirestoreCollection<Member>;
   private messagesCol: AngularFirestoreCollection<Message>;
   private filesCol: AngularFirestoreCollection<File>;
-  private unreadDoc: AngularFirestoreDocument<Unread>;
   private unreadUpdateDoc: AngularFirestoreDocument;
   private directDoc: AngularFirestoreDocument<Direct>;
   private pendingMembersCol: AngularFirestoreCollection<any>;
@@ -85,13 +81,12 @@ export class MembersService {
   uid: string;
   pathId: string;
   members$: Observable<Member[]>;
+  sanitizer = '/(<script(\s|\S)*?<\/script>)|(<style(\s|\S)*?<\/style>)|(<!--(\s|\S)*?-->)|(<\/?(\s|\S)*?>)/g';
 
   constructor(
     private store: Store,
     private db: AngularFirestore,
-    private authService: AuthService,
     private profileService: ProfileService,
-    private router: Router,
     private storage: AngularFireStorage,
   ) { }
 
@@ -121,71 +116,37 @@ export class MembersService {
     if (member.uid !== this.uid) {
       this.pathId = this.uid < member.uid ? this.uid + member.uid : member.uid + this.uid;
       this.filesCol = this.db.collection<File>(`teams/${this.teamId}/direct/${this.pathId}/files`, ref => ref.orderBy('timestamp'));
-      this.filesCol.stateChanges(['added', 'modified', 'removed'])
-        .pipe(
-          map(actions => actions.map(a => {
-            if (a.type == 'removed') {
-              const file = a.payload.doc.data() as File;
-              file.id = a.payload.doc.id;
-              member.files.forEach(function (m) {
-                if (m.id === file.id) {
-                  var index = member.files.indexOf(file);
-                  member.files.splice(index, 1);
-                }
-              })
-            }
-            if (a.type == 'added' || a.type == 'modified') {
-              const file = a.payload.doc.data() as File;
-              if (file.timestamp) {
-                file.id = a.payload.doc.id;
-                const exists = member.files.find(m => m.id === file.id)
-                if (file.timestamp && !exists) {
-                  file.profile = this.getProfile(file.uid);
-                  member.files.push(file);
-                } else if (file.timestamp && exists) {
-                  let fileIndex = member.files.findIndex(m => m.id == file.id);
-                  file.profile = member.files[fileIndex].profile;
-                  member.files[fileIndex] = file;
-                }
-              }
-            }
-          })),
-          shareReplay(1)
-        ).subscribe();
-    } else {
+    } else if (member.uid === this.uid) {
       this.filesCol = this.db.collection<File>(`users/${this.uid}/teams/${this.teamId}/files`, ref => ref.orderBy('timestamp'));
-      this.filesCol.stateChanges(['added', 'modified', 'removed'])
-        .pipe(
-          map(actions => actions.map(a => {
-            if (a.type == 'removed') {
-              const file = a.payload.doc.data() as File;
+    }
+    this.filesCol.stateChanges(['added', 'modified', 'removed'])
+      .pipe(
+        map(actions => actions.map(a => {
+          if (a.type == 'removed') {
+            const file = a.payload.doc.data() as File;
+            file.id = a.payload.doc.id;
+            const removeFile = member.files.find((f: File) => f.id === file.id);
+            const index = member.files.indexOf(removeFile);
+            member.files.splice(index, 1);
+          }
+          if (a.type == 'added' || a.type == 'modified') {
+            const file = a.payload.doc.data() as File;
+            if (file.timestamp) {
               file.id = a.payload.doc.id;
-              member.files.forEach(function (m) {
-                if (m.id === file.id) {
-                  var index = member.files.indexOf(file);
-                  member.files.splice(index, 1);
-                }
-              })
-            }
-            if (a.type == 'added' || a.type == 'modified') {
-              const file = a.payload.doc.data() as File;
-              if (file.timestamp) {
-                file.id = a.payload.doc.id;
-                const exists = member.files.find(m => m.id === file.id)
-                if (file.timestamp && !exists) {
-                  file.profile = this.getProfile(file.uid);
-                  member.files.push(file);
-                } else if (file.timestamp && exists) {
-                  let fileIndex = member.files.findIndex(m => m.id == file.id);
-                  file.profile = member.files[fileIndex].profile;
-                  member.files[fileIndex] = file;
-                }
+              const exists = member.files.find(m => m.id === file.id)
+              if (file.timestamp && !exists) {
+                file.profile = this.getProfile(file.uid);
+                member.files.push(file);
+              } else if (file.timestamp && exists) {
+                let fileIndex = member.files.findIndex(m => m.id == file.id);
+                file.profile = member.files[fileIndex].profile;
+                member.files[fileIndex] = file;
               }
             }
-          })),
-          shareReplay(1)
-        ).subscribe();
-    }
+          }
+        })),
+        shareReplay(1)
+      ).subscribe();
   }
 
   getMessages(member: Member) {
@@ -314,6 +275,13 @@ export class MembersService {
   }
 
   async addMessage(body: string, directId: string, style: string, fileName: string) {
+    // if (body.search(this.sanitizer)) {
+    //   console.log(true)
+    // };
+    // body = body.replace(this.sanitizer, '');
+    // directId = directId.replace(this.sanitizer, '');
+    // style = style.replace(this.sanitizer, '');
+    // fileName = fileName ? fileName.replace(this.sanitizer, '') : null;
     const message: Message = {
       body: body,
       uid: this.uid,

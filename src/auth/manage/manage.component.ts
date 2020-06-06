@@ -32,6 +32,7 @@ export class ManageComponent implements OnInit {
     private readonly onDestroy = new Subject<void>();
 
     error: string;
+    passwordError: string;
     verified: boolean = false;
 
     constructor(
@@ -41,7 +42,7 @@ export class ManageComponent implements OnInit {
         private store: Store,
         private platform: Platform,
         private toastController: ToastController,
-        private profileService: ProfileService
+        private profileService: ProfileService,
     ) { }
 
     ngOnInit() {
@@ -59,10 +60,36 @@ export class ManageComponent implements OnInit {
                 this.mode = params['mode'];
                 this.actionCode = params['oobCode'];
                 if (this.mode === 'verifyEmail') {
-                    await this.authService.userAuth.applyActionCode(this.actionCode);
+                    try {
+                        await this.authService.userAuth.applyActionCode(this.actionCode);
+                        if (this.ios || this.android) {
+                            setTimeout(() => {
+                                this.router.navigate(['/'])
+                            }, 2000)
+                        }
+                    } catch (err) {
+                        console.log(err.message);
+                        this.error = err.message;
+                        if (this.ios || this.android) {
+                            setTimeout(() => {
+                                this.router.navigate(['/'])
+                            }, 2000)
+                        }
+                    }
+
                 }
                 if (this.mode === 'resetPassword') {
-                    this.email = await this.authService.userAuth.verifyPasswordResetCode(this.actionCode);
+                    try {
+                        this.email = await this.authService.userAuth.verifyPasswordResetCode(this.actionCode);
+                    } catch (err) {
+                        console.log(err.message);
+                        this.error = err.message;
+                        if (this.ios || this.android) {
+                            setTimeout(() => {
+                                this.router.navigate(['/'])
+                            }, 2000)
+                        }
+                    }
                 } 
                 else if (params) {
                     console.log(params);
@@ -77,8 +104,19 @@ export class ManageComponent implements OnInit {
                                 console.log(data)
                                 if (data.response === 'success') {
                                     this.profileService.turnSyncOn();
+                                    if (this.ios || this.android) {
+                                        setTimeout(() => {
+                                            this.router.navigate(['/Profile'])
+                                        }, 2000)
+                                    }
                                 } else if (data.response === 'fail') {
                                     this.profileService.turnSyncOff();
+                                    this.error = 'There was an error linking your account';
+                                    if (this.ios || this.android) {
+                                        setTimeout(() => {
+                                            this.router.navigate(['/Profile'])
+                                        }, 2000)
+                                    }
                                 }
                             })
                         ).subscribe();
@@ -101,7 +139,7 @@ export class ManageComponent implements OnInit {
 
     async presentResetToast() {
         const toast = await this.toastController.create({
-          message: 'Your password was reset! Now login!',
+          message: 'Your password was reset! Now log in!',
           duration: 2000
         });
         toast.present();
@@ -109,18 +147,18 @@ export class ManageComponent implements OnInit {
 
     async resetPassword() {
         if (!this.newPassword || !this.newPassword.length) {
-            this.error = 'Try a different password';
+            this.passwordError = 'Try a different password';
         } else {
-            this.error = null;
+            this.passwordError = null;
             try {
                 await this.authService.userAuth.confirmPasswordReset(this.actionCode, this.newPassword);
                 this.presentResetToast();
                 setTimeout(() => {
-                    this.router.navigate(['/']);
+                    this.router.navigate(['/'])
                 }, 2000)
                 
             } catch (err) {
-                this.error = err.message;
+                this.passwordError = err.message;
             }
         }
     }

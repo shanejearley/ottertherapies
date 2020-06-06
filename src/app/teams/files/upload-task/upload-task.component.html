@@ -1,57 +1,80 @@
-<ion-list class="theme--list" *ngIf="file" lines="none" inset="true"> 
-    <div>
-        <div class="error" *ngIf="error">
-            Incomplete team, folder, or file information.
+<ion-card class="theme--card">
+    <ion-card-content>
+        <div>
+            <div class="error" *ngIf="error">
+                {{ error }}
+            </div>
         </div>
-    </div>
 
-    <ion-item class="theme--item upload--item ion-padding-end" *ngIf="!profilePicture">
-        <ion-icon slot="start" [name]="'document-text' + '-outline'" *ngIf="!scan; else viewPreview"></ion-icon>
-        <ng-template #viewPreview>
-            <ion-thumbnail slot="start" (click)="enlargePreview()" button>
-                <img [src]="scan.sanitizedPdf">
-            </ion-thumbnail>
-        </ng-template>
-        <h2 class="full-width">{{ file.name }}</h2>
-    </ion-item>
-    <div>
-        <ion-button expand="block" color="tertiary" size="medium" (click)="startUpload()" [disabled]="downloadURL || !profilePicture && !file.name.length">
-            Upload
-        </ion-button>
-        <ion-item class="theme--item upload--item">
-            <ion-icon slot="start"></ion-icon>
-            <ion-label *ngIf="percentage | async as pct; else zeroPct">
-                <p>Upload status: {{ pct | number }}%</p>
-            </ion-label>
-            <ng-template #zeroPct>
-                <ion-label>
-                    <p>Upload status: 0%</p>
-                </ion-label>
+        <ion-item class="theme--item upload--item ion-padding-end" *ngIf="!profilePicture" lines="true">
+
+            <ion-icon slot="start" color="primary" [name]="'document-text' + '-outline'"
+                *ngIf="!scan; else viewPreview"></ion-icon>
+            <ng-template #viewPreview>
+                <ion-thumbnail slot="start" (click)="enlargePreview()" button>
+                    <img [src]="scan.sanitizedPdf">
+                </ion-thumbnail>
             </ng-template>
-            <ion-button slot="end" fill="clear" (click)="removeFile()" [disabled]="downloadURL">
-                <ion-icon slot="icon-only" color="danger" name="close-circle-outline"></ion-icon>
-            </ion-button>
+            <ion-label [class.file--label--input-enabled]="!uploading && !downloadURL"
+                [class.file--label--input-disabled]="uploading || downloadURL">
+                <h2 class="full-width">
+                    <strong>
+                        <ion-input class="form" [value]="fileName" (ionChange)="onChangeName($event)"
+                            placeholder="Enter a file name"></ion-input>
+                    </strong>
+                </h2>
+                <strong>{{ fileExt }}</strong>
+            </ion-label>
+
         </ion-item>
-    </div>
+        <div>
+            <ion-item class="theme--item upload--item">
+                <ion-label *ngIf="(percentage | async) as pct; else zeroPct">
+                    <h1>{{ pct | number }}%</h1>
+                    <h2></h2>
+                    <p>
+                        <ion-progress-bar [value]="pct / 100"></ion-progress-bar>
+                    </p>
+                </ion-label>
+                <ng-template #zeroPct>
+                    <ion-label>
+                        <h1>0%</h1>
+                        <h2></h2>
+                        <p>
+                            <ion-progress-bar value="0"></ion-progress-bar>
+                        </p>
+                    </ion-label>
+                </ng-template>
+                <ion-fab #uploadFab *ngIf="!downloadURL" slot="end" class="file--fab"
+                    [disabled]="error === 'You need a file name.' || uploading">
+                    <button ion-fab [disabled]="error === 'You need a file name.' || uploading">
+                        <ion-fab-list side="start">
+                            <ion-fab-button class="inner--fab" color="medium"></ion-fab-button>
+                            <ion-fab-button class="inner--fab" color="warning" (click)="task.pause()">
+                                <ion-icon name="pause"></ion-icon>
+                            </ion-fab-button>
+                            <ion-fab-button class="inner--fab" color="success" (click)="task.resume()">
+                                <ion-icon name="play"></ion-icon>
+                            </ion-fab-button>
+                            <ion-fab-button class="inner--fab" color="danger" (click)="task.cancel() && removeFile()"
+                                [disabled]="downloadURL">
+                                <ion-icon name="close"></ion-icon>
+                            </ion-fab-button>
+                        </ion-fab-list>
 
-    <div *ngIf="percentage | async as pct">
-        <ion-progress-bar [value]="pct / 100"></ion-progress-bar>
-        <!-- <ion-row class="ion-justify-content-center">
-            <ion-text>{{ pct | number }}%</ion-text>
-        </ion-row> -->
-    </div>
+                        <ion-fab-button *ngIf="!downloadURL" class="inner--fab" color="tertiary"
+                            (click)="startUpload()" [disabled]="error === 'You need a file name.' || uploading">
+                            <ion-icon name="cloud-upload-outline"></ion-icon>
+                        </ion-fab-button>
+                    </button>
 
+                </ion-fab>
+                <ion-fab-button *ngIf="downloadURL" class="inner--fab" slot="end" color="primary">
+                    <ion-icon name="cloud-done-outline"></ion-icon>
+                </ion-fab-button>
+            </ion-item>
 
+        </div>
+    </ion-card-content>
 
-    <div *ngIf="!downloadURL && (snapshot | async) as snap">
-        <ion-row class="ion-justify-content-center">
-
-            <ion-button color="secondary" (click)="task.pause()" [disabled]="!isActive(snap)">Pause</ion-button>
-            <ion-button color="warning" (click)="task.cancel() && file = null" [disabled]="!isActive(snap)">Cancel
-            </ion-button>
-            <ion-button color="success" (click)="task.resume()" [disabled]="!(snap?.state === 'paused')">Resume
-            </ion-button>
-
-        </ion-row>
-    </div>
-</ion-list>
+</ion-card>

@@ -25,6 +25,8 @@ export class EditEventComponent {
     event$: Observable<Event>;
     event;
 
+    synced: boolean = false;
+
     date: Date;
 
     recurrences = [
@@ -147,6 +149,11 @@ export class EditEventComponent {
         if (this.event.name && this.event.name.length) {
             this.error = false;
         }
+    }
+
+    addToGcal() {
+        this.synced = true;
+        return this.eventsService.updateEvent(this.event, this.remove);
     }
 
     updateEvent() {

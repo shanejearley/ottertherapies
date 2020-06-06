@@ -104,18 +104,15 @@
                 </div>
         
                 <div *ngIf="scans.length" lines="none">
-                    <ion-list-header>
-                        Uploads
-                    </ion-list-header>
         
                     <ion-item class="theme--item" lines="none">
                         <ion-note>Press thumbnails to preview scans</ion-note>
                     </ion-item>
-                    <ion-list inset="true" class="theme--list upload--list ion-margin-end ion-padding-end">
-                        <div *ngFor="let s of scans; let i = index" lines="none" class="ion-margin-end ion-padding-end">
-                            <app-upload-task *ngIf="s" [teamId]="teamId" [folder]="folder" [file]="s.file" [scan]="s"></app-upload-task>
-                        </div>
-                    </ion-list>
+
+                    <div *ngFor="let s of scans; let i = index">
+                        <app-upload-task *ngIf="s" [teamId]="teamId" [folder]="folder" [file]="s.file" [scan]="s"></app-upload-task>
+                    </div>
+
                 </div>
 
                 <ion-item class="theme--item" lines="none"></ion-item>
@@ -125,12 +122,3 @@
         </ion-slide>
     </ion-slides>
 </ion-content>
-
-<ion-footer>
-    <ion-toolbar>
-        <ion-row class="ion-justify-content-between ion-padding">
-            <ion-button fill="clear" color="danger" (click)="reset()">Reset</ion-button>
-            <ion-button fill="clear" (click)="dismiss()">Close</ion-button>
-        </ion-row>
-    </ion-toolbar>
-</ion-footer>

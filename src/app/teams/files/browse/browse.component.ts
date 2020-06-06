@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { NavParams, ModalController, IonSlides } from '@ionic/angular';
+import { NavParams, ModalController, IonSlides, Platform, AlertController } from '@ionic/angular';
 
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
@@ -23,6 +23,39 @@ import { Store } from 'src/store';
     styleUrls: ['./browse.component.scss'],
 })
 export class BrowseComponent {
+    isHovering: boolean;
+
+    files: File[] = [];
+
+    toggleHover(event: boolean) {
+        this.isHovering = event;
+    }
+
+    onDrop(files: FileList) {
+        for (let i = 0; i < files.length; i++) {
+            if (files.item(i).size > 25000000) {
+                this.largeFileAlert();
+            } else {
+                this.files.push(files.item(i));
+            }
+        }
+    }
+
+    onFileChange(ev) {
+        const files: FileList = ev.target.files;
+        for (let i = 0; i < files.length; i++) {
+            if (files.item(i).size > 25000000) {
+                this.largeFileAlert();
+            } else {
+                this.files.push(files.item(i));
+            }
+        }
+    }
+
+    desktop: boolean;
+    ios: boolean;
+    android: boolean;
+
     @ViewChild('slider', { static: false }) slides: IonSlides;
     index: number = 0;
 
@@ -36,8 +69,6 @@ export class BrowseComponent {
     teamId: string;
     count: number;
     folder;
-    public ngxFiles: NgxFileDropEntry[] = [];
-    public files: File[] = [];
 
     nextSlide() {
         return this.slides.slideNext();
@@ -51,45 +82,26 @@ export class BrowseComponent {
         return this.index = await this.slides.getActiveIndex()
     }
 
-    public dropped(files: NgxFileDropEntry[]) {
-        for (const droppedFile of files) {
-            if (droppedFile.fileEntry.isFile) {
-                const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
-                fileEntry.file((file: File) => {
-                    this.ngxFiles.push(droppedFile);
-                    this.files.push(file);
-                    console.log(droppedFile, file);
-                });
-            } else {
-                const fileEntry = droppedFile.fileEntry as FileSystemDirectoryEntry;
-                console.log(droppedFile, fileEntry);
-                this.ngxFiles.push(droppedFile);
-                //this.files.push(file);
-            }
-        }
-    }
-
-    public fileOver(event) {
-        console.log(event);
-    }
-
-    public fileLeave(event) {
-        console.log(event);
-    }
-
     constructor(
         public navParams: NavParams,
         public modalController: ModalController,
         private db: AngularFirestore,
-        private storage: AngularFireStorage,
+        private platform: Platform,
         private store: Store,
         private authService: AuthService,
+        private alertController: AlertController
     ) { }
 
     ngOnInit() {
         this.profile$ = this.store.select<Profile>('profile');
         this.groups$ = this.store.select<Group[]>('groups');
         this.members$ = this.store.select<Member[]>('members');
+        this.platform.ready().then(() => {
+            this.desktop = this.platform.is('desktop');
+            this.ios = this.platform.is('ios') && this.platform.is('capacitor');
+            this.android = this.platform.is('android') && this.platform.is('capacitor');
+            console.log(this.desktop, this.ios, this.android)
+        })
     }
 
     ionViewWillEnter() {
@@ -106,6 +118,17 @@ export class BrowseComponent {
         }
     }
 
+    async largeFileAlert() {
+        const alert = await this.alertController.create({
+          // header: 'One sec!',
+          // subHeader: 'Scanning is a mobile feature',
+          message: 'Your file is larger than our limit of 25MB! Try a smaller version.',
+          buttons: ['OK']
+        });
+    
+        await alert.present();
+    }
+
     async folderChange() {
         if (this.folder) {
             await this.slides.lockSwipes(false);
@@ -119,11 +142,6 @@ export class BrowseComponent {
         this.modalController.dismiss({
             response: 'dismissed'
         });
-    }
-
-    reset() {
-        this.files = [];
-        this.folder = null;
     }
 
     get uid() {

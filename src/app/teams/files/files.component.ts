@@ -2,12 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ModalController, ToastController, IonRouterOutlet, AlertController, Platform, ActionSheetController } from '@ionic/angular';
-import { Plugins } from '@capacitor/core';
-const { Browser } = Plugins;
+
 import { AngularFirestore } from '@angular/fire/firestore'
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
+import { switchMap, tap, takeUntil } from 'rxjs/operators';
 
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../../auth/shared/services/profile/profile.service';
@@ -25,6 +24,7 @@ import { DocumentScanner, DocumentScannerOptions } from '@ionic-native/document-
 
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
+import { FileOptionsComponent } from 'src/app/shared/components/file-options/file-options.component';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 @Component({
@@ -36,6 +36,10 @@ export class FilesComponent implements OnInit {
   desktop: boolean;
   ios: boolean;
   android: boolean;
+
+  date: Date;
+  time: number;
+
   pdfData: string;
   photoName: string;
   photo: SafeResourceUrl;
@@ -53,6 +57,8 @@ export class FilesComponent implements OnInit {
   public page: string;
   public data: any;
   private sheetData: any;
+
+  private readonly onDestroy = new Subject<void>();
 
   constructor(
     private store: Store,
@@ -79,39 +85,54 @@ export class FilesComponent implements OnInit {
       this.android = this.platform.is('android') && this.platform.is('capacitor');
       console.log(this.desktop, this.ios, this.android)
     })
+    this.date = new Date();
+    this.time = this.date.getTime();
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
     this.members$ = this.store.select<Member[]>('members');
-    this.subscriptions = [
-      //this.authService.auth$.subscribe(),
-      //this.profileService.profile$.subscribe(),
-      //this.teamsService.teams$.subscribe()
-    ];
+
     this.team$ = this.activatedRoute.params
       .pipe(
+        takeUntil(this.onDestroy),
         tap(param => { this.teamId = param.id }),
         switchMap(param => this.teamsService.getTeam(param.id))
       );
   }
 
-  ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+  async fileOptions(file, folder) {
+    const modal = await this.modalController.create({
+      component: FileOptionsComponent,
+      componentProps: {
+        'teamId': this.teamId,
+        'file': file,
+        'folder': folder
+      },
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl
+    });
+    modal.onWillDismiss().then(data => {
+      this.data = data.data;
+      if (this.data.response === 'delete') {
+        console.log('delete');
+        this.presentActionSheet(folder, file.id, file.url);
+      }
+    });
+    return await modal.present();
   }
 
-  async presentActionSheet(type: string, folderId: string, fileId: string, fileUrl: string) {
+  async presentActionSheet(folder, fileId: string, fileUrl: string) {
     const actionSheet = await this.actionSheetController.create({
       header: 'Warning: Permanent Action',
       buttons: [{
         text: 'Delete',
         role: 'destructive',
         icon: 'trash',
-        handler: () => {
+        handler: async () => {
           console.log('Delete clicked');
-          if (type === 'group') {
-            console.log('Delete group file');
-            return this.groupsService.removeFile(folderId, fileId, fileUrl);
-          } else if (type === 'member') {
-            return this.membersService.removeFile(folderId, fileId, fileUrl);
+          if (!folder.uid) {
+            this.groupsService.removeFile(folder.id, fileId, fileUrl);
+          } else {
+            this.membersService.removeFile(folder.uid, fileId, fileUrl);
           }
         }
       }, {
@@ -203,7 +224,7 @@ export class FilesComponent implements OnInit {
 
   showMember(m) {
     m.show = !m.show;
-    if (m.show && m.uid !== this.uid && m.unread && m.unread.unreadFiles) {
+    if (m.show && m.unread && m.unread.unreadFiles) {
       this.membersService.checkLastFile(m.uid);
     }
   }
@@ -213,18 +234,6 @@ export class FilesComponent implements OnInit {
     if (g.show && g.unread && g.unread.unreadFiles) {
       this.groupsService.checkLastFile(g.id);
     }
-  }
-
-  async removeGroupFile(groupId: string, fileId: string, fileUrl: string) {
-    return this.presentActionSheet("group", groupId, fileId, fileUrl);
-  }
-
-  async removeMemberFile(memberUid: string, fileId: string, fileUrl: string) {
-    return this.presentActionSheet("member", memberUid, fileId, fileUrl);
-  }
-
-  async previewFile(file) {
-    await Browser.open({ url: file.url });
   }
 
   async editGroupModal(groupId) {
@@ -247,9 +256,6 @@ export class FilesComponent implements OnInit {
         setTimeout(() => {
           this.presentDeleteToast();
         }, 2000)
-        // setTimeout(() => {
-        //   return this.router.navigate([`../../Teams/${this.teamId}/Messages`]);
-        // }, 4000)
       }
     });
     return await modal.present();
@@ -294,10 +300,7 @@ export class FilesComponent implements OnInit {
         this.presentCreatingToast();
         setTimeout(() => {
           this.presentCreateToast();
-        }, 2000)
-        // setTimeout(() => {
-        //   return this.router.navigate([`../Teams/${this.teamId}/Messages/Group/${this.data.response}`]);
-        // }, 4000)
+        }, 4000)
       }
     });
     return await modal.present();
@@ -306,7 +309,7 @@ export class FilesComponent implements OnInit {
   async presentCreatingToast() {
     const toast = await this.toastController.create({
       message: 'Creating your group...',
-      duration: 2000
+      duration: 4000
     });
     toast.present();
   }
@@ -317,6 +320,10 @@ export class FilesComponent implements OnInit {
       duration: 2000
     });
     toast.present();
+  }
+
+  ngOnDestroy() {
+    this.onDestroy.next();
   }
 
 }

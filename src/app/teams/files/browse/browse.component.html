@@ -10,7 +10,8 @@
     <!-- <ion-progress-bar [value]="(uploadPercent | async)"></ion-progress-bar> -->
 </ion-header>
 <ion-content fullscreen>
-    <ion-fab *ngIf="folder" horizontal="center" vertical="bottom" slot="fixed" class="ion-margin-bottom fileupload--fab">
+    <ion-fab *ngIf="folder" horizontal="center" vertical="bottom" slot="fixed"
+        class="ion-margin-bottom fileupload--fab">
         <ion-button (click)="index === 0 ? nextSlide() : prevSlide()" [disabled]="!folder">
             <ion-icon *ngIf="index === 1" name="arrow-back-outline"></ion-icon>
             {{ index === 0 ? 'Choose files' : 'Choose folder' }}
@@ -23,7 +24,7 @@
                 <ion-list-header>
                     Choose Folder
                 </ion-list-header>
-        
+
                 <ion-radio-group allow-empty-selection [(ngModel)]="folder" (ionChange)="folderChange()">
                     <div *ngIf="sourceId === 'files'">
                         <div *ngFor="let g of (groups$ | async); let i = index">
@@ -41,11 +42,14 @@
                             </ion-item>
                         </div>
                     </div>
-        
+
                     <div *ngFor="let m of (members$ | async); let i = index">
-                        <ion-item lines="none" detail="false" *ngIf="sourceId === 'files' && m.profile && m.uid !== (profile$ | async)?.uid || sourceId === m.uid" class="theme--item">
+                        <ion-item lines="none" detail="false"
+                            *ngIf="sourceId === 'files' && m.profile && m.uid !== (profile$ | async)?.uid || sourceId === m.uid"
+                            class="theme--item">
                             <ion-avatar slot="start">
-                                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
+                                <img *ngIf="m.profile.url; else elseMemberAvatar"
+                                    src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
                                 <ng-template #elseMemberAvatar>
                                     <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
                                 </ng-template>
@@ -54,14 +58,18 @@
                                 <h2>{{ m.profile.displayName }}</h2>
                                 <h3>2 Members</h3>
                             </ion-label>
-                            <ion-radio slot="end" color="primary" [value]="m" [disabled]="sourceId !== 'files'"></ion-radio>
+                            <ion-radio slot="end" color="primary" [value]="m" [disabled]="sourceId !== 'files'">
+                            </ion-radio>
                             <!-- <ion-checkbox slot="end" [(ngModel)]="m.isChecked"></ion-checkbox> -->
                         </ion-item>
                     </div>
                     <div *ngFor="let m of (members$ | async); let i = index">
-                        <ion-item lines="none" detail="false" *ngIf="sourceId === 'files' && m.profile && m.uid === (profile$ | async)?.uid" class="theme--item">
+                        <ion-item lines="none" detail="false"
+                            *ngIf="sourceId === 'files' && m.profile && m.uid === (profile$ | async)?.uid"
+                            class="theme--item">
                             <ion-avatar slot="start">
-                                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
+                                <img *ngIf="m.profile.url; else elseMemberAvatar"
+                                    src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
                                 <ng-template #elseMemberAvatar>
                                     <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
                                 </ng-template>
@@ -74,56 +82,54 @@
                             <!-- <ion-checkbox slot="end" [(ngModel)]="m.isChecked"></ion-checkbox> -->
                         </ion-item>
                     </div>
-        
+
                 </ion-radio-group>
 
                 <ion-item class="theme--item" lines="none"></ion-item>
                 <ion-item class="theme--item" lines="none"></ion-item>
-    
+
             </ion-list>
         </ion-slide>
-        
+
         <ion-slide>
             <ion-list class="theme--list ion-padding">
-    
+
                 <ion-list-header>
                     Choose Files
                 </ion-list-header>
-        
-                <ion-item lines="none" class="theme--item">
-                    <ngx-file-drop style="width: 100%" dropZoneLabel="Drop files here" (onFileDrop)="dropped($event)"
-                        (onFileOver)="fileOver($event)" (onFileLeave)="fileLeave($event)">
-                        <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-                            <ion-row class="ion-justify-content-center"><ion-col><strong>Drop or browse files</strong></ion-col></ion-row>
-                            <ion-row class="ion-justify-content-center"><ion-col><ion-button type="button" (click)="openFileSelector()">Browse</ion-button></ion-col></ion-row>
-                        </ng-template>
-                    </ngx-file-drop>
-                </ion-item>
-        
+
+                <div *ngIf="ios || android" class="ion-padding">
+                    <ion-button expand="block" color="warning">
+                        <label class="file-button">
+                            Browse
+                            <input type="file" (change)="onFileChange($event)"  multiple />
+                        </label>
+                    </ion-button>
+                </div>
+
+                <div *ngIf="!ios && !android" class="dropzone" dropzone (hovered)="toggleHover($event)" (dropped)="onDrop($event)"
+                    [class.hovering]="isHovering">
+                    <strong>File Drop Zone</strong>
+                    <ion-note>Drag and drop a file or browse</ion-note>
+                    <ion-button color="warning">
+                        <label class="file-button">
+                            Browse
+                            <input type="file" (change)="onFileChange($event)" multiple />
+                        </label>
+                    </ion-button>
+                </div>
+
                 <div *ngIf="files.length">
-                    <ion-list-header>
-                        Uploads
-                    </ion-list-header>
-                    <ion-list inset="true" class="theme--list upload--list ion-margin-end ion-padding-end">
-                        <div *ngFor="let f of files; let i = index" class="ion-margin-end ion-padding-end">
-                            <app-upload-task *ngIf="f" [teamId]="teamId" [folder]="folder" [file]="f" [scan]="false"></app-upload-task>
-                        </div>
-                    </ion-list>
+                    <div *ngFor="let f of files; let i = index">
+                        <app-upload-task *ngIf="f" [teamId]="teamId" [folder]="folder" [file]="f" [scan]="false">
+                        </app-upload-task>
+                    </div>
                 </div>
 
                 <ion-item lines="none" class="theme--item"></ion-item>
                 <ion-item class="theme--item" lines="none"></ion-item>
-        
+
             </ion-list>
         </ion-slide>
     </ion-slides>
 </ion-content>
-
-<ion-footer>
-    <ion-toolbar>
-        <ion-row class="ion-justify-content-between ion-padding">
-            <ion-button fill="clear" color="danger" (click)="reset()">Reset</ion-button>
-            <ion-button fill="clear" (click)="dismiss()">Close</ion-button>
-        </ion-row>
-    </ion-toolbar>
-</ion-footer>

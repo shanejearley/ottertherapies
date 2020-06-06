@@ -28,12 +28,18 @@
 
         <ion-item lines='none' class="theme--item">
             <ion-icon slot="start" [name]="'people' + '-outline'"></ion-icon>
-            <ion-input class="form" placeholder="Enter member by email" [(ngModel)]="member" (keyup.enter)="addMember()"></ion-input>
-            <ion-button slot="end" size="medium" color="warning" (click)="addMember()" [disabled]="!member || !member.length">
-                <!-- <ion-icon [name]="'person-add' + '-outline'"></ion-icon> -->
-                Add Member
-            </ion-button>
+            <ion-label text-wrap>
+                <h2>Enter and add members</h2>
+            </ion-label>
         </ion-item>
+
+        <div class="ion-margin-end ion-padding-end">
+            <ion-input class="form ion-margin-horizontal" placeholder="Enter member by email" [(ngModel)]="member" (keyup.enter)="addMember()"></ion-input>
+        </div>
+
+        <ion-button class="ion-padding-horizontal" expand="block" size="medium" color="warning" (click)="addMember()" [disabled]="!member || !member.length">
+            Add Member
+        </ion-button>
 
         <ion-item lines="none" class="theme--item">
             <p>Members:&nbsp;
@@ -54,12 +60,15 @@
             </p>
         </ion-item>
 
+        <ion-item class="theme--item" lines="none"></ion-item>
+        <ion-item class="theme--item" lines="none"></ion-item>
+
     </ion-list>
 </ion-content>
 
-<ion-footer>
+<ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-end ion-padding">
+        <ion-row class="ion-justify-content-end ion-padding-horizontal">
             <ion-button color="tertiary" (click)="createTeam()" [disabled]="clicked">Create</ion-button>
         </ion-row>
     </ion-toolbar>

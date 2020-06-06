@@ -3,7 +3,7 @@
         <img class="auth--logo" [src]="!dark ? '../assets/img/otter_logo.svg' : '../assets/img/otter_logo_dark.svg'" width="125px">
         <ion-card-content>
             <h1>Reset Password</h1>
-            <ion-grid *ngIf="!ios && !android">
+            <ion-grid>
                 <ion-row class="ion-justify-content-center">
                     <ion-col class="ion-justify-content-center" size="12">
                         <ion-icon class="large-icon" name="mail-unread-outline"></ion-icon>
@@ -25,28 +25,14 @@
                     </ion-col>
                 </ion-row>
             </ion-grid>
-            <ion-grid *ngIf="ios || android">
-                <ion-row class="ion-justify-content-center">
-                    <ion-col class="ion-justify-content-center" size="12">
-                        <ion-icon class="large-icon" name="desktop-outline"></ion-icon>
-                    </ion-col>
-                    <ion-col class="ion-justify-content-center" size="auto">
-                        Reset not yet available on mobile
-                    </ion-col>
-                    <ion-col class="ion-justify-content-center" size="auto">
-                        Open a desktop browser and retry
-                    </ion-col>
-                </ion-row>
-            </ion-grid>
-            <ion-item *ngIf="ios || android" class="theme--item" lines="none"></ion-item>
-            <ion-label class="auth--label" *ngIf="!ios && !android">
+            <ion-label class="auth--label">
                 <ion-input class="auth--input" type="email" placeholder="Email address"
                     [(ngModel)]="email"></ion-input>
             </ion-label>
-            <div class="error" *ngIf="error && !ios && !android">
+            <div class="error" *ngIf="error">
                 {{ error }}
             </div>
-            <div class="auth--card__action" *ngIf="!ios && !android">
+            <div class="auth--card__action">
                 <ion-button expand="block" (click)="sendResetEmail()">Send Email</ion-button>
             </div>
             <div class="auth--card__toggle">

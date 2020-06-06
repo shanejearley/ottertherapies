@@ -60,7 +60,7 @@
                     </ion-col>
                     <ion-col class="date--col" size="12">
                         <ion-select class="form" [(ngModel)]="newEvent.recurrence"
-                            [selectedText]="newEvent.recurrence === 'once' ? 'Does not repeat' : newEvent.recurrence === 'weekdays' ? 'Recurring on ' + newEvent.recurrence : 'Recurring ' + newEvent.recurrence"
+                            [selectedText]="newEvent.recurrence === 'once' ? 'Does not repeat' : newEvent.recurrence === 'monthly' ? 'Recurring monthly on the ' + nthWeekday : newEvent.recurrence === 'monthly-last' ? 'Recurring monthly on the last ' + dayString : newEvent.recurrence === 'weekly' ? 'Recurring weekly on ' + dayString : newEvent.recurrence === 'weekdays' ? 'Recurring on weekdays' : newEvent.recurrence === 'annually' ? 'Recurring annually on ' + dayFormat : 'Recurring ' + newEvent.recurrence"
                             interface="popover">
                             <div *ngFor="let r of recurrences">
                                 <ion-select-option [value]="r" *ngIf="r !== 'monthly-last' || r === 'monthly-last' && lastDay">
@@ -97,13 +97,16 @@
                 autocapitalize="sentences">
             </ion-textarea>
         </ion-item>
+
         <ion-item class="theme--item" lines="none"></ion-item>
+        <ion-item class="theme--item" lines="none"></ion-item>
+
     </ion-list>
 </ion-content>
 
-<ion-footer>
+<ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-end ion-padding">
+        <ion-row class="ion-justify-content-end ion-padding-horizontal">
             <ion-button color="tertiary" (click)="addEvent()" [disabled]="clicked">Create</ion-button>
         </ion-row>
     </ion-toolbar>

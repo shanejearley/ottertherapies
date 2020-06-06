@@ -96,11 +96,6 @@ export class ScanComponent {
         });
     }
 
-    reset() {
-        this.scans = [];
-        this.folder = null;
-    }
-
     get uid() {
         return this.authService.user.uid;
     }

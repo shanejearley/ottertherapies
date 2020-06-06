@@ -13,7 +13,7 @@
         <ion-item class="theme--item" lines="none" *ngIf="error">
             <div *ngIf="error">
                 <div class="error" *ngIf="error">
-                    You need a group name.
+                    You need an event name.
                 </div>
             </div>
         </ion-item>
@@ -21,7 +21,7 @@
             <ion-icon slot="start"></ion-icon>
             <h3 class="full-width">
                 <ion-input (ionChange)="nameChange()" [(ngModel)]="event.name" placeholder="Add title" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
-                    class="visible"></ion-input>
+                    class="form visible"></ion-input>
             </h3>
         </ion-item>
         <ion-item lines="none" class="theme--item">
@@ -105,6 +105,12 @@
             <ion-icon slot="start" [name]="'reader-outline'"></ion-icon>
             <ion-textarea class="form" [(ngModel)]="event.info" placeholder="Add description" autocapitalize="sentences" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"></ion-textarea>
         </ion-item>
+
+        <ion-button *ngIf="(profile$ | async)?.gcalSync" class="ion-margin" expand="block" color="tertiary" (click)="addToGcal()" [disabled]="synced">
+            <ion-icon name="google-outline" class="ion-margin-end"></ion-icon>
+            Add to Google Calendar
+        </ion-button>
+
         <ion-list *ngIf="!(memberStatus == 'Admin')" class="theme--list" inset="true" lines="none">
             <ion-item detail="false" class="theme--item" lines="none">
                 <ion-row class="member--row" slot="start">
@@ -143,13 +149,16 @@
                 </ion-row>
             </ion-item>
         </ion-list>
+
         <ion-item class="theme--item" lines="none"></ion-item>
+        <ion-item class="theme--item" lines="none"></ion-item>
+
     </ion-list>
 </ion-content>
 
 <ion-footer [translucent]="true">
     <ion-toolbar>
-        <ion-row class="ion-justify-content-between ion-padding">
+        <ion-row class="ion-justify-content-between ion-padding-horizontal">
             <ion-button fill="clear" color="danger" (click)="removeEvent()" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">Delete
             </ion-button>
             <ion-button color="tertiary" (click)="updateEvent()" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">Save</ion-button>

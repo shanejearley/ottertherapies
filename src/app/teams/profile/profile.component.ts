@@ -1,8 +1,10 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, NgZone } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Plugins } from '@capacitor/core';
-const { Browser } = Plugins;
+const { App, Browser } = Plugins;
+
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 import { HostListener } from '@angular/core';
 
@@ -63,6 +65,8 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   android: boolean;
   desktop: boolean;
 
+  androidBrowser = null;
+
   private readonly onDestroy = new Subject<void>();
 
   constructor(
@@ -72,10 +76,45 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     private modalController: ModalController,
     private toastController: ToastController,
     private router: Router,
+    private zone: NgZone,
     private routerOutlet: IonRouterOutlet,
     private actionSheetController: ActionSheetController,
-    private platform: Platform
-  ) { }
+    private platform: Platform,
+    private iab: InAppBrowser
+  ) { this.initializeApp(); }
+
+  initializeApp() {
+    App.addListener('appUrlOpen', (data: any) => {
+      this.zone.run(() => {
+        // Example url: https://beerswift.app/tabs/tab2
+        // slug = /tabs/tab2
+        const slugOne = data.url.split(".app").pop();
+        const slugTwo = slugOne.split('https://ottertherapies.firebaseapp.com').pop();
+        const googleCalendarRedirect = slugTwo.includes('https://www.googleapis.com/auth/calendar');
+        console.log('SLUG', slugTwo);
+        if (slugTwo) {
+          if (!this.ios && !this.android || !googleCalendarRedirect) {
+            console.log('Rely on app component.');
+            //this.router.navigateByUrl(slugTwo);
+          } else if (googleCalendarRedirect) {
+            this.router.navigateByUrl(slugTwo);
+            if (this.ios) {
+              Browser.close();
+            } else if (this.android) {
+              if (this.androidBrowser) {
+                this.androidBrowser.close();
+                this.androidBrowser = null;
+              }
+            }
+          }
+        } else if (slugOne) {
+          console.log('Rely on app component.');
+        }
+        // If no match, do nothing - let regular routing 
+        // logic take over
+      });
+    });
+  }
 
   ngOnInit() {
     this.platform.ready().then(() => {
@@ -168,12 +207,17 @@ export class ProfileComponent implements OnInit, AfterViewInit {
 
     } else if (!this.currentProfile.gcalSync) {
       console.log('turn off');
-      this.profileService.turnSyncOn();
+      this.profileService.turnSyncOff();
     }
   }
 
   async signIntoGoogle(redirectUrl) {
-    await Browser.open({ url: redirectUrl });
+    console.log(redirectUrl);
+    if (!this.android) {
+      await Browser.open({ url: redirectUrl });
+    } else if (this.android) {
+      this.androidBrowser = this.iab.create('http://apache.org', '_blank', 'location=yes');
+    }
   }
 
   async editProfileModal(firstTime: boolean) {
