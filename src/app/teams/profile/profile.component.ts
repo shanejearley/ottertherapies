@@ -190,8 +190,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
 
   onToggle(ev) {
     console.log(ev);
-    if (this.currentProfile.gcalSync) {
-      console.log('turn on');
+    if (ev.detail.checked === true) {
       if (!this.currentProfile.refresh_token) {
         this.authService.authorizeGoogle()
         .pipe(
@@ -205,8 +204,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
         this.profileService.turnSyncOn();
       }
 
-    } else if (!this.currentProfile.gcalSync) {
-      console.log('turn off');
+    } else if (ev.detail.checked === false) {
       this.profileService.turnSyncOff();
     }
   }
