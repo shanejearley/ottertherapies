@@ -32,7 +32,8 @@ export interface Event {
     recurrence: string,
     recurrenceId?: string,
     until?: firestore.Timestamp,
-    members: Member[]
+    members: Member[],
+    update?: firestore.FieldValue
 }
 
 @Injectable()
@@ -242,7 +243,8 @@ export class EventsService {
             info: event.info,
             type: event.type,
             location: event.location,
-            recurrence: event.recurrence
+            recurrence: event.recurrence,
+            update: event.update
         }
         this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
         await this.eventsCol.doc(event.id).update(updateEvent)

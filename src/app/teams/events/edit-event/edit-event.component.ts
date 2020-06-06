@@ -3,6 +3,8 @@ import { NavParams, ModalController, ActionSheetController } from '@ionic/angula
 
 import moment from 'moment';
 
+import { firestore } from 'firebase/app';
+
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
@@ -151,9 +153,12 @@ export class EditEventComponent {
         }
     }
 
-    addToGcal() {
+    async addToGcal() {
         this.synced = true;
-        return this.eventsService.updateEvent(this.event, this.remove);
+        this.event.update = firestore.FieldValue.serverTimestamp();
+        setTimeout(() => {
+            return this.eventsService.updateEvent(this.event, this.remove);
+        }, 250)
     }
 
     updateEvent() {
