@@ -15,6 +15,7 @@ export interface Profile {
     uid: string,
     displayName: string,
     url: string,
+    url_150_temp: string,
     url_150: string,
     lastTeam: string,
     role: string,
@@ -28,7 +29,6 @@ export interface Item { name: string; }
 
 @Injectable()
 export class ProfileService {
-    private profileDoc: AngularFirestoreDocument<Profile>;
     private getProfileDoc: AngularFirestoreDocument<Profile>;
     profile$: Observable<Profile>;
     profile: Profile;
@@ -41,18 +41,12 @@ export class ProfileService {
         private db: AngularFirestore,
         private storage: AngularFireStorage,
         private authService: AuthService
-    ) {
-        this.authService.userAuth.onAuthStateChanged(user => {
-
-        })
-
-    }
+    ) {}
 
     profileObservable(userId: string) {
-        this.profileDoc = this.db.doc<Profile>(`users/${userId}`);
-        this.profile$ = this.profileDoc.valueChanges()
+        this.profile$ = this.db.doc<Profile>(`users/${userId}`).valueChanges()
             .pipe(
-                tap(next => {
+                tap(async next => {
                     if (!next) {
                         this.store.set('profile', null);
                         return;
@@ -63,6 +57,7 @@ export class ProfileService {
                         uid: next.uid ? next.uid : null,
                         displayName: next.displayName ? next.displayName : null,
                         url: next.url ? next.url : null,
+                        url_150_temp: next.url_150_temp ? next.url_150_temp : null,
                         url_150: next.url_150 ? next.url_150 : null,
                         lastTeam: next.lastTeam ? next.lastTeam : null,
                         role: next.role ? next.role : null,
@@ -71,6 +66,13 @@ export class ProfileService {
                         gcalSync: next.gcalSync ? next.gcalSync : null,
                         refresh_token: next.refresh_token ? next.refresh_token : null
                     };
+                    if (next.url_150_temp && !next.url_150) {
+                        const urlRef = this.storage.storage.refFromURL(next.url_150_temp);
+                        let fbUrl = await urlRef.getDownloadURL();
+                        if (fbUrl) { await this.db.doc<Profile>(`users/${userId}`).update({ url_150: fbUrl }); };
+                        console.log('updated temp to reg');
+                        fbUrl = null;
+                    }
                     this.profile = profile;
                     this.store.set('profile', profile)
                 }),

@@ -13,8 +13,9 @@
 
 <ion-content [fullscreen]="true" class="profile--content">
   <ion-grid class="ion-no-padding">
-    <ion-row class="profile--pic--header ion-justify-content-center ion-padding">
-      <ion-col class="ion-justify-content-center ion-padding" size="auto">
+    <ion-row class="profile--pic--row ion-justify-content-center ion-align-items-center">
+      <img class="profile--pic--background" [src]="(dark$ | async) ? '../../../assets/underwater_dark.svg' : '../../../assets/underwater.svg'">
+      <ion-col class="ion-justify-content-center profile--pic--col" size="auto">
         <ion-thumbnail class="avatar-thumbnail profile-thumbnail" *ngIf="(profile$ | async)">
           <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
           <ng-template #elseMemberAvatar>
@@ -27,17 +28,15 @@
             </ng-template>
           </ng-template>
         </ion-thumbnail>
+        <ion-fab-button class="profile--pic--fab" size="small" (click)="profilePictureModal()">
+          <ion-icon name="camera-outline"></ion-icon>
+        </ion-fab-button>
       </ion-col>
     </ion-row>
     <ion-row class="profile--info--row ion-align-items-stretch">
       <ion-col class="profile--info--col ion-align-self-stretch">
         <ion-card class="profile--info--card ion-no-margin ion-align-self-stretch">
           <ion-card-content>
-            <ion-fab vertical="top" horizontal="center" slot="fixed" edge>
-              <ion-fab-button size="small" (click)="profilePictureModal()">
-                <ion-icon name="camera-outline"></ion-icon>
-              </ion-fab-button>
-            </ion-fab>
             <div id="container">
               <ion-list>
                 <ion-list-header>
@@ -62,14 +61,11 @@
                   <h2 class="full-width">
                     <ion-input class="form" [value]="(profile$ | async)?.role" (ionFocus)="onFocus($event)" readonly>
                     </ion-input>
-                    <!-- <ion-select placeholder="Select your team role" class="form"
-                      [selectedText]="(profile$ | async)?.role" (ionFocus)="onFocus($event)" interface="popover" readonly>
-                      <ion-select-option [value]="role.name" *ngFor="let role of roleList">
-                        {{ role.name }}
-                      </ion-select-option>
-                    </ion-select> -->
                   </h2>
                 </ion-item>
+                <ion-list-header>
+                  Your Settings
+                </ion-list-header>
                 <ion-item lines="none" *ngIf="(profile$ | async)">
                   <ion-icon slot="start" name="logo-google"></ion-icon>
                   <ion-label text-wrap>
@@ -77,9 +73,6 @@
                       Sync your events to Google Calendar
                     </h2>
                   </ion-label>
-                  <!-- <ion-button slot="end" fill="clear" (click)="showGcalHint()">
-                    <ion-icon slot="icon-only" name="help-circle-outline" color="medium"></ion-icon>
-                  </ion-button> -->
                   <ion-toggle slot="end" [(ngModel)]="currentProfile.gcalSync" (ionChange)="onToggle($event)"></ion-toggle>
                 </ion-item>
               </ion-list>

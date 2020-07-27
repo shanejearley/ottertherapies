@@ -31,6 +31,25 @@ $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
 
 /** Ionic CSS Variables **/
 :root {
+  #preview {
+    web-photo-filter {
+      canvas, img {
+        max-width: 100%;
+      }
+    }
+  
+    // web-photo-filter.no-original {
+    //     img {
+    //       display: none;
+    //     }
+    // }
+  
+    // web-photo-filter.only-original {
+    //   canvas {
+    //     display: none;
+    //   }
+    // }
+  }
   /** primary **/
   // --ion-color-primary: #429265;
   // --ion-color-primary-rgb: 66,146,101;
@@ -246,16 +265,52 @@ $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
     --ion-color-light-contrast-rgb: 255,255,255;
     --ion-color-light-shade: #1e2023;
     --ion-color-light-tint: #383a3e;
-    ion-fab-button[title]::after {
-      position: absolute;
-      content: attr(title);
-      //box-shadow: 0 3px 5px -1px rgba(0,0,0,0.2), 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12);
-      color: var(--ion-text-color);
-      background-color: #222428;
+
+    ion-calendar { 
+      ion-calendar-month-picker {
+        .month-picker {
+          .month-packer-item {
+            button {
+              color: var(--ion-color-white) !important;
+            }
+          }
+          .month-packer-item.this-month {
+            button {
+              border: 1px solid var(--ion-color-primary) !important;
+            }
+          }
+        }
+      }
+      .days-box {
+        .days {
+          button.days-btn {
+            p {
+              color: var(--ion-color-white) !important;
+            }
+          }
+          button.days-btn.on-selected {
+            background-color: var(--ion-color-primary) !important;
+            p {
+              color: var(--ion-color-secondary) !important;
+            }
+          }
+        }
+      }
+      .title {
+        ion-button {
+          color: var(--ion-color-white) !important;
+        }
+      }
+      ion-calendar-week {
+        ion-toolbar {
+          ul {
+            color: var(--ion-color-white) !important;
+          }
+        }
+      }
+      .dot{ small{ color: var(--ion-color-white) !important; font-size: 40px !important; } }
     }
-    ion-card.events--card {
-      border: solid var(--ion-color-white) 1px !important;
-    }
+
   }
 
   /*
@@ -368,4 +423,22 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   --ion-color-contrast-rgb: var(--ion-color-white-contrast-rgb);
   --ion-color-shade: var(--ion-color-white-shade);
   --ion-color-tint: var(--ion-color-white-tint);
+}
+
+:root {
+  --ion-color-flamingo: #EC9F9F;
+  --ion-color-flamingo-rgb: 236,159,159;
+  --ion-color-flamingo-contrast: #000000;
+  --ion-color-flamingo-contrast-rgb: 0,0,0;
+  --ion-color-flamingo-shade: #d08c8c;
+  --ion-color-flamingo-tint: #eea9a9;
+}
+
+.ion-color-flamingo {
+  --ion-color-base: var(--ion-color-flamingo);
+  --ion-color-base-rgb: var(--ion-color-flamingo-rgb);
+  --ion-color-contrast: var(--ion-color-flamingo-contrast);
+  --ion-color-contrast-rgb: var(--ion-color-flamingo-contrast-rgb);
+  --ion-color-shade: var(--ion-color-flamingo-shade);
+  --ion-color-tint: var(--ion-color-flamingo-tint);
 }

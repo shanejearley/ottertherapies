@@ -12,7 +12,7 @@ import { Observable } from 'rxjs';
 import { tap, filter, map, shareReplay } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
-import { MembersService } from '../members/members.service';
+import { MembersService, Member } from '../members/members.service';
 import { Unread } from '../teams/teams.service';
 
 export interface Group {
@@ -30,13 +30,13 @@ export interface Group {
   files?: File[],
   messages?: Message[],
   isChecked?: boolean,
-  members?: Member[];
+  members?: GroupMember[];
 }
 
-export interface Member {
+export interface GroupMember {
   status: string,
   uid: string,
-  profile: Observable<Profile>
+  profile: Observable<Member>
 }
 
 export interface File {
@@ -47,7 +47,7 @@ export interface File {
   type: string,
   uid: string,
   url: string,
-  profile?: Observable<Profile>,
+  profile?: Observable<Member>,
   style?: string,
   updating?: boolean
 }
@@ -58,14 +58,14 @@ export interface Message {
   id?: string,
   uid: string,
   timestamp: firestore.FieldValue,
-  profile?: Observable<Profile>,
+  profile?: Observable<Member>,
   style?: string,
   fileName?: string
 }
 
 @Injectable()
 export class GroupsService {
-  private membersCol: AngularFirestoreCollection<Member>;
+  private membersCol: AngularFirestoreCollection<GroupMember>;
   private groupsCol: AngularFirestoreCollection<Group>;
   private filesCol: AngularFirestoreCollection<File>;
   private messagesCol: AngularFirestoreCollection<Message>;
@@ -132,12 +132,12 @@ export class GroupsService {
 
   getMembers(group: Group) {
     group.members = [];
-    this.membersCol = this.db.collection<Member>(`teams/${this.teamId}/groups/${group.id}/members`);
+    this.membersCol = this.db.collection<GroupMember>(`teams/${this.teamId}/groups/${group.id}/members`);
     this.membersCol.stateChanges(['added', 'modified', 'removed'])
       .pipe(
         map(actions => actions.map(a => {
           if (a.type == 'removed') {
-            const member = a.payload.doc.data() as Member;
+            const member = a.payload.doc.data() as GroupMember;
             member.uid = a.payload.doc.id;
             const removeMember = group.members.find(m => m.uid === member.uid);
             const index = group.members.indexOf(removeMember);
@@ -145,15 +145,15 @@ export class GroupsService {
             return group.members.splice(index, 1);
           }
           if (a.type == 'added' || a.type == 'modified') {
-            const member = a.payload.doc.data() as Member;
+            const member = a.payload.doc.data() as GroupMember;
             member.uid = a.payload.doc.id;
             const exists = group.members.find(m => m.uid === member.uid)
             if (!exists) {
-              member.profile = this.membersService.getProfile(member.uid);
+              member.profile = this.membersService.getMember(member.uid);
               group.members.push(member);
             } else {
               let memberIndex = group.members.findIndex(m => m.uid == member.uid);
-              member.profile = this.membersService.getProfile(member.uid);
+              member.profile = this.membersService.getMember(member.uid);
               group.members[memberIndex] = member;
             }
           }
@@ -186,11 +186,11 @@ export class GroupsService {
               if (file.timestamp) {
                 const exists = group.files.find(f => f.id === file.id)
                 if (file.timestamp && !exists) {
-                  file.profile = this.membersService.getProfile(file.uid);
+                  file.profile = this.membersService.getMember(file.uid);
                   group.files.push(file);
                 } else if (file.timestamp && exists) {
                   let fileIndex = group.files.findIndex(f => f.id == file.id);
-                  file.profile = this.membersService.getProfile(file.uid);
+                  file.profile = this.membersService.getMember(file.uid);
                   group.files[fileIndex] = file;
                 }
               }
@@ -230,11 +230,11 @@ export class GroupsService {
                 message.id = a.payload.doc.id;
                 const exists = group.messages.find(m => m.id === message.id)
                 if (message.timestamp && !exists) {
-                  message.profile = this.membersService.getProfile(message.uid);
+                  message.profile = this.membersService.getMember(message.uid);
                   group.messages.push(message);
                 } else if (message.timestamp && exists) {
                   let messageIndex = group.messages.findIndex(m => m.id == message.id);
-                  message.profile = this.membersService.getProfile(message.uid);
+                  message.profile = this.membersService.getMember(message.uid);
                   group.messages[messageIndex] = message;
                 }
               }
@@ -261,17 +261,23 @@ export class GroupsService {
   }
 
   checkLastMessage(groupId: string) {
-    const unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
-    return unreadUpdateDoc.update({
-      unreadMessages: 0,
-    });
+    return this.db.doc(`users/${this.uid}/teams/${this.teamId}`).set({
+      unread: {
+        [`${groupId}`]: {
+          unreadMessages: 0
+        }
+      }
+    })
   }
 
   checkLastFile(groupId: string) {
-    const unreadUpdateDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${groupId}`);
-    return unreadUpdateDoc.update({
-      unreadFiles: 0
-    });
+    return this.db.doc(`users/${this.uid}/teams/${this.teamId}`).set({
+      unread: {
+        [`${groupId}`]: {
+          unreadFiles: 0
+        }
+      }
+    })
   }
 
   async removeFile(groupId, fileId, fileUrl) {

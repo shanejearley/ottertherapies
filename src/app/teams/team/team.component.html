@@ -28,40 +28,12 @@
 
     <ion-grid fixed>
       <ion-row class="half--margin--right half--margin--left">
-        <ion-col size="6" size-md="4"
-          *ngFor="let m of (members$ | async); let i = index; let odd = odd; let even = even;">
-          <ion-card class="half--margin--top half--margin--bottom half--margin--left half--margin--right" button
-            routerDirection="forward" (click)="goTo('Team/Member', m.uid)">
-            <ion-card-header>
-              <ion-item lines="none" class="theme--item">
-                <ion-thumbnail slot="start" class="avatar-thumbnail">
-                  <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
-                  <ng-template #elseMemberAvatar>
-                    <ngx-avatar name="{{ m.profile.displayName }}" [size]="55" [round]="false" [cornerRadius]="55">
-                    </ngx-avatar>
-                  </ng-template>
-                </ion-thumbnail>
-              </ion-item>
-              <ion-item lines="none" class="theme--item">
-                <ion-label>
-                  <h2 class="ellipsis-text">
-                    <strong class="wrap-text">
-                      {{ m.profile.displayName }}
-                    </strong>
-                    <app-user-presence class="presence--dot--component" [uid]="m.uid"></app-user-presence>
-                  </h2>
-                  <p>{{ m.status == 'Admin' ? 'Admin' : 'Member' }}</p>
-                </ion-label>
-              </ion-item>
-            </ion-card-header>
-          </ion-card>
-        </ion-col>
         <ion-col size="6" size-md="4" *ngIf="(member$ | async)?.status === 'Admin'">
-          <ion-card class="half--margin--top half--margin--bottom half--margin--left half--margin--right" button
+          <ion-card class="dashed-card half--margin--top half--margin--bottom half--margin--left half--margin--right" button
             (click)="editTeamModal()">
             <ion-card-header>
               <ion-item lines="none" class="theme--item">
-                <ion-fab-button slot="start" class="inner--fab">
+                <ion-fab-button slot="start" class="inner--fab inner--fab--start">
                   <ion-icon name="person-add-outline"></ion-icon>
                 </ion-fab-button>
               </ion-item>
@@ -76,16 +48,43 @@
             </ion-card-header>
           </ion-card>
         </ion-col>
+
+        <ion-col size="6" size-md="4"
+          *ngFor="let m of (members$ | async); let i = index; let odd = odd; let even = even;">
+          <ion-card class="half--margin--top half--margin--bottom half--margin--left half--margin--right" button
+            routerDirection="forward" (click)="goTo('Team/Member', m.uid)">
+            <ion-card-header>
+              <ion-item lines="none" class="theme--item">
+                <ion-thumbnail slot="start" class="avatar-thumbnail">
+                  <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
+                  <ng-template #elseMemberAvatar>
+                    <ngx-avatar name="{{ m.displayName }}" [size]="55" [round]="false" [cornerRadius]="55">
+                    </ngx-avatar>
+                  </ng-template>
+                </ion-thumbnail>
+              </ion-item>
+              <ion-item lines="none" class="theme--item">
+                <ion-label>
+                  <h2 class="ellipsis-text">
+                    <strong class="wrap-text">
+                      {{ m.displayName }}
+                    </strong>
+                    <app-user-presence class="presence--dot--component" [uid]="m.uid"></app-user-presence>
+                  </h2>
+                  <p>{{ m.status == 'Admin' ? 'Admin' : 'Member' }}</p>
+                </ion-label>
+              </ion-item>
+            </ion-card-header>
+          </ion-card>
+        </ion-col>
+        
         <ion-col size="12" size-md="6"
           *ngIf="(member$ | async)?.status === 'Admin' && (member$ | async)?.pending && (member$ | async)?.pending.length">
           <ion-item lines="none" class="theme--item">
             <p>Pending:
               <ion-chip *ngFor="let p of (member$ | async)?.pending">
                 <ion-icon [name]="'person' + '-outline'"></ion-icon>
-                <ion-label *ngIf="p.profile; else pending">{{ p.profile.email }}</ion-label>
-                <ng-template #pending>
-                  <ion-label>{{ p.email }}</ion-label>
-                </ng-template>
+                <ion-label>{{ p.email }}</ion-label>
               </ion-chip>
             </p>
           </ion-item>
@@ -95,8 +94,9 @@
   </div>
 
   <ion-grid class="ion-no-padding" *ngSwitchCase="'child'">
-    <ion-row class="profile--pic--header ion-justify-content-center ion-padding">
-      <ion-col class="ion-justify-content-center ion-padding" size="auto">
+    <ion-row class="profile--pic--row ion-justify-content-center ion-align-items-center">
+      <img class="profile--pic--background" [src]="(dark$ | async) ? '../../../assets/underwater_dark.svg' : '../../../assets/underwater.svg'">
+      <ion-col class="ion-justify-content-center profile--pic--col" size="auto">
 
         <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
           <img *ngIf="(team$ | async)?.url; else elseChildAvatar" src="{{ (team$ | async)?.url_150 ? (team$ | async)?.url_150 : (team$ | async)?.url }}">
@@ -106,17 +106,16 @@
           </ng-template>
         </ion-thumbnail>
 
+        <ion-fab-button class="profile--pic--fab" size="small" (click)="profilePictureModal()">
+          <ion-icon name="camera-outline"></ion-icon>
+        </ion-fab-button>
+
       </ion-col>
     </ion-row>
     <ion-row class="profile--info--row ion-align-items-stretch">
       <ion-col class="profile--info--col ion-align-self-stretch">
         <ion-card class="profile--info--card ion-no-margin ion-align-self-stretch">
           <ion-card-content>
-            <ion-fab vertical="top" horizontal="center" slot="fixed" edge *ngIf="(member$ | async)?.status === 'Admin'">
-              <ion-fab-button size="small" (click)="profilePictureModal()">
-                <ion-icon name="camera-outline"></ion-icon>
-              </ion-fab-button>
-            </ion-fab>
             <div id="container">
               <ion-list>
                 <ion-list-header>
@@ -164,11 +163,11 @@
   <div id="container" *ngSwitchCase="'resources'">
     <ion-list lines="none" class="theme--list">
 
-      <ion-card (click)="addResource()" button>
+      <ion-card class="dashed-card" (click)="addResource()" button>
 
         <ion-card-content>
           <ion-item class="theme--item">
-            <ion-fab-button slot="start" class="inner--fab">
+            <ion-fab-button slot="start" class="inner--fab inner--fab--start">
               <ion-icon name="add-outline"></ion-icon>
             </ion-fab-button>
             <ion-label>

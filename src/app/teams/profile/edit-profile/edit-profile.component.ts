@@ -14,6 +14,14 @@ import { Store } from 'src/store';
     styleUrls: ['./edit-profile.component.scss']
 })
 export class EditProfileComponent {
+
+    // choose random otter to display
+    otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
+    random = this.otters[Math.floor(Math.random() * this.otters.length)];
+
+    nameFocus: boolean;
+    roleFocus: boolean;
+
     confirm = {
         isChecked: false
     }

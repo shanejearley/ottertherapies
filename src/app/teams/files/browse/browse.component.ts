@@ -1,15 +1,10 @@
-import { Component, ViewChild } from '@angular/core';
-import { NavParams, ModalController, IonSlides, Platform, AlertController } from '@ionic/angular';
+import { Component } from '@angular/core';
+import { NavParams, ModalController, Platform, AlertController } from '@ionic/angular';
 
 import { AngularFirestore } from '@angular/fire/firestore';
-import { AngularFireStorage } from '@angular/fire/storage';
 import 'firebase/storage';
 
-import { NgxFileDropEntry, FileSystemFileEntry, FileSystemDirectoryEntry } from 'ngx-file-drop';
-
-import { firestore } from 'firebase/app';
 import { Observable } from 'rxjs';
-import { tap, filter, map, finalize, last, switchMap } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service'
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -23,9 +18,14 @@ import { Store } from 'src/store';
     styleUrls: ['./browse.component.scss'],
 })
 export class BrowseComponent {
+
+    // choose random otter to display
+    otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
+    random = this.otters[Math.floor(Math.random() * this.otters.length)];
+
     isHovering: boolean;
 
-    files: File[] = [];
+    files: File[];
 
     toggleHover(event: boolean) {
         this.isHovering = event;
@@ -56,7 +56,6 @@ export class BrowseComponent {
     ios: boolean;
     android: boolean;
 
-    @ViewChild('slider', { static: false }) slides: IonSlides;
     index: number = 0;
 
     sourceId: string;
@@ -69,18 +68,6 @@ export class BrowseComponent {
     teamId: string;
     count: number;
     folder;
-
-    nextSlide() {
-        return this.slides.slideNext();
-    }
-
-    prevSlide() {
-        return this.slides.slidePrev();
-    }
-
-    async getSlideIndex() {
-        return this.index = await this.slides.getActiveIndex()
-    }
 
     constructor(
         public navParams: NavParams,
@@ -105,37 +92,23 @@ export class BrowseComponent {
     }
 
     ionViewWillEnter() {
-        this.slides.update();
-        this.slides.lockSwipes(true);
         this.teamId = this.navParams.get('teamId');
-        this.sourceId = this.navParams.get('sourceId');
-        if (this.sourceId !== 'files') {
-            this.members$.pipe(tap(ms => {
-                if (ms) {
-                    this.folder = ms.find(m => m.uid === this.sourceId);
-                }
-            })).subscribe()
-        }
+        this.folder = this.navParams.get('folder');
+        this.files = this.navParams.get('files');
+    }
+
+    async removeFile(file) {
+        const index = this.files.indexOf(file);
+        return this.files.splice(index, 1);
     }
 
     async largeFileAlert() {
         const alert = await this.alertController.create({
-          // header: 'One sec!',
-          // subHeader: 'Scanning is a mobile feature',
           message: 'Your file is larger than our limit of 25MB! Try a smaller version.',
           buttons: ['OK']
         });
     
         await alert.present();
-    }
-
-    async folderChange() {
-        if (this.folder) {
-            await this.slides.lockSwipes(false);
-            return setTimeout(() => this.slides.slideNext(), 500)
-        } else {
-            console.log('Select a folder');
-        }
     }
 
     dismiss() {

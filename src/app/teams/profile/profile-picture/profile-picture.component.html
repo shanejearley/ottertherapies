@@ -1,55 +1,78 @@
 <ion-header translucent>
     <ion-toolbar>
-        <ion-title>Upload Picture</ion-title>
-        <ion-buttons slot="end">
+
+        <ion-buttons slot="start">
             <ion-button (click)="dismiss()">
                 <ion-icon slot="icon-only" name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
+
+        <ion-title>Upload Picture</ion-title>
+
     </ion-toolbar>
 </ion-header>
 <ion-content fullscreen>
-    <ion-list class="theme--list">
+    <div id="container">
+        <ion-grid fixed class="ion-margin-top">
+            <ion-row>
 
-        <div class="ion-padding">
-            <ion-button expand="block">
-                <label class="fileBtn">
-                    Browse
-                    <input type="file" (change)="fileChangeEvent($event)" />
-                </label>
-            </ion-button>
-        </div>
+                <ion-col size="12">
+                    <img [src]="'../../../../assets/img/otter_' + random + '.svg'">
+                </ion-col>
 
-        <ion-item lines="none" class="theme--item">
-            <ion-grid>
-                <ion-row class="ion-justify-content-center">
-                    <image-cropper
-                        style="width: 50%"
-                        [imageChangedEvent]="imageChangedEvent"
-                        [maintainAspectRatio]="true"
-                        [aspectRatio]="1 / 1"
-                        format="png"
-                        (imageCropped)="imageCropped($event)"
-                        (imageLoaded)="imageLoaded()"
-                        (cropperReady)="cropperReady()"
-                        (loadImageFailed)="loadImageFailed()"
-                    ></image-cropper>
-                </ion-row>
-            </ion-grid>
-        </ion-item>
+                <ion-col *ngIf="ios || android" size="12" class="ion-padding-horizontal">
 
-        <div *ngIf="croppedImage">
-            <app-upload-task [teamId]="teamId" [folder]="null" [profilePicture]="true" [file]="croppedImage" [scan]="false"></app-upload-task>
-        </div>
+                    <ion-button expand="block" color="warning">
+                        <label class="file-button">
+                            Browse
+                            <input type="file" (change)="onFileChange($event)" />
+                        </label>
+                    </ion-button>
 
-        <!-- <ion-item lines="none" class="theme--item">
-            <ion-grid>
-                <ion-row class="ion-justify-content-center">
-                    <img style="width: 50%" class="rounded" [src]="croppedImage" />
-                </ion-row>
-            </ion-grid>
-        </ion-item> -->
+                </ion-col>
 
-    </ion-list>
+                <ion-col *ngIf="!ios && !android">
+                    <div class="dropzone" dropzone (hovered)="toggleHover($event)" (dropped)="onDrop($event)"
+                        [class.hovering]="isHovering">
+                        <strong>Choose picture</strong>
+                        <ion-note>Drag and drop a picture or browse</ion-note>
+                        <ion-button color="warning">
+                            <label class="file-button">
+                                Browse
+                                <input type="file" (change)="onFileChange($event)" />
+                            </label>
+                        </ion-button>
+                    </div>
+                </ion-col>
+
+                <ion-col size="12">
+                    <strong>Crop and upload</strong>
+                </ion-col>
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-note>
+                        Crop your image within the square and press upload below
+                    </ion-note>
+                </ion-col>
+
+                <ion-col size="12" *ngIf="!croppedImage">
+                    <ion-note>(Choose image first)</ion-note>
+                </ion-col>
+
+                <ion-col size="12">
+                    <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="true"
+                        [aspectRatio]="1 / 1" format="png" (imageCropped)="imageCropped($event)"
+                        (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
+                        (loadImageFailed)="loadImageFailed()"></image-cropper>
+                </ion-col>
+                <ion-col size="12">
+                    <div *ngIf="croppedImage">
+                        <app-upload-task [teamId]="teamId" [folder]="null" [profilePicture]="true" [file]="croppedImage"
+                            [scan]="false"></app-upload-task>
+                    </div>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+
+    </div>
 
 </ion-content>

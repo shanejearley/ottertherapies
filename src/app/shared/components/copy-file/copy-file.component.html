@@ -1,85 +1,101 @@
 <ion-header>
     <ion-toolbar>
-        <ion-title>Copy File to Folder</ion-title>
-        <ion-buttons slot="end">
+
+        <ion-buttons slot="start">
             <ion-button (click)="dismiss()">
                 <ion-icon slot="icon-only" name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
+
+        <ion-title>Copy File to Folder</ion-title>
+
+        <ion-buttons slot="end">
+            <ion-button color="tertiary" (click)="copy()" [disabled]="!copyFolder">Send Copy</ion-button>
+        </ion-buttons>
+
     </ion-toolbar>
 </ion-header>
 <ion-content fullscreen>
-    <ion-list class="theme--list">
-        <ion-list-header>
-            Choose Folder
-        </ion-list-header>
+    <div id="container">
 
-        <ion-item class="theme--item" lines="none">
-            <ion-note text-wrap>
-                Choose a folder to send a copy of {{ file.name }}
-            </ion-note>
-        </ion-item>
-        <ion-radio-group allow-empty-selection [value]="copyFolder" (ionChange)="folderChange($event)">
-            <div *ngFor="let g of (groups$ | async); let i = index">
-                <ion-item lines="none" detail="false" class="theme--item">
-                    <ion-avatar slot="start">
-                        <ngx-avatar name="{{ g.name }}" [size]="40"></ngx-avatar>
-                    </ion-avatar>
-                    <ion-label text-wrap>
-                        <h2>{{ g.name }}{{ folder.id === g.id ? ' (Current Folder)' : '' }}</h2>
-                        <h3>{{ g.members.length > 1 ? g.members.length + ' Members' : g.members.length + ' Member' }}
-                        </h3>
-                    </ion-label>
-                    <ion-radio slot="end" color="primary" [value]="g" [disabled]="folder.id === g.id"></ion-radio>
-                </ion-item>
-            </div>
+        <ion-grid fixed class="ion-margin-top">
+            <ion-row>
 
-            <div *ngFor="let m of (members$ | async); let i = index">
-                <ion-item lines="none" detail="false"
-                    *ngIf="m.profile && m.uid !== (profile$ | async)?.uid" class="theme--item">
-                    <ion-avatar slot="start">
-                        <img *ngIf="m.profile.url; else elseMemberAvatar"
-                            src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
-                        <ng-template #elseMemberAvatar>
-                            <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
-                        </ng-template>
-                    </ion-avatar>
-                    <ion-label text-wrap>
-                        <h2>{{ m.profile.displayName }}{{ folder.uid === m.uid ? ' (Current Folder)' : '' }}</h2>
-                        <h3>2 Members</h3>
-                    </ion-label>
-                    <ion-radio slot="end" color="primary" [value]="m" [disabled]="folder.uid === m.uid">
-                    </ion-radio>
-                </ion-item>
-            </div>
-            <div *ngFor="let m of (members$ | async); let i = index">
-                <ion-item lines="none" detail="false"
-                    *ngIf="m.profile && m.uid === (profile$ | async)?.uid" class="theme--item">
-                    <ion-avatar slot="start">
-                        <img *ngIf="m.profile.url; else elseMemberAvatar"
-                            src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
-                        <ng-template #elseMemberAvatar>
-                            <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
-                        </ng-template>
-                    </ion-avatar>
-                    <ion-label text-wrap>
-                        <h2>{{ m.profile.displayName }}{{ folder.uid === m.uid ? ' (Current Folder)' : '' }}</h2>
-                        <h3>1 Member</h3>
-                    </ion-label>
-                    <ion-radio slot="end" color="primary" [value]="m" [disabled]="folder.uid === m.uid"></ion-radio>
-                </ion-item>
-            </div>
+                <ion-col size="12">
+                    <img [src]="'../../../../assets/img/otter_' + random + '.svg'">
+                </ion-col>
 
-        </ion-radio-group>
-    </ion-list>
+                <ion-col size="12">
+                    <strong>Select a folder</strong>
+                </ion-col>
 
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-note>
+                        Choose a folder to send a copy of {{ file.name }} and press "send copy"
+                    </ion-note>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-radio-group allow-empty-selection [value]="copyFolder" (ionChange)="folderChange($event)">
+                        <div *ngFor="let g of (groups$ | async); let i = index">
+                            <ion-item lines="none" detail="false" class="theme--item">
+                                <ion-avatar slot="start">
+                                    <ngx-avatar name="{{ g.name }}" [size]="40"></ngx-avatar>
+                                </ion-avatar>
+                                <ion-label text-wrap>
+                                    <h2>{{ g.name }}{{ folder.id === g.id ? ' (Current Folder)' : '' }}</h2>
+                                    <h3>{{ g.members.length > 1 ? g.members.length + ' Members' : g.members.length + ' Member' }}
+                                    </h3>
+                                </ion-label>
+                                <ion-radio slot="end" color="primary" [value]="g" [disabled]="folder.id === g.id">
+                                </ion-radio>
+                            </ion-item>
+                        </div>
+
+                        <div *ngFor="let m of (members$ | async); let i = index">
+                            <ion-item lines="none" detail="false" *ngIf="m.uid !== (profile$ | async)?.uid"
+                                class="theme--item">
+                                <ion-avatar slot="start">
+                                    <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
+                                    <ng-template #elseMemberAvatar>
+                                        <ngx-avatar name="{{ m.displayName }}" [size]="40"></ngx-avatar>
+                                    </ng-template>
+                                </ion-avatar>
+                                <ion-label text-wrap>
+                                    <h2>{{ m.displayName }}{{ folder.uid === m.uid ? ' (Current Folder)' : '' }}</h2>
+                                    <h3>2 Members</h3>
+                                </ion-label>
+                                <ion-radio slot="end" color="primary" [value]="m" [disabled]="folder.uid === m.uid">
+                                </ion-radio>
+                            </ion-item>
+                        </div>
+                        <div *ngFor="let m of (members$ | async); let i = index">
+                            <ion-item lines="none" detail="false" *ngIf="m && m.uid === (profile$ | async)?.uid"
+                                class="theme--item">
+                                <ion-avatar slot="start">
+                                    <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
+                                    <ng-template #elseMemberAvatar>
+                                        <ngx-avatar name="{{ m.displayName }}" [size]="40"></ngx-avatar>
+                                    </ng-template>
+                                </ion-avatar>
+                                <ion-label text-wrap>
+                                    <h2>{{ m.displayName }}{{ folder.uid === m.uid ? ' (Current Folder)' : '' }}</h2>
+                                    <h3>1 Member</h3>
+                                </ion-label>
+                                <ion-radio slot="end" color="primary" [value]="m" [disabled]="folder.uid === m.uid">
+                                </ion-radio>
+                            </ion-item>
+                        </div>
+
+                    </ion-radio-group>
+                </ion-col>
+
+            </ion-row>
+        </ion-grid>
+
+        <ion-item class="theme--item" lines="none"></ion-item>
+        <ion-item class="theme--item" lines="none"></ion-item>
+
+    </div>
 
 </ion-content>
-
-<ion-footer translucent>
-    <ion-toolbar>
-        <ion-row class="ion-justify-content-end ion-padding-horizontal">
-            <ion-button color="tertiary" (click)="copy()" [disabled]="!copyFolder">Send Copy</ion-button>
-        </ion-row>
-    </ion-toolbar>
-</ion-footer>

@@ -1,0 +1,27 @@
+<ion-content>
+    <div id="container">
+        <auth-form (submitted)="loginUser($event)">
+            <h1>Please Login</h1>
+
+            <ion-button type="submit" expand="block">
+                Login
+            </ion-button>
+
+            <span routerDirection="forward" (click)="resetPassword()">Forgot password?</span>
+
+            <a routerDirection="root" routerLink="/auth/register">
+
+                No account yet?&nbsp; 
+
+                <ion-text color="secondary">
+                    <b>Register</b>
+                </ion-text>
+                
+            </a>
+
+            <div class="error" *ngIf="error">
+                {{ error }}
+            </div>
+        </auth-form>
+    </div>
+</ion-content>

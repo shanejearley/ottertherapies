@@ -14,6 +14,11 @@ const { Browser } = Plugins;
 })
 export class AuthFormComponent implements OnInit {
 
+  emailFocus: boolean = false;
+  passwordFocus: boolean = false;
+
+  showPassword: boolean = false;
+
   @Output()
   submitted = new EventEmitter<FormGroup>();
 
@@ -42,6 +47,10 @@ export class AuthFormComponent implements OnInit {
         this.dark = dark;
       })
     ).subscribe();
+  }
+
+  ionViewWillEnter() {
+    this.showPassword = false;
   }
 
   async showPrivacy() {

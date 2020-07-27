@@ -9,29 +9,7 @@ import { MfaVerifyComponent } from './mfa-verify/mfa-verify.component';
 
 @Component({
   selector: 'login',
-  template: `
-    <ion-content>
-      <div id="container">
-        <div>
-          <auth-form (submitted)="loginUser($event)">
-            <h1>Login</h1>
-
-            <ion-button type="submit" expand="block">
-              Login
-            </ion-button>
-
-            <span routerDirection="forward" (click)="resetPassword()">Forgot password?</span>
-
-            <a routerDirection="root" routerLink="/auth/register">Not registered?</a>
-
-            <div class="error" *ngIf="error">
-              {{ error }}
-            </div>
-          </auth-form>
-        </div>
-      </div>
-    </ion-content>
-  `
+  templateUrl: 'login.component.html'
 })
 export class LoginComponent {
   resolver: any;

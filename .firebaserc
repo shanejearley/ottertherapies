@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "ottertherapies"
+    "default": "ottertherapies",
+    "dev": "ottertherapiesdev"
   }
 }

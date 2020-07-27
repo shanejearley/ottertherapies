@@ -25,50 +25,74 @@
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
 
-.days-box {
-  .days {
-    button.days-btn {
-      p {
-        color: var(--ion-text-color) !important;
+
+ion-calendar {
+  ion-calendar-month-picker {
+    .month-picker {
+      .month-packer-item {
+        button {
+          color: var(--ion-color-secondary) !important;
+        }
       }
-    }
-    button.days-btn.last-month-day,
-    button.days-btn.next-month-day {
-      p {
-        color: var(--ion-color-medium) !important;
+      .month-packer-item.this-month {
+        button {
+          border: 1px solid var(--ion-color-white) !important;
+        }
       }
     }
   }
-}
-ion-calendar {
+  .days-box {
+    .days {
+      button.days-btn {
+        p {
+          color: var(--ion-color-secondary) !important;
+        }
+      }
+      button.days-btn.on-selected {
+        background-color: var(--ion-color-white) !important;
+      }
+      button.days-btn.last-month-day,
+      button.days-btn.next-month-day {
+        p {
+          color: var(--ion-color-medium) !important;
+        }
+      }
+    }
+  }
   padding-bottom: 0px !important;
   padding-top: 0px !important;
   .title {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 75%;
     ion-button {
-      color: var(--ion-text-color) !important;
+      color: var(--ion-color-secondary) !important;
     }
   }
   ion-calendar-week {
     ion-toolbar {
       z-index: 0 !important;
       ul {
-        color: var(--ion-text-color) !important;
+        color: var(--ion-color-secondary) !important;
       }
     }
   }
-}
-
-ion-calendar { 
+  .week-title {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    li {
+      font-weight: bold !important;
+    }
+  } 
   .days-box { 
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
     padding-bottom: 0px !important;
     padding-top: 0px !important;
   } 
+  .dot{ small{ color: var(--ion-color-secondary) !important; font-size: 40px !important; } }
+  background-color: transparent !important;
 }
-
-ion-calendar { background-color: transparent !important; } 
-ion-calendar { .dot{ small{ color: var(--ion-color-medium) !important; font-size: 40px !important; } }}
 
 ion-list.member--upload--list {
   padding-top: 0 !important;
@@ -76,6 +100,10 @@ ion-list.member--upload--list {
 }
 
 .md {
+  ion-modal {
+    --width: 100%;
+    --height: 100%;
+  }
   ion-title.title--center {
     width: 100%; 
     position: absolute; 
@@ -114,6 +142,9 @@ ion-list.member--upload--list {
   ion-fab-button.inner--fab {
     margin-top: 8px !important;
     margin-bottom: 8px !important;
+  }
+  ion-fab-button.inner--fab--start {
+    margin-inline-end: 16px !important;
   }
   ion-calendar { button.days-btn{ small{ bottom: -20px !important} }}
   ion-calendar {
@@ -305,6 +336,7 @@ ion-textarea.form {
 }
 
 ion-select.form {
+  width: 100%;
   --padding-end: 15px !important;
   max-width: 100% !important;
   border-radius: 10px !important;
@@ -451,8 +483,8 @@ ion-fab-button[title]::after {
   padding: 9px;
   border-radius: 4px;
   box-shadow: 0 3px 5px -1px rgba(0,0,0,0.2), 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12);
-  color: var(--ion-text-color);
-  background-color: #f4f5f8;
+  color: var(--ion-color-secondary);
+  background-color: var(--ion-color-primary);
 }
 
 .mobile-menu-style {
@@ -586,6 +618,10 @@ ion-progress-bar.message--image--progress {
   margin-left: 4px;
 }
 
+.inline--icon--component {
+  margin-inline-start: 0 !important;
+}
+
 .presence--dot--title {
   position: absolute;
   margin-top: 3px;
@@ -630,4 +666,109 @@ ion-progress-bar.message--image--progress {
       border: 2px solid var(--ion-color-warning);
       color: #dadada !important;
   }
+}
+
+ion-row.profile--pic--row {
+  img.profile--pic--background {
+    min-width: 800px !important;
+  }
+  img.event--pic--background {
+    min-width: 975px !important;
+  }
+}
+
+ion-col.profile--pic--col {
+  position: absolute !important;
+}
+
+ion-fab-button.profile--pic--fab {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+ion-card.dashed-card {
+  box-shadow: none !important;
+  border: 2px dashed var(--ion-color-primary) !important;
+}
+
+.upload--remove--button {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+}
+
+ion-toolbar.theme--toolbar {
+    --background: transparent !important;
+    --opacity: 0 !important;
+}
+
+.circle-progress-button {
+  --border-radius: 50% !important;
+  --padding-start: 0 !important;
+  --padding-end: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  margin-inline-start: 0 !important;
+  margin-inline-end: 0 !important;
+  height: auto !important;
+  width: auto !important;
+}
+
+.circle-progress-button-properties {
+  height: 66px !important;
+  cursor: pointer !important;
+}
+
+img.teams--logo {
+  vertical-align: middle !important;
+}
+
+ion-select.focused {
+  z-index: 100 !important;
+  border: 1px solid var(--ion-color-primary) !important;
+}
+
+ion-input.focused {
+  z-index: 100 !important;
+  border: 1px solid var(--ion-color-primary) !important;
+}
+
+ion-textarea.focused {
+  z-index: 100 !important;
+  border: 1px solid var(--ion-color-primary) !important;
+}
+
+ion-datetime.focused {
+  z-index: 100 !important;
+  border: 1px solid var(--ion-color-primary) !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  border-radius: inherit !important;
+  z-index: inherit !important;
+}
+
+ion-button.password--button {
+  z-index: 101 !important;
+  height: auto !important;
+  position: absolute !important;
+  right: 0 !important;
+  --padding-start: 0.5em !important;
+  --padding-end: 0.5em !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+ion-button.full-screen-button {
+  max-width: 50% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }

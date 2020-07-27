@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavParams, PopoverController } from '@ionic/angular';
+import { NavParams, ModalController } from '@ionic/angular';
 
 @Component({
     selector: 'app-enlarge-thumbnail',
@@ -7,10 +7,10 @@ import { NavParams, PopoverController } from '@ionic/angular';
     styleUrls: ['./enlarge-thumbnail.component.scss']
 })
 export class EnlargeThumbnailComponent {
-    image: any;
+    images: any;
     constructor(
         public navParams: NavParams,
-        public popoverController: PopoverController
+        public modalController: ModalController
     ) { }
 
     ngOnInit() {
@@ -18,11 +18,11 @@ export class EnlargeThumbnailComponent {
     }
 
     ionViewWillEnter() {
-        this.image = this.navParams.get('image');
+        this.images = this.navParams.get('images');
     }
 
     dismiss() {
-        this.popoverController.dismiss({
+        this.modalController.dismiss({
             response: 'dismissed'
         });
     }

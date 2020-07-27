@@ -2,6 +2,8 @@ import { NgModule, ModuleWithProviders, CUSTOM_ELEMENTS_SCHEMA } from '@angular/
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
+import { IonicModule } from '@ionic/angular';
+
 import { Badge } from '@ionic-native/badge/ngx';
 
 // services
@@ -26,14 +28,23 @@ import { FilesFileComponent } from './components/files-file/files-file.component
 import { DropzoneDirective } from './directives/dropzone/dropzone.directive';
 import { FileOptionsComponent } from './components/file-options/file-options.component';
 import { CopyFileComponent } from './components/copy-file/copy-file.component';
+
 import { AvatarModule } from 'ngx-avatar';
+import { NgCircleProgressModule } from 'ng-circle-progress';
+import {NgxFilesizeModule} from 'ngx-filesize';
+import { EditGroupComponent } from './components/edit-group/edit-group.component';
+import { ScanComponent } from '../teams/files/scan/scan.component';
+import { BrowseComponent } from '../teams/files/browse/browse.component';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    AvatarModule
+    AvatarModule,
+    NgCircleProgressModule,
+    NgxFilesizeModule,
+    IonicModule
   ],
   exports: [
     UploadTaskComponent, 
@@ -44,7 +55,10 @@ import { AvatarModule } from 'ngx-avatar';
     FilesFileComponent,
     DropzoneDirective,
     FileOptionsComponent,
-    CopyFileComponent
+    CopyFileComponent,
+    EditGroupComponent,
+    ScanComponent, 
+    BrowseComponent
   ],
   declarations: [
     UploadTaskComponent, 
@@ -55,7 +69,10 @@ import { AvatarModule } from 'ngx-avatar';
     FilesFileComponent,
     DropzoneDirective,
     FileOptionsComponent,
-    CopyFileComponent
+    CopyFileComponent,
+    EditGroupComponent,
+    ScanComponent, 
+    BrowseComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

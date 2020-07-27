@@ -11,11 +11,13 @@ import {
   map,
   switchMap,
   find,
-  shareReplay
+  shareReplay,
+  take
 } from 'rxjs/operators';
 import { of } from 'rxjs';
 
-import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
+import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
+import { Profile } from 'src/auth/shared/services/profile/profile.service';
 
 export interface Pending {
   id: string,
@@ -104,7 +106,14 @@ export class PendingService {
     this.userTeamDoc = this.db.doc(`users/${this.uid}/teams/${team.id}`);
     this.userDoc = this.db.doc(`users/${this.uid}`);
     try {
+      const profile$ = this.store.select('profile');
+      const profile = await profile$.pipe(filter(Boolean), take(1), map((profile: Profile) => profile)).toPromise();
       await this.teamMembersCol.doc(this.uid).set({
+        displayName: profile.displayName ? profile.displayName : null,
+        email: profile.email ? profile.email : null,
+        role: profile.role ? profile.role : null,
+        url: profile.url ? profile.url : null,
+        url_150: profile.url_150 ? profile.url_150 : null,
         uid: this.uid,
         status: "Member"
       });

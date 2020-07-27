@@ -1,0 +1,56 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="['/Teams', (team$ | async)?.id, 'Messages']"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      {{ (member$ | async)?.displayName }}
+      <app-user-presence class="presence--dot--title" [uid]="(member$ | async)?.uid"></app-user-presence>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <div id="container">
+
+    <ion-list class="message--list" lines="none">
+      <ion-item class="theme--item" (click)="scanDoc()" button lines="none">
+        <ion-fab-button slot="start" class="inner--fab inner--fab--start" [class.ion-margin-top]="ios"
+          [class.ion-margin-bottom]="ios">
+          <ion-icon name="scan-outline"></ion-icon>
+        </ion-fab-button>
+        <ion-label>
+          <h2><strong>Scan Files</strong></h2>
+        </ion-label>
+      </ion-item>
+      <ion-item class="theme--item" (click)="browseModal([])" button lines="none">
+        <ion-fab-button slot="start" class="inner--fab inner--fab--start" [class.ion-margin-top]="ios"
+          [class.ion-margin-bottom]="ios">
+          <ion-icon name="document-text-outline"></ion-icon>
+        </ion-fab-button>
+        <ion-label>
+          <h2><strong>Upload Files</strong></h2>
+        </ion-label>
+      </ion-item>
+      <div *ngIf="member$ | async as m">
+        <ion-list inset="true" lines="none" *ngIf="m.files.length; else elseFile"
+          class="theme--list member--upload--list">
+          <div *ngFor="let f of m.files; let i = index">
+            <app-files-file [file]="f"
+              [displayName]="f.uid !== (profile$ | async)?.uid ? m.displayName : (profile$ | async)?.displayName"
+              (options)="fileOptions(f, m)"></app-files-file>
+          </div>
+        </ion-list>
+        <ng-template #elseFile>
+          <ion-item class="message--list">
+            <ion-label>
+              <h2><strong>No files yet</strong></h2>
+            </ion-label>
+          </ion-item>
+        </ng-template>
+      </div>
+    </ion-list>
+
+  </div>
+</ion-content>

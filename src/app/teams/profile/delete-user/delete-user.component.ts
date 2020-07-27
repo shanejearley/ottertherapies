@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavParams, ModalController } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, map, filter, take } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service'
 import { Profile, ProfileService } from '../../../../auth/shared/services/profile/profile.service';
@@ -14,6 +14,14 @@ import { Store } from 'src/store';
     styleUrls: ['./delete-user.component.scss']
 })
 export class DeleteUserComponent {
+
+    // choose random otter to display
+    otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
+    random = this.otters[Math.floor(Math.random() * this.otters.length)];
+
+    emailConfirm: string;
+    emailFocus: boolean;
+
     confirm = {
         isChecked: false
     }
@@ -30,13 +38,14 @@ export class DeleteUserComponent {
 
     ngOnInit() {
         this.profile$ = this.store.select<Profile>('profile');
-        this.profile$.pipe(tap(profile => {
-            this.currentProfile = profile;
-        })).subscribe();
+    }
+
+    async getProfile() {
+        this.currentProfile = await this.profile$.pipe(filter(Boolean), take(1), map((profile: Profile) => profile)).toPromise()
     }
 
     ionViewWillEnter() {
-        //this.teamId = this.navParams.get('teamId');
+        this.getProfile();
     }
 
     dismiss() {

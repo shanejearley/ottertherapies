@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ModalController, ToastController, IonRouterOutlet, AlertController, Platform, ActionSheetController } from '@ionic/angular';
 
 import { AngularFirestore } from '@angular/fire/firestore'
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap, takeUntil } from 'rxjs/operators';
+import { switchMap, tap, takeUntil, take, map, filter } from 'rxjs/operators';
 
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../../auth/shared/services/profile/profile.service';
@@ -19,13 +19,7 @@ import { EditGroupComponent } from '../../shared/components/edit-group/edit-grou
 import { CreateGroupComponent } from '../../shared/components/create-group/create-group.component';
 
 import { Store } from 'src/store';
-
-import { DocumentScanner, DocumentScannerOptions } from '@ionic-native/document-scanner/ngx';
-
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
 import { FileOptionsComponent } from 'src/app/shared/components/file-options/file-options.component';
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 @Component({
   selector: 'app-files',
@@ -52,7 +46,6 @@ export class FilesComponent implements OnInit {
   groups$: Observable<Group[]>;
   members$: Observable<Member[]>;
   subscriptions: Subscription[] = [];
-  getProfileSub: Subscription;
   public team: string;
   public page: string;
   public data: any;
@@ -64,18 +57,16 @@ export class FilesComponent implements OnInit {
     private store: Store,
     private activatedRoute: ActivatedRoute,
     private teamsService: TeamsService,
-    private documentScanner: DocumentScanner,
     private modalController: ModalController,
     private toastController: ToastController,
     private alertController: AlertController,
-    private sanitizer: DomSanitizer,
-    private db: AngularFirestore,
     private groupsService: GroupsService,
     private membersService: MembersService,
     private authService: AuthService,
     private routerOutlet: IonRouterOutlet,
     private platform: Platform,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -97,6 +88,10 @@ export class FilesComponent implements OnInit {
         tap(param => { this.teamId = param.id }),
         switchMap(param => this.teamsService.getTeam(param.id))
       );
+  }
+
+  goTo(route: string, id: string) {
+    this.router.navigate([`../Teams/${this.teamId}/Files/${route}/${id}`]);
   }
 
   async fileOptions(file, folder) {
@@ -145,15 +140,6 @@ export class FilesComponent implements OnInit {
       }]
     });
     await actionSheet.present();
-  }
-
-  generatePdf(data) {
-    const docDefinition = { content: [{ image: 'data:image/jpg;base64,' + data, width: 612, height: 792, pageMargins: [40, 60, 40, 60] }] }
-    const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-    pdfDocGenerator.getBase64((data) => {
-      this.pdfData = data;
-      this.scanModal();
-    });
   }
 
   scanDoc() {
@@ -224,15 +210,25 @@ export class FilesComponent implements OnInit {
 
   showMember(m) {
     m.show = !m.show;
-    if (m.show && m.unread && m.unread.unreadFiles) {
-      this.membersService.checkLastFile(m.uid);
+    if (m.show) {
+      setTimeout(async () => {
+        const unread = await this.membersService.getMember(m.uid).pipe(filter(Boolean), take(1), map((member: Member) => member.unread), map(unread => unread)).toPromise();
+        if (unread && unread.unreadFiles > 0) {
+          this.membersService.checkLastFile(m.uid);
+        }
+      }, 2500);
     }
   }
 
   showGroup(g) {
     g.show = !g.show;
-    if (g.show && g.unread && g.unread.unreadFiles) {
-      this.groupsService.checkLastFile(g.id);
+    if (g.show) {
+      setTimeout(async () => {
+        const unread = await this.groupsService.getGroup(g.id).pipe(filter(Boolean), take(1), map((group: Group) => group.unread), map(unread => unread)).toPromise();
+        if (unread && unread.unreadFiles > 0) {
+          this.groupsService.checkLastFile(g.id);
+        }
+      }, 2500);
     }
   }
 

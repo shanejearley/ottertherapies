@@ -36,6 +36,16 @@
                 "input": "src/.well-known",
                 "output": ".well-known/"
               },
+              {
+                "glob": "webphotofilter.js",
+                "input": "node_modules/web-photo-filter/dist",
+                "output": "./"
+              },
+              {
+                "glob": "webphotofilter/*",
+                "input": "node_modules/web-photo-filter/dist",
+                "output": "./"
+              },
               "src/manifest.webmanifest",
               "src/firebase-messaging-sw.js"
             ],

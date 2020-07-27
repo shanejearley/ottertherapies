@@ -1,75 +1,100 @@
 <ion-header translucent>
     <ion-toolbar>
-        <ion-title>Create Team</ion-title>
-        <ion-buttons slot="end">
+
+        <ion-buttons slot="start">
             <ion-button (click)="dismiss()">
                 <ion-icon slot="icon-only" name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
+
+        <ion-title>New Team</ion-title>
+
+        <ion-buttons slot="end">
+            <ion-button color="tertiary" (click)="createTeam()" [disabled]="clicked">Create</ion-button>
+        </ion-buttons>
+
     </ion-toolbar>
 </ion-header>
 <ion-content fullscreen>
-    <ion-list class="theme--list">
+    <div id="container">
 
-        <ion-item *ngIf="error" class="theme--item" lines="none">
-            <div *ngIf="error">
-                <div class="error" *ngIf="error">
-                    {{ error }}
-                </div>
-            </div>
-        </ion-item>
+        <ion-grid fixed class="ion-margin-top">
+            <ion-row>
 
-        <ion-item lines='none' class="theme--item">
-            <ion-icon slot="start" [name]="'happy' + '-outline'"></ion-icon>
-            <h3 class="full-width">
-                <ion-input class="form" placeholder="Enter child's first name" [(ngModel)]="child" (ionChange)="onChange()"></ion-input>
-            </h3>
-        </ion-item>
+                <ion-col size="12">
+                    <img [src]="'../../../assets/img/otter_' + random + '.svg'">
+                </ion-col>
 
-        <ion-item lines='none' class="theme--item">
-            <ion-icon slot="start" [name]="'people' + '-outline'"></ion-icon>
-            <ion-label text-wrap>
-                <h2>Enter and add members</h2>
-            </ion-label>
-        </ion-item>
+                <ion-col size="12">
+                    <strong>Create a new team</strong>
+                </ion-col>
 
-        <div class="ion-margin-end ion-padding-end">
-            <ion-input class="form ion-margin-horizontal" placeholder="Enter member by email" [(ngModel)]="member" (keyup.enter)="addMember()"></ion-input>
-        </div>
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-note>
+                        Enter your child's first name and add team members by their email
+                    </ion-note>
+                </ion-col>
 
-        <ion-button class="ion-padding-horizontal" expand="block" size="medium" color="warning" (click)="addMember()" [disabled]="!member || !member.length">
-            Add Member
-        </ion-button>
+                <ion-col size="12">
+                    <ion-item *ngIf="error" class="theme--item" lines="none">
+                        <div *ngIf="error">
+                            <div class="error" *ngIf="error">
+                                {{ error }}
+                            </div>
+                        </div>
+                    </ion-item>
+                </ion-col>
 
-        <ion-item lines="none" class="theme--item">
-            <p>Members:&nbsp;
-                <ion-chip *ngFor="let member of newMembers" outline color="primary">
-                    <ion-icon [name]="'person' + '-outline'"></ion-icon>
-                    <ion-label>{{ member }}</ion-label>
-                    <ion-icon 
-                        *ngIf="member !== email; else elseIcon"
-                        [name]="'close-circle' + '-outline'"
-                        (click)="removeMember(member)">
-                    </ion-icon>
-                    <ng-template #elseIcon>
-                        <ion-icon 
-                            [name]="'lock-closed' + '-outline'">
-                        </ion-icon>
-                    </ng-template>
-                </ion-chip>
-            </p>
-        </ion-item>
+                <ion-col size="12">
+                    <ion-item lines='none' class="theme--item">
+                        <ion-icon slot="start" name="happy-outline"></ion-icon>
+                        <ion-input class="form" placeholder="Enter child's first name" [(ngModel)]="child"
+                            (ionChange)="onChange()" (ionFocus)="nameFocus = true" (ionBlur)="nameFocus = false" [class.focused]="nameFocus"></ion-input>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12" size-md="8">
+                    <ion-item lines='none' class="theme--item">
+                        <ion-icon slot="start" name="mail-outline"></ion-icon>
+                        <ion-input class="form" placeholder="Add a member by email" [(ngModel)]="member"
+                            (keyup.enter)="addMember()" (ionFocus)="emailFocus = true" (ionBlur)="emailFocus = false" [class.focused]="emailFocus"></ion-input>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12" size-md="4" class="ion-padding-horizontal">
+                    <ion-button expand="block" size="medium" color="warning"
+                        (click)="addMember()" [disabled]="!member || !member.length">
+                        <ion-icon class="ion-margin-end" name="person-add-outline"></ion-icon>
+                        Add Member
+                    </ion-button>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item lines="none" class="theme--item">
+                        <ion-icon slot="start" name="people-outline"></ion-icon>
+                        <ion-label text-wrap>
+                            <p>
+                                <ion-chip *ngFor="let member of newMembers" outline color="primary">
+                                    <ion-icon [name]="'person' + '-outline'"></ion-icon>
+                                    <ion-label>{{ member }}</ion-label>
+                                    <ion-icon *ngIf="member !== email; else elseIcon"
+                                        [name]="'close-circle' + '-outline'" (click)="removeMember(member)">
+                                    </ion-icon>
+                                    <ng-template #elseIcon>
+                                        <ion-icon [name]="'lock-closed' + '-outline'">
+                                        </ion-icon>
+                                    </ng-template>
+                                </ion-chip>
+                            </p>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+                
+            </ion-row>
+        </ion-grid>
 
         <ion-item class="theme--item" lines="none"></ion-item>
         <ion-item class="theme--item" lines="none"></ion-item>
 
-    </ion-list>
+    </div>
 </ion-content>
-
-<ion-footer [translucent]="true">
-    <ion-toolbar>
-        <ion-row class="ion-justify-content-end ion-padding-horizontal">
-            <ion-button color="tertiary" (click)="createTeam()" [disabled]="clicked">Create</ion-button>
-        </ion-row>
-    </ion-toolbar>
-</ion-footer>

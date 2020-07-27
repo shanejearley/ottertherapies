@@ -2,15 +2,11 @@
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
-      <ion-back-button *ngIf="ios || android" [text]="ios ? 'Teams' : null" routerDirection="backwards" [defaultHref]="['/Teams']">
+      <ion-back-button *ngIf="ios || android" [text]="ios ? 'Teams' : null" routerDirection="backwards"
+        [defaultHref]="['/Teams']">
       </ion-back-button>
     </ion-buttons>
     <ion-title *ngIf="(team$ | async)">{{ (team$ | async)?.name }}</ion-title>
-    <!-- <ion-buttons slot="end">
-      <ion-button (click)="createEventModal()">
-        <ion-icon slot="icon-only" name="add-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons> -->
   </ion-toolbar>
   <ion-toolbar>
     <ion-segment (ionChange)="segmentChanged($event)" value="all">
@@ -25,9 +21,17 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="calendar--content">
+
+  <ion-fab horizontal="end" vertical="bottom" slot="fixed">
+    <ion-fab-button (click)="createEventModal()">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
   <ion-grid class="ion-no-padding">
-    <ion-row class="calendar--header ion-justify-content-center">
-      <ion-col class="ion-justify-content-center ion-padding" size="auto">
+    <ion-row class="profile--pic--row ion-justify-content-center ion-align-items-center">
+      <img class="event--pic--background" [src]="(dark$ | async) ? '../../../assets/underwater_dark.svg' : '../../../assets/underwater.svg'">
+      <ion-col class="ion-justify-content-center profile--pic--col" size="auto">
         <div id="container">
           <ion-calendar cssClass="calendar" [(ngModel)]="date" (change)="dayChange($event)"
             (monthChange)="monthChange($event)" [options]="options" [type]="type" [format]="'YYYY-MM-DD'">
@@ -39,28 +43,21 @@
       <ion-col class="profile--info--col ion-align-self-stretch">
         <ion-card class="profile--info--card ion-no-margin ion-align-self-stretch">
           <ion-card-content>
-            
-            <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
-              <ion-fab-button (click)="createEventModal()">
-                <ion-icon name="add-outline"></ion-icon>
-              </ion-fab-button>
-            </ion-fab>
 
             <div id="container">
               <ion-list lines="none" class="theme--list">
                 <ion-list-header>{{ date }}</ion-list-header>
                 <div *ngIf="(today$ | async) && (today$ | async).length; else noEvents">
-                  <ion-card *ngFor="let e of (today$ | async); let i = index"
-                    class="ion-padding half-margin-top half-margin-bottom events--card" (click)="editEventModal(e)" button>
-                    <ion-item class="theme--item">
-                      <ion-icon slot="start" [name]="e.type === 'Reminder' ? 'alarm-outline' : 'calendar-outline'">
-                      </ion-icon>
-                      <ion-label text-wrap>
-                        <h2><strong>{{ e.name }}</strong></h2>
-                        <p>{{ e.startTime.toMillis() | date:"h:mm a" }} - {{ e.endTime.toMillis() | date:"h:mm a" }}</p>
-                      </ion-label>
-                    </ion-item>
-                  </ion-card>
+                  <ion-item *ngFor="let e of (today$ | async); let i = index" class="theme--item"
+                    (click)="editEventModal(e)" button>
+                    <ion-icon slot="start" color="primary"
+                      [name]="e.type === 'Reminder' ? 'alarm-outline' : 'calendar-outline'">
+                    </ion-icon>
+                    <ion-label text-wrap>
+                      <h2><strong>{{ e.name }}</strong></h2>
+                      <p>{{ e.startTime.toMillis() | date:"h:mm a" }} - {{ e.endTime.toMillis() | date:"h:mm a" }}</p>
+                    </ion-label>
+                  </ion-item>
                 </div>
                 <ng-template #noEvents>
                   <ion-item lines="none" class="theme--item">

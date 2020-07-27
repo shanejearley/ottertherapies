@@ -8,9 +8,11 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { DocumentScanner } from '@ionic-native/document-scanner/ngx';
 import { Badge } from '@ionic-native/badge/ngx';
+
 import { AvatarModule } from 'ngx-avatar';
 import { CalendarModule } from 'ion2-calendar';
 import { NgxMaskModule } from 'ngx-mask';
+import { NgCircleProgressModule } from 'ng-circle-progress';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -39,7 +41,8 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
     HttpClientModule,
     CalendarModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
-    NgxMaskModule.forRoot()
+    NgxMaskModule.forRoot(),
+    NgCircleProgressModule.forRoot()
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   providers: [

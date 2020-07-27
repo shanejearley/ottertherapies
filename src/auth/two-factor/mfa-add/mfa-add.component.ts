@@ -12,6 +12,9 @@ import { Router } from '@angular/router';
     styleUrls: ['./mfa-add.component.scss']
 })
 export class MfaAddComponent implements AfterViewInit {
+
+    codeFocus: boolean = false;
+
     recaptchaVerifier: any;
     appVerifier: any;
     verified: boolean = false;

@@ -6,7 +6,7 @@
             </ion-list-header>
 
             <ion-item class="theme--item" lines="none" routerDirection="root" (click)="goToProfile()" detail="false"
-                [class.selected]="root === 'Profile'">
+                [class.selected]="root === 'Profile'" button>
                 <ion-icon slot="start" [name]="'Profile' === root ? 'person' : 'person-outline'">
                 </ion-icon>
                 <ion-label>Profile</ion-label>
@@ -20,6 +20,18 @@
             <ion-item class="theme--item" lines="none" (click)="showPrivacy()" detail="false" button>
                 <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
                 <ion-label>Privacy</ion-label>
+                <ion-button slot="end" fill="clear">
+                    <ion-icon slot="icon-only" name="open-outline"></ion-icon>
+                </ion-button>
+            </ion-item>
+
+
+            <ion-item class="theme--item" lines="none" (click)="showGuide()" detail="false" button>
+                <ion-icon slot="start" name="map-outline"></ion-icon>
+                <ion-label>User Guide</ion-label>
+                <ion-button slot="end" fill="clear">
+                    <ion-icon slot="icon-only" name="open-outline"></ion-icon>
+                </ion-button>
             </ion-item>
 
             <ion-item class="theme--item" lines="none">
@@ -27,7 +39,9 @@
                 <ion-label>
                     Dark Mode
                 </ion-label>
-                <ion-toggle [checked]="dark" (ionChange)="change()"></ion-toggle>
+                <ion-button class="mobile-menu--toggle" #darkToggle fill="clear" (click)="clickToggle()" slot="end">
+                    <ion-toggle [(ngModel)]="dark"></ion-toggle>
+                </ion-button>
             </ion-item>
         </ion-list>
     </ion-card-content>

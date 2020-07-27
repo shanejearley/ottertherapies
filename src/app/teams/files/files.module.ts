@@ -4,15 +4,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 import { AvatarModule } from 'ngx-avatar';
-import { NgxFileDropModule } from 'ngx-file-drop';
 
 import { FilesRoutingModule } from './files-routing.module';
 
 import { FilesComponent } from './files.component';
-import { ScanComponent } from './scan/scan.component';
-import { BrowseComponent } from './browse/browse.component';
 
 import { SharedModule } from '../../shared/shared.module';
+import { DirectModule } from './direct/direct.module';
+import { GroupModule } from '../messages/group/group.module';
 
 
 @NgModule({
@@ -23,11 +22,12 @@ import { SharedModule } from '../../shared/shared.module';
     IonicModule,
     AvatarModule,
     FilesRoutingModule,
-    NgxFileDropModule,
+    DirectModule,
+    GroupModule,
     SharedModule
   ],
-  entryComponents: [ScanComponent, BrowseComponent],
+  entryComponents: [],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
-  declarations: [FilesComponent, ScanComponent, BrowseComponent]
+  declarations: [FilesComponent]
 })
 export class FilesModule {}

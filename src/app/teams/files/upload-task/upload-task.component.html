@@ -1,80 +1,82 @@
-<ion-card class="theme--card">
-    <ion-card-content>
-        <div>
-            <div class="error" *ngIf="error">
-                {{ error }}
-            </div>
-        </div>
+<ion-item-divider *ngIf="!profilePicture"></ion-item-divider>
 
-        <ion-item class="theme--item upload--item ion-padding-end" *ngIf="!profilePicture" lines="true">
+<div class="error" *ngIf="error">
+    {{ error }}
+</div>
 
-            <ion-icon slot="start" color="primary" [name]="'document-text' + '-outline'"
-                *ngIf="!scan; else viewPreview"></ion-icon>
-            <ng-template #viewPreview>
-                <ion-thumbnail slot="start" (click)="enlargePreview()" button>
-                    <img [src]="scan.sanitizedPdf">
-                </ion-thumbnail>
-            </ng-template>
-            <ion-label [class.file--label--input-enabled]="!uploading && !downloadURL"
-                [class.file--label--input-disabled]="uploading || downloadURL">
-                <h2 class="full-width">
-                    <strong>
-                        <ion-input class="form" [value]="fileName" (ionChange)="onChangeName($event)"
-                            placeholder="Enter a file name"></ion-input>
-                    </strong>
-                </h2>
-                <strong>{{ fileExt }}</strong>
-            </ion-label>
+<ion-item *ngIf="!profilePicture" class="theme--item upload--item" lines="none">
 
-        </ion-item>
-        <div>
-            <ion-item class="theme--item upload--item">
-                <ion-label *ngIf="(percentage | async) as pct; else zeroPct">
-                    <h1>{{ pct | number }}%</h1>
-                    <h2></h2>
-                    <p>
-                        <ion-progress-bar [value]="pct / 100"></ion-progress-bar>
-                    </p>
-                </ion-label>
-                <ng-template #zeroPct>
-                    <ion-label>
-                        <h1>0%</h1>
-                        <h2></h2>
-                        <p>
-                            <ion-progress-bar value="0"></ion-progress-bar>
-                        </p>
-                    </ion-label>
-                </ng-template>
-                <ion-fab #uploadFab *ngIf="!downloadURL" slot="end" class="file--fab"
-                    [disabled]="error === 'You need a file name.' || uploading">
-                    <button ion-fab [disabled]="error === 'You need a file name.' || uploading">
-                        <ion-fab-list side="start">
-                            <ion-fab-button class="inner--fab" color="medium"></ion-fab-button>
-                            <ion-fab-button class="inner--fab" color="warning" (click)="task.pause()">
-                                <ion-icon name="pause"></ion-icon>
-                            </ion-fab-button>
-                            <ion-fab-button class="inner--fab" color="success" (click)="task.resume()">
-                                <ion-icon name="play"></ion-icon>
-                            </ion-fab-button>
-                            <ion-fab-button class="inner--fab" color="danger" (click)="task.cancel() && removeFile()"
-                                [disabled]="downloadURL">
-                                <ion-icon name="close"></ion-icon>
-                            </ion-fab-button>
-                        </ion-fab-list>
+    <ion-label [class.file--label--input-enabled]="!uploading && !downloadURL"
+        [class.file--label--input-disabled]="uploading || downloadURL">
+        <ion-input class="form" [value]="fileName" (ionChange)="onChangeName($event)" placeholder="Enter a file name">
+        </ion-input>
+    </ion-label>
 
-                        <ion-fab-button *ngIf="!downloadURL" class="inner--fab" color="tertiary"
-                            (click)="startUpload()" [disabled]="error === 'You need a file name.' || uploading">
-                            <ion-icon name="cloud-upload-outline"></ion-icon>
-                        </ion-fab-button>
-                    </button>
+    <ion-text class="no-margin-inline-start" slot="end">{{ fileExt }}</ion-text>
 
-                </ion-fab>
-                <ion-fab-button *ngIf="downloadURL" class="inner--fab" slot="end" color="primary">
-                    <ion-icon name="cloud-done-outline"></ion-icon>
-                </ion-fab-button>
-            </ion-item>
+    <ion-button fill="clear" color="danger" slot="end"
+        (click)="task && paused ? task.resume() && task.cancel() && removeFile() : task && !paused ? task.cancel() && removeFile() : removeFile()">
+        <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+    </ion-button>
 
-        </div>
-    </ion-card-content>
+</ion-item>
 
-</ion-card>
+<ion-item *ngIf="!profilePicture" class="theme--item upload--item" lines="true">
+    <ion-icon slot="start" color="primary" name="document-text-outline" *ngIf="!scan; else viewPreview">
+    </ion-icon>
+    <ng-template #viewPreview>
+        <ion-thumbnail slot="start" (click)="enlargePreview()" button>
+            <img [src]="scan.sanitizedPdf">
+        </ion-thumbnail>
+    </ng-template>
+    <ion-label text-wrap>
+        <h3>
+            {{ finalDestination && !finalDestination.uid ? 'Folder: ' + finalDestination.name : finalDestination && finalDestination.uid ? 'Folder: ' + finalDestination.displayName : 'Upload file' }}
+        </h3>
+        <h3>{{ !scan ? (file.size | filesize) : 'Pages: ' + scan.imgs.length }} </h3>
+        <ion-button *ngIf="scan" (click)="emitAddPage()" [disabled]="downloadURL || uploading">
+            <ion-icon name="add-circle-outline"></ion-icon>Add Page
+        </ion-button>
+    </ion-label>
+    <ion-button class="circle-progress-button" [color]="!downloadURL ? 'tertiary' : 'primary'"
+        (click)="!downloadURL && !paused && !uploading ? startUpload() : downloadURL && uploading && !paused ? task.pause() && paused = true : !downloadURL && uploading && paused ? task.resume() && paused = false : taskCompleted()"
+        [disabled]="error === 'You need a file name.'">
+        <circle-progress class="circle-progress-button-properties" *ngIf="(percentage | async) as pct; else zeroPct"
+            [renderOnClick]="false" [startFromZero]="false" [percent]="pct" [radius]="28" [outerStrokeWidth]="5"
+            [innerStrokeWidth]="5" [space]="-5" [outerStrokeColor]="'var(--ion-color-primary-shade)'"
+            [innerStrokeColor]="'var(--ion-color-light)'" [animation]="false"
+            [imageSrc]="pct !== 100 && uploading && !paused ? '../../../assets/pause-outline.svg' : pct !== 100 && uploading && paused ? '../../../assets/play-outline.svg' : '../../../assets/cloud-done-outline.svg'"
+            [imageHeight]="24" [imageWidth]="24" [showImage]="true" [backgroundPadding]="0">
+        </circle-progress>
+        <ng-template #zeroPct>
+            <circle-progress class="circle-progress-button-properties" [renderOnClick]="false" [startFromZero]="false"
+                [percent]="0" [radius]="28" [outerStrokeWidth]="5" [innerStrokeWidth]="5" [space]="-5"
+                [outerStrokeColor]="'var(--ion-color-primary-shade)'" [innerStrokeColor]="'var(--ion-color-light)'"
+                [animation]="false" [imageSrc]="'../../../assets/cloud-upload-outline.svg'" [imageHeight]="24"
+                [imageWidth]="24" [showImage]="true" [backgroundPadding]="0">
+            </circle-progress>
+        </ng-template>
+    </ion-button>
+</ion-item>
+
+<div *ngIf="profilePicture">
+    <ion-button class="circle-progress-button" [color]="!downloadURL ? 'tertiary' : 'primary'"
+        (click)="!downloadURL && !paused && !uploading ? startUpload() : downloadURL && uploading && !paused ? task.pause() && paused = true : !downloadURL && uploading && paused ? task.resume() && paused = false : taskCompleted()"
+        [disabled]="error === 'You need a file name.'">
+        <circle-progress class="circle-progress-button-properties" *ngIf="(percentage | async) as pct; else zeroPct"
+            [renderOnClick]="false" [startFromZero]="false" [percent]="pct" [radius]="28" [outerStrokeWidth]="5"
+            [innerStrokeWidth]="5" [space]="-5" [outerStrokeColor]="'var(--ion-color-primary-shade)'"
+            [innerStrokeColor]="'var(--ion-color-light)'" [animation]="false"
+            [imageSrc]="pct !== 100 && uploading && !paused ? '../../../assets/pause-outline.svg' : pct !== 100 && uploading && paused ? '../../../assets/play-outline.svg' : '../../../assets/cloud-done-outline.svg'"
+            [imageHeight]="24" [imageWidth]="24" [showImage]="true" [backgroundPadding]="0">
+        </circle-progress>
+        <ng-template #zeroPct>
+            <circle-progress class="circle-progress-button-properties" [renderOnClick]="false" [startFromZero]="false"
+                [percent]="0" [radius]="28" [outerStrokeWidth]="5" [innerStrokeWidth]="5" [space]="-5"
+                [outerStrokeColor]="'var(--ion-color-primary-shade)'" [innerStrokeColor]="'var(--ion-color-light)'"
+                [animation]="false" [imageSrc]="'../../../assets/cloud-upload-outline.svg'" [imageHeight]="24"
+                [imageWidth]="24" [showImage]="true" [backgroundPadding]="0">
+            </circle-progress>
+        </ng-template>
+    </ion-button>
+</div>

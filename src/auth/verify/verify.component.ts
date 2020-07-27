@@ -62,6 +62,10 @@ export class VerifyComponent implements OnInit {
         return this.authService.resendVerification();
     }
 
+    async onLogout() {
+        await this.authService.logoutUser();
+    }
+
     ngOnDestroy() {
         this.onDestroy.next();
     }

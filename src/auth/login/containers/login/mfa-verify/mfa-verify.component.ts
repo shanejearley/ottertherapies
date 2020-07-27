@@ -13,6 +13,9 @@ import { stringify } from 'querystring';
     styleUrls: ['./mfa-verify.component.scss']
 })
 export class MfaVerifyComponent implements AfterViewInit {
+
+    codeFocus: boolean = false;
+
     recaptchaVerifier: any;
     appVerifier: any;
     verified: boolean = false;

@@ -1,81 +1,119 @@
 <ion-header translucent>
     <ion-toolbar>
-        <ion-title>Group Details</ion-title>
-        <ion-buttons slot="end">
+
+        <ion-buttons slot="start">
             <ion-button (click)="dismiss()">
                 <ion-icon slot="icon-only" name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
+
+        <ion-title>Group Details</ion-title>
+
+        <ion-buttons slot="end">
+            <ion-button color="tertiary" (click)="updateGroup()" [disabled]="!(memberStatus == 'Admin')">Save
+            </ion-button>
+        </ion-buttons>
+
     </ion-toolbar>
 </ion-header>
 <ion-content fullscreen>
-    <ion-list *ngIf="group" class="theme--list" lines="none">
-        <ion-item class="theme--item" lines="none" *ngIf="error">
-            <div *ngIf="error">
-                <div class="error" *ngIf="error">
-                    You need a group name.
-                </div>
-            </div>
-        </ion-item>
-        <ion-item class="theme--item" lines="none">
-            <ion-icon slot="start"></ion-icon>
-            <h3 class="full-width">
-                <ion-input class="form" (ionChange)="nameChange()" [(ngModel)]="group.name" placeholder="Add group name"
-                    [disabled]="!(memberStatus == 'Admin')">
-                </ion-input>
-            </h3>
-        </ion-item>
-        <ion-item class="theme--item" lines="none">
-            <ion-icon slot="start" name="people-outline"></ion-icon>
-            <ion-label>Check and select members</ion-label>
-        </ion-item>
-        <ion-list class="form theme--list" lines="none" inset="true">
-            <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item" detail="false">
-                <ion-avatar slot="start">
-                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
-                    <ng-template #elseMemberAvatar>
-                        <ngx-avatar name="{{ m.profile.displayName }}" size="40"></ngx-avatar>
-                    </ng-template>
-                </ion-avatar>
-                <ion-label>
-                    <h3>{{ m.profile.displayName }}</h3>
-                    <p>{{ m.profile.email }}</p>
-                </ion-label>
-                <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange($event, m)" [disabled]="m.uid === (profile$ | async)?.uid || !(memberStatus == 'Admin')"></ion-checkbox>
-            </ion-item>
-        </ion-list>
-        <ion-list *ngIf="!(memberStatus == 'Admin')" class="theme--list" inset="true" lines="none">
-            <ion-item detail="false" class="theme--item" lines="none">
-                <ion-row class="member--row" slot="start">
-                    <ion-avatar class="dialog--member">
-                        <img src="../../../../assets/img/otter_head.svg">
-                    </ion-avatar>
-                    <ion-col class="member--col" size="auto">
-                        <ion-row></ion-row>
-                        <ion-card color="light" class="dialog message--card message--member">
-                            <ion-card-content>
-                                <ion-label text-wrap>Ask the group creator or admin to make any necessary changes!
-                                </ion-label>
-                            </ion-card-content>
-                        </ion-card>
-                        <ion-row></ion-row>
-                    </ion-col>
-                </ion-row>
-            </ion-item>
-        </ion-list>
 
-        <ion-item class="theme--item" lines="none"></ion-item>
-        <ion-item class="theme--item" lines="none"></ion-item>
+    <div id="container">
+        <ion-grid fixed class="ion-margin-top">
+            <ion-row>
 
-    </ion-list>
+                <ion-col size="12">
+                    <img [src]="'../../../../assets/img/otter_' + random + '.svg'">
+                </ion-col>
+
+                <ion-col size="12">
+                    <strong>Edit this group</strong>
+                </ion-col>
+
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-note>
+                        Be sure to press save after any updates
+                    </ion-note>
+                </ion-col>
+
+                <ion-col size="12" *ngIf="error">
+                    <div class="error" *ngIf="error">
+                        You need a group name.
+                    </div>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item class="theme--item" lines="none">
+                        <ion-icon slot="start"
+                            [name]="parent === 'Messages' ? 'chatbubbles-outline' : 'folder-outline'"></ion-icon>
+                        <ion-input class="form" (ionChange)="nameChange($event)" [value]="group.name"
+                            placeholder="Add group name" [disabled]="!(memberStatus == 'Admin')">
+                        </ion-input>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item class="theme--item" lines="none">
+                        <ion-icon slot="start" name="people-outline"></ion-icon>
+                        <ion-label>Check and select members</ion-label>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-list class="form theme--list" lines="none" inset="true">
+                        <ion-item *ngFor="let m of members; let i = index" lines="none" class="theme--item"
+                            detail="false">
+                            <ion-avatar slot="start">
+                                <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
+                                <ng-template #elseMemberAvatar>
+                                    <ngx-avatar name="{{ m.displayName }}" size="40"></ngx-avatar>
+                                </ng-template>
+                            </ion-avatar>
+                            <ion-label>
+                                <h3>{{ m.displayName }}</h3>
+                                <p>{{ m.email }}</p>
+                            </ion-label>
+                            <ion-checkbox slot="end" [checked]="m.isChecked" (ionChange)="onChange($event, m)"
+                                [disabled]="m.uid === (profile$ | async)?.uid || !(memberStatus == 'Admin')">
+                            </ion-checkbox>
+                        </ion-item>
+                    </ion-list>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-list *ngIf="!(memberStatus == 'Admin')" class="theme--list" inset="true" lines="none">
+                        <ion-item detail="false" class="theme--item" lines="none">
+                            <ion-row class="member--row" slot="start">
+                                <ion-avatar class="dialog--member">
+                                    <img src="../../../../assets/img/otter_head.svg">
+                                </ion-avatar>
+                                <ion-col class="member--col" size="auto">
+                                    <ion-row></ion-row>
+                                    <ion-card color="light" class="dialog message--card message--member">
+                                        <ion-card-content>
+                                            <ion-label text-wrap>Ask the group creator or admin to make any necessary
+                                                changes!
+                                            </ion-label>
+                                        </ion-card-content>
+                                    </ion-card>
+                                    <ion-row></ion-row>
+                                </ion-col>
+                            </ion-row>
+                        </ion-item>
+                    </ion-list>
+                </ion-col>
+
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-button expand="block" fill="outline" color="danger" (click)="removeGroup()"
+                        [disabled]="!(memberStatus == 'Admin')">
+                        Delete Group</ion-button>
+                </ion-col>
+
+            </ion-row>
+        </ion-grid>
+    </div>
+
+    <ion-item class="theme--item" lines="none"></ion-item>
+    <ion-item class="theme--item" lines="none"></ion-item>
+
 </ion-content>
-
-<ion-footer [translucent]="true">
-    <ion-toolbar>
-        <ion-row class="ion-justify-content-between ion-padding-horizontal">
-            <ion-button fill="clear" color="danger" (click)="removeGroup()" [disabled]="!(memberStatus == 'Admin')">
-                Delete</ion-button>
-            <ion-button color="tertiary" (click)="updateGroup()" [disabled]="!(memberStatus == 'Admin')">Save</ion-button>
-        </ion-row>
-    </ion-toolbar>
-</ion-footer>

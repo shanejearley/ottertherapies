@@ -1,2 +1,23 @@
-<img width="100%" [src]="image">    
+<ion-header translucent>
+    <ion-toolbar>
 
+        <ion-buttons slot="start">
+            <ion-button (click)="dismiss()">
+                <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+
+        <ion-title>Scan Preview</ion-title>
+
+    </ion-toolbar>
+</ion-header>
+<ion-content fullscreen>
+    <div *ngFor="let image of images; let i = index">
+        <ion-item-divider>
+            <ion-label>
+                {{ 'Page ' + (i + 1) }}
+            </ion-label>
+        </ion-item-divider>
+        <img width="100%" [src]="image">
+    </div>
+</ion-content>

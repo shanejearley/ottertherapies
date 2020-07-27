@@ -20,6 +20,20 @@ import { AngularFirestore } from '@angular/fire/firestore';
     styleUrls: ['./create-event.component.scss']
 })
 export class CreateEventComponent {
+
+    // choose random otter to display
+    otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
+    random = this.otters[Math.floor(Math.random() * this.otters.length)];
+
+    nameFocus: boolean;
+    locationFocus: boolean;
+    startDateFocus: boolean;
+    startTimeFocus: boolean;
+    endTimeFocus: boolean;
+    endDateFocus: boolean;
+    recurrenceFocus: boolean;
+    infoFocus: boolean;
+
     date: Date;
 
     newEvent = {

@@ -1,23 +1,15 @@
-<ion-item lines="none" (click)="fileOptions(file)" detail="true" button>
-    <ion-icon slot="start" color="primary" name="document-text-outline"></ion-icon>
-    <ion-label text-wrap>
-      <h2>{{ file.name }}</h2>
-      <h3>Uploaded by {{ displayName ? displayName : (file.profile | async)?.displayName }}</h3>
-      <h4>
-        <ion-text *ngIf="time > file.timestamp.toMillis(); else elseDate" class="message--time"
-          color="medium">{{ file.timestamp.toMillis() | date : 'short' }}</ion-text>
-        <ng-template #elseDate>
-          <ion-text class="message--time" color="medium">Today,
-            {{ file.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
-        </ng-template>
-      </h4>
-    </ion-label>
-    <!-- <ion-button fill="clear" (click)="removeGroupFile(group.id, file.id, file.url)" slot="end">
-      <ion-icon color="danger" slot="icon-only" name="trash-outline">
-      </ion-icon>
-    </ion-button>
-    <ion-button fill="clear" slot="end">
-      <ion-icon slot="icon-only" name="download-outline">
-      </ion-icon>
-    </ion-button> -->
-  </ion-item>
+<ion-item class="theme--item" lines="none" (click)="fileOptions(file)" detail="true" button>
+  <ion-icon slot="start" color="primary" name="document-text-outline"></ion-icon>
+  <ion-label text-wrap>
+    <h2>{{ file.name }}</h2>
+    <h3>Uploaded by {{ displayName ? displayName : (file.profile | async)?.displayName }}</h3>
+    <h4>
+      <ion-text *ngIf="time > file.timestamp.toMillis(); else elseDate" class="message--time" color="medium">
+        {{ file.timestamp.toMillis() | date : 'short' }}</ion-text>
+      <ng-template #elseDate>
+        <ion-text class="message--time" color="medium">Today,
+          {{ file.timestamp.toMillis() | date : 'shortTime' }}</ion-text>
+      </ng-template>
+    </h4>
+  </ion-label>
+</ion-item>

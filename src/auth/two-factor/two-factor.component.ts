@@ -16,6 +16,11 @@ const { Browser } = Plugins;
     templateUrl: 'two-factor.component.html'
 })
 export class TwoFactorComponent implements OnInit, AfterViewInit {
+
+    passwordFocus: boolean = false;
+    phoneFocus: boolean = false;
+    showPassword: boolean = false;
+
     dark$: Observable<boolean>;
     dark: boolean;
 
@@ -44,6 +49,10 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
             this.dark = dark;
           })
         ).subscribe();
+    }
+    
+    ionViewWillEnter() {
+        this.showPassword = false;
     }
 
     ngAfterViewInit() {

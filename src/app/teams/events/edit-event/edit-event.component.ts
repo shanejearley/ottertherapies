@@ -21,6 +21,20 @@ import { EventsService, Event } from 'src/app/shared/services/events/events.serv
     styleUrls: ['./edit-event.component.scss']
 })
 export class EditEventComponent {
+
+    // choose random otter to display
+    otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
+    random = this.otters[Math.floor(Math.random() * this.otters.length)];
+
+    nameFocus: boolean;
+    locationFocus: boolean;
+    startDateFocus: boolean;
+    startTimeFocus: boolean;
+    endTimeFocus: boolean;
+    endDateFocus: boolean;
+    recurrenceFocus: boolean;
+    infoFocus: boolean;
+
     profile$: Observable<Profile>;
     groups$: Observable<Group[]>;
     members$: Observable<Member[]>;
@@ -71,6 +85,7 @@ export class EditEventComponent {
     }
 
     ionViewWillEnter() {
+        // can move this above constructor
         this.teamId = this.navParams.get('teamId');
         this.event = this.navParams.get('event');
         this.event.updateStartTime = moment(this.event.startTime.toDate()).toString();

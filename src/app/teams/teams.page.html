@@ -3,7 +3,8 @@
     <ion-buttons slot="start">
       <ion-chip class="ion-margin-start" *ngIf="ios || android" color="light" (click)="presentPopover($event)">
         <ion-avatar>
-          <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
+          <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar"
+            src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
           <ng-template #elseMemberAvatar>
             <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar"
               name="{{ (profile$ | async)?.email }}" [size]="24">
@@ -22,37 +23,33 @@
     </ion-buttons>
     <ion-title [class.title--center]="android">
       <!-- Teams -->
-      <img *ngIf="!ios && !android; else elseMobileLogo" [src]="!dark ? '../../assets/img/otter_logo.svg' : '../../assets/img/otter_logo_dark.svg'" width="125px">
-      <ng-template #elseMobileLogo>
-        <img [src]="!dark ? '../../assets/img/otter_logo.svg' : '../../assets/img/otter_logo_dark.svg'" width="125px">
-      </ng-template>
+      <img class="teams--logo" [src]="!dark ? '../../assets/img/otter_logo.png' : '../../assets/img/otter_logo_dark.png'" width="115px">
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
 
-  <!-- <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Teams</ion-title>
-    </ion-toolbar>
-  </ion-header> -->
-
-  <ion-fab horizontal="end" vertical="top" slot="fixed" edge>
-    <ion-fab-button (click)="createTeamModal()">
-      <ion-icon name="add-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
-
   <div id="container">
 
     <ion-list class="theme--list">
 
-      <ion-list-header *ngIf="(teams$ | async) && (teams$ | async).length || (teams$ | async) && !(teams$ | async).length && (pending$ | async) && !(pending$ | async).length">
+      <ion-list-header>
         Your Teams
       </ion-list-header>
 
-      <ion-card *ngFor="let p of (teams$ | async); let i = index" button routerDirection="root" (click)="goTo(p.id)"
+      <ion-card class="theme--card dashed-card" (click)="createTeamModal()" button>
+        <ion-item class="theme--item thumbnail--list" lines="none">
+          <ion-fab-button slot="start" class="inner--fab inner--fab--start">
+            <ion-icon name="add-outline"></ion-icon>
+          </ion-fab-button>
+          <ion-label>
+            <h2><strong>Create Team</strong></h2>
+          </ion-label>
+        </ion-item>
+      </ion-card>
+
+      <ion-card *ngFor="let p of (teams$ | async); let i = index; trackBy: trackFn;" button routerDirection="root" (click)="goTo(p.id)"
         class="theme--card">
         <ion-item lines="none" class="theme--item thumbnail--list">
           <ion-thumbnail slot="start">
@@ -70,34 +67,12 @@
           </ion-tab-button>
         </ion-item>
       </ion-card>
-      <ion-list class="theme--list" inset="true" lines="none">
-        <ion-item class="theme--item thumbnail--list"
-          *ngIf="(teams$ | async) && !(teams$ | async).length && (pending$ | async) && !(pending$ | async).length" detail="false"
-          lines="none">
-          <ion-row class="member--row" slot="start">
-            <ion-avatar class="dialog--member">
-              <img src="../../../assets/img/otter_head.svg">
-            </ion-avatar>
-            <ion-col class="member--col" size="auto">
-              <ion-row></ion-row>
-              <ion-card color="light" class="dialog message--card message--member">
-                <ion-card-content>
-                  <ion-label text-wrap>You have no teams yet. You can either wait to be added to a team, or you can
-                    press the "+" to create a new one!
-                  </ion-label>
-                </ion-card-content>
-              </ion-card>
-              <ion-row></ion-row>
-            </ion-col>
-          </ion-row>
-        </ion-item>
-      </ion-list>
 
       <ion-list-header *ngIf="(pending$ | async) && (pending$ | async).length">
         Pending Teams
       </ion-list-header>
 
-      <ion-card *ngFor="let p of (pending$ | async); let i = index" (click)="joinTeam(p)" button class="theme--card">
+      <ion-card *ngFor="let p of (pending$ | async); let i = index; trackBy: trackFn;" (click)="joinTeam(p)" button class="theme--card">
         <ion-item lines="none" class="theme--item thumbnail--list">
           <ion-thumbnail slot="start">
             <ngx-avatar class="teams-avatar" name="{{ p.child }}" [size]="55" [round]="false" [cornerRadius]="10">

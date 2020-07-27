@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectorRef, SecurityContext, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectorRef, SecurityContext, ViewChild, EventEmitter, Output } from '@angular/core';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
@@ -8,7 +8,7 @@ import { firestore } from 'firebase/app';
 import { SafeResourceUrl, DomSanitizer, SafeValue } from '@angular/platform-browser';
 import { Scan } from '../scan/scan.component';
 import { EnlargeThumbnailComponent } from 'src/app/shared/components/enlarge-thumbnail/enlarge-thumbnail.component';
-import { PopoverController, IonFab } from '@ionic/angular';
+import { ModalController, IonFab } from '@ionic/angular';
 
 @Component({
     selector: 'app-upload-task',
@@ -24,11 +24,19 @@ export class UploadTaskComponent implements OnInit {
     @Input() profilePicture: boolean = false;
     @Input() scan: Scan;
 
+    finalDestination;
+
+    @Output()
+    remove = new EventEmitter();
+
+    @Output()
+    addPage = new EventEmitter();
+
     scanPreview: SafeResourceUrl;
     task: AngularFireUploadTask;
     percentage: Observable<number>;
     snapshot: Observable<any>;
-    downloadURL;
+    downloadURL: string = null;
     metadata;
     fileId: string;
     filePath;
@@ -42,13 +50,14 @@ export class UploadTaskComponent implements OnInit {
 
     error: string;
     uploading: boolean;
+    paused: boolean;
 
 
     constructor(
         private storage: AngularFireStorage,
         private db: AngularFirestore,
         private authService: AuthService,
-        private popoverController: PopoverController
+        private modalController: ModalController
     ) { }
 
     ngOnInit() {
@@ -59,31 +68,38 @@ export class UploadTaskComponent implements OnInit {
             this.fileName = `${Date.now()}_croppedImage`;
             this.fileExt = '.png';
         }
-        
     }
 
     ionViewWillEnter() {
         //
     }
 
+    taskCompleted() {
+        console.log('All done!')
+    }
+
     removeFile() {
-        this.scan = null;
-        this.file = null;
+        return this.remove.emit();
+    }
+
+    emitAddPage() {
+        return this.addPage.emit();
     }
 
     enlargePreview() {
-        this.presentPopover()
+        this.presentModal()
     }
 
-    async presentPopover() {
-        const popover = await this.popoverController.create({
+    async presentModal() {
+        const modal = await this.modalController.create({
             component: EnlargeThumbnailComponent,
             componentProps: {
-                'image': this.scan.sanitizedPdf
+                'images': this.scan.imgs
             },
-            translucent: true
+            swipeToClose: true,
+            presentingElement: await this.modalController.getTop()
         });
-        return await popover.present();
+        return await modal.present();
     }
 
     get uid() {
@@ -95,12 +111,14 @@ export class UploadTaskComponent implements OnInit {
             this.fileName = ev.detail.value;
             return this.error = 'You need a file name.';
         } else if (ev.detail.value && ev.detail.value.length && this.error === 'You need a file name.') {
-            this.error = null; 
+            this.error = null;
         }
         return this.fileName = ev.detail.value;
     }
 
     async startUpload() {
+
+        this.finalDestination = this.folder;
 
         this.uploading = true;
 
@@ -146,7 +164,8 @@ export class UploadTaskComponent implements OnInit {
                 this.task = this.storage.upload(this.filePath, this.file);
             } else if (!this.profilePicture && this.scan) {
                 console.log('uploading to...', this.filePath)
-                this.task = this.storageRef.putString(this.scan.pdf, 'base64', { contentType: 'application/pdf' });
+                this.task = this.storageRef.putString(this.scan.pdf, 'data_url');
+                //this.task = this.storageRef.putString(this.scan.pdf, 'base64', { contentType: 'application/pdf' });
             } else if (this.profilePicture) {
                 console.log('uploading to...', this.filePath)
                 this.task = this.storageRef.putString(this.file, 'data_url');
@@ -175,11 +194,6 @@ export class UploadTaskComponent implements OnInit {
                             url: this.downloadURL,
                             profile: null
                         })
-                        this.docRef.set({
-                            lastFile: this.fileName + this.fileExt,
-                            lastFileId: this.fileId,
-                            lastFileUid: this.uid
-                        }, { merge: true })
                         this.uploading = false;
                     }
 

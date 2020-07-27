@@ -9,7 +9,7 @@ import { Profile } from '../../../../auth/shared/services/profile/profile.servic
 import { Observable } from 'rxjs';
 import { tap, filter, map, shareReplay } from 'rxjs/operators';
 
-import { MembersService } from '../members/members.service';
+import { MembersService, Member } from '../members/members.service';
 import { Unread } from '../teams/teams.service';
 
 export interface Note {
@@ -22,7 +22,7 @@ export interface Note {
     isChecked: boolean,
     commentCount: firestore.FieldValue,
     flag: boolean,
-    profile: Observable<Profile>,
+    profile: Observable<Member>,
     newComment: string
 }
 
@@ -31,17 +31,11 @@ export interface Comment {
     id: string,
     uid: string,
     timestamp: firestore.FieldValue,
-    profile: Observable<Profile>
+    profile: Observable<Member>
 }
 
 @Injectable()
 export class NotesService {
-    private notesCol: AngularFirestoreCollection<Note>;
-    private commentsCol: AngularFirestoreCollection<Comment>;
-    private noteDoc: AngularFirestoreDocument<Note>;
-    private commentDoc: AngularFirestoreDocument<Comment>;
-    private unreadDoc: AngularFirestoreDocument<Unread>;
-    private unreadUpdateDoc: AngularFirestoreDocument;
     unread$: Observable<Unread>;
     note$: Observable<Note>;
     comments$: Observable<Number[]>;
@@ -60,14 +54,11 @@ export class NotesService {
     notesObservable(userId, teamId) {
         this.store.set('notes', null);
         this.notes$ = null;
-        this.notesCol = null;
         this.notes = [];
         this.notes.length = 0;
-        this.notes$ = null;
         this.uid = userId;
         this.teamId = teamId;
-        this.notesCol = this.db.collection<Note>(`teams/${this.teamId}/notes`);
-        this.notes$ = this.notesCol.stateChanges(['added', 'modified', 'removed'])
+        this.notes$ = this.db.collection<Note>(`teams/${this.teamId}/notes`).stateChanges(['added', 'modified', 'removed'])
             .pipe(
                 map(actions => actions.map(a => {
                     console.log('ACTION', a);
@@ -88,7 +79,7 @@ export class NotesService {
                         note.id = a.payload.doc.id;
                         const exists = this.notes.find(n => n.id === note.id)
                         if (note.timestamp && !exists) {
-                            note.profile = this.membersService.getProfile(note.uid);
+                            note.profile = this.membersService.getMember(note.uid);
                             this.getComments(note);
                             this.notes.push(note);
                         }
@@ -106,8 +97,7 @@ export class NotesService {
 
     getComments(note: Note) {
         note.comments = [];
-        this.commentsCol = this.db.collection<Comment>(`teams/${this.teamId}/notes/${note.id}/comments`, ref => ref.orderBy('timestamp'));
-        this.commentsCol.stateChanges(['added', 'modified', 'removed'])
+        this.db.collection<Comment>(`teams/${this.teamId}/notes/${note.id}/comments`, ref => ref.orderBy('timestamp')).stateChanges(['added', 'modified', 'removed'])
             .pipe(
                 map(actions => actions.map(a => {
                     console.log('ACTION', a);
@@ -129,7 +119,7 @@ export class NotesService {
                             comment.id = a.payload.doc.id;
                             const exists = note.comments.find(c => c.id === comment.id)
                             if (comment.timestamp && !exists) {
-                                comment.profile = this.membersService.getProfile(comment.uid);
+                                comment.profile = this.membersService.getMember(comment.uid);
                                 note.comments.push(comment);
                             } else if (comment.timestamp && exists) {
                                 let commentIndex = note.comments.findIndex(c => c.id == comment.id);
@@ -151,9 +141,12 @@ export class NotesService {
     }
 
     checkLastNote(noteId: string) {
-        this.unreadUpdateDoc = this.db.doc<Unread>(`users/${this.uid}/teams/${this.teamId}/unread/${noteId}`);
-        this.unreadUpdateDoc.set({
-            unreadNotes: 0
+        return this.db.doc(`users/${this.uid}/teams/${this.teamId}`).set({
+            unread: {
+                [`${noteId}`]: {
+                    unreadNotes: 0
+                }
+            }
         }, { merge: true });
     }
 
@@ -171,11 +164,10 @@ export class NotesService {
             profile: null,
             newComment: null
         }
-        this.notesCol = this.db.collection<Note>(`teams/${this.teamId}/notes`);
-        this.notesCol.add(note);
+        return this.db.collection<Note>(`teams/${this.teamId}/notes`).add(note);
     }
 
-    addComment(body: string, noteId) {
+    async addComment(body: string, noteId) {
         const comment: Comment = {
             body: body,
             id: null,
@@ -183,25 +175,20 @@ export class NotesService {
             timestamp: firestore.FieldValue.serverTimestamp(),
             profile: null
         }
-        this.commentsCol = this.db.collection<Comment>(`teams/${this.teamId}/notes/${noteId}/comments`);
-        this.commentsCol.add(comment).then(() => {
-            this.noteDoc = this.db.doc<Note>(`teams/${this.teamId}/notes/${noteId}`);
-            this.noteDoc.update({
-                commentCount: firestore.FieldValue.increment(1)
-            })
-        });
+        await this.db.collection<Comment>(`teams/${this.teamId}/notes/${noteId}/comments`).add(comment);
+        return this.db.doc<Note>(`teams/${this.teamId}/notes/${noteId}`).update({
+            commentCount: firestore.FieldValue.increment(1)
+        })
     }
 
     flagNote(note: Note) {
-        this.noteDoc = this.db.doc<Note>(`teams/${this.teamId}/notes/${note.id}`);
-        this.noteDoc.update({
+        return this.db.doc<Note>(`teams/${this.teamId}/notes/${note.id}`).update({
             flag: !note.flag
         });
     }
 
     removeNote(noteId: string) {
-        const noteDoc = this.db.doc<Note>(`teams/${this.teamId}/notes/${noteId}`);
-        return noteDoc.delete();
+        return this.db.doc<Note>(`teams/${this.teamId}/notes/${noteId}`).delete();
     }
 
     async removeComment(noteId: string, commentId: string) {

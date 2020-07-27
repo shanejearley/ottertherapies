@@ -32,6 +32,8 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   firstTime: boolean = false;
   open: boolean = false;
 
+  dark$: Observable<boolean>;
+
   data: any;
   user$: Observable<User>;
   profile$: Observable<Profile>;
@@ -86,8 +88,6 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   initializeApp() {
     App.addListener('appUrlOpen', (data: any) => {
       this.zone.run(() => {
-        // Example url: https://beerswift.app/tabs/tab2
-        // slug = /tabs/tab2
         const slugOne = data.url.split(".app").pop();
         const slugTwo = slugOne.split('https://ottertherapies.firebaseapp.com').pop();
         const googleCalendarRedirect = slugTwo.includes('https://www.googleapis.com/auth/calendar');
@@ -95,7 +95,6 @@ export class ProfileComponent implements OnInit, AfterViewInit {
         if (slugTwo) {
           if (!this.ios && !this.android || !googleCalendarRedirect) {
             console.log('Rely on app component.');
-            //this.router.navigateByUrl(slugTwo);
           } else if (googleCalendarRedirect) {
             this.router.navigateByUrl(slugTwo);
             if (this.ios) {
@@ -110,8 +109,6 @@ export class ProfileComponent implements OnInit, AfterViewInit {
         } else if (slugOne) {
           console.log('Rely on app component.');
         }
-        // If no match, do nothing - let regular routing 
-        // logic take over
       });
     });
   }
@@ -126,6 +123,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     this.subscriptions = [
       this.profileSub
     ];
+    this.dark$ = this.store.select('dark');
   }
 
   ngAfterViewInit() {
@@ -214,7 +212,7 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     if (!this.android) {
       await Browser.open({ url: redirectUrl });
     } else if (this.android) {
-      this.androidBrowser = this.iab.create('http://apache.org', '_blank', 'location=yes');
+      this.androidBrowser = this.iab.create(`${redirectUrl}`, '_blank', 'location=yes');
     }
   }
 

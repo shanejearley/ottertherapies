@@ -5,8 +5,6 @@ import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
 import { firestore } from 'firebase/app';
-import { SafeResourceUrl, DomSanitizer, SafeValue } from '@angular/platform-browser';
-import { EnlargeThumbnailComponent } from 'src/app/shared/components/enlarge-thumbnail/enlarge-thumbnail.component';
 import { PopoverController, NavParams, ModalController, Platform, ToastController } from '@ionic/angular';
 import { MembersService, Member } from '../../services/members/members.service';
 import { GroupsService, Group } from '../../services/groups/groups.service';
@@ -14,9 +12,10 @@ import { GroupsService, Group } from '../../services/groups/groups.service';
 import { Store } from 'src/store';
 import { Profile } from 'src/auth/shared/services/profile/profile.service';
 
-import { Plugins, FilesystemDirectory, FilesystemEncoding } from '@capacitor/core';
-import { CopyFileComponent } from '../copy-file/copy-file.component';
+import { Plugins, FilesystemDirectory, FilesystemEncoding, Capacitor } from '@capacitor/core';
 const { Browser, Filesystem } = Plugins;
+
+import { CopyFileComponent } from '../copy-file/copy-file.component';
 
 import moment from 'moment';
 
@@ -26,6 +25,10 @@ import moment from 'moment';
     styleUrls: ['./file-options.component.scss']
 })
 export class FileOptionsComponent implements OnInit {
+
+    // choose random otter to display
+    otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
+    random = this.otters[Math.floor(Math.random() * this.otters.length)];
 
     teamId: string;
     file;
@@ -74,12 +77,9 @@ export class FileOptionsComponent implements OnInit {
         private storage: AngularFireStorage,
         private db: AngularFirestore,
         private authService: AuthService,
-        private groupsService: GroupsService,
-        private membersService: MembersService,
         private modalController: ModalController,
         private store: Store,
         private platform: Platform,
-        private popoverController: PopoverController,
         private toastController: ToastController
     ) { }
 
@@ -219,11 +219,6 @@ export class FileOptionsComponent implements OnInit {
                             uid: this.uid,
                             url: this.downloadURL
                         })
-                        await this.docRef.set({
-                            lastFile: this.currentName + this.fileExt,
-                            lastFileId: this.copyFileId,
-                            lastFileUid: this.uid
-                        }, { merge: true })
                         resolve();
                     }),
                 ).subscribe()
@@ -300,25 +295,67 @@ export class FileOptionsComponent implements OnInit {
         })
     }
 
-    async downloadFile() {
-        var xhr = new XMLHttpRequest();
-        xhr.responseType = 'blob';
-        xhr.onload = (event) => {
-            var blob = xhr.response;
-            if (!this.ios && !this.android) {
-                var blobUrl = window.URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = blobUrl;
-                a.target = "_blank";
-                a.download = this.currentName + this.fileExt; // Name the file anything you'd like.
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+    async fileRead(file) {
+        const reader = new FileReader();
+        return new Promise((resolve, reject) => {
+            console.log(file);
+            reader.readAsDataURL(file);
+            reader.onerror = () => {
+                reader.abort();
+                reject(new DOMException("Problem parsing input file."))
             }
-        };
-        xhr.open('GET', this.file.url);
-        xhr.send();
+            reader.onloadend = () => {
+                const result: string = reader.result.toString();
+                resolve(result);
+            };
+        })
+    }
+
+    async fileWrite(data) {
+        try {
+            const result = await Filesystem.writeFile({
+                path: this.file.name,
+                data: data,
+                directory: FilesystemDirectory.Documents,
+                encoding: FilesystemEncoding.UTF8
+            })
+            return result.uri;
+        } catch (e) {
+            console.error('Unable to write file', e);
+        }
+    }
+
+    async fileDataDownload() {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.responseType = 'blob';
+            xhr.onload = async (event) => {
+                const blob = xhr.response;
+                const fileUrl = await this.fileRead(blob);
+                const base64Data = fileUrl.toString().split(',').pop();
+
+                resolve(base64Data);
+            };
+            xhr.open('GET', this.file.url);
+            xhr.send();
+
+        })
+    }
+
+    async fileDelete() {
+        await Filesystem.deleteFile({
+            path: this.file.name,
+            directory: FilesystemDirectory.Documents
+        });
+    }
+
+    async downloadFile() {
+        const base64Data = await this.fileDataDownload();
+        return Plugins.FileSharer.share({
+            filename: this.currentName + this.fileExt,
+            base64Data: base64Data,
+            contentType: this.file.type,
+        })
     }
 
     async deleteFile() {

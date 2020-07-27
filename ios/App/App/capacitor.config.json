@@ -21,5 +21,8 @@
       "languageCode": "en",
       "nativeAuth": false
     }
+  },
+  "server": {
+    "url": "http://10.0.0.94:8101"
   }
 }

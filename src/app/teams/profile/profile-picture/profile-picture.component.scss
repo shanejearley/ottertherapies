@@ -2,7 +2,20 @@
     border-radius: 50% !important;
 }
 
-.fileBtn [type=file] {
+#container {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+image-cropper {
+    max-width: 100% !important;
+    border-radius: 10px !important;
+    --cropper-outline-color: rgba(0,0,0,0.2);
+}
+
+.file-button [type=file] {
     overflow: hidden;
     cursor: inherit;
     display: block;

@@ -6,20 +6,7 @@ import { AuthService } from '../../../shared/services/auth/auth.service';
 
 @Component({
   selector: 'register',
-  template: `
-    <div>
-      <auth-form (submitted)="registerUser($event)">
-        <h1>Register</h1>
-        <a routerDirection="root" routerLink="/auth/login">Already have an account?</a>
-        <ion-button type="submit" expand="block">
-          Create account
-        </ion-button>
-        <div class="error" *ngIf="error">
-          {{ error }}
-        </div>
-      </auth-form>
-    </div>
-  `
+  templateUrl: 'register.component.html'
 })
 export class RegisterComponent {
 

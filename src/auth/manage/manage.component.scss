@@ -13,8 +13,8 @@
   }
   h1 {
     margin: 0 0 25px;
-    //font-size: 20px;
-    //font-weight: 600;
+    font-size: 20px;
+    font-weight: 600;
     text-align: center;
   }
   a {
@@ -22,6 +22,7 @@
     text-align: center;
     color: #5e7386;
     font-size: 14px;
+    text-decoration: none !important;
   }
 }
 
@@ -74,12 +75,12 @@
     &::-webkit-input-placeholder {
       color: #5777a8;
     }
-    &[type=email] {
-      border-radius: 4px 4px 0 0;
+    &.auth--top {
+      border-radius: 4px 4px 0 0 !important;
     }
-    &[type=password] {
-      border-radius: 0 0 4px 4px;
-      margin: -1px 0 0;
+    &.auth--bottom {
+      border-radius: 0 0 4px 4px !important;
+      margin: -1px 0 0 !important;
     }
   }
   img.auth--logo {

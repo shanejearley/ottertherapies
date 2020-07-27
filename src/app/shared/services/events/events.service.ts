@@ -11,13 +11,13 @@ import { Profile } from '../../../../auth/shared/services/profile/profile.servic
 import { Observable, combineLatest } from 'rxjs';
 import { filter, map, shareReplay, tap } from 'rxjs/operators';
 
-import { MembersService } from '../members/members.service';
+import { MembersService, Member } from '../members/members.service';
 
 
-export interface Member {
+export interface EventMember {
     status: string,
     uid: string,
-    profile: Observable<Profile>
+    profile: Observable<Member>
 }
 
 export interface Event {
@@ -32,14 +32,14 @@ export interface Event {
     recurrence: string,
     recurrenceId?: string,
     until?: firestore.Timestamp,
-    members: Member[],
+    members: EventMember[],
     update?: firestore.FieldValue
 }
 
 @Injectable()
 export class EventsService {
     private eventsCol: AngularFirestoreCollection<Event>;
-    private membersCol: AngularFirestoreCollection<Member>;
+    private membersCol: AngularFirestoreCollection<EventMember>;
     event$: Observable<Event>;
     teamId: string;
     uid: string;
@@ -155,12 +155,12 @@ export class EventsService {
 
     getMembers(event: Event) {
         event.members = [];
-        this.membersCol = this.db.collection<Member>(`teams/${this.teamId}/calendar/${event.id}/members`);
+        this.membersCol = this.db.collection<EventMember>(`teams/${this.teamId}/calendar/${event.id}/members`);
         this.membersCol.stateChanges(['added', 'modified', 'removed'])
             .pipe(
                 map(actions => actions.map(a => {
                     if (a.type == 'removed') {
-                        const member = a.payload.doc.data() as Member;
+                        const member = a.payload.doc.data() as EventMember;
                         member.uid = a.payload.doc.id;
                         const removeMember = event.members.find(m => m.uid === member.uid);
                         const index = event.members.indexOf(removeMember);
@@ -168,15 +168,15 @@ export class EventsService {
                         return event.members.splice(index, 1);
                     }
                     if (a.type == 'added' || a.type == 'modified') {
-                        const member = a.payload.doc.data() as Member;
+                        const member = a.payload.doc.data() as EventMember;
                         member.uid = a.payload.doc.id;
                         const exists = event.members.find(m => m.uid === member.uid)
                         if (!exists) {
-                            member.profile = this.membersService.getProfile(member.uid);
+                            member.profile = this.membersService.getMember(member.uid);
                             event.members.push(member);
                         } else {
                             let memberIndex = event.members.findIndex(m => m.uid == member.uid);
-                            member.profile = this.membersService.getProfile(member.uid);
+                            member.profile = this.membersService.getMember(member.uid);
                             event.members[memberIndex] = member;
                         }
                     }

@@ -22,6 +22,7 @@
     text-align: center;
     color: #5e7386;
     font-size: 14px;
+    text-decoration: none !important;
   }
 }
 
@@ -65,8 +66,8 @@
     &::-webkit-input-placeholder {
       color: #5777a8;
     }
-    &[type=text] {
-      border-radius: 4px;
+    &.auth--only {
+      border-radius: 4px !important;
     }
   }
   img.auth--logo {

@@ -40,6 +40,9 @@ export interface DayConfig {
   styleUrls: ['./events.component.scss'],
 })
 export class EventsComponent implements OnInit {
+
+  dark$: Observable<boolean>;
+
   user$: Observable<User>;
   profile$: Observable<Profile>;
   teams$: Observable<Team[]>;
@@ -236,6 +239,9 @@ export class EventsComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    this.dark$ = this.store.select('dark');
+
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
       this.ios = this.platform.is('ios') && this.platform.is('capacitor');

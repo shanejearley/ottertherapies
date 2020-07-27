@@ -3,24 +3,18 @@
     <ion-buttons slot="start">
       <ion-back-button [defaultHref]="['/Teams', (team$ | async)?.id, 'Messages']"></ion-back-button>
     </ion-buttons>
-    <ion-title *ngIf="member$ | async as member">
-      {{ member.profile ? member.profile.displayName : '' }}
-      <app-user-presence class="presence--dot--title" [uid]="member.uid"></app-user-presence>
+    <ion-title>
+      {{ (member$ | async)?.displayName }}
+      <app-user-presence class="presence--dot--title" [uid]="(member$ | async)?.uid"></app-user-presence>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" #contentArea [class.scroll-ios]="ios">
-  <!-- <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large" *ngIf="(member$ | async)?.profile">{{ (member$ | async)?.profile.displayName }}
-      </ion-title>
-    </ion-toolbar>
-  </ion-header> -->
 
   <div id="container">
 
-    <ion-list class="theme--list">
+    <ion-list #scroll class="theme--list">
       <ion-item class="theme--item" lines="none"></ion-item>
 
       <div *ngFor="let m of (member$ | async)?.messages; trackBy: trackFn; let last = last; let i = index">
@@ -40,10 +34,10 @@
           <ion-row class="member--row" slot="start" *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage">
             <ion-avatar class="dialog--member"
               *ngIf="(member$ | async)?.messages[i+1] && m.uid !== (member$ | async)?.messages[i+1].uid || !(member$ | async)?.messages[i+1] || (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
-              <img *ngIf="(member$ | async)?.profile.url; else elseTextAvatar"
-                src="{{ (member$ | async)?.profile.url_150 ? (member$ | async)?.profile.url_150 : (member$ | async)?.profile.url }}">
+              <img *ngIf="(member$ | async)?.url; else elseTextAvatar"
+                src="{{ (member$ | async)?.url_150 ? (member$ | async)?.url_150 : (member$ | async)?.url }}">
               <ng-template #elseTextAvatar>
-                <ngx-avatar name="{{ (member$ | async)?.profile.displayName }}" [size]="40"></ngx-avatar>
+                <ngx-avatar name="{{ (member$ | async)?.displayName }}" [size]="40"></ngx-avatar>
               </ng-template>
             </ion-avatar>
 

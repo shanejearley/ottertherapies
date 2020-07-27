@@ -38,7 +38,6 @@ export class TeamsPage implements OnInit {
   profile$: Observable<Profile>;
   teams$: Observable<Team[]>;
   pending$: Observable<Pending[]>;
-  subscriptions: Subscription[] = [];
 
   desktop: boolean;
   android: boolean;
@@ -256,13 +255,6 @@ export class TeamsPage implements OnInit {
     this.profile$ = this.store.select<Profile>('profile');
     this.teams$ = this.store.select<Team[]>('teams');
     this.pending$ = this.store.select<Pending[]>('pending');
-
-    this.subscriptions = [
-      // this.authService.auth$.subscribe(),
-      // this.profileService.profile$.subscribe(),
-      //this.teamsService.teams$.subscribe()
-    ];
-    //this.teams = this.activatedRoute.snapshot.paramMap.get('id');
   }
 
   async createTeamModal() {
@@ -282,12 +274,16 @@ export class TeamsPage implements OnInit {
     return this.router.navigate(['/Teams', team.id]);
   }
 
-  ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
   goTo(route: string) {
     this.router.navigate([`../Teams/${route}`]);
+  }
+
+  public trackFn(index, item) {
+    return item.id;
+  }
+
+  ngOnDestroy() {
+    this.onDestroy.next();
   }
 
 }

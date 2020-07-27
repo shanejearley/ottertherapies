@@ -11,6 +11,14 @@ import { Router } from '@angular/router';
     styleUrls: ['./create-team.component.scss']
 })
 export class CreateTeamComponent {
+
+    // choose random otter to display
+    otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
+    random = this.otters[Math.floor(Math.random() * this.otters.length)];
+
+    nameFocus: boolean;
+    emailFocus: boolean;
+
     error: string;
     clicked: boolean = false;
     child: string;

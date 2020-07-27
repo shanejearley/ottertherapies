@@ -7,7 +7,7 @@ const { Clipboard, Browser } = Plugins;
 
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap, takeUntil, filter } from 'rxjs/operators'
+import { switchMap, tap, takeUntil, filter, take, map } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -40,19 +40,22 @@ export class DirectComponent implements OnInit {
     console.log(fileList);
     let files = [];
     for (let i = 0; i < fileList.length; i++) {
-      files.push(fileList.item(i));
-      console.log(files);
-      if (files.length = fileList.length) {
-        console.log(files);
-        this.fileDropEvent(files);
-        files = [];
+      if (fileList.item(i).size > 25000000) {
+        this.largeFileAlert();
+      } else {
+        files.push(fileList.item(i));
       }
+    }
+    if (files.length = fileList.length) {
+      console.log(files);
+      this.fileDropEvent(files);
+      files = [];
     }
   }
   @ViewChildren('childFile') childFiles: QueryList<MessageFileComponent>;
 
-  @ViewChild(IonContent) contentArea: IonContent;
-  @ViewChild(IonList, { read: ElementRef }) scroll: ElementRef;
+  @ViewChild(IonContent, { static: false }) contentArea: IonContent;
+  @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
   private mutationObserver: MutationObserver;
 
   ios: boolean;
@@ -65,7 +68,6 @@ export class DirectComponent implements OnInit {
   members$: Observable<Member[]>;
   member$: Observable<Member>;
   directId: string;
-  pathId: string;
   teamId: string;
   public team: string;
   public page: string;
@@ -90,38 +92,41 @@ export class DirectComponent implements OnInit {
     private alertController: AlertController
   ) { }
 
+  get uid() {
+    return this.authService.user.uid;
+  }
+
+  get pathId() {
+    return this.uid < this.directId ? this.uid + this.directId : this.directId + this.uid;
+  }
+
+  checkUnread() {
+    setTimeout(async () => {
+      const unread = await this.member$.pipe(filter(Boolean), take(1), map((member: Member) => member.unread), map(unread => unread)).toPromise();
+      if (unread && unread.unreadMessages > 0) {
+        this.membersService.checkLastMessage(this.directId);
+      }
+    }, 2500)
+  }
+
   ionViewDidEnter() {
     this.member$
       .pipe(
         takeUntil(this.onDestroy),
         filter(Boolean),
         tap((member: Member) => {
-          if (member.messages && member.messages.length) {
-            this.member = member;
+          this.member = member;
+          this.checkUnread();
+          this.scrollToBottom(0);
+          this.mutationObserver = new MutationObserver((mutations) => {
+            this.scrollToBottom(500);
             this.checkUnread();
-            this.scrollToBottom(0);
-            this.mutationObserver = new MutationObserver((mutations) => {
-              this.scrollToBottom(500);
-              this.checkUnread();
-            })
-            this.mutationObserver.observe(this.scroll.nativeElement, {
-              childList: true
-            });
-          }
+          })
+          this.mutationObserver.observe(this.scroll.nativeElement, {
+            childList: true
+          });
         })
       ).subscribe()
-  }
-
-  checkUnread() {
-    if (this.member.unread && this.member.unread.unreadMessages > 0) {
-      console.log('checking unread');
-      this.membersService.checkLastMessage(this.directId);
-    }
-    setTimeout(() => {
-      if (this.member.unread && this.member.unread.unreadMessages > 0) {
-        this.membersService.checkLastMessage(this.directId);
-      }
-    }, 5000)
   }
 
   scrollToBottom(duration) {
@@ -184,33 +189,22 @@ export class DirectComponent implements OnInit {
 
   async fileDropEvent(files) {
     const dropPromises = files.map(async file => {
-      try {
-        if (file.size > 25000000) {
-          return this.largeFileAlert();
-        }
-        const result = await this.fileRead(file);
-        await this.newFiles.push(result);
-        return this.scrollOnFocus();
-      } catch (err) {
-        return console.log(err.message);
-      }
+      const result = await this.fileRead(file);
+      await this.newFiles.push(result);
+      return this.scrollOnFocus();
     })
     return Promise.all(dropPromises);
   }
 
   async fileChangeEvent(ev) {
     const file = ev.target.files[0];
-    try {
-      if (file.size > 25000000) {
-        return this.largeFileAlert();
-      }
-      const result = await this.fileRead(file);
-      console.log('res', result)
-      await this.newFiles.push(result);
-      return this.scrollOnFocus();
-    } catch (err) {
-      return console.log(err.message);
+    if (file.size > 25000000) {
+      return this.largeFileAlert();
     }
+    const result = await this.fileRead(file);
+    console.log('res', result)
+    await this.newFiles.push(result);
+    return this.scrollOnFocus();
   }
 
   async removeFile(file) {
@@ -247,10 +241,6 @@ export class DirectComponent implements OnInit {
     if (this.desktop) {
       event.preventDefault();
     }
-  }
-
-  get uid() {
-    return this.authService.user.uid;
   }
 
   public trackFn(index, item) {

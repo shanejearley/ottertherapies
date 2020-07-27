@@ -1,47 +1,65 @@
 <ion-header translucent>
     <ion-toolbar>
-        <ion-title>Delete Account</ion-title>
-        <ion-buttons slot="end">
+
+        <ion-buttons slot="start">
             <ion-button (click)="dismiss()">
                 <ion-icon slot="icon-only" name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
+
+        <ion-title>Delete Account</ion-title>
+
     </ion-toolbar>
 </ion-header>
 <ion-content fullscreen>
-    <ion-list class="theme--list">
-        <ion-item lines="none" class="theme--item">
-            <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
-            <ion-label text-wrap>
-                <h2>Proceeding will permanently delete your account!</h2>
-            </ion-label>
-        </ion-item>
+    <div id="container">
+        <ion-grid fixed class="ion-margin-top">
+            <ion-row>
 
-        <ion-item lines="none" class="theme--item">
-            <ion-icon slot="start" name="thumbs-up-outline"></ion-icon>
-            <ion-label text-wrap>
-                <h3>Of course you can always create a new one...</h3>
-            </ion-label>
-        </ion-item>
+                <ion-col size="12">
+                    <img [src]="'../../../../assets/img/otter_' + random + '.svg'">
+                </ion-col>
 
-        <ion-item lines="none" class="theme--item">
-            <ion-checkbox slot="start" [(ngModel)]="confirm.isChecked"></ion-checkbox>
-            <ion-label text-wrap>
-                <h3>Check this box if you understand</h3>
-            </ion-label>
-        </ion-item>
+                <ion-col size="12">
+                    <strong>Proceeding is permanent!</strong>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-note class="ion-padding-horizontal">Of course you can always create a new account</ion-note>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item lines="none" class="theme--item">
+                        <ion-checkbox slot="start" [(ngModel)]="confirm.isChecked"></ion-checkbox>
+                        <ion-label text-wrap>
+                            <h3>Check this box if you understand</h3>
+                        </ion-label>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item lines="none" class="theme--item">
+                        <ion-icon slot="start" name="person-outline"></ion-icon>
+                        <ion-input type="email" class="form" placeholder="Type your full email to confirm"
+                            [(ngModel)]="emailConfirm" (ionFocus)="emailFocus = true" (ionBlur)="emailFocus = false"
+                            [class.focused]="emailFocus"></ion-input>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-button expand="block" [disabled]="!confirm.isChecked || emailConfirm !== currentProfile.email"
+                        (click)="deleteUser()" color="danger">
+                        Delete Account
+                    </ion-button>
+                </ion-col>
+
+
+            </ion-row>
+        </ion-grid>
 
         <ion-item class="theme--item" lines="none"></ion-item>
         <ion-item class="theme--item" lines="none"></ion-item>
 
-    </ion-list>
+    </div>
 
 </ion-content>
-
-<ion-footer>
-    <ion-toolbar>
-        <ion-row class="ion-justify-content-end ion-padding-horizontal">
-            <ion-button fill="clear" [disabled]="!confirm.isChecked" (click)="deleteUser()" color="danger">Delete Account</ion-button>
-        </ion-row>
-    </ion-toolbar>
-</ion-footer>

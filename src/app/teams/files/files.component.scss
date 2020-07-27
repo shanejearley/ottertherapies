@@ -50,3 +50,25 @@ ion-avatar.avatar--file {
     padding-bottom: 16px;
   }
 }
+
+.folder--div {
+  width: 150;
+  height: 105;
+  margin: 0 auto;
+  margin-top: 50px;
+  position: relative;
+  background-color: #708090;
+  border-radius: 0 6px 6px 6px;
+  box-shadow: 4px 4px 7px rgba(0, 0, 0, 0.59);
+}
+
+.folder--div:before {
+  content: '';
+  width: 50%;
+  height: 12px;
+  border-radius: 0px 20px 0 0;
+  position: absolute;
+  background-color: #708090;
+  top: -12px;
+  left: 0px;
+}

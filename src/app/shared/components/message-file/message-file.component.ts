@@ -117,11 +117,6 @@ export class MessageFileComponent {
                             url: this.downloadURL,
                             profile: null
                         })
-                        await this.docRef.set({
-                            lastFile: this.file.name,
-                            lastFileId: this.fileId,
-                            lastFileUid: this.uid
-                        }, { merge: true })
 
                         this.file.style = this.file.type === 'image/png' || this.file.type === 'image/jpeg' || this.file.type === 'image/jpg' || this.file.type === 'image/gif' ? 'image' : 'file';
 

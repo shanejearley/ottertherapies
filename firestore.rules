@@ -18,10 +18,6 @@ service cloud.firestore {
     	return get(/databases/$(database)/documents/users/$(resource.data.uid)/teammates/$(request.auth.uid)).data.teams > 0;
     }
     
-    function teamExists(teamId) {
-    	return exists(/databases/$(database)/documents/teams/$(teamId));
-    }
-    
     function teamAccess(teamId) {
     	return exists(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid));
     }
@@ -34,20 +30,8 @@ service cloud.firestore {
       return exists(/databases/$(database)/documents/teams/$(teamId)/pendingMembers/$(request.auth.uid));
     }
     
-    function memberExists(teamId, memberUid) {
-    	return exists(/databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid))
-    }
-    
-    function pendingMemberExists(teamId, memberUid) {
-    	return exists(/databases/$(database)/documents/teams/$(teamId)/pendingMembers/$(request.auth.uid))
-    }
-    
     function directAccess(directId) {
     	return directId.matches('.*'+request.auth.uid) || directId.matches(request.auth.uid+'.*');
-    }
-    
-    function directExists(teamId, directId) {
-    	return exists(/databases/$(database)/documents/teams/$(teamId)/direct/$(directId))
     }
     
     function groupAccess(teamId, groupId) {
@@ -56,10 +40,6 @@ service cloud.firestore {
     
     function groupAdmin(teamId, groupId) {
     	return get(/databases/$(database)/documents/teams/$(teamId)/groups/$(groupId)/members/$(request.auth.uid)).data.status == 'Admin' || !exists(/databases/$(database)/documents/teams/$(teamId)/groups/$(groupId)/members/$(request.auth.uid)) && get(/databases/$(database)/documents/teams/$(teamId)/groups/$(groupId)).data.createdBy == request.auth.uid;
-    }
-    
-    function groupExists(teamId, groupId) {
-    	return exists(/databases/$(database)/documents/teams/$(teamId)/groups/$(groupId));
     }
     
   	match /users/{userId} {
@@ -82,24 +62,27 @@ service cloud.firestore {
     }
     
     match /teams/{teamId} {
-      allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) || signedIn() && emailVerified() && pendingTeamAccess(teamId) || signedIn() && emailVerified() && !teamExists(teamId);
+    	allow create: if signedIn() && emailVerified();
+      allow read: if signedIn() && emailVerified() && teamAccess(teamId) || signedIn() && emailVerified() && pendingTeamAccess(teamId);
+      allow update, delete: if signedIn() && emailVerified() && teamAccess(teamId) && teamAdmin(teamId);
       match /members/{memberUid} {
+      	allow create: if signedIn() && emailVerified() && teamAdmin(teamId) || signedIn() && emailVerified() && pendingTeamAccess(teamId) && memberUid == request.auth.uid && request.resource.data.status == 'Member';
       	allow read: if signedIn() && emailVerified() && teamAccess(teamId);
-        allow write: if signedIn() && emailVerified() && teamAdmin(teamId) || signedIn() && emailVerified() && pendingTeamAccess(teamId) && !memberExists(teamId, memberUid) && memberUid == request.auth.uid;
+        allow update, delete: if signedIn() && emailVerified() && teamAdmin(teamId);
       }
       match /pendingMembers/{memberUid} {
-      	allow read, write: if signedIn() && emailVerified() && teamAdmin(teamId) || signedIn() && emailVerified() && teamAdmin(teamId) && !pendingMemberExists(teamId, memberUid);
+      	allow read, write: if signedIn() && emailVerified() && teamAdmin(teamId);
       }
       match /direct/{directId} {
-      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
+      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId);
         match /members/{memberUid} {
-      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
+      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId);
         }
         match /messages/{memberUid} {
-      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId) || signedIn() && emailVerified() && teamAccess(teamId) && !directExists(teamId, directId);
+      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId);
         }
         match /files/{memberUid} {
-      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId) || signedIn() && teamAccess(teamId) && emailVerified() && !directExists(teamId, directId);
+      		allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && directAccess(directId);
         }
       }
       match /calendar/{eventId=**} {
@@ -112,7 +95,8 @@ service cloud.firestore {
       	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId);
       }
       match /groups/{groupId} {
-      	allow read, write: if signedIn() && emailVerified() && teamAccess(teamId) && groupAccess(teamId, groupId) || signedIn() && emailVerified() && teamAccess(teamId) && !groupExists(teamId, groupId);
+      	allow create: if signedIn() && emailVerified() && teamAccess(teamId);
+      	allow read, update, delete: if signedIn() && emailVerified() && teamAccess(teamId) && groupAccess(teamId, groupId);
         match /members/{memberUid} {
       		allow write: if signedIn() && emailVerified() && teamAccess(teamId) && groupAdmin(teamId, groupId);
           allow read: if signedIn() && emailVerified() && teamAccess(teamId) && groupAccess(teamId, groupId);

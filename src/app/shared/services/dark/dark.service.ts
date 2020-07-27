@@ -9,6 +9,10 @@ export class DarkService {
         private store: Store
     ) { }
 
+    private toggleDarkTheme(shouldAdd) {
+        document.body.classList.toggle('dark', shouldAdd);
+    }
+
     // Observable string sources
     private darkSource = new Subject<boolean>();
 
@@ -16,12 +20,13 @@ export class DarkService {
     dark$ = this.darkSource.asObservable();
 
     // Service message commands
-    toggle(dark: boolean) {
+    async toggle(dark: boolean) {
         try {
-            this.darkSource.next(dark);
-            this.store.set('dark', dark);
+            await this.toggleDarkTheme(dark);
+            await this.darkSource.next(dark);
+            return this.store.set('dark', dark);
         } catch (err) {
-            console.log(err);
+            return console.log(err);
         }
     }
 

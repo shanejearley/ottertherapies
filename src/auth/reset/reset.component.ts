@@ -15,6 +15,9 @@ const { Browser } = Plugins;
     templateUrl: 'reset.component.html'
 })
 export class ResetComponent implements OnInit {
+
+    emailFocus: boolean = false;
+
     desktop: boolean;
     ios: boolean;
     android: boolean;

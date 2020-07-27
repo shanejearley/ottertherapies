@@ -20,6 +20,10 @@ const { Browser } = Plugins;
 })
 export class CopyFileComponent {
 
+    // choose random otter to display
+    otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
+    random = this.otters[Math.floor(Math.random() * this.otters.length)];
+
     profile$: Observable<Profile>;
     groups$: Observable<Group[]>;
     members$: Observable<Member[]>;
@@ -87,7 +91,7 @@ export class CopyFileComponent {
             folder: this.copyFolder
         });
     }
-    
+
 
     ngOnDestroy() {
         this.onDestroy.next();

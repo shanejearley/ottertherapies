@@ -1,17 +1,19 @@
-import { Component, OnInit, HostListener, NgZone } from '@angular/core';
-import { Router, GuardsCheckEnd, NavigationEnd } from '@angular/router';
+import { Component, OnInit, HostListener, NgZone, ViewChild, ElementRef } from '@angular/core';
+import { Router, GuardsCheckEnd, NavigationEnd, RoutesRecognized } from '@angular/router';
 
-import { Platform, ToastController } from '@ionic/angular';
+import { Platform, ToastController, IonToggle } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Badge } from '@ionic-native/badge/ngx';
 
-import { Plugins } from '@capacitor/core';
+
+import { Plugins, registerWebPlugin } from '@capacitor/core';
 const { App, Browser } = Plugins;
+import { FileSharer } from '@byteowls/capacitor-filesharer';
 
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { tap, map, takeUntil } from 'rxjs/operators';
+import { tap, map, takeUntil, take, filter } from 'rxjs/operators';
 
 import { AuthService, User } from '../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../auth/shared/services/profile/profile.service';
@@ -33,6 +35,7 @@ import { PresenceService } from './shared/services/presence/presence.service';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit {
+  @ViewChild('darkToggle', { read: ElementRef, static: false }) darkToggle: ElementRef;
 
   @HostListener('dragover', ['$event'])
   onDragOver($event) {
@@ -50,7 +53,6 @@ export class AppComponent implements OnInit {
   user$: Observable<User>;
   profile$: Observable<Profile>;
   teams$: Observable<Team[]>;
-  badge$: Observable<number>;
   team$: Observable<Team>;
   groups$: Observable<Group[]>;
 
@@ -64,7 +66,6 @@ export class AppComponent implements OnInit {
   recurringEventsSub: Subscription;
   pendingSub: Subscription;
   resourcesSub: Subscription;
-  badgeSub: Subscription;
 
   teamId: string;
   lastId: string;
@@ -93,7 +94,7 @@ export class AppComponent implements OnInit {
     },
     {
       title: 'Messages',
-      icon: 'chatbubbles'
+      icon: 'chatbubble-ellipses'
     },
     {
       title: 'Files',
@@ -131,29 +132,14 @@ export class AppComponent implements OnInit {
     private resourcesService: ResourcesService,
     private presenceService: PresenceService,
     private darkService: DarkService,
-  ) {
-    this.initializeApp();
-
-    if (window.matchMedia('(prefers-color-scheme)').media !== 'not all') { console.log('🎉 Dark mode is supported'); }
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-
-    toggleDarkTheme(prefersDark.matches);
-
-    // Listen for changes to the prefers-color-scheme media query
-    prefersDark.addListener((mediaQuery) => toggleDarkTheme(mediaQuery.matches));
-
-    // Add or remove the "dark" class based on if the media query matches
-    function toggleDarkTheme(shouldAdd) {
-      document.body.classList.toggle('dark', shouldAdd);
-    }
-  }
-
-  // ngAfterContentInit() {
-  //   //this.badgeSub = this.badgeService.badge$.subscribe();
-  // }
+  ) { this.initializeApp() }
 
   async showPrivacy() {
     await Browser.open({ url: 'https://ottertherapies.com/privacy-and-terms' });
+  }
+
+  async showGuide() {
+    await Browser.open({ url: 'https://ottertherapies.com/guide' });
   }
 
   initializeApp() {
@@ -190,16 +176,33 @@ export class AppComponent implements OnInit {
         // logic take over
       });
     });
+    if (window.matchMedia('(prefers-color-scheme)').media !== 'not all') { console.log('🎉 Dark mode is supported'); }
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+    // Listen for changes to the prefers-color-scheme media query
+    prefersDark.addListener(async (mediaQuery) => {
+
+      console.log('toggle auto');
+      this.dark = mediaQuery.matches;
+
+      setTimeout(() => {
+        this.darkToggle.nativeElement.click();
+      }, 250)
+
+    });
+    
   }
 
-  toggleDarkTheme(shouldAdd) {
-    document.body.classList.toggle('dark', shouldAdd);
+  watchDark() {
+    this.darkService.dark$.pipe(takeUntil(this.onDestroy), map(dark => this.dark = dark)).subscribe();
   }
 
-  change() {
-    if (!this.ios && !this.android) {
-      this.darkService.toggle(!this.dark);
-    }
+  clickToggle() {
+    this.darkToggler();
+  }
+
+  async darkToggler() {
+    return this.darkService.toggle(this.dark);
   }
 
   get uid() {
@@ -210,18 +213,12 @@ export class AppComponent implements OnInit {
     return this.profileService.currentProfile;
   }
 
-  // ngAfterViewInit() {
-  //   this.badge$.pipe(map(badge => {
-  //     if (badge) {
-  //       console.log('BADGER BADGE', badge);
-  //       this.profileService.updateBadge(this.uid, badge);
-  //       if (this.ios || this.android) {
-  //       }
-  //     }
-  //   })).subscribe();
-  // }
+  ionViewDidEnter() {
+
+  }
 
   ngOnInit() {
+    registerWebPlugin(FileSharer);
     this.swUpdate.available.subscribe(async res => {
       const updateToast = await this.toastController.create({
         message: 'Update available!',
@@ -243,40 +240,25 @@ export class AppComponent implements OnInit {
     });
 
     this.dark$ = this.store.select('dark');
-
-    this.darkService.dark$.pipe(
-      takeUntil(this.onDestroy),
-      tap(dark => {
-        this.toggleDarkTheme(dark);
-        this.dark = dark;
-      })
-    ).subscribe()
-
-    //const path = window.location.pathname.split('Teams/:id/')[1];
     this.dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    this.store.set('dark', this.dark);
+    this.watchDark();
+    console.log('watch dark in init', this.dark);
+    this.darkService.toggle(this.dark);
+
     this.user$ = this.store.select<User>('user');
     this.profile$ = this.store.select<Profile>('profile');
     this.teams$ = this.store.select<Team[]>('teams');
-    // this.teams$.subscribe(ts => {
-    //   if (ts) {
-    //     let unreadMessages = 0;
-    //     ts.forEach(t => {
-    //       unreadMessages += t.unreadMessages;
-    //     })
-    //     console.log(unreadMessages);
-    //   }
-    // })
-    //this.badge$ = this.store.select<number>('badge');
     this.subscribeUser();
     this.router.events.subscribe(val => {
-      if (val instanceof GuardsCheckEnd) {
+      if (val instanceof RoutesRecognized) {
         this.teamId = val.state.root.firstChild.params['id'];
         if (this.teamId !== this.lastId) {
           this.team$ = this.teamsService.getTeam(this.teamId);
           this.subscribeUserTeam();
           this.lastId = this.teamId;
         }
+      }
+      if (val instanceof GuardsCheckEnd) {
         if (val.state.root.firstChild.url[0]) {
           this.root = val.state.root.firstChild.url[0].path;
           if (this.root === 'auth') {
@@ -323,26 +305,17 @@ export class AppComponent implements OnInit {
     });
   }
 
-  // ngAfterContentChecked() {
-  //   if (!this.teams) {
-  //     return;
-  //   }
-  //   this.badge$ = this.teams.reduce((total: number, team: Team) => total + team.unreadMessages + team.unreadFiles + team.unreadNotes, 0);
-  // }
-
   async subscribeUserTeam() {
     this.authService.authState
       .pipe(map((user) => {
         if (this.teamId && this.teamId !== 'undefined' && this.teamId !== ':id' && this.teamId !== null) {
-          if (!this.membersSub || this.membersSub.closed) {
-            this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe(() => {
-              this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
-              this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
-              this.recurringEventsSub = this.eventsService.recurringEventsObservable(user.uid, this.teamId).subscribe();
-              this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
-              this.resourcesSub = this.resourcesService.resourcesObservable(user.uid, this.teamId).subscribe();
-            });
-          }
+          this.membersSub = this.membersService.membersObservable(user.uid, this.teamId).subscribe(() => {
+            this.groupsSub = this.groupsService.groupsObservable(user.uid, this.teamId).subscribe();
+            this.eventsSub = this.eventsService.eventsObservable(user.uid, this.teamId, new Date()).subscribe();
+            this.recurringEventsSub = this.eventsService.recurringEventsObservable(user.uid, this.teamId).subscribe();
+            this.notesSub = this.notesService.notesObservable(user.uid, this.teamId).subscribe();
+            this.resourcesSub = this.resourcesService.resourcesObservable(user.uid, this.teamId).subscribe();
+          });
 
         } else {
           this.unsubscribeUserTeam();
@@ -372,7 +345,6 @@ export class AppComponent implements OnInit {
             this.profileSub = this.profileService.profileObservable(user.uid).subscribe();
             this.teamsSub = this.teamsService.teamsObservable(user.uid).subscribe();
             this.pendingSub = this.pendingService.pendingObservable(user.uid).subscribe();
-            //this.badgeSub = this.badgeService.badge$.subscribe();
           } else if (user && !user.authenticated) {
             console.log('signed out')
           }

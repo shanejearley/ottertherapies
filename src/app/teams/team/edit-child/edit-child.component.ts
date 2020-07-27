@@ -14,6 +14,14 @@ import { ActivatedRoute } from '@angular/router';
     styleUrls: ['./edit-child.component.scss']
 })
 export class EditChildComponent {
+
+    // choose random otter to display
+    otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
+    random = this.otters[Math.floor(Math.random() * this.otters.length)];
+
+    nameFocus: boolean;
+    bioFocus: boolean;
+
     confirm = {
         isChecked: false
     }
@@ -44,6 +52,7 @@ export class EditChildComponent {
             takeUntil(this.onDestroy),
             map((team: Team) => {
                 this.team = {
+                    id: team.id,
                     child: team.child,
                     bio: team.bio,
                 };

@@ -1,5 +1,3 @@
-import { FirebaseAppConfig } from '@angular/fire';
-
 export const environment = {
   production: true,
   firebase: {

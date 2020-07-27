@@ -16,6 +16,11 @@ const { Browser } = Plugins;
     templateUrl: 'manage.component.html'
 })
 export class ManageComponent implements OnInit {
+
+    emailFocus: boolean = false;
+    passwordFocus: boolean = false;
+    showPassword: boolean = false;
+
     desktop: boolean;
     ios: boolean;
     android: boolean;
@@ -131,6 +136,10 @@ export class ManageComponent implements OnInit {
                 this.dark = dark;
             })
         ).subscribe();
+    }
+
+    ionViewWillEnter() {
+        this.showPassword = false;
     }
 
     async showPrivacy() {

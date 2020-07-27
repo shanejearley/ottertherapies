@@ -1,87 +1,91 @@
 <ion-header translucent>
     <ion-toolbar>
-        <ion-title>{{ firstTime ? 'Create' : 'Edit' }} Profile</ion-title>
-        <ion-buttons slot="end">
+
+        <ion-buttons slot="start">
             <ion-button (click)="dismiss()" [disabled]="firstTime">
                 <ion-icon slot="icon-only" name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
+
+        <ion-title>{{ firstTime ? 'Create' : 'Edit' }} Profile</ion-title>
+
+        <ion-buttons slot="end">
+            <ion-button color="tertiary" (click)="updateProfile()">Save</ion-button>
+        </ion-buttons>
+
     </ion-toolbar>
 </ion-header>
 <ion-content fullscreen>
-    <ion-grid>
-        <ion-row>
-            <ion-col>
-                <ion-card class="clear--card">
-                    <ion-card-content>
-                        <ion-list class="theme--list" *ngIf="profile">
-                            <ion-list *ngIf="firstTime" class="theme--list" inset="true" lines="none">
-                                <ion-item detail="false" class="theme--item message--list" lines="none">
-                                    <ion-row class="member--row" slot="start">
-                                        <ion-avatar class="dialog--member">
-                                            <img src="../../../../../assets/img/otter_head.svg">
-                                        </ion-avatar>
-                                        <ion-col class="member--col" size="auto">
-                                            <ion-card color="light" class="dialog message--card message--member">
-                                                <ion-card-content>
-                                                    <ion-label text-wrap>Welcome to Otter! To get started, enter your display
-                                                        name and
-                                                        care
-                                                        role.</ion-label>
-                                                </ion-card-content>
-                                            </ion-card>
-                                        </ion-col>
-                                    </ion-row>
-                                </ion-item>
-                            </ion-list>
-                            <ion-list-header>
-                                Your Info
-                            </ion-list-header>
-                            <div *ngIf="error">
-                                <div class="error" *ngIf="error">
-                                    You need to enter a display name and select a care role.
-                                </div>
-                            </div>
-                            <ion-item lines="none">
-                                <ion-icon slot="start" name="person-outline"></ion-icon>
-                                <h2 class="full-width"><strong>
-                                        <ion-input class="form" [(ngModel)]="profile.displayName"
-                                            placeholder="Add a display name">
-                                        </ion-input>
-                                    </strong></h2>
-                            </ion-item>
-                            <ion-item lines="none">
-                                <ion-icon slot="start" name="mail-outline"></ion-icon>
-                                <h2 class="full-width">
-                                    <ion-input class="form" [(ngModel)]="profile.email" disabled>
-                                    </ion-input>
-                                </h2>
-                            </ion-item>
-                            <ion-item lines="none">
-                                <ion-icon slot="start" name="people-outline"></ion-icon>
-                                <h2 class="full-width">
-                                    <ion-select placeholder="Select your team role" class="form" [(ngModel)]="profile.role"
-                                        [selectedText]="profile.role" interface="popover">
-                                        <ion-select-option [value]="role.name" *ngFor="let role of roleList">
-                                            {{ role.name }}
-                                        </ion-select-option>
-                                    </ion-select>
-                                </h2>
-                            </ion-item>
-                        </ion-list>
-                    </ion-card-content>
-                </ion-card>
-            </ion-col>
-        </ion-row>
-    </ion-grid>
+    <div id="container">
+        <ion-grid fixed class="ion-margin-top">
+            <ion-row>
+
+                <ion-col size="12">
+                    <img [src]="'../../../../assets/img/otter_' + random + '.svg'">
+                </ion-col>
+
+                <ion-col size="12" *ngIf="firstTime">
+                    <strong>Welcome to Otter!</strong>
+                </ion-col>
+
+                <ion-col size="12" *ngIf="firstTime" class="ion-padding-horizontal">
+                    <ion-note>To get started, enter your displayname and care role.</ion-note>
+                </ion-col>
+
+                <ion-col size="12" *ngIf="!firstTime">
+                    <strong>Edit your info</strong>
+                </ion-col>
+
+                <ion-col size="12" *ngIf="!firstTime" class="ion-padding-horizontal">
+                    <ion-note>Be sure to press save after you've made any changes (emails are locked for now)</ion-note>
+                </ion-col>
+
+                <ion-col size="12" *ngIf="error">
+                    <div class="error" *ngIf="error">
+                        You need to enter a display name and select a care role.
+                    </div>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item lines="none" class="theme--item">
+                        <ion-icon slot="start" name="person-outline"></ion-icon>
+                        <ion-input class="form" [(ngModel)]="profile.displayName" placeholder="Add a display name"
+                            (ionFocus)="nameFocus = true" (ionBlur)="nameFocus = false" [class.focused]="nameFocus">
+                        </ion-input>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item lines="none" class="theme--item">
+                        <ion-icon slot="start" name="mail-outline"></ion-icon>
+                        <ion-input class="form" [(ngModel)]="profile.email" disabled></ion-input>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item lines="none" class="theme--item">
+                        <ion-icon slot="start" name="people-outline"></ion-icon>
+                        <ion-select placeholder="Select your team role" class="form" [(ngModel)]="profile.role"
+                            [selectedText]="profile.role" interface="popover" (ionFocus)="roleFocus = true"
+                            (ionBlur)="roleFocus = false" [class.focused]="roleFocus">
+                            <ion-select-option [value]="role.name" *ngFor="let role of roleList">
+                                {{ role.name }}
+                            </ion-select-option>
+                        </ion-select>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-button expand="block" (click)="deleteUser()" fill="outline" color="danger">Delete Account
+                    </ion-button>
+                </ion-col>
+
+            </ion-row>
+        </ion-grid>
+
+        <ion-item class="theme--item" lines="none"></ion-item>
+        <ion-item class="theme--item" lines="none"></ion-item>
+
+    </div>
 
 </ion-content>
-
-<ion-footer [translucent]="true">
-    <ion-toolbar>
-        <ion-row class="ion-justify-content-between ion-padding-horizontal">
-            <ion-button (click)="deleteUser()" fill="clear" color="danger">Delete</ion-button>
-            <ion-button color="tertiary" (click)="updateProfile()">Save</ion-button>
-        </ion-row>
-    </ion-toolbar>
-</ion-footer>

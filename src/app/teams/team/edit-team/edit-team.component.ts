@@ -15,6 +15,13 @@ import { Team, TeamsService } from 'src/app/shared/services/teams/teams.service'
     styleUrls: ['./edit-team.component.scss']
 })
 export class EditTeamComponent {
+
+    // choose random otter to display
+    otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
+    random = this.otters[Math.floor(Math.random() * this.otters.length)];
+
+    emailFocus: boolean = false;
+
     team$: Observable<Team>;
     profile$: Observable<Profile>;
     memberStatus: string;
@@ -98,7 +105,7 @@ export class EditTeamComponent {
 
     addMember() {
         this.error = false;
-        const exists = this.members.find(m => m.profile.email === this.email);
+        const exists = this.members.find(m => m.email === this.email);
         if (!exists) {
             this.newMembers.push(this.email);
         } else {

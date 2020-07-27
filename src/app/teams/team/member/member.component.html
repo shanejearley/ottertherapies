@@ -3,9 +3,9 @@
         <ion-buttons slot="start">
             <ion-back-button [defaultHref]="['/Teams', (team$ | async)?.id, 'Team']"></ion-back-button>
         </ion-buttons>
-        <ion-title *ngIf="member$ | async as member">
-            {{ member.profile ? member.profile.displayName : '' }}
-            <app-user-presence class="presence--dot--title" [uid]="member.uid"></app-user-presence>
+        <ion-title>
+            {{ (member$ | async)?.displayName }}
+            <app-user-presence class="presence--dot--title" [uid]="(member$ | async)?.uid"></app-user-presence>
         </ion-title>
     </ion-toolbar>
     <ion-toolbar>
@@ -20,14 +20,15 @@
 
 <ion-content [fullscreen]="true" class="profile--content" #contentArea [class.scroll-ios]="ios" [ngSwitch]="segment">
     <ion-grid *ngSwitchCase="'info'" class="ion-no-padding">
-        <ion-row class="profile--pic--header ion-justify-content-center ion-padding" *ngIf="(member$ | async)?.profile">
-            <ion-col class="ion-justify-content-center ion-padding" size="auto">
+        <ion-row class="profile--pic--row ion-justify-content-center ion-align-items-center" *ngIf="(member$ | async)">
+            <img class="profile--pic--background" [src]="(dark$ | async) ? '../../../assets/underwater_dark.svg' : '../../../assets/underwater.svg'">
+            <ion-col class="ion-justify-content-center profile--pic--col" size="auto">
                 <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
-                    <img *ngIf="(member$ | async)?.profile.url; else elseMemberAvatar"
-                        src="{{ (member$ | async)?.profile.url_150 ? (member$ | async)?.profile.url_150 : (member$ | async)?.profile.url }}">
+                    <img *ngIf="(member$ | async)?.url; else elseMemberAvatar"
+                        src="{{ (member$ | async)?.url_150 ? (member$ | async)?.url_150 : (member$ | async)?.url }}">
                     <ng-template #elseMemberAvatar>
-                        <ngx-avatar *ngIf="(member$ | async)?.profile.displayName; else elseEmailAvatar"
-                            name="{{ (member$ | async)?.profile.displayName }}" [size]="150" [round]="false"
+                        <ngx-avatar *ngIf="(member$ | async)?.displayName; else elseEmailAvatar"
+                            name="{{ (member$ | async)?.displayName }}" [size]="150" [round]="false"
                             [cornerRadius]="150">
                         </ngx-avatar>
                         <ng-template #elseEmailAvatar>
@@ -47,22 +48,22 @@
                                 <ion-list-header>
                                     Member Info
                                 </ion-list-header>
-                                <ion-item lines="none" *ngIf="(member$ | async)?.profile">
+                                <ion-item lines="none" *ngIf="(member$ | async)">
                                     <ion-icon slot="start" name="person-outline"></ion-icon>
                                     <ion-label>
-                                        <h2><strong>{{ (member$ | async)?.profile.displayName }}</strong></h2>
+                                        <h2><strong>{{ (member$ | async)?.displayName }}</strong></h2>
                                     </ion-label>
                                 </ion-item>
-                                <ion-item lines="none" *ngIf="(member$ | async)?.profile">
+                                <ion-item lines="none" *ngIf="(member$ | async)">
                                     <ion-icon slot="start" name="mail-outline"></ion-icon>
                                     <ion-label>
-                                        <h2>{{ (member$ | async)?.profile.email }}</h2>
+                                        <h2>{{ (member$ | async)?.email }}</h2>
                                     </ion-label>
                                 </ion-item>
-                                <ion-item lines="none" *ngIf="(member$ | async)?.profile">
+                                <ion-item lines="none" *ngIf="(member$ | async)">
                                     <ion-icon slot="start" name="people-outline"></ion-icon>
                                     <ion-label>
-                                        <h2>{{ (member$ | async)?.profile.role }}</h2>
+                                        <h2>{{ (member$ | async)?.role }}</h2>
                                     </ion-label>
                                 </ion-item>
                             </ion-list>
@@ -73,7 +74,7 @@
         </ion-row>
     </ion-grid>
     <div id="message--container" *ngSwitchCase="'messages'">
-        <ion-list class="theme--list">
+        <ion-list #scroll class="theme--list">
             <ion-item class="theme--item" lines="none"></ion-item>
 
             <div *ngFor="let m of (member$ | async)?.messages; trackBy: trackFn; let last = last; let i = index">
@@ -94,10 +95,10 @@
                         *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage">
                         <ion-avatar class="dialog--member"
                             *ngIf="(member$ | async)?.messages[i+1] && m.uid !== (member$ | async)?.messages[i+1].uid || !(member$ | async)?.messages[i+1] || (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
-                            <img *ngIf="(member$ | async)?.profile.url; else elseTextAvatar"
-                                src="{{ (member$ | async)?.profile.url_150 ? (member$ | async)?.profile.url_150 : (member$ | async)?.profile.url }}">
+                            <img *ngIf="(member$ | async)?.url; else elseTextAvatar"
+                                src="{{ (member$ | async)?.url_150 ? (member$ | async)?.url_150 : (member$ | async)?.url }}">
                             <ng-template #elseTextAvatar>
-                                <ngx-avatar name="{{ (member$ | async)?.profile.displayName }}" [size]="40">
+                                <ngx-avatar name="{{ (member$ | async)?.displayName }}" [size]="40">
                                 </ngx-avatar>
                             </ng-template>
                         </ion-avatar>
@@ -167,9 +168,9 @@
         </ion-list>
     </div>
     <div id="file--container" *ngSwitchCase="'files'">
-        <ion-list class="message--list" lines="none">
+        <ion-list class="theme--list" lines="none">
             <ion-item class="theme--item" (click)="scanDoc()" button lines="none">
-                <ion-fab-button slot="start" class="inner--fab" [class.ion-margin-top]="ios"
+                <ion-fab-button slot="start" class="inner--fab inner--fab--start" [class.ion-margin-top]="ios"
                     [class.ion-margin-bottom]="ios">
                     <ion-icon name="scan-outline"></ion-icon>
                 </ion-fab-button>
@@ -177,8 +178,8 @@
                     <h2><strong>Scan Files</strong></h2>
                 </ion-label>
             </ion-item>
-            <ion-item class="theme--item" (click)="browseModal()" button lines="none">
-                <ion-fab-button slot="start" class="inner--fab" [class.ion-margin-top]="ios"
+            <ion-item class="theme--item" (click)="browseModal([])" button lines="none">
+                <ion-fab-button slot="start" class="inner--fab inner--fab--start" [class.ion-margin-top]="ios"
                     [class.ion-margin-bottom]="ios">
                     <ion-icon name="document-text-outline"></ion-icon>
                 </ion-fab-button>
@@ -191,7 +192,7 @@
                     class="theme--list member--upload--list">
                     <div *ngFor="let f of m.files; let i = index">
                         <app-files-file [file]="f"
-                            [displayName]="f.uid !== (profile$ | async)?.uid ? m.profile.displayName : (profile$ | async)?.displayName"
+                            [displayName]="f.uid !== (profile$ | async)?.uid ? m.displayName : (profile$ | async)?.displayName"
                             (options)="fileOptions(f, m)"></app-files-file>
                     </div>
                 </ion-list>

@@ -29,6 +29,8 @@ import { EditChildComponent } from './edit-child/edit-child.component';
 })
 export class TeamComponent implements OnInit {
 
+  dark$: Observable<boolean>;
+
   team: Team;
   currentTeam: Team;
   user$: Observable<User>;
@@ -78,6 +80,9 @@ export class TeamComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    
+    this.dark$ = this.store.select('dark');
+
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
       this.ios = this.platform.is('ios') && this.platform.is('capacitor');
@@ -87,8 +92,9 @@ export class TeamComponent implements OnInit {
     this.profile$ = this.store.select<Profile>('profile');
 
     this.member$ = this.profile$.pipe(
+      takeUntil(this.onDestroy),
       filter(Boolean),
-      switchMap((profile: Profile) => profile.uid ? this.membersService.getMember(profile.uid) : null),
+      switchMap((profile: Profile) => profile.uid ? this.membersService.getMember(profile.uid) : null)
     )
 
     this.members$ = this.store.select<Member[]>('members');

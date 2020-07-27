@@ -1,124 +1,79 @@
 <ion-header translucent>
     <ion-toolbar>
-        <ion-title>Scan Files</ion-title>
-        <ion-buttons slot="end">
+
+        <ion-buttons slot="start">
             <ion-button (click)="dismiss()">
                 <ion-icon slot="icon-only" name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
+
+        <ion-title>New Scan</ion-title>
+
     </ion-toolbar>
-    <!-- <ion-progress-bar [value]="(uploadPercent | async)"></ion-progress-bar> -->
 </ion-header>
 <ion-content fullscreen>
-    <ion-fab *ngIf="folder" horizontal="center" vertical="bottom" slot="fixed" class="ion-margin-bottom fileupload--fab">
-        <ion-button (click)="index === 0 ? nextSlide() : prevSlide()" [disabled]="!folder">
-            <ion-icon *ngIf="index === 1" name="arrow-back-outline"></ion-icon>
-            {{ index === 0 ? 'Choose files' : 'Choose folder' }}
-            <ion-icon *ngIf="index === 0" name="arrow-forward-outline"></ion-icon>
-        </ion-button>
-    </ion-fab>
-    <ion-slides class="fileupload--slides" pager="true" (ionSlideDidChange)="getSlideIndex()" #slider>
-        <ion-slide>
-            <ion-list class="theme--list ion-padding" lines="none">
-                <ion-list-header>
-                    Choose Folder
-                </ion-list-header>
-        
-                <ion-radio-group allow-empty-selection [(ngModel)]="folder" (ionChange)="folderChange()">
-                    <div *ngIf="sourceId === 'files'">
-                        <div *ngFor="let g of (groups$ | async); let i = index">
-                            <ion-item lines="none" detail="false" class="theme--item">
-                                <ion-avatar slot="start">
-                                    <ngx-avatar name="{{ g.name }}" [size]="40"></ngx-avatar>
-                                </ion-avatar>
-                                <ion-label>
-                                    <h2>{{ g.name }}</h2>
-                                    <h3>{{ g.members.length > 1 ? g.members.length + ' Members' : g.members.length + ' Member' }}
-                                    </h3>
-                                </ion-label>
-                                <ion-radio slot="end" color="primary" [value]="g"></ion-radio>
-                                <!-- <ion-checkbox slot="end" [(ngModel)]="g.isChecked"></ion-checkbox> -->
-                            </ion-item>
-                        </div>
-                    </div>
-        
-                    <div *ngFor="let m of (members$ | async); let i = index">
-                        <ion-item lines="none" detail="false" *ngIf="sourceId === 'files' && m.profile && m.uid !== (profile$ | async)?.uid || sourceId === m.uid" class="theme--item">
-                            <ion-avatar slot="start">
-                                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
-                                <ng-template #elseMemberAvatar>
-                                    <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
-                                </ng-template>
-                            </ion-avatar>
-                            <ion-label>
-                                <h2>{{ m.profile.displayName }}</h2>
-                                <h3>2 Members</h3>
-                            </ion-label>
-                            <ion-radio slot="end" color="primary" [value]="m"></ion-radio>
-                            <!-- <ion-checkbox slot="end" [(ngModel)]="m.isChecked"></ion-checkbox> -->
-                        </ion-item>
-                    </div>
-                    <div *ngFor="let m of (members$ | async); let i = index">
-                        <ion-item lines="none" detail="false" *ngIf="sourceId === 'files' && m.profile && m.uid === (profile$ | async)?.uid" class="theme--item">
-                            <ion-avatar slot="start">
-                                <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
-                                <ng-template #elseMemberAvatar>
-                                    <ngx-avatar name="{{ m.profile.displayName }}" [size]="40"></ngx-avatar>
-                                </ng-template>
-                            </ion-avatar>
-                            <ion-label>
-                                <h2>{{ m.profile.displayName }}</h2>
-                                <h3>1 Member</h3>
-                            </ion-label>
-                            <ion-radio slot="end" color="primary" [value]="m"></ion-radio>
-                            <!-- <ion-checkbox slot="end" [(ngModel)]="m.isChecked"></ion-checkbox> -->
-                        </ion-item>
-                    </div>
-        
-                </ion-radio-group>
+    <div id="container">
 
-                <ion-item class="theme--item" lines="none"></ion-item>
-                <ion-item class="theme--item" lines="none"></ion-item>
-            
-            </ion-list>
-        </ion-slide>
-        <ion-slide>
-            <ion-list class="theme--list ion-padding" lines="none">
+        <ion-grid fixed class="ion-margin-top">
+            <ion-row>
 
-                <ion-list-header>
-                    Scan Files
-                </ion-list-header>
-        
-                <ion-item class="theme--item" lines="none">
-                    <ion-note>Scans are best on high-contrast surfaces</ion-note>
-                </ion-item>
-        
-                <div *ngIf="error">
+                <ion-col size="12">
+                    <img [src]="'../../../../assets/img/otter_' + random + '.svg'">
+                </ion-col>
+
+                <ion-col size="12" *ngIf="error">
                     <div class="error" *ngIf="error">
                         {{ error }}
                     </div>
-                </div>
-        
-                <div class="ion-padding">
-                    <ion-button (click)="addScan()" expand="block">Add Scan</ion-button>
-                </div>
-        
-                <div *ngIf="scans.length" lines="none">
-        
-                    <ion-item class="theme--item" lines="none">
-                        <ion-note>Press thumbnails to preview scans</ion-note>
-                    </ion-item>
+                </ion-col>
 
-                    <div *ngFor="let s of scans; let i = index">
-                        <app-upload-task *ngIf="s" [teamId]="teamId" [folder]="folder" [file]="s.file" [scan]="s"></app-upload-task>
-                    </div>
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-button (click)="newScan()" expand="block">Add Scan</ion-button>
+                </ion-col>
 
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-note>Make scans on high-contrast surfaces for best results</ion-note>
+                </ion-col>
+
+                <div *ngIf="image" hidden>
+                    <web-photo-filter [src]="image" filter="brightness" level="2.0" (filterLoad)="imageLoaded($event)">
+                    </web-photo-filter>
                 </div>
 
-                <ion-item class="theme--item" lines="none"></ion-item>
-                <ion-item class="theme--item" lines="none"></ion-item>
-        
-            </ion-list>
-        </ion-slide>
-    </ion-slides>
+                <div *ngIf="brightness" hidden>
+                    <web-photo-filter [src]="brightness" filter="contrast" level="1.0"
+                        (filterLoad)="brightnessLoaded($event)">
+                    </web-photo-filter>
+                </div>
+
+                <ion-col size="12">
+                    <strong>Manage uploads</strong>
+                </ion-col>
+
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-note>Add any additional pages to your scans and upload them to
+                        {{ !folder.uid ? 'the ' + folder.name + ' group folder' : folder.uid !== uid ? 'your direct folder with ' + folder.displayName : 'your private folder' }}
+                    </ion-note>
+                </ion-col>
+
+                <ion-col size="12" *ngIf="!scans || !scans.length">
+                    <ion-note>(Scan something first)</ion-note>
+                </ion-col>
+
+                <ion-col size="12" *ngIf="scans.length" lines="none">
+                    <ion-note>(Tap thumbnail images to preview)</ion-note>
+                </ion-col>
+
+                <ion-col size="12" *ngFor="let s of scans; let i = index">
+                    <app-upload-task *ngIf="s" [teamId]="teamId" [folder]="folder" [file]="s.file" [scan]="s"
+                        (remove)="removeScan(s)" (addPage)="newPage(s)"></app-upload-task>
+                </ion-col>
+
+            </ion-row>
+        </ion-grid>
+    </div>
+
+    <ion-item class="theme--item" lines="none"></ion-item>
+    <ion-item class="theme--item" lines="none"></ion-item>
+
 </ion-content>

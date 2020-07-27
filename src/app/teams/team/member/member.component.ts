@@ -7,7 +7,7 @@ const { Clipboard, Browser } = Plugins;
 
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap, takeUntil, filter } from 'rxjs/operators'
+import { switchMap, tap, takeUntil, filter, map, take } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -29,6 +29,8 @@ import moment from 'moment';
 })
 export class MemberComponent implements OnInit, AfterViewInit {
 
+    dark$: Observable<boolean>;
+
     @HostListener('dragover', ['$event'])
     onDragOver($event) {
         $event.preventDefault();
@@ -40,28 +42,36 @@ export class MemberComponent implements OnInit, AfterViewInit {
     }
 
     @HostListener('drop', ['$event'])
-    onDrop($event) {
+    async onDrop($event) {
         $event.preventDefault();
-        if (this.segment === 'messages') {
+        if (this.segment === 'messages' || this.segment === 'files') {
             const fileList: FileList = $event.dataTransfer.files;
             console.log(fileList);
             let files = [];
             for (let i = 0; i < fileList.length; i++) {
-                files.push(fileList.item(i));
-                console.log(files);
-                if (files.length = fileList.length) {
-                    console.log(files);
-                    this.fileDropEvent(files);
-                    files = [];
+                if (fileList.item(i).size > 25000000) {
+                    return this.largeFileAlert();
                 }
+                files.push(fileList.item(i));
+            }
+            if (files.length = fileList.length) {
+                console.log(files);
+                if (this.segment === 'messages') {
+                    return this.fileDropEvent(files);
+                } else if (this.segment === 'files') {
+                    if (files.length > 0) {
+                        this.browseModal(files);
+                    }
+                }
+                files = [];
             }
         }
     }
 
     @ViewChildren('childFile') childFiles: QueryList<MessageFileComponent>;
 
-    @ViewChild(IonContent) contentArea: IonContent;
-    @ViewChild(IonList, { read: ElementRef }) scroll: ElementRef;
+    @ViewChild(IonContent, { static: false }) contentArea: IonContent;
+    @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
     private mutationObserver: MutationObserver;
 
     ios: boolean;
@@ -74,7 +84,6 @@ export class MemberComponent implements OnInit, AfterViewInit {
     members$: Observable<Member[]>;
     member$: Observable<Member>;
     directId: string;
-    pathId: string;
     teamId: string;
     subscriptions: Subscription[] = [];
     public team: string;
@@ -82,12 +91,12 @@ export class MemberComponent implements OnInit, AfterViewInit {
     date: Date;
     time: number;
     segment: string = 'info';
-    watch: boolean = false;
     member: Member;
     data: any;
 
     newBody: string;
     newFiles: any = [];
+    browseFiles: File[] = [];
     sending: boolean;
 
     private readonly onDestroy = new Subject<void>();
@@ -110,43 +119,56 @@ export class MemberComponent implements OnInit, AfterViewInit {
 
     }
 
-    segmentChanged(event) {
-        if (event.detail.value == 'messages') {
-            this.watch = true;
-            this.member$.pipe(
-                takeUntil(this.onDestroy),
-                filter(Boolean),
-                tap((member: Member) => {
-                    if (member.messages && member.messages.length) {
-                        this.member = member;
-                        if (this.watch) {
-                            this.scrollToBottom(0);
-                            this.mutationObserver = new MutationObserver((mutations) => {
-                                this.scrollToBottom(500);
-                                this.checkUnread();
-                            })
-                            this.mutationObserver.observe(this.scroll.nativeElement, {
-                                childList: true
-                            });
-                            this.checkUnread();
-                        }
-                    }
-                })).subscribe()
-        } else if (event.detail.value !== 'messages') {
-            this.watch = false;
-        }
+    get uid() {
+        return this.authService.user.uid;
+    }
 
+    get pathId() {
+        return this.uid < this.directId ? this.uid + this.directId : this.directId + this.uid;
     }
 
     checkUnread() {
-        if (this.member.unread.unreadMessages > 0) {
-            this.membersService.checkLastMessage(this.directId);
-        }
-        setTimeout(() => {
-            if (this.member.unread.unreadMessages > 0) {
+        setTimeout(async () => {
+            const unread = await this.member$.pipe(filter(Boolean), take(1), map((member: Member) => member.unread), map(unread => unread)).toPromise();
+            if (unread && unread.unreadMessages > 0) {
                 this.membersService.checkLastMessage(this.directId);
             }
-        }, 5000)
+        }, 2500)
+    }
+
+    checkUnreadFiles() {
+        setTimeout(async () => {
+            const unread = await this.member$.pipe(filter(Boolean), take(1), map((member: Member) => member.unread), map(unread => unread)).toPromise();
+            if (unread && unread.unreadFiles > 0) {
+                this.membersService.checkLastFile(this.directId);
+            }
+        }, 2500);
+    }
+
+    segmentChanged(event) {
+        if (event.detail.value === 'messages') {
+            this.member$.pipe(
+                filter(Boolean),
+                takeUntil(this.onDestroy),
+                tap((member: Member) => {
+                    this.member = member;
+                    this.scrollToBottom(0);
+                    this.mutationObserver = new MutationObserver((mutations) => {
+                        this.scrollToBottom(500);
+                        this.checkUnread();
+                    });
+                    this.mutationObserver.observe(this.scroll.nativeElement, {
+                        childList: true
+                    });
+                    this.checkUnread();
+                })).subscribe()
+        } else if (event.detail.value === 'files') {
+            this.onDestroy.next();
+            this.checkUnreadFiles();
+        } else {
+            this.onDestroy.next();
+        }
+
     }
 
     scrollToBottom(duration) {
@@ -209,15 +231,10 @@ export class MemberComponent implements OnInit, AfterViewInit {
 
     async fileDropEvent(files) {
         const dropPromises = files.map(async file => {
-            try {
-                if (file.size > 25000000) {
-                    return this.largeFileAlert();
-                }
+            if (this.segment === 'messages') {
                 const result = await this.fileRead(file);
                 await this.newFiles.push(result);
                 return this.scrollOnFocus();
-            } catch (err) {
-                return console.log(err.message);
             }
         })
         return Promise.all(dropPromises);
@@ -225,17 +242,13 @@ export class MemberComponent implements OnInit, AfterViewInit {
 
     async fileChangeEvent(ev) {
         const file = ev.target.files[0];
-        try {
-            if (file.size > 25000000) {
-                return this.largeFileAlert();
-            }
-            const result = await this.fileRead(file);
-            console.log('res', result)
-            await this.newFiles.push(result);
-            return this.scrollOnFocus();
-        } catch (err) {
-            return console.log(err.message);
+        if (file.size > 25000000) {
+            return this.largeFileAlert();
         }
+        const result = await this.fileRead(file);
+        console.log('res', result)
+        await this.newFiles.push(result);
+        return this.scrollOnFocus();
     }
 
     async removeFile(file) {
@@ -243,9 +256,9 @@ export class MemberComponent implements OnInit, AfterViewInit {
         return this.newFiles.splice(index, 1);
     }
 
-    // async previewFile(message) {
-    //     await Browser.open({ url: message.body });
-    // }
+    async previewFile(message) {
+        await Browser.open({ url: message.body });
+    }
 
     resetSender() {
         this.newFiles = [];
@@ -274,15 +287,14 @@ export class MemberComponent implements OnInit, AfterViewInit {
         }
     }
 
-    get uid() {
-        return this.authService.user.uid;
-    }
-
     public trackFn(index, item) {
         return item ? item.id : undefined;
     }
 
     ngOnInit() {
+
+        this.dark$ = this.store.select('dark');
+
         this.platform.ready().then(() => {
             this.desktop = this.platform.is('desktop');
             this.ios = this.platform.is('ios') && this.platform.is('capacitor');
@@ -296,23 +308,21 @@ export class MemberComponent implements OnInit, AfterViewInit {
         this.members$ = this.store.select<Member[]>('members');
         this.member$ = this.activatedRoute.params
             .pipe(
+                takeUntil(this.onDestroy),
                 tap(param => { this.directId = param.directId }),
                 switchMap(param => this.membersService.getMember(param.directId))
             );
         this.team$ = this.activatedRoute.params
             .pipe(
+                takeUntil(this.onDestroy),
                 tap(param => { this.teamId = param.id }),
                 switchMap(param => this.teamsService.getTeam(param.id))
             );
+            
     }
 
     ngOnDestroy() {
-        this.watch = false;
         this.onDestroy.next();
-    }
-
-    async previewFile(file) {
-        await Browser.open({ url: file.url ? file.url : file.body });
     }
 
     async presentActionSheet(folder, fileId: string, fileUrl: string) {
@@ -358,11 +368,12 @@ export class MemberComponent implements OnInit, AfterViewInit {
     }
 
     async scanModal() {
+        const member = await this.member$.pipe(filter(Boolean), take(1), map((member: Member) => member)).toPromise();
         const modal = await this.modalController.create({
             component: ScanComponent,
             componentProps: {
                 'teamId': this.teamId,
-                'sourceId': this.directId
+                'folder': member
             },
             swipeToClose: true,
             presentingElement: this.routerOutlet.nativeEl
@@ -373,12 +384,14 @@ export class MemberComponent implements OnInit, AfterViewInit {
         return await modal.present();
     }
 
-    async browseModal() {
+    async browseModal(files) {
+        const member = await this.member$.pipe(filter(Boolean), take(1), map((member: Member) => member)).toPromise();
         const modal = await this.modalController.create({
             component: BrowseComponent,
             componentProps: {
                 'teamId': this.teamId,
-                'sourceId': this.directId
+                'folder': member,
+                'files': files
             },
             swipeToClose: true,
             presentingElement: this.routerOutlet.nativeEl

@@ -8,7 +8,7 @@ const { Clipboard, Browser } = Plugins;
 
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap, takeUntil, filter } from 'rxjs/operators'
+import { switchMap, tap, takeUntil, filter, take, map } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../../auth/shared/services/auth/auth.service';
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -43,25 +43,28 @@ export class GroupComponent implements OnInit {
     console.log(fileList);
     let files = [];
     for (let i = 0; i < fileList.length; i++) {
-      files.push(fileList.item(i));
-      console.log(files);
-      if (files.length = fileList.length) {
-        console.log(files);
-        this.fileDropEvent(files);
-        files = [];
+      if (fileList.item(i).size > 25000000) {
+        this.largeFileAlert();
+      } else {
+        files.push(fileList.item(i));
       }
     }
+    if (files.length = fileList.length) {
+      console.log(files);
+      this.fileDropEvent(files);
+      files = [];
+    }
   }
-  @ViewChildren('childFile') childFiles:QueryList<MessageFileComponent>;
+  @ViewChildren('childFile') childFiles: QueryList<MessageFileComponent>;
 
-  @ViewChild(IonContent) contentArea: IonContent;
-  @ViewChild(IonList, { read: ElementRef }) scroll: ElementRef;
+  @ViewChild(IonContent, { static: false }) contentArea: IonContent;
+  @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
+  private mutationObserver: MutationObserver;
 
   ios: boolean;
   android: boolean;
   desktop: boolean;
 
-  private mutationObserver: MutationObserver;
   user$: Observable<User>;
   profile$: Observable<Profile>;
   team$: Observable<Team>;
@@ -99,12 +102,20 @@ export class GroupComponent implements OnInit {
     private router: Router
   ) { }
 
+  checkUnread() {
+    setTimeout(async () => {
+      const unread = await this.group$.pipe(filter(Boolean), take(1), map((group: Group) => group.unread), map(unread => unread)).toPromise();
+      if (unread && unread.unreadMessages > 0) {
+        this.groupsService.checkLastMessage(this.groupId);
+      }
+    }, 2500)
+  }
+
   ionViewDidEnter() {
     this.group$.pipe(
       takeUntil(this.onDestroy),
       filter(Boolean),
       tap((group: Group) => {
-      if (group.messages && group.messages.length) {
         this.group = group;
         this.checkUnread();
         this.scrollToBottom(0);
@@ -115,19 +126,7 @@ export class GroupComponent implements OnInit {
         this.mutationObserver.observe(this.scroll.nativeElement, {
           childList: true
         });
-      }
-    })).subscribe()
-  }
-
-  checkUnread() {
-    if (this.group.unread && this.group.unread.unreadMessages > 0) {
-      this.groupsService.checkLastMessage(this.groupId);
-    }
-    setTimeout(() => {
-      if (this.group.unread && this.group.unread.unreadMessages > 0) {
-        this.groupsService.checkLastMessage(this.groupId);
-      }
-    }, 5000)
+      })).subscribe()
   }
 
   scrollToBottom(duration) {
@@ -178,33 +177,22 @@ export class GroupComponent implements OnInit {
 
   async fileDropEvent(files) {
     const dropPromises = files.map(async file => {
-      try {
-        if (file.size > 25000000) {
-          return this.largeFileAlert();
-        }
-        const result = await this.fileRead(file);
-        await this.newFiles.push(result);
-        return this.scrollOnFocus();
-      } catch (err) {
-        return console.log(err.message);
-      }
+      const result = await this.fileRead(file);
+      await this.newFiles.push(result);
+      return this.scrollOnFocus();
     })
     return Promise.all(dropPromises);
   }
 
   async fileChangeEvent(ev) {
     const file = ev.target.files[0];
-    try {
-      if (file.size > 25000000) {
-        return this.largeFileAlert();
-      }
-      const result = await this.fileRead(file);
-      console.log('res', result)
-      await this.newFiles.push(result);
-      return this.scrollOnFocus();
-    } catch (err) {
-      return console.log(err.message);
+    if (file.size > 25000000) {
+      return this.largeFileAlert();
     }
+    const result = await this.fileRead(file);
+    console.log('res', result)
+    await this.newFiles.push(result);
+    return this.scrollOnFocus();
   }
 
   async removeFile(file) {

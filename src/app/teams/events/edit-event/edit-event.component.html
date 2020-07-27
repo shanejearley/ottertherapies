@@ -1,167 +1,209 @@
 <ion-header translucent>
     <ion-toolbar>
-        <ion-title>Event Details</ion-title>
-        <ion-buttons slot="end">
+
+        <ion-buttons slot="start">
             <ion-button (click)="dismiss()">
                 <ion-icon slot="icon-only" name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
+
+        <ion-title>Event Details</ion-title>
+
+        <ion-buttons slot="end">
+            <ion-button color="tertiary" (click)="updateEvent()"
+                [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
+                Save
+            </ion-button>
+        </ion-buttons>
+
     </ion-toolbar>
 </ion-header>
 <ion-content fullscreen>
-    <ion-list *ngIf="event" class="theme--list" lines="none">
-        <ion-item class="theme--item" lines="none" *ngIf="error">
-            <div *ngIf="error">
-                <div class="error" *ngIf="error">
-                    You need an event name.
-                </div>
-            </div>
-        </ion-item>
-        <ion-item class="theme--item" lines="none">
-            <ion-icon slot="start"></ion-icon>
-            <h3 class="full-width">
-                <ion-input (ionChange)="nameChange()" [(ngModel)]="event.name" placeholder="Add title" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
-                    class="form visible"></ion-input>
-            </h3>
-        </ion-item>
-        <ion-item lines="none" class="theme--item">
-            <ion-icon slot="start"></ion-icon>
-            <ion-label>
-                <ion-button class="first-button" [fill]="event.type == 'Event' ? 'outline' : ''"
-                    (click)="event.type = 'Event'" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">Event</ion-button>
-                <ion-button [fill]="event.type == 'Reminder' ? 'outline' : ''" (click)="event.type = 'Reminder'"
-                    [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
-                    Reminder</ion-button>
-            </ion-label>
-        </ion-item>
-        <ion-item *ngIf="event.type == 'Event'" class="theme--item" lines="none">
-            <ion-icon slot="start" [name]="'location-outline'"></ion-icon>
-            <ion-input class="form" [(ngModel)]="event.location" placeholder="Add location"
-                [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"></ion-input>
-        </ion-item>
+    <div id="container">
+        <ion-grid fixed class="ion-margin-top">
+            <ion-row>
 
-        <ion-item class="theme--item" lines="none">
+                <ion-col size="12">
+                    <img [src]="'../../../../assets/img/otter_' + random + '.svg'">
+                </ion-col>
 
-            <ion-icon slot="start" name="time-outline"></ion-icon>
-            <ion-grid class="date--grid" fixed>
-                <ion-row class="ion-align-items-center">
-                    <ion-col class="date--col" size="auto">
-                        <ion-datetime class="form" [(ngModel)]="event.updateStartTime" display-format="MMM DD, YYYY"
-                            picker-format="MMM DD, YYYY" (ionChange)="changeStart()"
-                            [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
-                        </ion-datetime>
-                    </ion-col>
-                    <ion-col class="date--col" size="auto">
-                        <ion-datetime class="form" [(ngModel)]="event.updateStartTime" display-format="h:mm A"
-                            picker-format="h:mm A" minuteValues="0,15,30,45" (ionChange)="changeStart()"
-                            [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"></ion-datetime>
-                    </ion-col>
-                    <ion-col class="date--col ion-justify-content-center" size="auto">&ndash;</ion-col>
-                    <ion-col class="date--col" size="auto">
-                        <ion-datetime class="form" [(ngModel)]="event.updateEndTime" display-format="h:mm A"
-                            picker-format="h:mm A" minuteValues="0,15,30,45" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
-                        </ion-datetime>
-                    </ion-col>
-                    <ion-col class="date--col" size="auto">
-                        <ion-datetime class="form" [(ngModel)]="event.updateEndTime" display-format="MMM DD, YYYY"
-                            picker-format="MMM DD, YYYY" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
-                        </ion-datetime>
-                    </ion-col>
-                    <ion-col class="date--col" size="12">
-                        <ion-select class="form" [(ngModel)]="event.recurrence"
-                            [selectedText]="event.recurrence === 'once' ? 'Does not repeat' : event.recurrence === 'monthly' ? 'Recurring monthly on the ' + nthWeekday : event.recurrence === 'monthly-last' ? 'Recurring monthly on the last ' + dayString : event.recurrence === 'weekly' ? 'Recurring weekly on ' + dayString : event.recurrence === 'weekdays' ? 'Recurring on weekdays' : event.recurrence === 'annually' ? 'Recurring annually on ' + dayFormat : 'Recurring ' + event.recurrence"
-                            interface="popover" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
-                            <div *ngFor="let r of recurrences">
-                                <ion-select-option [value]="r" *ngIf="r !== 'monthly-last' || r === 'monthly-last' && lastDay">
-                                    {{ r === 'once' ? 'Does not repeat' : r === 'monthly' ? 'Recurring monthly on the ' + nthWeekday : r === 'monthly-last' ? 'Recurring monthly on the last ' + dayString : r === 'weekly' ? 'Recurring weekly on ' + dayString : r === 'weekdays' ? 'Recurring on weekdays' : r === 'annually' ? 'Recurring annually on ' + dayFormat : 'Recurring ' + r }}
-                                </ion-select-option>
-                            </div>
-                        </ion-select>
-                    </ion-col>
-                </ion-row>
-            </ion-grid>
-        </ion-item>
+                <ion-col size="12">
+                    <strong>Edit this event</strong>
+                </ion-col>
 
-        <ion-item class="theme--item" lines="none">
-            <ion-icon slot="start" name="people-outline"></ion-icon>
-            <ion-label>Check and select guests</ion-label>
-        </ion-item>
-        <ion-list class="form theme--list" lines="none" inset="true">
-            <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item" detail="false">
-                <ion-avatar slot="start">
-                    <img *ngIf="m.profile.url; else elseMemberAvatar" src="{{ m.profile.url_150 ? m.profile.url_150 : m.profile.url }}">
-                    <ng-template #elseMemberAvatar>
-                        <ngx-avatar name="{{ m.profile.displayName }}" size="40"></ngx-avatar>
-                    </ng-template>
-                </ion-avatar>
-                <ion-label>
-                    <h3>{{ m.profile.displayName }}</h3>
-                    <p>{{ m.profile.email }}</p>
-                </ion-label>
-                <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange($event, m)" [disabled]="m.uid === (profile$ | async)?.uid || !(memberStatus == 'Admin') || event.recurrenceId"></ion-checkbox>
-            </ion-item>
-        </ion-list>
-        <ion-item *ngIf="event.type == 'Event'" class="theme--item" lines="none">
-            <ion-icon slot="start" [name]="'reader-outline'"></ion-icon>
-            <ion-textarea class="form" [(ngModel)]="event.info" placeholder="Add description" autocapitalize="sentences" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"></ion-textarea>
-        </ion-item>
+                <ion-col *ngIf="memberStatus == 'Admin'" size="12" class="ion-padding-horizontal">
+                    <ion-note>
+                        Be sure to press save after any event changes
+                    </ion-note>
+                </ion-col>
 
-        <ion-button *ngIf="(profile$ | async)?.gcalSync && memberStatus && !event.recurrenceId" class="ion-margin" expand="block" color="tertiary" (click)="addToGcal()" [disabled]="synced">
-            <ion-icon name="google-outline" class="ion-margin-end"></ion-icon>
-            Add to Google Calendar
-        </ion-button>
+                <ion-col *ngIf="!(memberStatus == 'Admin')" size="12" class="ion-padding-horizontal">
+                    <ion-note>
+                        Only the creator of this event can edit or remove it
+                    </ion-note>
+                </ion-col>
 
-        <ion-list *ngIf="!(memberStatus == 'Admin')" class="theme--list" inset="true" lines="none">
-            <ion-item detail="false" class="theme--item" lines="none">
-                <ion-row class="member--row" slot="start">
-                    <ion-avatar class="dialog--member">
-                        <img src="../../../../assets/img/otter_head.svg">
-                    </ion-avatar>
-                    <ion-col class="member--col" size="auto">
-                        <ion-row></ion-row>
-                        <ion-card color="light" class="dialog message--card message--member">
-                            <ion-card-content>
-                                <ion-label text-wrap>Ask the event creator or admin to make any necessary changes!
-                                </ion-label>
-                            </ion-card-content>
-                        </ion-card>
-                        <ion-row></ion-row>
-                    </ion-col>
-                </ion-row>
-            </ion-item>
-        </ion-list>
-        <ion-list *ngIf="event.recurrenceId" class="theme--list" inset="true" lines="none">
-            <ion-item detail="false" class="theme--item" lines="none">
-                <ion-row class="member--row" slot="start">
-                    <ion-avatar class="dialog--member">
-                        <img src="../../../../assets/img/otter_head.svg">
-                    </ion-avatar>
-                    <ion-col class="member--col" size="auto">
-                        <ion-row></ion-row>
-                        <ion-card color="light" class="dialog message--card message--member">
-                            <ion-card-content>
-                                <ion-label text-wrap>We are working on creating the ability to modify specific instances of recurring events! For now, please edit the original instance if necessary.
-                                </ion-label>
-                            </ion-card-content>
-                        </ion-card>
-                        <ion-row></ion-row>
-                    </ion-col>
-                </ion-row>
-            </ion-item>
-        </ion-list>
+                <ion-col *ngIf="event.recurrenceId" size="12" class="ion-padding-horizontal">
+                    <ion-note>
+                        Recurring events can be changed in the original
+                    </ion-note>
+                </ion-col>
 
-        <ion-item class="theme--item" lines="none"></ion-item>
-        <ion-item class="theme--item" lines="none"></ion-item>
+                <ion-col size="12" *ngIf="error">
+                    <div class="error" *ngIf="error">
+                        You need an event name.
+                    </div>
+                </ion-col>
 
-    </ion-list>
+                <ion-col size="6">
+                    <ion-button expand="block" [fill]="event.type == 'Event' ? 'outline' : ''"
+                        (click)="event.type = 'Event'" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
+                        Event</ion-button>
+                </ion-col>
+
+                <ion-col size="6">
+                    <ion-button expand="block" [fill]="event.type == 'Reminder' ? 'outline' : ''"
+                        (click)="event.type = 'Reminder'" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
+                        Reminder</ion-button>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item class="theme--item" lines="none">
+                        <ion-icon slot="start" name="calendar-outline"></ion-icon>
+                        <ion-input (ionChange)="nameChange()" [(ngModel)]="event.name" placeholder="Add title"
+                            [disabled]="!(memberStatus == 'Admin') || event.recurrenceId" class="form visible"
+                            (ionFocus)="nameFocus = true" (ionBlur)="nameFocus = false" [class.focused]="nameFocus">
+                        </ion-input>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12" *ngIf="event.type == 'Event'">
+                    <ion-item class="theme--item" lines="none">
+                        <ion-icon slot="start" name="location-outline"></ion-icon>
+                        <ion-input class="form" [(ngModel)]="event.location" placeholder="Add location"
+                            [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
+                            (ionFocus)="locationFocus = true" (ionBlur)="locationFocus = false"
+                            [class.focused]="locationFocus"></ion-input>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item class="theme--item" lines="none">
+
+                        <ion-icon slot="start" name="time-outline"></ion-icon>
+                        <ion-grid class="date--grid" fixed>
+                            <ion-row class="ion-align-items-center">
+                                <ion-col class="date--col" size="auto">
+                                    <ion-datetime class="form" [(ngModel)]="event.updateStartTime"
+                                        display-format="MMM DD, YYYY" picker-format="MMM DD, YYYY"
+                                        (ionChange)="changeStart()"
+                                        [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
+                                        (ionFocus)="startDateFocus = true" (ionBlur)="startDateFocus = false"
+                                        [class.focused]="startDateFocus">
+                                    </ion-datetime>
+                                </ion-col>
+                                <ion-col class="date--col" size="auto">
+                                    <ion-datetime class="form" [(ngModel)]="event.updateStartTime"
+                                        display-format="h:mm A" picker-format="h:mm A" minuteValues="0,15,30,45"
+                                        (ionChange)="changeStart()"
+                                        [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
+                                        (ionFocus)="startTimeFocus = true" (ionBlur)="startTimeFocus = false"
+                                        [class.focused]="startTimeFocus"></ion-datetime>
+                                </ion-col>
+                                <ion-col class="date--col ion-justify-content-center" size="auto">&ndash;</ion-col>
+                                <ion-col class="date--col" size="auto">
+                                    <ion-datetime class="form" [(ngModel)]="event.updateEndTime" display-format="h:mm A"
+                                        picker-format="h:mm A" minuteValues="0,15,30,45"
+                                        [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
+                                        (ionFocus)="endTimeFocus = true" (ionBlur)="endTimeFocus = false"
+                                        [class.focused]="endTimeFocus">
+                                    </ion-datetime>
+                                </ion-col>
+                                <ion-col class="date--col" size="auto">
+                                    <ion-datetime class="form" [(ngModel)]="event.updateEndTime"
+                                        display-format="MMM DD, YYYY" picker-format="MMM DD, YYYY"
+                                        [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
+                                        (ionFocus)="endDateFocus = true" (ionBlur)="endDateFocus = false"
+                                        [class.focused]="endDateFocus">
+                                    </ion-datetime>
+                                </ion-col>
+                                <ion-col class="date--col" size="12">
+                                    <ion-select class="form" [(ngModel)]="event.recurrence"
+                                        [selectedText]="event.recurrence === 'once' ? 'Does not repeat' : event.recurrence === 'monthly' ? 'Recurring monthly on the ' + nthWeekday : event.recurrence === 'monthly-last' ? 'Recurring monthly on the last ' + dayString : event.recurrence === 'weekly' ? 'Recurring weekly on ' + dayString : event.recurrence === 'weekdays' ? 'Recurring on weekdays' : event.recurrence === 'annually' ? 'Recurring annually on ' + dayFormat : 'Recurring ' + event.recurrence"
+                                        interface="popover"
+                                        [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
+                                        (ionFocus)="recurrenceFocus = true" (ionBlur)="recurrenceFocus = false"
+                                        [class.focused]="recurrenceFocus">
+                                        <div *ngFor="let r of recurrences">
+                                            <ion-select-option [value]="r"
+                                                *ngIf="r !== 'monthly-last' || r === 'monthly-last' && lastDay">
+                                                {{ r === 'once' ? 'Does not repeat' : r === 'monthly' ? 'Recurring monthly on the ' + nthWeekday : r === 'monthly-last' ? 'Recurring monthly on the last ' + dayString : r === 'weekly' ? 'Recurring weekly on ' + dayString : r === 'weekdays' ? 'Recurring on weekdays' : r === 'annually' ? 'Recurring annually on ' + dayFormat : 'Recurring ' + r }}
+                                            </ion-select-option>
+                                        </div>
+                                    </ion-select>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item class="theme--item" lines="none">
+                        <ion-icon slot="start" name="people-outline"></ion-icon>
+                        <ion-label>Check and select guests</ion-label>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-list class="form theme--list" lines="none" inset="true">
+                        <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item"
+                            detail="false">
+                            <ion-avatar slot="start">
+                                <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
+                                <ng-template #elseMemberAvatar>
+                                    <ngx-avatar name="{{ m.displayName }}" size="40"></ngx-avatar>
+                                </ng-template>
+                            </ion-avatar>
+                            <ion-label>
+                                <h3>{{ m.displayName }}</h3>
+                                <p>{{ m.email }}</p>
+                            </ion-label>
+                            <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange($event, m)"
+                                [disabled]="m.uid === (profile$ | async)?.uid || !(memberStatus == 'Admin') || event.recurrenceId">
+                            </ion-checkbox>
+                        </ion-item>
+                    </ion-list>
+                </ion-col>
+
+                <ion-col size="12">
+                    <ion-item *ngIf="event.type == 'Event'" class="theme--item" lines="none">
+                        <ion-icon slot="start" [name]="'reader-outline'"></ion-icon>
+                        <ion-textarea class="form" [(ngModel)]="event.info" placeholder="Add description"
+                            autocapitalize="sentences" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
+                            (ionFocus)="infoFocus = true" (ionBlur)="infoFocus = false" [class.focused]="infoFocus">
+                        </ion-textarea>
+                    </ion-item>
+                </ion-col>
+
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-button *ngIf="(profile$ | async)?.gcalSync && memberStatus && !event.recurrenceId"
+                        expand="block" color="tertiary" (click)="addToGcal()" [disabled]="synced">
+                        <ion-icon name="google-outline" class="ion-margin-end"></ion-icon>
+                        Add to Google Calendar
+                    </ion-button>
+                </ion-col>
+
+                <ion-col size="12" class="ion-padding-horizontal">
+                    <ion-button expand="block" fill="outline" color="danger" (click)="removeEvent()"
+                        [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">Delete Event
+                    </ion-button>
+                </ion-col>
+
+            </ion-row>
+        </ion-grid>
+    </div>
+
+    <ion-item class="theme--item" lines="none"></ion-item>
+    <ion-item class="theme--item" lines="none"></ion-item>
+
 </ion-content>
-
-<ion-footer [translucent]="true">
-    <ion-toolbar>
-        <ion-row class="ion-justify-content-between ion-padding-horizontal">
-            <ion-button fill="clear" color="danger" (click)="removeEvent()" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">Delete
-            </ion-button>
-            <ion-button color="tertiary" (click)="updateEvent()" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">Save</ion-button>
-        </ion-row>
-    </ion-toolbar>
-</ion-footer>

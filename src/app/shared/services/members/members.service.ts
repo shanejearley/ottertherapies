@@ -12,16 +12,20 @@ import {
   tap,
   filter,
   map,
-  shareReplay
+  shareReplay,
+  switchMap
 } from 'rxjs/operators';
 
-import { AuthService } from '../../../../auth/shared/services/auth/auth.service';
 import { Unread } from '../teams/teams.service';
 
 export interface Member {
   status: string,
   uid: string,
-  profile: Profile,
+  displayName?: string,
+  email?: string,
+  role?: string,
+  url?: string,
+  url_150?: string,
   unread: Unread,
   files: File[],
   messages: Message[],
@@ -49,7 +53,7 @@ export interface File {
   type: string,
   uid: string,
   url: string,
-  profile?: Observable<Profile>,
+  profile?: Observable<Member>,
   style?: string,
   updating?: boolean
 }
@@ -60,7 +64,7 @@ export interface Message {
   id?: string,
   uid: string,
   timestamp: firestore.FieldValue,
-  profile?: Observable<Profile>,
+  profile?: Observable<Member>,
   style?: string,
   fileName?: string
 }
@@ -87,10 +91,12 @@ export class MembersService {
     private store: Store,
     private db: AngularFirestore,
     private profileService: ProfileService,
-    private storage: AngularFireStorage,
+    private storage: AngularFireStorage
   ) { }
 
   membersObservable(userId, teamId) {
+    this.store.set('members', null);
+    this.members$ = null;
     this.uid = userId;
     this.teamId = teamId;
     this.membersCol = this.db.collection<Member>(`teams/${this.teamId}/members`);
@@ -98,7 +104,6 @@ export class MembersService {
       .pipe(
         tap(next => {
           next.forEach(member => {
-            this.profileService.getProfile(member);
             this.getFiles(member);
             this.getMessages(member);
             this.getDirect(member);
@@ -135,7 +140,7 @@ export class MembersService {
               file.id = a.payload.doc.id;
               const exists = member.files.find(m => m.id === file.id)
               if (file.timestamp && !exists) {
-                file.profile = this.getProfile(file.uid);
+                file.profile = this.getMember(file.uid);
                 member.files.push(file);
               } else if (file.timestamp && exists) {
                 let fileIndex = member.files.findIndex(m => m.id == file.id);
@@ -173,7 +178,7 @@ export class MembersService {
               message.id = a.payload.doc.id;
               const exists = member.messages.find(m => m.id === message.id)
               if (message.timestamp && !exists) {
-                message.profile = this.getProfile(message.uid);
+                message.profile = this.getMember(message.uid);
                 member.messages.push(message);
               } else if (message.timestamp && exists) {
                 let messageIndex = member.messages.findIndex(m => m.id == message.id);
@@ -216,11 +221,6 @@ export class MembersService {
             if (!next) {
               return;
             }
-            next.forEach(p => {
-              if (p && p.uid) {
-                this.profileService.getProfile(p);
-              }
-            })
             member.pending = next;
           }),
           shareReplay(1)
@@ -237,28 +237,26 @@ export class MembersService {
         map((member: Member[]) => member.find((member: Member) => member.uid === uid)));
   }
 
-  getProfile(uid: string) {
-    return this.store.select<Member[]>('members')
-      .pipe(
-        filter(Boolean),
-        map((member: Member[]) => member.find((member: Member) => member.uid === uid).profile));
-  }
-
   checkLastMessage(memberUid: string) {
-    console.log('updating unread');
     const pathId = this.uid < memberUid ? this.uid + memberUid : memberUid + this.uid;
-    const unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${pathId}`);
-    return unreadUpdateDoc.update({
-      unreadMessages: 0
-    });
+    return this.db.doc(`users/${this.uid}/teams/${this.teamId}`).set({
+      unread: {
+        [`${pathId}`]: {
+          unreadMessages: 0
+        }
+      }
+    }, { merge: true });
   }
 
   checkLastFile(memberUid: string) {
     const pathId = this.uid < memberUid ? this.uid + memberUid : memberUid + this.uid;
-    const unreadUpdateDoc = this.db.doc(`users/${this.uid}/teams/${this.teamId}/unread/${pathId}`);
-    return unreadUpdateDoc.update({
-      unreadFiles: 0
-    });
+    return this.db.doc(`users/${this.uid}/teams/${this.teamId}`).set({
+      unread: {
+        [`${pathId}`]: {
+          unreadFiles: 0
+        }
+      }
+    }, { merge: true });
   }
 
   async removeFile(memberUid, fileId, fileUrl) {
@@ -276,13 +274,6 @@ export class MembersService {
   }
 
   async addMessage(body: string, directId: string, style: string, fileName: string) {
-    // if (body.search(this.sanitizer)) {
-    //   console.log(true)
-    // };
-    // body = body.replace(this.sanitizer, '');
-    // directId = directId.replace(this.sanitizer, '');
-    // style = style.replace(this.sanitizer, '');
-    // fileName = fileName ? fileName.replace(this.sanitizer, '') : null;
     const message: Message = {
       body: body,
       uid: this.uid,
@@ -292,14 +283,8 @@ export class MembersService {
     }
     const pathId = this.uid < directId ? this.uid + directId : directId + this.uid;
     const messagesCol = this.db.collection<Message>(`teams/${this.teamId}/direct/${pathId}/messages`);
-    const directDoc = this.db.doc(`teams/${this.teamId}/direct/${pathId}`);
     try {
-      const messageRef = await messagesCol.add(message);
-      return directDoc.set({
-        lastMessage: style === 'message' ? message.body : 'Attachment: 1 File',
-        lastMessageId: messageRef.id,
-        lastMessageUid: message.uid
-      }, { merge: true })
+      return messagesCol.add(message);
     } catch (err) {
       console.log(err.message);
       return false;

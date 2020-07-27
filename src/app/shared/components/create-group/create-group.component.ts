@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NavParams, ModalController } from '@ionic/angular';
 
 import { Observable, Subject } from 'rxjs';
-import { map, tap, takeUntil } from 'rxjs/operators';
+import { map, tap, takeUntil, filter } from 'rxjs/operators';
 
 import { AuthService } from '../../../../auth/shared/services/auth/auth.service'
 import { Profile } from '../../../../auth/shared/services/profile/profile.service';
@@ -10,6 +10,7 @@ import { Member } from '../../../shared/services/members/members.service';
 import { Store } from 'src/store';
 import { GroupsService, Group } from 'src/app/shared/services/groups/groups.service';
 import { AngularFirestore } from '@angular/fire/firestore';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-create-group',
@@ -17,6 +18,13 @@ import { AngularFirestore } from '@angular/fire/firestore';
     styleUrls: ['./create-group.component.scss']
 })
 export class CreateGroupComponent {
+
+    // choose random otter to display
+    otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
+    random = this.otters[Math.floor(Math.random() * this.otters.length)];
+
+    parent: string;
+
     newGroup = {
         name: null,
         members: []
@@ -43,7 +51,8 @@ export class CreateGroupComponent {
         private store: Store,
         private authService: AuthService,
         private groupsService: GroupsService,
-        private db: AngularFirestore
+        private db: AngularFirestore,
+        private router: Router
     ) { }
 
     ngOnInit() {
@@ -51,6 +60,7 @@ export class CreateGroupComponent {
     }
 
     ionViewWillEnter() {
+        this.parent = this.router.url.split('/').pop();
         this.teamId = this.navParams.get('teamId');
         this.members$ = this.store.select<Member[]>('members');
         this.members$.pipe(

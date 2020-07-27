@@ -3,11 +3,6 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
-    path: '',
-    redirectTo: 'Teams',
-    pathMatch: 'full'
-  },
-  {
     path: 'Teams',
     loadChildren: () => import('./teams/teams.module').then(m => m.TeamsModule)
   },
@@ -16,10 +11,6 @@ const routes: Routes = [
     redirectTo: 'Teams/:id/Team',
     pathMatch: 'full'
   },
-  // {
-  //   path: 'Teams/:id/Dashboard',
-  //   loadChildren: () => import('./teams/dashboard/dashboard.module').then(m => m.DashboardModule)
-  // },
   {
     path: 'Teams/:id/Events',
     loadChildren: () => import('./teams/events/events.module').then(m => m.EventsModule)
@@ -40,14 +31,6 @@ const routes: Routes = [
     path: 'Teams/:id/Team',
     loadChildren: () => import('./teams/team/team.module').then(m => m.TeamModule)
   },
-  // {
-  //   path: 'Teams/:id/Child',
-  //   loadChildren: () => import('./teams/child/child.module').then(m => m.ChildModule)
-  // },
-  // {
-  //   path: 'Teams/:id/Resources',
-  //   loadChildren: () => import('./teams/resources/resources.module').then(m => m.ResourcesModule)
-  // },
   {
     path: 'Profile',
     loadChildren: () => import('./teams/profile/profile.module').then(m => m.ProfileModule)
@@ -61,8 +44,25 @@ const routes: Routes = [
     loadChildren: () => import('./teams/messages/direct/direct.module').then(m => m.DirectModule)
   },
   {
+    path: 'Teams/:id/Files/Group/:groupId',
+    loadChildren: () => import('./teams/files/group/group.module').then(m => m.GroupModule)
+  },
+  {
+    path: 'Teams/:id/Files/Direct/:directId',
+    loadChildren: () => import('./teams/files/direct/direct.module').then(m => m.DirectModule)
+  },
+  {
     path: 'Teams/:id/Team/Member/:directId',
     loadChildren: () => import('./teams/team/member/member.module').then(m => m.MemberModule)
+  },
+  {
+    path: '',
+    redirectTo: 'Teams',
+    pathMatch: 'full'
+  },
+  {
+    path: '**',
+    redirectTo: ''
   }
 ];
 

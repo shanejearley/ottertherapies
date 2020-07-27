@@ -1,7 +1,7 @@
 <ion-app>
   <div *ngIf="!ios && !android">
     <ion-split-pane contentId="main-content">
-      <ion-menu contentId="main-content" type="overlay" [disabled]="!menu" color="tertiary" [class]="!dark ? 'light' : 'dark'">
+      <ion-menu contentId="main-content" type="overlay" [disabled]="!menu" color="tertiary" [class.dark]="(dark$ | async)">
         <ion-content>
           <ion-list id="inbox-list" lines="none">
             <ion-list-header class="top menu--header" *ngIf="(team$ | async); else elseHeader">
@@ -18,8 +18,7 @@
                 </ion-button>
 
                 <ion-thumbnail slot="end" class="avatar-thumbnail">
-                  <img *ngIf="(profile$ | async)?.url_150; else elseAvatar" src="{{ (profile$ | async)?.url_150 }}">
-                  <!-- <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}"> -->
+                  <img *ngIf="(profile$ | async)?.url; else elseAvatar" src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
                   <ng-template #elseAvatar>
                     <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar"
                       name="{{ (profile$ | async)?.displayName }}" [size]="55" [round]="false" [cornerRadius]="55">
@@ -87,7 +86,21 @@
             <ion-item lines="none" (click)="showPrivacy()" detail="false" button>
               <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
               <ion-label>Privacy</ion-label>
-              <ion-icon slot="end" name="open-outline"></ion-icon>
+              <ion-button slot="end" fill="clear">
+                <ion-icon slot="icon-only" name="open-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+
+          </ion-menu-toggle>
+
+          <ion-menu-toggle auto-hide="false">
+
+            <ion-item lines="none" (click)="showGuide()" detail="false" button>
+              <ion-icon slot="start" name="map-outline"></ion-icon>
+              <ion-label>User Guide</ion-label>
+              <ion-button slot="end" fill="clear">
+                <ion-icon slot="icon-only" name="open-outline"></ion-icon>
+              </ion-button>
             </ion-item>
 
           </ion-menu-toggle>
@@ -97,7 +110,9 @@
             <ion-label>
               Dark Mode
             </ion-label>
-            <ion-toggle [checked]="(dark$ | async)" (ionChange)="change()"></ion-toggle>
+            <ion-button #darkToggle fill="clear" (click)="clickToggle()" slot="end">
+              <ion-toggle [(ngModel)]="dark"></ion-toggle>
+            </ion-button>
           </ion-item>
 
         </ion-content>
