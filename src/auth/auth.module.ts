@@ -34,6 +34,7 @@ export const ROUTES: Routes = [
 ];
 
 export const firebaseConfig: FirebaseAppConfig = environment.firebaseConfig;
+export const firebaseHosting: string = environment.firebaseHosting;
 
 @NgModule({
   imports: [
@@ -51,7 +52,7 @@ export const firebaseConfig: FirebaseAppConfig = environment.firebaseConfig;
     SharedModule.forRoot()
   ],
   providers: [
-    { provide: FUNCTIONS_ORIGIN, useValue: 'https://ottertherapies.web.app' }
+    { provide: FUNCTIONS_ORIGIN, useValue: firebaseHosting }
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   exports: [RouterModule]

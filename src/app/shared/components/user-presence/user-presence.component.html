@@ -1,8 +1,9 @@
 <div class="text-top">
     <ion-icon *ngIf="presence$ | async as presence; else elseOffline"
         [color]="presence.status === 'online' ? 'primary' : presence.status === 'away' ? 'warning' : 'medium'"
-        [name]="presence.status !== 'offline' ? 'ellipse' : 'ellipse-outline'" size="small"></ion-icon>
+        name="ellipse" size="small">
+    </ion-icon>
     <ng-template #elseOffline>
-        <ion-icon color="medium" name="ellipse-outline" size="small"></ion-icon>
+        <ion-icon color="medium" name="ellipse" size="small"></ion-icon>
     </ng-template>
 </div>

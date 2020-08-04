@@ -1,48 +1,46 @@
-<ion-card class="clear--card">
-    <ion-card-content>
-        <ion-list class="theme--list">
-            <ion-list-header>
-                Settings
-            </ion-list-header>
+<ion-content>
+    <ion-list class="theme-list">
+        <ion-list-header>
+            Settings
+        </ion-list-header>
 
-            <ion-item class="theme--item" lines="none" routerDirection="root" (click)="goToProfile()" detail="false"
-                [class.selected]="root === 'Profile'" button>
-                <ion-icon slot="start" [name]="'Profile' === root ? 'person' : 'person-outline'">
-                </ion-icon>
-                <ion-label>Profile</ion-label>
-            </ion-item>
+        <ion-item class="theme-item" lines="none" routerDirection="root" (click)="goToProfile()" detail="false"
+            [class.selected]="root === 'Profile'" button>
+            <ion-icon slot="start" [name]="'Profile' === root ? 'person' : 'person-outline'">
+            </ion-icon>
+            <ion-label>Profile</ion-label>
+        </ion-item>
 
-            <ion-item class="theme--item" lines="none" (click)="onLogout()" detail="false" button>
-                <ion-icon slot="start" name="power-outline"></ion-icon>
-                <ion-label>Logout</ion-label>
-            </ion-item>
+        <ion-item class="theme-item" lines="none" (click)="onLogout()" detail="false" button>
+            <ion-icon slot="start" name="power-outline"></ion-icon>
+            <ion-label>Logout</ion-label>
+        </ion-item>
 
-            <ion-item class="theme--item" lines="none" (click)="showPrivacy()" detail="false" button>
-                <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
-                <ion-label>Privacy</ion-label>
-                <ion-button slot="end" fill="clear">
-                    <ion-icon slot="icon-only" name="open-outline"></ion-icon>
-                </ion-button>
-            </ion-item>
+        <ion-item class="theme-item" lines="none" (click)="showPrivacy()" detail="false" button>
+            <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+            <ion-label>Privacy</ion-label>
+            <ion-button slot="end" fill="clear">
+                <ion-icon slot="icon-only" name="open-outline"></ion-icon>
+            </ion-button>
+        </ion-item>
 
 
-            <ion-item class="theme--item" lines="none" (click)="showGuide()" detail="false" button>
-                <ion-icon slot="start" name="map-outline"></ion-icon>
-                <ion-label>User Guide</ion-label>
-                <ion-button slot="end" fill="clear">
-                    <ion-icon slot="icon-only" name="open-outline"></ion-icon>
-                </ion-button>
-            </ion-item>
+        <ion-item class="theme-item" lines="none" (click)="showGuide()" detail="false" button>
+            <ion-icon slot="start" name="map-outline"></ion-icon>
+            <ion-label>User Guide</ion-label>
+            <ion-button slot="end" fill="clear">
+                <ion-icon slot="icon-only" name="open-outline"></ion-icon>
+            </ion-button>
+        </ion-item>
 
-            <ion-item class="theme--item" lines="none">
-                <ion-icon slot="start" name="moon-outline"></ion-icon>
-                <ion-label>
-                    Dark Mode
-                </ion-label>
-                <ion-button class="mobile-menu--toggle" #darkToggle fill="clear" (click)="clickToggle()" slot="end">
-                    <ion-toggle [(ngModel)]="dark"></ion-toggle>
-                </ion-button>
-            </ion-item>
-        </ion-list>
-    </ion-card-content>
-</ion-card>
+        <ion-item class="theme-item" lines="none">
+            <ion-icon slot="start" name="moon-outline"></ion-icon>
+            <ion-label>
+                Dark Mode
+            </ion-label>
+            <ion-button class="mobile-menu--toggle" #darkToggle fill="clear" (click)="clickToggle()" slot="end">
+                <ion-toggle [(ngModel)]="dark"></ion-toggle>
+            </ion-button>
+        </ion-item>
+    </ion-list>
+</ion-content>

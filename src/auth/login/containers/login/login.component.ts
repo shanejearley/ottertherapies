@@ -57,6 +57,7 @@ export class LoginComponent {
         'email': this.email,
         'password': this.password
       },
+      cssClass: 'theme-modal',
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl
     });

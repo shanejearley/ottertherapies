@@ -66,6 +66,8 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   ios: boolean;
   android: boolean;
   desktop: boolean;
+  capacitor: boolean;
+  mobile: boolean;
 
   androidBrowser = null;
 
@@ -93,13 +95,13 @@ export class ProfileComponent implements OnInit, AfterViewInit {
         const googleCalendarRedirect = slugTwo.includes('https://www.googleapis.com/auth/calendar');
         console.log('SLUG', slugTwo);
         if (slugTwo) {
-          if (!this.ios && !this.android || !googleCalendarRedirect) {
-            console.log('Rely on app component.');
+          if (!this.ios && !this.android && !this.capacitor || !googleCalendarRedirect) {
+            // Rely on app component...
           } else if (googleCalendarRedirect) {
             this.router.navigateByUrl(slugTwo);
-            if (this.ios) {
+            if (this.ios && this.capacitor) {
               Browser.close();
-            } else if (this.android) {
+            } else if (this.android && this.capacitor) {
               if (this.androidBrowser) {
                 this.androidBrowser.close();
                 this.androidBrowser = null;
@@ -116,9 +118,10 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
-      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
-      this.android = this.platform.is('android') && this.platform.is('capacitor');
-      console.log(this.desktop, this.ios, this.android)
+      this.ios = this.platform.is('ios');
+      this.android = this.platform.is('android');
+      this.capacitor = this.platform.is('capacitor');
+      this.mobile = this.platform.is('mobile');
     })
     this.subscriptions = [
       this.profileSub
@@ -209,10 +212,10 @@ export class ProfileComponent implements OnInit, AfterViewInit {
 
   async signIntoGoogle(redirectUrl) {
     console.log(redirectUrl);
-    if (!this.android) {
-      await Browser.open({ url: redirectUrl });
-    } else if (this.android) {
+    if (this.android && this.capacitor) {
       this.androidBrowser = this.iab.create(`${redirectUrl}`, '_blank', 'location=yes');
+    } else {
+      await Browser.open({ url: redirectUrl });
     }
   }
 

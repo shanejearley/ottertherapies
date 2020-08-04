@@ -41,7 +41,7 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" [name]="parent === 'Messages' ? 'chatbubbles-outline' : 'folder-outline'"></ion-icon>
                         <ion-input (ionChange)="nameChange()" class="form" [(ngModel)]="newGroup.name"
                             placeholder="Add group name"></ion-input>
@@ -49,15 +49,15 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" name="people-outline"></ion-icon>
                         <ion-label>Check and select members</ion-label>
                     </ion-item>
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-list class="form theme--list" lines="none" inset="true">
-                        <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item"
+                    <ion-list class="form" lines="none" inset="true">
+                        <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme-item"
                             detail="false">
                             <ion-avatar slot="start">
                                 <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
@@ -77,8 +77,8 @@
             </ion-row>
         </ion-grid>
 
-        <ion-item class="theme--item" lines="none"></ion-item>
-        <ion-item class="theme--item" lines="none"></ion-item>
+        <ion-item class="theme-item" lines="none"></ion-item>
+        <ion-item class="theme-item" lines="none"></ion-item>
 
     </div>
 

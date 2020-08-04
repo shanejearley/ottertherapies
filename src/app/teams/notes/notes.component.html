@@ -1,8 +1,8 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
-      <ion-back-button *ngIf="ios || android"  [text]="ios ? 'Teams' : null" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
+      <ion-menu-button *ngIf="!ios && !android && !mobile"></ion-menu-button>
+      <ion-back-button *ngIf="ios || android || mobile"  [text]="ios ? 'Teams' : null" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
     </ion-buttons>
     <ion-title *ngIf="(team$ | async)">{{ (team$ | async)?.name }}</ion-title>
     <ion-buttons slot="end">
@@ -31,7 +31,7 @@
       <ion-card class="">
 
         <ion-card-content>
-          <ion-item class="theme--item">
+          <ion-item class="theme-item">
             <ion-label>
               <h2><strong>Share Something New</strong></h2>
             </ion-label>
@@ -43,10 +43,10 @@
                 <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
               </ng-template>
             </ion-avatar>
-            <ion-textarea autoGrow="true" rows="1" class="note--input" placeholder="Note" [(ngModel)]="newNote"
+            <ion-textarea autoGrow="true" rows="1" class="form" placeholder="Note" [(ngModel)]="newNote"
               (keyup.enter)="checkPostNote()" (keydown.enter)="onKeydown($event)" autocapitalize="sentences">
             </ion-textarea>
-            <ion-button fill="clear" (click)="postNote()" slot="end" [disabled]="!newNote.length">
+            <ion-button class="notes-button" fill="clear" (click)="postNote()" slot="end" [disabled]="!newNote.length">
               <ion-icon slot="icon-only" [name]="'send' + '-outline'"></ion-icon>
             </ion-button>
           </ion-item>
@@ -137,10 +137,10 @@
                     <ngx-avatar name="{{ (profile$ | async)?.displayName }}" [size]="40"></ngx-avatar>
                   </ng-template>
                 </ion-avatar>
-                <ion-textarea autoGrow="true" rows="1" class="note--input" placeholder="Comment"
+                <ion-textarea autoGrow="true" rows="1" class="form" placeholder="Comment"
                   [(ngModel)]="n.newComment" (keyup.enter)="checkPostComment(n)" (keydown.enter)="onKeydown($event)" autocapitalize="sentences">
                 </ion-textarea>
-                <ion-button fill="clear" (click)="postComment(n)" slot="end" [disabled]="!n.newComment.length">
+                <ion-button class="notes-button" fill="clear" (click)="postComment(n)" slot="end" [disabled]="!n.newComment.length">
                   <ion-icon slot="icon-only" [name]="'send' + '-outline'"></ion-icon>
                 </ion-button>
               </ion-item>
@@ -148,7 +148,7 @@
           </ion-card-content>
         </ion-card>
       </div>
-      <ion-item lines="none" class="theme--item"></ion-item>
+      <ion-item lines="none" class="theme-item"></ion-item>
     </ion-list>
   </div>
 </ion-content>

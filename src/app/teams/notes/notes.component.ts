@@ -22,6 +22,9 @@ export class NotesComponent implements OnInit {
   ios: boolean;
   android: boolean;
   desktop: boolean;
+  capacitor: boolean;
+  mobile: boolean;
+  
   sortType: string;
   sortReverse: boolean = true;
   notes: Note[];
@@ -48,9 +51,10 @@ export class NotesComponent implements OnInit {
   ngOnInit() {
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
-      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
-      this.android = this.platform.is('android') && this.platform.is('capacitor');
-      console.log(this.desktop, this.ios, this.android)
+      this.ios = this.platform.is('ios');
+      this.android = this.platform.is('android');
+      this.capacitor = this.platform.is('capacitor');
+      this.mobile = this.platform.is('mobile');
     })
     this.newNote = '';
     this.date = new Date();

@@ -14,8 +14,8 @@
 
   <div id="container">
 
-    <ion-list #scroll class="theme--list">
-      <ion-item class="theme--item" lines="none"></ion-item>
+    <ion-list #scroll class="theme-list">
+      <ion-item class="theme-item" lines="none"></ion-item>
 
       <div *ngFor="let m of (member$ | async)?.messages; trackBy: trackFn; let last = last; let i = index">
 
@@ -29,9 +29,9 @@
           </ng-template>
         </ion-row>
 
-        <ion-item class="theme--item message--item" lines="none"
+        <ion-item class="theme-item message--item" lines="none"
           [class.changeUser]="(member$ | async)?.messages[i-1] && (member$ | async)?.messages[i-1].uid !== m.uid">
-          <ion-row class="member--row" slot="start" *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage">
+          <ion-row class="member-row" slot="start" *ngIf="m.uid !== (profile$ | async)?.uid; else elseUserMessage">
             <ion-avatar class="dialog--member"
               *ngIf="(member$ | async)?.messages[i+1] && m.uid !== (member$ | async)?.messages[i+1].uid || !(member$ | async)?.messages[i+1] || (member$ | async)?.messages[i+1] && (member$ | async)?.messages[i+1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
               <img *ngIf="(member$ | async)?.url; else elseTextAvatar"
@@ -53,9 +53,11 @@
               </ion-button>
 
               <ng-template #elseMemberText>
-                <ion-card color="light" class="dialog member message--card">
+                <ion-card class="dialog-card message-card message-member">
                   <ion-card-content class="message--content">
-                    <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
+                    <h2 text-wrap style="white-space: pre-line;">
+                      <ion-text color="dark">{{ m.body }}</ion-text>
+                    </h2>
                   </ion-card-content>
                 </ion-card>
               </ng-template>
@@ -77,9 +79,11 @@
                 </ion-button>
 
                 <ng-template #elseUserText>
-                  <ion-card color="primary" class="dialog message--card message--user">
+                  <ion-card color="primary" class="dialog-card message-card message-user">
                     <ion-card-content class="message--content">
-                      <h2 text-wrap style="white-space: pre-line;">{{ m.body }}</h2>
+                      <h2 text-wrap style="white-space: pre-line;">
+                        <ion-text>{{ m.body }}</ion-text>
+                      </h2>
                     </ion-card-content>
                   </ion-card>
                 </ng-template>
@@ -98,8 +102,8 @@
         </ion-item>
       </div>
 
-      <ion-item class="theme--item" lines="none"></ion-item>
-      <ion-item class="theme--item" lines="none"></ion-item>
+      <ion-item class="theme-item" lines="none"></ion-item>
+      <ion-item class="theme-item" lines="none"></ion-item>
 
     </ion-list>
   </div>
@@ -111,8 +115,8 @@
     <ion-toolbar>
   
       <ion-grid>
-        <ion-row *ngIf="newFiles.length" class="ion-align-items-center ion-padding-horizontal">
-          <ion-button class="message--button ion-padding-end" fill="clear" color="tertiary" disabled>
+        <ion-row *ngIf="newFiles.length" class="ion-align-items-center">
+          <ion-button class="message-button" fill="clear" color="tertiary" disabled>
             <ion-icon name=""></ion-icon>
           </ion-button>
           <ion-col class="message--files">
@@ -127,25 +131,25 @@
               </ion-row>
             </ion-grid>
           </ion-col>
-          <ion-button class="message--button ion-padding-start" fill="clear" color="tertiary" disabled>
+          <ion-button class="message-button" fill="clear" color="tertiary" disabled>
             <ion-icon name=""></ion-icon>
           </ion-button>
         </ion-row>
   
-        <ion-row class="ion-align-items-center ion-padding-horizontal">
-          <ion-button class="message--button ion-padding-end" fill="clear" color="tertiary">
+        <ion-row class="ion-align-items-center">
+          <ion-button class="message-button" fill="clear" color="tertiary">
             <ion-icon name="attach-outline"></ion-icon>
             <label class="file-button">
               <input type="file" (change)="fileChangeEvent($event)" />
             </label>
           </ion-button>
           <ion-col>
-            <ion-textarea autoGrow="true" rows="1" class="message--input" placeholder="Message" [(ngModel)]="newBody"
+            <ion-textarea autoGrow="true" rows="1" class="message-form" placeholder="Message" [(ngModel)]="newBody"
               (keyup.enter)="checkSendMessage()" (keydown.enter)="onKeydown($event)" (ionFocus)="scrollOnFocus()"
               autocapitalize="sentences" (paste)="onPaste($event)">
             </ion-textarea>
           </ion-col>
-          <ion-button class="message--button ion-padding-start" (click)="sendMessage()" fill="clear"
+          <ion-button class="message-button" (click)="sendMessage()" fill="clear"
             [disabled]="!newBody.length && !newFiles.length">
             <ion-icon name="send-outline"></ion-icon>
           </ion-button>

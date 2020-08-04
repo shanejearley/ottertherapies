@@ -29,7 +29,7 @@
                 </ion-col>
 
                 <ion-col size="12" *ngIf="firstTime" class="ion-padding-horizontal">
-                    <ion-note>To get started, enter your displayname and care role.</ion-note>
+                    <ion-note>Enter your display name and care role to get started</ion-note>
                 </ion-col>
 
                 <ion-col size="12" *ngIf="!firstTime">
@@ -47,7 +47,7 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item lines="none" class="theme--item">
+                    <ion-item lines="none" class="theme-item">
                         <ion-icon slot="start" name="person-outline"></ion-icon>
                         <ion-input class="form" [(ngModel)]="profile.displayName" placeholder="Add a display name"
                             (ionFocus)="nameFocus = true" (ionBlur)="nameFocus = false" [class.focused]="nameFocus">
@@ -56,14 +56,14 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item lines="none" class="theme--item">
+                    <ion-item lines="none" class="theme-item">
                         <ion-icon slot="start" name="mail-outline"></ion-icon>
                         <ion-input class="form" [(ngModel)]="profile.email" disabled></ion-input>
                     </ion-item>
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item lines="none" class="theme--item">
+                    <ion-item lines="none" class="theme-item">
                         <ion-icon slot="start" name="people-outline"></ion-icon>
                         <ion-select placeholder="Select your team role" class="form" [(ngModel)]="profile.role"
                             [selectedText]="profile.role" interface="popover" (ionFocus)="roleFocus = true"
@@ -75,16 +75,18 @@
                     </ion-item>
                 </ion-col>
 
-                <ion-col size="12" class="ion-padding-horizontal">
-                    <ion-button expand="block" (click)="deleteUser()" fill="outline" color="danger">Delete Account
+                <ion-col size="12" class="ion-margin-top ion-padding-horizontal" *ngIf="!firstTime">
+                    <ion-button expand="block" (click)="deleteUser()" fill="outline" color="danger">
+                        <ion-icon name="trash-outline" class="ion-margin-end"></ion-icon>                        
+                        Delete Account
                     </ion-button>
                 </ion-col>
 
             </ion-row>
         </ion-grid>
 
-        <ion-item class="theme--item" lines="none"></ion-item>
-        <ion-item class="theme--item" lines="none"></ion-item>
+        <ion-item class="theme-item" lines="none"></ion-item>
+        <ion-item class="theme-item" lines="none"></ion-item>
 
     </div>
 

@@ -67,9 +67,9 @@ export class EventsComponent implements OnInit {
   _disableWeeks: number[] = [];
   eventsSource: DayConfig[] = [];
   options: CalendarComponentOptions = {
+    weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     from: new Date(1970, 1, 1),
-    disableWeeks: [...this._disableWeeks],
-    daysConfig: this.eventsSource
+    disableWeeks: [...this._disableWeeks]
   };
   personal: boolean = false;
   personalEvents: Event[];
@@ -77,6 +77,8 @@ export class EventsComponent implements OnInit {
   desktop: boolean;
   ios: boolean;
   android: boolean;
+  capacitor: boolean;
+  mobile: boolean;
 
   private readonly onDestroy = new Subject<void>();
 
@@ -230,9 +232,8 @@ export class EventsComponent implements OnInit {
           })
         }
         this.options = {
-          from: new Date(1970, 1, 1),
-          disableWeeks: [...this._disableWeeks],
-          daysConfig: this.eventsSource
+          daysConfig: this.eventsSource,
+          ...this.options
         };
       })
     ).subscribe()
@@ -244,9 +245,10 @@ export class EventsComponent implements OnInit {
 
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
-      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
-      this.android = this.platform.is('android') && this.platform.is('capacitor');
-      console.log(this.desktop, this.ios, this.android)
+      this.ios = this.platform.is('ios');
+      this.android = this.platform.is('android');
+      this.capacitor = this.platform.is('capacitor');
+      this.mobile = this.platform.is('mobile');
     })
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');

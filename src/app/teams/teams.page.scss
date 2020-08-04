@@ -31,10 +31,33 @@ ion-menu-button {
   text-decoration: none;
 }
 
-// #container ion-list {
-//   max-width: 800px;
-//   ///figure out how to make this centered
-// }
 ion-content ion-toolbar {
   --background: transparent;
+}
+
+.arrow-top {
+  --ion-text-color: var(--ion-color-secondary);
+  overflow: visible;
+	position: relative;
+}
+.arrow-top:after {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-bottom-color: var(--ion-color-success);
+}
+
+.ios.arrow-top:after {
+  border-width: 24px;
+  margin-left: -24px;
+}
+
+.md.arrow-top:after {
+  border-width: 10px;
+  margin-left: -10px;
 }

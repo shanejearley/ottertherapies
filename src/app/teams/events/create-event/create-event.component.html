@@ -40,22 +40,8 @@
                     </div>
                 </ion-col>
 
-                <ion-col size="6">
-                    <ion-button expand="block" [fill]="newEvent.type == 'Event' ? 'outline' : ''"
-                        (click)="newEvent.type = 'Event'">
-                        Event
-                    </ion-button>
-                </ion-col>
-
-                <ion-col size="6">
-                    <ion-button expand="block" [fill]="newEvent.type == 'Reminder' ? 'outline' : ''"
-                        (click)="newEvent.type = 'Reminder'">
-                        Reminder
-                    </ion-button>
-                </ion-col>
-
                 <ion-col size="12">
-                    <ion-item class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" name="calendar-outline"></ion-icon>
                         <ion-input class="form" (ionChange)="nameChange()" [(ngModel)]="newEvent.name"
                             placeholder="Add title" (ionFocus)="nameFocus = true" (ionBlur)="nameFocus = false"
@@ -64,7 +50,7 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item *ngIf="newEvent.type == 'Event'" class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" [name]="'location-outline'"></ion-icon>
                         <ion-input class="form" [(ngModel)]="newEvent.location" placeholder="Add location"
                             (ionFocus)="locationFocus = true" (ionBlur)="locationFocus = false"
@@ -73,7 +59,7 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" name="time-outline"></ion-icon>
                         <ion-grid class="date--grid" fixed>
                             <ion-row class="ion-align-items-center">
@@ -124,15 +110,15 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" name="people-outline"></ion-icon>
                         <ion-label>Check and select guests</ion-label>
                     </ion-item>
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-list class="form theme--list" lines="none" inset="true">
-                        <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item"
+                    <ion-list class="form" lines="none" inset="true">
+                        <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme-item"
                             detail="false">
                             <ion-avatar slot="start">
                                 <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
@@ -151,7 +137,7 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item *ngIf="newEvent.type == 'Event'" class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" [name]="'reader-outline'"></ion-icon>
                         <ion-textarea class="form" [(ngModel)]="newEvent.info" placeholder="Add description"
                             autocapitalize="sentences" (ionFocus)="infoFocus = true" (ionBlur)="infoFocus = false"
@@ -164,7 +150,7 @@
         </ion-grid>
     </div>
 
-    <ion-item class="theme--item" lines="none"></ion-item>
-    <ion-item class="theme--item" lines="none"></ion-item>
+    <ion-item class="theme-item" lines="none"></ion-item>
+    <ion-item class="theme-item" lines="none"></ion-item>
 
 </ion-content>

@@ -1,8 +1,7 @@
 :host ::ng-deep {
   .error {
-    color: #a94442;
-    //background: #f2dede;
-    border: 1px solid #e4b3b3;
+    color: var(--ion-color-danger);
+    border: 1.5px solid var(--ion-color-flamingo);
     border-radius: 4px;
     padding: 8px;
     font-size: 14px;
@@ -14,13 +13,12 @@
   h1 {
     margin: 0 0 25px;
     font-size: 20px;
-    font-weight: 600;
     text-align: center;
   }
   a {
     display: block;
     text-align: center;
-    color: #5e7386;
+    color: var(--ion-color-medium);
     font-size: 14px;
     text-decoration: none !important;
   }
@@ -40,7 +38,7 @@
 
 .auth--card {
   position: relative;
-  width: 350px;
+  max-width: 350px;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
@@ -49,7 +47,7 @@
     &__forgot {
       display: block;
       text-align: center;
-      color: #5e7386;
+      color: var(--ion-color-medium);
       font-size: 14px;
       margin-top: 10px !important;
       margin-bottom: 10px !important;
@@ -58,7 +56,7 @@
   }
   &__toggle {
     border-radius: 0 0 4px 4px;
-    border-top: 1px solid #c1cedb;
+    border-top: 1.5px solid var(--ion-color-light);
     padding-top: 10px;
   }
   ion-label.auth--label {
@@ -73,19 +71,19 @@
     padding: 10px 15px;
     margin: 0;
     width: 100%;
-    //background: #fafcfd;
-    color: #5777a8;
-    border: 1px solid #d1deeb;
+    color: var(--ion-color-dark);
+    background: var(--ion-color-light);
+    border: 1.5px solid var(--ion-color-light);
     text-align: center;
     &::-webkit-input-placeholder {
-      color: #5777a8;
+      color: var(--ion-color-dark);
     }
     &[type=email] {
       border-radius: 4px 4px 0 0;
     }
     &[type=password] {
       border-radius: 0 0 4px 4px;
-      margin: -1px 0 0;
+      margin: -2px 0 0;
     }
   }
   img.auth--logo {

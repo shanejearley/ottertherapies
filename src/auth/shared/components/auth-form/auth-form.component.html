@@ -9,7 +9,7 @@
                 </ion-label>
                 <ion-label class="auth--label">
                     <ion-input class="auth--input auth--bottom" [type]="showPassword ? 'text' : 'password'" placeholder="Enter password" formControlName="password" (ionFocus)="passwordFocus = true" (ionBlur)="passwordFocus = false" [class.focused]="passwordFocus">
-                        <ion-button class="password--button" fill="clear" color="secondary" (click)="showPassword = !showPassword" tabindex="-1">
+                        <ion-button class="password-button" fill="clear" (click)="showPassword = !showPassword" tabindex="-1">
                             <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
                         </ion-button>
                     </ion-input>

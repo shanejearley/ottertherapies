@@ -38,7 +38,7 @@
                 <ion-col size="12">
                     <ion-radio-group allow-empty-selection [value]="copyFolder" (ionChange)="folderChange($event)">
                         <div *ngFor="let g of (groups$ | async); let i = index">
-                            <ion-item lines="none" detail="false" class="theme--item">
+                            <ion-item lines="none" detail="false" class="theme-item">
                                 <ion-avatar slot="start">
                                     <ngx-avatar name="{{ g.name }}" [size]="40"></ngx-avatar>
                                 </ion-avatar>
@@ -54,7 +54,7 @@
 
                         <div *ngFor="let m of (members$ | async); let i = index">
                             <ion-item lines="none" detail="false" *ngIf="m.uid !== (profile$ | async)?.uid"
-                                class="theme--item">
+                                class="theme-item">
                                 <ion-avatar slot="start">
                                     <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
                                     <ng-template #elseMemberAvatar>
@@ -71,7 +71,7 @@
                         </div>
                         <div *ngFor="let m of (members$ | async); let i = index">
                             <ion-item lines="none" detail="false" *ngIf="m && m.uid === (profile$ | async)?.uid"
-                                class="theme--item">
+                                class="theme-item">
                                 <ion-avatar slot="start">
                                     <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
                                     <ng-template #elseMemberAvatar>
@@ -93,8 +93,8 @@
             </ion-row>
         </ion-grid>
 
-        <ion-item class="theme--item" lines="none"></ion-item>
-        <ion-item class="theme--item" lines="none"></ion-item>
+        <ion-item class="theme-item" lines="none"></ion-item>
+        <ion-item class="theme-item" lines="none"></ion-item>
 
     </div>
 

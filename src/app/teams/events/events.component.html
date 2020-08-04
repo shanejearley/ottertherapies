@@ -1,8 +1,8 @@
-<ion-header [translucent]="ios ? true : false">
+<ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
-      <ion-back-button *ngIf="ios || android" [text]="ios ? 'Teams' : null" routerDirection="backwards"
+      <ion-menu-button *ngIf="!ios && !android && !mobile"></ion-menu-button>
+      <ion-back-button *ngIf="ios || android || mobile" [text]="ios ? 'Teams' : null" routerDirection="backwards"
         [defaultHref]="['/Teams']">
       </ion-back-button>
     </ion-buttons>
@@ -22,56 +22,43 @@
 
 <ion-content [fullscreen]="true" class="calendar--content">
 
+  <div class="calendar-section">
+    <ion-card class="calendar-container">
+      <img class="calendar-img" [src]="(dark$ | async) ? '../../../assets/underwater_dark.svg' : '../../../assets/underwater.svg'">
+      <ion-calendar cssClass="calendar" [(ngModel)]="date" (change)="dayChange($event)"
+        (monthChange)="monthChange($event)" [options]="options" [type]="type" [format]="'YYYY-MM-DD'">
+      </ion-calendar>
+    </ion-card>
+  </div>
+
+  <div id="container">
+    <ion-list lines="none" class="theme-list">
+      <ion-list-header>{{ date }}</ion-list-header>
+      <div *ngIf="(today$ | async) && (today$ | async).length; else noEvents">
+        <ion-item *ngFor="let e of (today$ | async); let i = index" class="theme-item" (click)="editEventModal(e)"
+          button>
+          <ion-icon slot="start" color="primary" [name]="e.type === 'Reminder' ? 'alarm-outline' : 'calendar-outline'">
+          </ion-icon>
+          <ion-label text-wrap>
+            <h2><strong>{{ e.name }}</strong></h2>
+            <p>{{ e.startTime.toMillis() | date:"h:mm a" }} - {{ e.endTime.toMillis() | date:"h:mm a" }}</p>
+          </ion-label>
+        </ion-item>
+      </div>
+      <ng-template #noEvents>
+        <ion-item lines="none" class="theme-item">
+          <ion-label text-wrap>
+            <h2><strong>No events {{ date == today ? 'today' : 'on '+date }}</strong></h2>
+          </ion-label>
+        </ion-item>
+      </ng-template>
+    </ion-list>
+  </div>
+
   <ion-fab horizontal="end" vertical="bottom" slot="fixed">
     <ion-fab-button (click)="createEventModal()">
       <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-
-  <ion-grid class="ion-no-padding">
-    <ion-row class="profile--pic--row ion-justify-content-center ion-align-items-center">
-      <img class="event--pic--background" [src]="(dark$ | async) ? '../../../assets/underwater_dark.svg' : '../../../assets/underwater.svg'">
-      <ion-col class="ion-justify-content-center profile--pic--col" size="auto">
-        <div id="container">
-          <ion-calendar cssClass="calendar" [(ngModel)]="date" (change)="dayChange($event)"
-            (monthChange)="monthChange($event)" [options]="options" [type]="type" [format]="'YYYY-MM-DD'">
-          </ion-calendar>
-        </div>
-      </ion-col>
-    </ion-row>
-    <ion-row class="profile--info--row ion-align-items-stretch">
-      <ion-col class="profile--info--col ion-align-self-stretch">
-        <ion-card class="profile--info--card ion-no-margin ion-align-self-stretch">
-          <ion-card-content>
-
-            <div id="container">
-              <ion-list lines="none" class="theme--list">
-                <ion-list-header>{{ date }}</ion-list-header>
-                <div *ngIf="(today$ | async) && (today$ | async).length; else noEvents">
-                  <ion-item *ngFor="let e of (today$ | async); let i = index" class="theme--item"
-                    (click)="editEventModal(e)" button>
-                    <ion-icon slot="start" color="primary"
-                      [name]="e.type === 'Reminder' ? 'alarm-outline' : 'calendar-outline'">
-                    </ion-icon>
-                    <ion-label text-wrap>
-                      <h2><strong>{{ e.name }}</strong></h2>
-                      <p>{{ e.startTime.toMillis() | date:"h:mm a" }} - {{ e.endTime.toMillis() | date:"h:mm a" }}</p>
-                    </ion-label>
-                  </ion-item>
-                </div>
-                <ng-template #noEvents>
-                  <ion-item lines="none" class="theme--item">
-                    <ion-label text-wrap>
-                      <h2><strong>No events {{ date == today ? 'today' : 'on '+date }}</strong></h2>
-                    </ion-label>
-                  </ion-item>
-                </ng-template>
-              </ion-list>
-            </div>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
 
 </ion-content>

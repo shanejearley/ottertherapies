@@ -43,7 +43,7 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start"
                             [name]="parent === 'Messages' ? 'chatbubbles-outline' : 'folder-outline'"></ion-icon>
                         <ion-input class="form" (ionChange)="nameChange($event)" [value]="group.name"
@@ -53,15 +53,15 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" name="people-outline"></ion-icon>
                         <ion-label>Check and select members</ion-label>
                     </ion-item>
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-list class="form theme--list" lines="none" inset="true">
-                        <ion-item *ngFor="let m of members; let i = index" lines="none" class="theme--item"
+                    <ion-list class="form" lines="none" inset="true">
+                        <ion-item *ngFor="let m of members; let i = index" lines="none" class="theme-item"
                             detail="false">
                             <ion-avatar slot="start">
                                 <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
@@ -81,15 +81,15 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-list *ngIf="!(memberStatus == 'Admin')" class="theme--list" inset="true" lines="none">
-                        <ion-item detail="false" class="theme--item" lines="none">
-                            <ion-row class="member--row" slot="start">
+                    <ion-list *ngIf="!(memberStatus == 'Admin')" class="theme-list" inset="true" lines="none">
+                        <ion-item detail="false" class="theme-item" lines="none">
+                            <ion-row class="member-row" slot="start">
                                 <ion-avatar class="dialog--member">
                                     <img src="../../../../assets/img/otter_head.svg">
                                 </ion-avatar>
                                 <ion-col class="member--col" size="auto">
                                     <ion-row></ion-row>
-                                    <ion-card color="light" class="dialog message--card message--member">
+                                    <ion-card color="light" class="dialog-card message-card message--member">
                                         <ion-card-content>
                                             <ion-label text-wrap>Ask the group creator or admin to make any necessary
                                                 changes!
@@ -113,7 +113,7 @@
         </ion-grid>
     </div>
 
-    <ion-item class="theme--item" lines="none"></ion-item>
-    <ion-item class="theme--item" lines="none"></ion-item>
+    <ion-item class="theme-item" lines="none"></ion-item>
+    <ion-item class="theme-item" lines="none"></ion-item>
 
 </ion-content>

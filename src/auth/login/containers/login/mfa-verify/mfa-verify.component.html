@@ -26,7 +26,7 @@
                     </ion-row>
                 </ion-grid>
                 <ion-label class="auth--label">
-                    <ion-input class="auth--input auth--only" type="text" placeholder="Enter your 6 digit code" [mask]="codeNumber" (ionChange)="checkCode($event)" autocomplete="off" (ionFocus)="codeFocus = true" (ionBlur)="codeFocus = false" [class.focused]="codeFocus"></ion-input>
+                    <ion-input class="auth--input auth--only" type="text" placeholder="Enter your 6 digit code" [mask]="codeNumber" (ionChange)="checkCode($event)" autocomplete="off" (ionFocus)="codeFocus = true" (ionBlur)="codeFocus = false" [class.focused]="codeFocus" autofocus="true"></ion-input>
                 </ion-label>
             </ion-card-content>
         </ion-card>

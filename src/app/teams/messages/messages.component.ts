@@ -34,6 +34,8 @@ export class MessagesComponent implements OnInit {
   desktop: boolean;
   ios: boolean;
   android: boolean;
+  capacitor: boolean;
+  mobile: boolean;
 
   constructor(
     private store: Store,
@@ -53,9 +55,10 @@ export class MessagesComponent implements OnInit {
   ngOnInit() {
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
-      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
-      this.android = this.platform.is('android') && this.platform.is('capacitor');
-      console.log(this.desktop, this.ios, this.android)
+      this.ios = this.platform.is('ios');
+      this.android = this.platform.is('android');
+      this.capacitor = this.platform.is('capacitor');
+      this.mobile = this.platform.is('mobile');
     })
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');

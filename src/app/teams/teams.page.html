@@ -1,7 +1,8 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-chip class="ion-margin-start" *ngIf="ios || android" color="light" (click)="presentPopover($event)">
+      <ion-chip class="ion-margin-start" *ngIf="ios || android || mobile" color="light"
+        (click)="presentPopover($event)">
         <ion-avatar>
           <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar"
             src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
@@ -19,11 +20,12 @@
           <ion-icon name="chevron-down-outline"></ion-icon>
         </ion-label>
       </ion-chip>
-      <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
+      <ion-menu-button *ngIf="!ios && !android && !mobile"></ion-menu-button>
     </ion-buttons>
     <ion-title [class.title--center]="android">
       <!-- Teams -->
-      <img class="teams--logo" [src]="!dark ? '../../assets/img/otter_logo.png' : '../../assets/img/otter_logo_dark.png'" width="115px">
+      <img class="teams-logo" [src]="!dark ? '../../assets/img/otter_logo.png' : '../../assets/img/otter_logo_dark.png'"
+        width="115px">
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -32,15 +34,15 @@
 
   <div id="container">
 
-    <ion-list class="theme--list">
+    <ion-list class="theme-list">
 
       <ion-list-header>
         Your Teams
       </ion-list-header>
 
-      <ion-card class="theme--card dashed-card" (click)="createTeamModal()" button>
-        <ion-item class="theme--item thumbnail--list" lines="none">
-          <ion-fab-button slot="start" class="inner--fab inner--fab--start">
+      <ion-card class="theme-card dashed-card" (click)="createTeamModal()" button>
+        <ion-item class="theme-item thumbnail--list" lines="none">
+          <ion-fab-button slot="start" class="inner-fab inner--fab--start">
             <ion-icon name="add-outline"></ion-icon>
           </ion-fab-button>
           <ion-label>
@@ -49,9 +51,9 @@
         </ion-item>
       </ion-card>
 
-      <ion-card *ngFor="let p of (teams$ | async); let i = index; trackBy: trackFn;" button routerDirection="root" (click)="goTo(p.id)"
-        class="theme--card">
-        <ion-item lines="none" class="theme--item thumbnail--list">
+      <ion-card *ngFor="let p of (teams$ | async); let i = index; trackBy: trackFn;" button routerDirection="root"
+        (click)="goTo(p.id)" class="theme-card">
+        <ion-item lines="none" class="theme-item thumbnail--list">
           <ion-thumbnail slot="start">
             <ngx-avatar class="teams-avatar" name="{{ p.child }}" [size]="55" [round]="false" [cornerRadius]="10">
             </ngx-avatar>
@@ -68,12 +70,9 @@
         </ion-item>
       </ion-card>
 
-      <ion-list-header *ngIf="(pending$ | async) && (pending$ | async).length">
-        Pending Teams
-      </ion-list-header>
-
-      <ion-card *ngFor="let p of (pending$ | async); let i = index; trackBy: trackFn;" (click)="joinTeam(p)" button class="theme--card">
-        <ion-item lines="none" class="theme--item thumbnail--list">
+      <ion-card *ngFor="let p of (pending$ | async); let i = index; trackBy: trackFn;" (click)="joinTeam(p)" button
+        class="theme-card">
+        <ion-item lines="none" class="theme-item thumbnail--list">
           <ion-thumbnail slot="start">
             <ngx-avatar class="teams-avatar" name="{{ p.child }}" [size]="55" [round]="false" [cornerRadius]="10">
             </ngx-avatar>
@@ -82,11 +81,29 @@
             <h2><strong>{{ p.name }}</strong></h2>
             <h3>Team Id: {{ p.publicId }}</h3>
           </ion-label>
-          <ion-button>Join Team</ion-button>
+          <ion-button slot="end">Join Team</ion-button>
         </ion-item>
       </ion-card>
 
-      <ion-item lines="none" class="theme--item"></ion-item>
+      <ion-card color="success"
+        *ngIf="(teams$ | async) && (pending$ | async) && !((teams$ | async)?.length > 0) && !((pending$ | async)?.length > 0) || (teams$ | async) && (pending$ | async) && !((teams$ | async)?.length > 0) && ((pending$ | async)?.length > 0)"
+        class="arrow-top ion-padding-vertical ion-padding-end">
+        <ion-item lines="none" class="theme-item thumbnail--list">
+          <ion-thumbnail slot="start" class="avatar-thumbnail">
+            <img src="../../assets/img/otter_head.svg">
+          </ion-thumbnail>
+          <ion-label text-wrap>
+            <h2><strong>Get started!</strong></h2>
+            <h3 *ngIf="!((pending$ | async)?.length > 0)">Create a new team or wait for somebody to invite you</h3>
+            <h3 *ngIf="((pending$ | async)?.length > 0)">Join a team or create a new one above</h3>
+          </ion-label>
+        </ion-item>
+        <ion-button color="tertiary">
+          Got it
+        </ion-button>
+      </ion-card>
+
+      <ion-item lines="none" class="theme-item"></ion-item>
 
     </ion-list>
 

@@ -19,7 +19,7 @@
             <ion-label class="auth--label">
                 <ion-input class="auth--input auth--top" [type]="showPassword ? 'text' : 'password'" placeholder="Re-enter your password"
                     [(ngModel)]="password" (ionFocus)="passwordFocus = true" (ionBlur)="passwordFocus = false" [class.focused]="passwordFocus">
-                    <ion-button class="password--button" fill="clear" color="secondary" (click)="showPassword = !showPassword" tabindex="-1">
+                    <ion-button class="password-button" fill="clear" (click)="showPassword = !showPassword" tabindex="-1">
                         <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
                     </ion-button>
                 </ion-input>
@@ -37,7 +37,7 @@
             <div class="auth--card__toggle">
                 <a [routerLink]="" routerDirection="backward" (click)="onLogout()">
                     Need to come back later?&nbsp;
-                    <ion-text color="secondary">
+                    <ion-text class="secondary-action">
                         <b>Logout</b>
                     </ion-text>
                 </a>

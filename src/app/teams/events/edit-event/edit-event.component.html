@@ -55,20 +55,8 @@
                     </div>
                 </ion-col>
 
-                <ion-col size="6">
-                    <ion-button expand="block" [fill]="event.type == 'Event' ? 'outline' : ''"
-                        (click)="event.type = 'Event'" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
-                        Event</ion-button>
-                </ion-col>
-
-                <ion-col size="6">
-                    <ion-button expand="block" [fill]="event.type == 'Reminder' ? 'outline' : ''"
-                        (click)="event.type = 'Reminder'" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
-                        Reminder</ion-button>
-                </ion-col>
-
                 <ion-col size="12">
-                    <ion-item class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" name="calendar-outline"></ion-icon>
                         <ion-input (ionChange)="nameChange()" [(ngModel)]="event.name" placeholder="Add title"
                             [disabled]="!(memberStatus == 'Admin') || event.recurrenceId" class="form visible"
@@ -77,8 +65,8 @@
                     </ion-item>
                 </ion-col>
 
-                <ion-col size="12" *ngIf="event.type == 'Event'">
-                    <ion-item class="theme--item" lines="none">
+                <ion-col size="12">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" name="location-outline"></ion-icon>
                         <ion-input class="form" [(ngModel)]="event.location" placeholder="Add location"
                             [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
@@ -88,7 +76,7 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
 
                         <ion-icon slot="start" name="time-outline"></ion-icon>
                         <ion-grid class="date--grid" fixed>
@@ -148,15 +136,15 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" name="people-outline"></ion-icon>
                         <ion-label>Check and select guests</ion-label>
                     </ion-item>
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-list class="form theme--list" lines="none" inset="true">
-                        <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme--item"
+                    <ion-list class="form" lines="none" inset="true">
+                        <ion-item *ngFor="let m of (members$ | async); let i = index" lines="none" class="theme-item"
                             detail="false">
                             <ion-avatar slot="start">
                                 <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
@@ -176,7 +164,7 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item *ngIf="event.type == 'Event'" class="theme--item" lines="none">
+                    <ion-item class="theme-item" lines="none">
                         <ion-icon slot="start" [name]="'reader-outline'"></ion-icon>
                         <ion-textarea class="form" [(ngModel)]="event.info" placeholder="Add description"
                             autocapitalize="sentences" [disabled]="!(memberStatus == 'Admin') || event.recurrenceId"
@@ -203,7 +191,7 @@
         </ion-grid>
     </div>
 
-    <ion-item class="theme--item" lines="none"></ion-item>
-    <ion-item class="theme--item" lines="none"></ion-item>
+    <ion-item class="theme-item" lines="none"></ion-item>
+    <ion-item class="theme-item" lines="none"></ion-item>
 
 </ion-content>

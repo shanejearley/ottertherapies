@@ -1,85 +1,84 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
-      <ion-back-button *ngIf="ios || android" [text]="ios ? 'Teams' : null" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
+      <ion-menu-button *ngIf="!ios && !android && !mobile"></ion-menu-button>
+      <ion-back-button *ngIf="ios || android || mobile" [text]="ios ? 'Teams' : null" routerDirection="backwards"
+        [defaultHref]="['/Teams']"></ion-back-button>
     </ion-buttons>
     <ion-title>Profile</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="editProfileModal(false)">Edit</ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="profile--content">
-  <ion-grid class="ion-no-padding">
-    <ion-row class="profile--pic--row ion-justify-content-center ion-align-items-center">
-      <img class="profile--pic--background" [src]="(dark$ | async) ? '../../../assets/underwater_dark.svg' : '../../../assets/underwater.svg'">
-      <ion-col class="ion-justify-content-center profile--pic--col" size="auto">
-        <ion-thumbnail class="avatar-thumbnail profile-thumbnail" *ngIf="(profile$ | async)">
-          <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar" src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
-          <ng-template #elseMemberAvatar>
-            <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar"
-              name="{{ (profile$ | async)?.email }}" [size]="150" [round]="false" [cornerRadius]="150">
-            </ngx-avatar>
-            <ng-template #elseEmailAvatar>
-              <ngx-avatar name="{{ (profile$ | async)?.email }}" [size]="150" [round]="false" [cornerRadius]="150">
-              </ngx-avatar>
-            </ng-template>
-          </ng-template>
-        </ion-thumbnail>
-        <ion-fab-button class="profile--pic--fab" size="small" (click)="profilePictureModal()">
-          <ion-icon name="camera-outline"></ion-icon>
-        </ion-fab-button>
-      </ion-col>
-    </ion-row>
-    <ion-row class="profile--info--row ion-align-items-stretch">
-      <ion-col class="profile--info--col ion-align-self-stretch">
-        <ion-card class="profile--info--card ion-no-margin ion-align-self-stretch">
-          <ion-card-content>
-            <div id="container">
-              <ion-list>
-                <ion-list-header>
-                  Your Info
-                </ion-list-header>
-                <ion-item lines="none" *ngIf="(profile$ | async)">
-                  <ion-icon slot="start" name="person-outline"></ion-icon>
-                  <h2 class="full-width"><strong>
-                      <ion-input class="form" [value]="(profile$ | async)?.displayName" placeholder="Add a display name" (ionFocus)="onFocus($event)" readonly>
-                      </ion-input>
-                    </strong></h2>
-                </ion-item>
-                <ion-item lines="none" *ngIf="(profile$ | async)">
-                  <ion-icon slot="start" name="mail-outline"></ion-icon>
-                  <h2 class="full-width">
-                    <ion-input class="form" [value]="(profile$ | async)?.email" (ionFocus)="onFocus($event)" readonly>
-                    </ion-input>
-                  </h2>
-                </ion-item>
-                <ion-item lines="none" *ngIf="(profile$ | async)">
-                  <ion-icon slot="start" name="people-outline"></ion-icon>
-                  <h2 class="full-width">
-                    <ion-input class="form" [value]="(profile$ | async)?.role" (ionFocus)="onFocus($event)" readonly>
-                    </ion-input>
-                  </h2>
-                </ion-item>
-                <ion-list-header>
-                  Your Settings
-                </ion-list-header>
-                <ion-item lines="none" *ngIf="(profile$ | async)">
-                  <ion-icon slot="start" name="logo-google"></ion-icon>
-                  <ion-label text-wrap>
-                    <h2 class="full-width">
-                      Sync your events to Google Calendar
-                    </h2>
-                  </ion-label>
-                  <ion-toggle slot="end" [(ngModel)]="currentProfile.gcalSync" (ionChange)="onToggle($event)"></ion-toggle>
-                </ion-item>
-              </ion-list>
-            </div>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+<ion-content [fullscreen]="true">
+  <div class="profile-section">
+    <ion-card class="profile-container">
+      <img class="profile-img" [src]="(dark$ | async) ? '../../../assets/underwater_dark.svg' : '../../../assets/underwater.svg'">
+    </ion-card>
+    <ion-thumbnail class="avatar-thumbnail profile-thumbnail" *ngIf="(profile$ | async)">
+      <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar"
+        src="{{ (profile$ | async)?.url_150 ? (profile$ | async)?.url_150 : (profile$ | async)?.url }}">
+      <ng-template #elseMemberAvatar>
+        <ngx-avatar *ngIf="(profile$ | async)?.displayName; else elseEmailAvatar" name="{{ (profile$ | async)?.email }}"
+          [size]="150" [round]="false" [cornerRadius]="150">
+        </ngx-avatar>
+        <ng-template #elseEmailAvatar>
+          <ngx-avatar name="{{ (profile$ | async)?.email }}" [size]="150" [round]="false" [cornerRadius]="150">
+          </ngx-avatar>
+        </ng-template>
+      </ng-template>
+    </ion-thumbnail>
+    <ion-fab-button class="profile-fab" size="small" (click)="profilePictureModal()">
+      <ion-icon name="camera-outline"></ion-icon>
+    </ion-fab-button>
+  </div>
+
+  <div id="container">
+    <ion-list class="theme-list">
+      <ion-list-header>
+        Your Info
+      </ion-list-header>
+      <ion-item lines="none" class="theme-item" *ngIf="(profile$ | async)">
+        <ion-icon slot="start" name="person-outline"></ion-icon>
+        <ion-label>
+          <h2><strong>{{ (profile$ | async)?.displayName }}</strong></h2>
+        </ion-label>
+      </ion-item>
+      <ion-item lines="none" class="theme-item" *ngIf="(profile$ | async)">
+        <ion-icon slot="start" name="mail-outline"></ion-icon>
+        <ion-label>
+          <h2>{{ (profile$ | async)?.email }}</h2>
+        </ion-label>
+      </ion-item>
+      <ion-item lines="none" class="theme-item" *ngIf="(profile$ | async)">
+        <ion-icon slot="start" name="people-outline"></ion-icon>
+        <ion-label>
+          <h2>{{ (profile$ | async)?.role }}</h2>
+        </ion-label>
+      </ion-item>
+      <ion-list-header>
+        Your Settings
+      </ion-list-header>
+      <ion-item lines="none" class="theme-item" *ngIf="(profile$ | async)">
+        <ion-icon slot="start" name="logo-google"></ion-icon>
+        <ion-label text-wrap>
+          <h2 class="full-width">
+            Sync your events to Google Calendar
+          </h2>
+        </ion-label>
+        <ion-toggle slot="end" [(ngModel)]="currentProfile.gcalSync" (ionChange)="onToggle($event)">
+        </ion-toggle>
+      </ion-item>
+    </ion-list>
+    <ion-grid>
+      <ion-row class="ion-justify-content-center">
+        <ion-col>
+          <ion-button expand="block" fill="outline" (click)="editProfileModal(false)">
+            <ion-icon name="create-outline" class="ion-margin-end"></ion-icon>
+            Edit Info
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
 </ion-content>

@@ -4,8 +4,6 @@ import { Router, GuardsCheckEnd, NavigationEnd, RoutesRecognized } from '@angula
 import { Platform, ToastController, IonToggle } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { Badge } from '@ionic-native/badge/ngx';
-
 
 import { Plugins, registerWebPlugin } from '@capacitor/core';
 const { App, Browser } = Plugins;
@@ -81,6 +79,8 @@ export class AppComponent implements OnInit {
   desktop: boolean;
   ios: boolean;
   android: boolean;
+  capacitor: boolean;
+  mobile: boolean;
   teams: Team[];
 
   public teamPages = [
@@ -116,7 +116,6 @@ export class AppComponent implements OnInit {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    private badge: Badge,
     private toastController: ToastController,
     private swUpdate: SwUpdate,
     private router: Router,
@@ -147,12 +146,10 @@ export class AppComponent implements OnInit {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
       this.desktop = this.platform.is('desktop');
-      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
-      this.android = this.platform.is('android') && this.platform.is('capacitor');
-      console.log(this.desktop, this.ios, this.android)
-      if (this.ios || this.android) {
-        this.badge.set(0);
-      }
+      this.ios = this.platform.is('ios');
+      this.android = this.platform.is('android');
+      this.capacitor = this.platform.is('capacitor');
+      this.mobile = this.platform.is('mobile');
     });
     App.addListener('appUrlOpen', (data: any) => {
       this.zone.run(() => {
@@ -161,13 +158,11 @@ export class AppComponent implements OnInit {
         const slugOne = data.url.split(".app").pop();
         const slugTwo = slugOne.split('https://ottertherapies.firebaseapp.com').pop();
         const googleCalendarRedirect = slugTwo.includes('https://www.googleapis.com/auth/calendar');
-        console.log('SLUG', slugTwo);
         if (slugTwo) {
-          if (!this.ios && !this.android || !googleCalendarRedirect) {
+          if (!this.ios && !this.android && !this.capacitor || !googleCalendarRedirect) {
             this.router.navigateByUrl(slugTwo);
           } else if (googleCalendarRedirect) {
-            console.log('Rely on profile component.')
-            //this.router.navigateByUrl(slugTwo);
+            // Rely on profile component
           }
         } else if (slugOne) {
           this.router.navigateByUrl(slugOne);

@@ -4,7 +4,7 @@
     {{ error }}
 </div>
 
-<ion-item *ngIf="!profilePicture" class="theme--item upload--item" lines="none">
+<ion-item *ngIf="!profilePicture" class="theme-item upload--item" lines="none">
 
     <ion-label [class.file--label--input-enabled]="!uploading && !downloadURL"
         [class.file--label--input-disabled]="uploading || downloadURL">
@@ -21,7 +21,7 @@
 
 </ion-item>
 
-<ion-item *ngIf="!profilePicture" class="theme--item upload--item" lines="true">
+<ion-item *ngIf="!profilePicture" class="theme-item upload--item" lines="true">
     <ion-icon slot="start" color="primary" name="document-text-outline" *ngIf="!scan; else viewPreview">
     </ion-icon>
     <ng-template #viewPreview>

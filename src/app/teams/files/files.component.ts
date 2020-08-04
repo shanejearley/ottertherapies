@@ -30,6 +30,8 @@ export class FilesComponent implements OnInit {
   desktop: boolean;
   ios: boolean;
   android: boolean;
+  capacitor: boolean;
+  mobile: boolean;
 
   date: Date;
   time: number;
@@ -72,9 +74,10 @@ export class FilesComponent implements OnInit {
   ngOnInit() {
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
-      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
-      this.android = this.platform.is('android') && this.platform.is('capacitor');
-      console.log(this.desktop, this.ios, this.android)
+      this.ios = this.platform.is('ios');
+      this.android = this.platform.is('android');
+      this.capacitor = this.platform.is('capacitor');
+      this.mobile = this.platform.is('mobile');
     })
     this.date = new Date();
     this.time = this.date.getTime();
@@ -143,7 +146,7 @@ export class FilesComponent implements OnInit {
   }
 
   scanDoc() {
-    if (this.ios || this.android) {
+    if (this.ios && this.capacitor || this.android && this.capacitor) {
       this.scanModal();
     } else if (this.desktop) {
       this.useMobileAlert();

@@ -42,6 +42,8 @@ export class TeamsPage implements OnInit {
   desktop: boolean;
   android: boolean;
   ios: boolean;
+  capacitor: boolean;
+  mobile: boolean;
 
   firstTime: boolean = true;
 
@@ -82,7 +84,7 @@ export class TeamsPage implements OnInit {
       },
       event: ev,
       translucent: true,
-      cssClass: 'mobile-menu-style'
+      cssClass: 'popover-class'
     });
 
     popover.onWillDismiss().then(data => {
@@ -130,10 +132,6 @@ export class TeamsPage implements OnInit {
       component: DeleteUserComponent,
       swipeToClose: true,
       presentingElement: this.routerOutlet.nativeEl
-      // componentProps: {
-      //   'teamId': this.teamId,
-      //   'groupId': this.groupId
-      // }
     });
     modal.onWillDismiss().then(data => {
       this.data = data.data;
@@ -214,15 +212,17 @@ export class TeamsPage implements OnInit {
 
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
-      this.ios = this.platform.is('ios') && this.platform.is('capacitor');
-      this.android = this.platform.is('android') && this.platform.is('capacitor');
-      console.log(this.desktop, this.ios, this.android)
-      if (this.ios || this.android) {
+      this.ios = this.platform.is('ios');
+      this.android = this.platform.is('android');
+      this.capacitor = this.platform.is('capacitor');
+      this.mobile = this.platform.is('mobile');
+      if (this.ios && this.capacitor || this.android) {
         PushNotifications.requestPermission().then(result => {
           if (result.granted) {
             // Register with Apple / Google to receive push via APNS/FCM
             PushNotifications.register();
           } else {
+            console.log(result);
             // Show some error
           }
         });

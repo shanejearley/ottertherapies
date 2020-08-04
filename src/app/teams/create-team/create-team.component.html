@@ -17,7 +17,6 @@
 </ion-header>
 <ion-content fullscreen>
     <div id="container">
-
         <ion-grid fixed class="ion-margin-top">
             <ion-row>
 
@@ -36,7 +35,7 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item *ngIf="error" class="theme--item" lines="none">
+                    <ion-item *ngIf="error" class="theme-item" lines="none">
                         <div *ngIf="error">
                             <div class="error" *ngIf="error">
                                 {{ error }}
@@ -46,7 +45,7 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item lines='none' class="theme--item">
+                    <ion-item lines='none' class="theme-item">
                         <ion-icon slot="start" name="happy-outline"></ion-icon>
                         <ion-input class="form" placeholder="Enter child's first name" [(ngModel)]="child"
                             (ionChange)="onChange()" (ionFocus)="nameFocus = true" (ionBlur)="nameFocus = false" [class.focused]="nameFocus"></ion-input>
@@ -54,7 +53,7 @@
                 </ion-col>
 
                 <ion-col size="12" size-md="8">
-                    <ion-item lines='none' class="theme--item">
+                    <ion-item lines='none' class="theme-item">
                         <ion-icon slot="start" name="mail-outline"></ion-icon>
                         <ion-input class="form" placeholder="Add a member by email" [(ngModel)]="member"
                             (keyup.enter)="addMember()" (ionFocus)="emailFocus = true" (ionBlur)="emailFocus = false" [class.focused]="emailFocus"></ion-input>
@@ -70,7 +69,7 @@
                 </ion-col>
 
                 <ion-col size="12">
-                    <ion-item lines="none" class="theme--item">
+                    <ion-item lines="none" class="theme-item">
                         <ion-icon slot="start" name="people-outline"></ion-icon>
                         <ion-label text-wrap>
                             <p>
@@ -92,9 +91,5 @@
                 
             </ion-row>
         </ion-grid>
-
-        <ion-item class="theme--item" lines="none"></ion-item>
-        <ion-item class="theme--item" lines="none"></ion-item>
-
     </div>
 </ion-content>

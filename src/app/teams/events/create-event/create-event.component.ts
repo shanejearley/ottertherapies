@@ -42,7 +42,6 @@ export class CreateEventComponent {
         startTime: null,
         endTime: null,
         info: null,
-        type: 'Event',
         recurrence: 'once',
         members: []
     };

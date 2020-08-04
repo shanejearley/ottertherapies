@@ -39,7 +39,7 @@
         </ion-col>
 
         <ion-col size="12">
-          <ion-item class="theme--item upload--item" lines="true">
+          <ion-item class="theme-item upload--item" lines="true">
 
             <ion-label class="file--label--input-enabled">
               <ion-input class="form" [value]="updateName" (ionChange)="onChangeName($event)"
@@ -52,7 +52,7 @@
         </ion-col>
 
         <ion-col size="12">
-          <ion-item class="theme--item" lines="none">
+          <ion-item class="theme-item" lines="none">
 
             <ion-icon slot="start" color="primary" name="document-text-outline"></ion-icon>
 
@@ -71,11 +71,11 @@
                 </ng-template>
               </p>
             </ion-label>
-            <ion-fab-button *ngIf="!saved" class="inner--fab" slot="end" color="warning" (click)="updateFilename()"
+            <ion-fab-button *ngIf="!saved" class="inner-fab" slot="end" color="warning" (click)="updateFilename()"
               [disabled]="error || saved !== false">
               <ion-icon name="save-outline"></ion-icon>
             </ion-fab-button>
-            <ion-fab-button *ngIf="saved == true" class="inner--fab" slot="end" color="primary">
+            <ion-fab-button *ngIf="saved == true" class="inner-fab" slot="end" color="primary">
               <ion-icon name="checkmark-circle-outline"></ion-icon>
             </ion-fab-button>
           </ion-item>
@@ -113,7 +113,7 @@
     </ion-grid>
   </div>
 
-  <ion-item class="theme--item" lines="none"></ion-item>
-  <ion-item class="theme--item" lines="none"></ion-item>
+  <ion-item class="theme-item" lines="none"></ion-item>
+  <ion-item class="theme-item" lines="none"></ion-item>
 
 </ion-content>
