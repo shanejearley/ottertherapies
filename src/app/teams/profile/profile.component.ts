@@ -67,7 +67,6 @@ export class ProfileComponent implements OnInit, AfterViewInit {
   android: boolean;
   desktop: boolean;
   capacitor: boolean;
-  mobile: boolean;
 
   androidBrowser = null;
 
@@ -121,7 +120,6 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       this.ios = this.platform.is('ios');
       this.android = this.platform.is('android');
       this.capacitor = this.platform.is('capacitor');
-      this.mobile = this.platform.is('mobile');
     })
     this.subscriptions = [
       this.profileSub

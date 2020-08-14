@@ -5,9 +5,7 @@
     </ion-buttons>
     <ion-title *ngIf="(group$ | async)">{{ (group$ | async)?.name }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="editGroupModal()">
-        <ion-icon name="people"></ion-icon>
-      </ion-button>
+      <ion-button color="primary" (click)="editGroupModal()">Group</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -17,27 +15,31 @@
   <div id="container">
 
     <ion-list class="message--list" lines="none">
-      <ion-item class="theme-item" (click)="scanDoc()" button lines="none">
-        <ion-fab-button slot="start" class="inner-fab inner--fab--start" [class.ion-margin-top]="ios"
-          [class.ion-margin-bottom]="ios">
-          <ion-icon name="scan-outline"></ion-icon>
-        </ion-fab-button>
-        <ion-label>
-          <h2><strong>Scan Files</strong></h2>
-        </ion-label>
-      </ion-item>
-      <ion-item class="theme-item" (click)="browseModal([])" button lines="none">
-        <ion-fab-button slot="start" class="inner-fab inner--fab--start" [class.ion-margin-top]="ios"
-          [class.ion-margin-bottom]="ios">
-          <ion-icon name="document-text-outline"></ion-icon>
-        </ion-fab-button>
-        <ion-label>
-          <h2><strong>Upload Files</strong></h2>
-        </ion-label>
-      </ion-item>
+
+      <ion-card class="theme-card dashed-card" (click)="scanDoc()" button>
+        <ion-item class="theme-item thumbnail--list" lines="none">
+          <ion-fab-button slot="start" class="inner-fab inner--fab--start">
+            <ion-icon name="scan-outline"></ion-icon>
+          </ion-fab-button>
+          <ion-label>
+            <h2><strong>Scan Files</strong></h2>
+          </ion-label>
+        </ion-item>
+      </ion-card>
+
+      <ion-card class="theme-card dashed-card" (click)="browseModal([])" button>
+        <ion-item class="theme-item thumbnail--list" lines="none">
+          <ion-fab-button slot="start" class="inner-fab inner--fab--start">
+            <ion-icon name="document-text-outline"></ion-icon>
+          </ion-fab-button>
+          <ion-label>
+            <h2><strong>Upload Files</strong></h2>
+          </ion-label>
+        </ion-item>
+      </ion-card>
+
       <div *ngIf="group$ | async as g">
-        <ion-list inset="true" lines="none" *ngIf="g.files.length; else elseFile"
-          class="theme-list member--upload--list">
+        <ion-list *ngIf="g.files.length; else elseFile" class="theme-list">
           <div *ngFor="let f of g.files; let i = index">
             <app-files-file [file]="f" (options)="fileOptions(f, g)"></app-files-file>
           </div>

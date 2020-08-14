@@ -10,7 +10,7 @@
         <ion-title>{{ (team$ | async)?.name }}</ion-title>
 
         <ion-buttons slot="end">
-            <ion-button color="tertiary" (click)="updateMembers()" [disabled]="memberStatus == 'Member'">Save
+            <ion-button color="tertiary" fill="solid" (click)="updateMembers()" [disabled]="memberStatus == 'Member'">Save
             </ion-button>
         </ion-buttons>
 
@@ -54,11 +54,15 @@
                                 <ngx-avatar *ngIf="m" name="{{ m.displayName }}" size="40"></ngx-avatar>
                             </ng-template>
                         </ion-avatar>
-                        <ion-label *ngIf="m">
-                            <h3>{{ m.displayName }}</h3>
+                        <ion-label *ngIf="m" class="admin-label">
+                            <h3 class="admin-header">
+                                {{ m.displayName }}
+                                <ion-button *ngIf="m.status == 'Admin'" fill="clear" color="medium" class="admin-button">
+                                    <ion-icon slot="icon-only" name="key"></ion-icon>
+                                </ion-button>
+                            </h3>
                             <p>{{ m.email }}</p>
                         </ion-label>
-                        <ion-icon *ngIf="m.status == 'Admin'" [name]="'key' + '-outline'"></ion-icon>
                         <ion-button slot="end" fill="clear" *ngIf="m.uid !== (profile$ | async)?.uid; else elseIcon"
                             (click)="removeMember(m)">
                             <ion-icon color="medium" slot="icon-only" [name]="'close-circle' + '-outline'">

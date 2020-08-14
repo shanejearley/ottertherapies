@@ -56,10 +56,6 @@
                     </ion-note>
                 </ion-col>
 
-                <ion-col size="12" *ngIf="!files || !files.length">
-                    <ion-note>(Choose files first)</ion-note>
-                </ion-col>
-
                 <ion-col size="12" *ngFor="let f of files; let i = index">
                     <app-upload-task *ngIf="f" [teamId]="teamId" [folder]="folder" [file]="f" [scan]="false"
                         (remove)="removeFile(f)">

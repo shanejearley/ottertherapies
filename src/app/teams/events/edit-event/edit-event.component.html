@@ -10,7 +10,7 @@
         <ion-title>Event Details</ion-title>
 
         <ion-buttons slot="end">
-            <ion-button color="tertiary" (click)="updateEvent()"
+            <ion-button color="tertiary" fill="solid" (click)="updateEvent()"
                 [disabled]="!(memberStatus == 'Admin') || event.recurrenceId">
                 Save
             </ion-button>
@@ -154,7 +154,7 @@
                             </ion-avatar>
                             <ion-label>
                                 <h3>{{ m.displayName }}</h3>
-                                <p>{{ m.email }}</p>
+                                <p>{{ m.role }}</p>
                             </ion-label>
                             <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange($event, m)"
                                 [disabled]="m.uid === (profile$ | async)?.uid || !(memberStatus == 'Admin') || event.recurrenceId">

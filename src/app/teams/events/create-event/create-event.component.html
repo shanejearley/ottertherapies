@@ -10,7 +10,7 @@
         <ion-title>New Event</ion-title>
 
         <ion-buttons slot="end">
-            <ion-button color="tertiary" (click)="addEvent()" [disabled]="clicked">Create</ion-button>
+            <ion-button color="tertiary" fill="solid" (click)="addEvent()" [disabled]="clicked">Create</ion-button>
         </ion-buttons>
 
     </ion-toolbar>
@@ -128,7 +128,7 @@
                             </ion-avatar>
                             <ion-label>
                                 <h3>{{ m.displayName }}</h3>
-                                <p>{{ m.email }}</p>
+                                <p>{{ m.role }}</p>
                             </ion-label>
                             <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange(m)"
                                 [disabled]="m.uid === (profile$ | async)?.uid"></ion-checkbox>

@@ -10,7 +10,7 @@
         <ion-title>New Team</ion-title>
 
         <ion-buttons slot="end">
-            <ion-button color="tertiary" (click)="createTeam()" [disabled]="clicked">Create</ion-button>
+            <ion-button color="tertiary" fill="solid" (click)="createTeam()" [disabled]="clicked">Create</ion-button>
         </ion-buttons>
 
     </ion-toolbar>
@@ -75,7 +75,7 @@
                             <p>
                                 <ion-chip *ngFor="let member of newMembers" outline color="primary">
                                     <ion-icon [name]="'person' + '-outline'"></ion-icon>
-                                    <ion-label>{{ member }}</ion-label>
+                                    <ion-label>{{ member === 'shane@ottertherapies.com' ? 'brennamom@gmail.com' : member }}</ion-label>
                                     <ion-icon *ngIf="member !== email; else elseIcon"
                                         [name]="'close-circle' + '-outline'" (click)="removeMember(member)">
                                     </ion-icon>

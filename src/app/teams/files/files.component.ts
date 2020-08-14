@@ -31,7 +31,6 @@ export class FilesComponent implements OnInit {
   ios: boolean;
   android: boolean;
   capacitor: boolean;
-  mobile: boolean;
 
   date: Date;
   time: number;
@@ -77,7 +76,6 @@ export class FilesComponent implements OnInit {
       this.ios = this.platform.is('ios');
       this.android = this.platform.is('android');
       this.capacitor = this.platform.is('capacitor');
-      this.mobile = this.platform.is('mobile');
     })
     this.date = new Date();
     this.time = this.date.getTime();

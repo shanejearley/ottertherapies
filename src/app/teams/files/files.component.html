@@ -1,20 +1,15 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button *ngIf="!ios && !android && !mobile"></ion-menu-button>
-      <ion-back-button *ngIf="ios || android || mobile"  [text]="ios ? 'Teams' : null" routerDirection="backwards" [defaultHref]="['/Teams']"></ion-back-button>
+      <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
+      <ion-back-button *ngIf="ios || android" [text]="ios ? 'Teams' : null" routerDirection="backwards"
+        [defaultHref]="['/Teams']"></ion-back-button>
     </ion-buttons>
     <ion-title *ngIf="(team$ | async)">{{ (team$ | async)?.name }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-
-  <ion-fab horizontal="end" vertical="bottom" slot="fixed">
-    <ion-fab-button (click)="createGroupModal()">
-      <ion-icon name="add-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
 
   <div id="container">
 
@@ -27,19 +22,33 @@
         </ion-button>
       </ion-list-header>
 
+      <ion-card class="theme-card dashed-card" (click)="createGroupModal()" button>
+        <ion-item class="theme-item thumbnail--list" lines="none">
+          <ion-fab-button slot="start" class="inner-fab inner--fab--start">
+            <ion-icon name="add-outline"></ion-icon>
+          </ion-fab-button>
+          <ion-label>
+            <h2><strong>Create Group</strong></h2>
+          </ion-label>
+        </ion-item>
+      </ion-card>
+
       <div *ngFor="let g of (groups$ | async); let i = index">
         <ion-card class="ion-no-padding folder--outer--card">
-          <ion-card class="ion-no-margin folder--inner--card" routerDirection="forward" (click)="goTo('Group', g.id)" button>
+          <ion-card class="ion-no-margin folder--inner--card" routerDirection="forward" (click)="goTo('Group', g.id)"
+            button>
             <ion-item class="theme-item thumbnail--list" lines="none" detail="true">
               <ion-thumbnail slot="start">
                 <ngx-avatar name="{{ g.name }}" [size]="55" [round]="false" [cornerRadius]="10"></ngx-avatar>
               </ion-thumbnail>
               <ion-label>
                 <h2><strong>{{ g.name }}</strong></h2>
-                <h3>{{ g.members.length > 1 ? g.members.length + ' Members' : g.members.length + ' Member' }} {{ g.files.length > 1 || g.files.length === 0 ? g.files.length + ' Files' : g.files.length + ' File'}}</h3>
+                <h3>{{ g.members.length > 1 ? g.members.length + ' Members' : g.members.length + ' Member' }}
+                  {{ g.files.length > 1 || g.files.length === 0 ? g.files.length + ' Files' : g.files.length + ' File'}}
+                </h3>
               </ion-label>
               <ion-tab-button *ngIf="g.unread && g.unread.unreadFiles > 0" slot="end" class="notification--button">
-                <ion-icon name="document-text-outline"></ion-icon>            
+                <ion-icon name="document-text-outline"></ion-icon>
                 <ion-badge color="danger">{{ g.unread.unreadFiles }}</ion-badge>
               </ion-tab-button>
             </ion-item>
@@ -56,7 +65,8 @@
 
       <div *ngFor="let m of (members$ | async); let i = index">
         <ion-card *ngIf="m.uid !== (profile$ | async)?.uid" class="ion-no-padding folder--outer--card">
-          <ion-card class="ion-no-margin folder--inner--card" routerDirection="forward" (click)="goTo('Direct', m.uid)" button>
+          <ion-card class="ion-no-margin folder--inner--card" routerDirection="forward" (click)="goTo('Direct', m.uid)"
+            button>
             <ion-item class="theme-item thumbnail--list" lines="none" detail="true">
               <ion-thumbnail slot="start" class="avatar-thumbnail">
                 <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
@@ -72,10 +82,12 @@
                     {{ m.displayName }}
                   </strong>
                 </h2>
-                <h3>2 Members, {{ m.files.length > 1 || m.files.length === 0 ? m.files.length + ' Files' : m.files.length + ' File' }}</h3>
+                <h3>2 Members,
+                  {{ m.files.length > 1 || m.files.length === 0 ? m.files.length + ' Files' : m.files.length + ' File' }}
+                </h3>
               </ion-label>
               <ion-tab-button *ngIf="m.unread && m.unread.unreadFiles > 0" slot="end" class="notification--button">
-                <ion-icon name="document-text-outline"></ion-icon>            
+                <ion-icon name="document-text-outline"></ion-icon>
                 <ion-badge color="danger">{{ m.unread.unreadFiles }}</ion-badge>
               </ion-tab-button>
             </ion-item>
@@ -92,7 +104,8 @@
 
       <div *ngFor="let m of (members$ | async); let i = index let last = last">
         <ion-card [hidden]="m.uid !== (profile$ | async)?.uid" class="ion-no-padding folder--outer--card">
-          <ion-card class="ion-no-margin folder--inner--card" routerDirection="forward" (click)="goTo('Direct', m.uid)" button>
+          <ion-card class="ion-no-margin folder--inner--card" routerDirection="forward" (click)="goTo('Direct', m.uid)"
+            button>
             <ion-item class="theme-item thumbnail--list" lines="none" detail="true">
               <ion-thumbnail slot="start" class="avatar-thumbnail">
                 <img *ngIf="m.url; else elseMemberAvatar" src="{{ m.url_150 ? m.url_150 : m.url }}">
@@ -108,7 +121,9 @@
                     {{ m.displayName }}
                   </strong>
                 </h2>
-                <h3>1 Member, {{ m.files.length > 1 || m.files.length === 0 ? m.files.length + ' Files' : m.files.length + ' File' }}</h3>
+                <h3>1 Member,
+                  {{ m.files.length > 1 || m.files.length === 0 ? m.files.length + ' Files' : m.files.length + ' File' }}
+                </h3>
               </ion-label>
             </ion-item>
           </ion-card>

@@ -42,5 +42,13 @@
                 <ion-toggle [(ngModel)]="dark"></ion-toggle>
             </ion-button>
         </ion-item>
+
+        <ion-item class="theme-item" lines="none">
+            <ion-label text-wrap>
+                <ion-text [color]="dark ? 'white' : 'secondary'">
+                    <p>App Version 2.0.0 </p>
+                </ion-text>
+            </ion-label>
+        </ion-item>
     </ion-list>
 </ion-content>

@@ -35,7 +35,6 @@ export class MessagesComponent implements OnInit {
   ios: boolean;
   android: boolean;
   capacitor: boolean;
-  mobile: boolean;
 
   constructor(
     private store: Store,
@@ -58,7 +57,6 @@ export class MessagesComponent implements OnInit {
       this.ios = this.platform.is('ios');
       this.android = this.platform.is('android');
       this.capacitor = this.platform.is('capacitor');
-      this.mobile = this.platform.is('mobile');
     })
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');

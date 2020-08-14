@@ -43,7 +43,6 @@ export class TeamsPage implements OnInit {
   android: boolean;
   ios: boolean;
   capacitor: boolean;
-  mobile: boolean;
 
   firstTime: boolean = true;
 
@@ -215,7 +214,6 @@ export class TeamsPage implements OnInit {
       this.ios = this.platform.is('ios');
       this.android = this.platform.is('android');
       this.capacitor = this.platform.is('capacitor');
-      this.mobile = this.platform.is('mobile');
       if (this.ios && this.capacitor || this.android) {
         PushNotifications.requestPermission().then(result => {
           if (result.granted) {

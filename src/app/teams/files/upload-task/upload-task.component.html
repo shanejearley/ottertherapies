@@ -1,4 +1,4 @@
-<ion-item-divider *ngIf="!profilePicture"></ion-item-divider>
+<ion-item-divider *ngIf="!profilePicture" class="file-upload"></ion-item-divider>
 
 <div class="error" *ngIf="error">
     {{ error }}
@@ -38,7 +38,7 @@
             <ion-icon name="add-circle-outline"></ion-icon>Add Page
         </ion-button>
     </ion-label>
-    <ion-button class="circle-progress-button" [color]="!downloadURL ? 'tertiary' : 'primary'"
+    <ion-button fill="clear" class="circle-progress-button"
         (click)="!downloadURL && !paused && !uploading ? startUpload() : downloadURL && uploading && !paused ? task.pause() && paused = true : !downloadURL && uploading && paused ? task.resume() && paused = false : taskCompleted()"
         [disabled]="error === 'You need a file name.'">
         <circle-progress class="circle-progress-button-properties" *ngIf="(percentage | async) as pct; else zeroPct"
@@ -60,23 +60,42 @@
 </ion-item>
 
 <div *ngIf="profilePicture">
-    <ion-button class="circle-progress-button" [color]="!downloadURL ? 'tertiary' : 'primary'"
-        (click)="!downloadURL && !paused && !uploading ? startUpload() : downloadURL && uploading && !paused ? task.pause() && paused = true : !downloadURL && uploading && paused ? task.resume() && paused = false : taskCompleted()"
-        [disabled]="error === 'You need a file name.'">
-        <circle-progress class="circle-progress-button-properties" *ngIf="(percentage | async) as pct; else zeroPct"
-            [renderOnClick]="false" [startFromZero]="false" [percent]="pct" [radius]="28" [outerStrokeWidth]="5"
-            [innerStrokeWidth]="5" [space]="-5" [outerStrokeColor]="'var(--ion-color-primary-shade)'"
-            [innerStrokeColor]="'var(--ion-color-light)'" [animation]="false"
-            [imageSrc]="pct !== 100 && uploading && !paused ? '../../../assets/pause-outline.svg' : pct !== 100 && uploading && paused ? '../../../assets/play-outline.svg' : '../../../assets/cloud-done-outline.svg'"
-            [imageHeight]="24" [imageWidth]="24" [showImage]="true" [backgroundPadding]="0">
-        </circle-progress>
-        <ng-template #zeroPct>
-            <circle-progress class="circle-progress-button-properties" [renderOnClick]="false" [startFromZero]="false"
-                [percent]="0" [radius]="28" [outerStrokeWidth]="5" [innerStrokeWidth]="5" [space]="-5"
-                [outerStrokeColor]="'var(--ion-color-primary-shade)'" [innerStrokeColor]="'var(--ion-color-light)'"
-                [animation]="false" [imageSrc]="'../../../assets/cloud-upload-outline.svg'" [imageHeight]="24"
-                [imageWidth]="24" [showImage]="true" [backgroundPadding]="0">
-            </circle-progress>
-        </ng-template>
+    <ion-button 
+        fill="outline" 
+        class="picture-upload"
+        (click)="!downloadURL && !paused && !uploading ? startUpload() : downloadURL && uploading && !paused ? task.pause() && paused = true : !downloadURL && uploading && paused ? task.resume() && paused = false : taskCompleted()">
+        <ion-grid>
+            <ion-row class="ion-align-items-center">
+                <ion-col>
+                    <ion-button fill="clear" class="circle-progress-button"
+                        (click)="!downloadURL && !paused && !uploading ? startUpload() : downloadURL && uploading && !paused ? task.pause() && paused = true : !downloadURL && uploading && paused ? task.resume() && paused = false : taskCompleted()"
+                        [disabled]="error === 'You need a file name.'">
+                        <circle-progress class="circle-progress-button-properties"
+                            *ngIf="(percentage | async) as pct; else zeroPct" [renderOnClick]="false"
+                            [startFromZero]="false" [percent]="pct" [radius]="28" [outerStrokeWidth]="5"
+                            [innerStrokeWidth]="5" [space]="-5" [outerStrokeColor]="'var(--ion-color-primary-shade)'"
+                            [innerStrokeColor]="'var(--ion-color-light)'" [animation]="false"
+                            [imageSrc]="pct !== 100 && uploading && !paused ? '../../../assets/pause-outline.svg' : pct !== 100 && uploading && paused ? '../../../assets/play-outline.svg' : '../../../assets/cloud-done-outline.svg'"
+                            [imageHeight]="24" [imageWidth]="24" [showImage]="true" [backgroundPadding]="0">
+                        </circle-progress>
+                        <ng-template #zeroPct>
+                            <circle-progress class="circle-progress-button-properties" [renderOnClick]="false"
+                                [startFromZero]="false" [percent]="0" [radius]="28" [outerStrokeWidth]="5"
+                                [innerStrokeWidth]="5" [space]="-5"
+                                [outerStrokeColor]="'var(--ion-color-primary-shade)'"
+                                [innerStrokeColor]="'var(--ion-color-light)'" [animation]="false"
+                                [imageSrc]="'../../../assets/cloud-upload-outline.svg'" [imageHeight]="24"
+                                [imageWidth]="24" [showImage]="true" [backgroundPadding]="0">
+                            </circle-progress>
+                        </ng-template>
+                    </ion-button>
+                </ion-col>
+                <ion-col>
+                    Upload
+                </ion-col>
+            </ion-row>
+        </ion-grid>
     </ion-button>
+    <ion-item class="theme-item" lines="none"></ion-item>
+    <ion-item class="theme-item" lines="none"></ion-item>
 </div>

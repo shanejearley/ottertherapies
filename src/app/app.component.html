@@ -1,5 +1,5 @@
 <ion-app>
-  <div *ngIf="!ios && !android && !capacitor && !mobile">
+  <div *ngIf="!ios && !android">
     <ion-split-pane contentId="main-content">
       <ion-menu contentId="main-content" type="overlay" [disabled]="!menu" color="tertiary" [class.dark]="(dark$ | async)">
         <ion-content>
@@ -115,13 +115,21 @@
             </ion-button>
           </ion-item>
 
+          <!-- <ion-item lines="none">
+            <ion-label>
+              <ion-text [color]="dark ? 'white' : 'secondary'">
+                <p>App Version 2.0.0</p>
+              </ion-text>
+            </ion-label>
+          </ion-item> -->
+
         </ion-content>
       </ion-menu>
       <ion-router-outlet id="main-content"></ion-router-outlet>
     </ion-split-pane>
   </div>
 
-  <div *ngIf="ios || android || capacitor || mobile" [class]="!dark ? 'light' : 'dark'">
+  <div *ngIf="ios || android" [class]="!dark ? 'light' : 'dark'">
     <ion-tabs [class]="!dark ? 'light' : 'dark'">
       <ion-tab-bar slot="bottom" *ngIf="(team$ | async) && page && !child" [class]="!dark ? 'light' : 'dark'">
         <ion-tab-button routerDirection="root" [routerLink]="['/Teams', teamId, p.title]"

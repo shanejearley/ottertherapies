@@ -23,7 +23,6 @@ export class NotesComponent implements OnInit {
   android: boolean;
   desktop: boolean;
   capacitor: boolean;
-  mobile: boolean;
   
   sortType: string;
   sortReverse: boolean = true;
@@ -54,7 +53,6 @@ export class NotesComponent implements OnInit {
       this.ios = this.platform.is('ios');
       this.android = this.platform.is('android');
       this.capacitor = this.platform.is('capacitor');
-      this.mobile = this.platform.is('mobile');
     })
     this.newNote = '';
     this.date = new Date();

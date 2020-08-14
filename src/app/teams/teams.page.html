@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-chip class="ion-margin-start" *ngIf="ios || android || mobile" color="light"
+      <ion-chip class="ion-margin-start" *ngIf="ios || android" color="light"
         (click)="presentPopover($event)">
         <ion-avatar>
           <img *ngIf="(profile$ | async)?.url; else elseMemberAvatar"
@@ -20,7 +20,7 @@
           <ion-icon name="chevron-down-outline"></ion-icon>
         </ion-label>
       </ion-chip>
-      <ion-menu-button *ngIf="!ios && !android && !mobile"></ion-menu-button>
+      <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
     </ion-buttons>
     <ion-title [class.title--center]="android">
       <!-- Teams -->

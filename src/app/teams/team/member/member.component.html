@@ -67,8 +67,8 @@
                 <ion-row class="ion-justify-content-center">
                     <ion-col size="6" *ngIf="(member$ | async)?.uid === (profile$ | async)?.uid">
                         <ion-button expand="block" fill="outline" [routerLink]="['/Profile']" routerDirection="back">
-                          <ion-icon name="create-outline" class="ion-margin-end"></ion-icon>
-                          Edit Profile
+                            <ion-icon name="create-outline" class="ion-margin-end"></ion-icon>
+                            Edit Profile
                         </ion-button>
                     </ion-col>
                     <ion-col size="6" *ngIf="(member$ | async)?.uid !== (profile$ | async)?.uid">
@@ -120,7 +120,7 @@
 
                         <ion-col class="member--col" size="auto">
 
-                            <ion-button *ngIf="m.style && m.style !== 'message'; else elseMemberText" fill="clear"
+                            <ion-button *ngIf="m.style && m.style !== 'message'; else elseMemberText"
                                 class="message--file" [class.message--file--height]="m.style === 'file'"
                                 [class.message--file--output]="m.style === 'file'" (click)="previewFile(m)">
                                 <img *ngIf="m.style === 'image'" class="message--image" [src]="m.body">
@@ -147,7 +147,7 @@
                         <ion-row class="user--row" slot="end">
                             <ion-col class="user--col">
 
-                                <ion-button *ngIf="m.style && m.style !== 'message'; else elseUserText" fill="clear"
+                                <ion-button *ngIf="m.style && m.style !== 'message'; else elseUserText"
                                     class="message--file" [class.message--file--height]="m.style === 'file'"
                                     [class.message--file--output]="m.style === 'file'" (click)="previewFile(m)">
                                     <img *ngIf="m.style === 'image'" class="message--image" [src]="m.body">
@@ -188,27 +188,31 @@
     </div>
     <div id="file--container" *ngSwitchCase="'files'">
         <ion-list class="theme-list" lines="none">
-            <ion-item class="theme-item" (click)="scanDoc()" button lines="none">
-                <ion-fab-button slot="start" class="inner-fab inner--fab--start" [class.ion-margin-top]="ios"
-                    [class.ion-margin-bottom]="ios">
-                    <ion-icon name="scan-outline"></ion-icon>
-                </ion-fab-button>
-                <ion-label>
-                    <h2><strong>Scan Files</strong></h2>
-                </ion-label>
-            </ion-item>
-            <ion-item class="theme-item" (click)="browseModal([])" button lines="none">
-                <ion-fab-button slot="start" class="inner-fab inner--fab--start" [class.ion-margin-top]="ios"
-                    [class.ion-margin-bottom]="ios">
-                    <ion-icon name="document-text-outline"></ion-icon>
-                </ion-fab-button>
-                <ion-label>
-                    <h2><strong>Upload Files</strong></h2>
-                </ion-label>
-            </ion-item>
+
+            <ion-card class="theme-card dashed-card" (click)="scanDoc()" button>
+                <ion-item class="theme-item thumbnail--list" lines="none">
+                    <ion-fab-button slot="start" class="inner-fab inner--fab--start">
+                        <ion-icon name="scan-outline"></ion-icon>
+                    </ion-fab-button>
+                    <ion-label>
+                        <h2><strong>Scan Files</strong></h2>
+                    </ion-label>
+                </ion-item>
+            </ion-card>
+
+            <ion-card class="theme-card dashed-card" (click)="browseModal([])" button>
+                <ion-item class="theme-item thumbnail--list" lines="none">
+                    <ion-fab-button slot="start" class="inner-fab inner--fab--start">
+                        <ion-icon name="document-text-outline"></ion-icon>
+                    </ion-fab-button>
+                    <ion-label>
+                        <h2><strong>Upload Files</strong></h2>
+                    </ion-label>
+                </ion-item>
+            </ion-card>
+
             <div *ngIf="member$ | async as m">
-                <ion-list inset="true" lines="none" *ngIf="m.files.length; else elseFile"
-                    class="theme-list member--upload--list">
+                <ion-list *ngIf="m.files.length; else elseFile"class="theme-list">
                     <div *ngFor="let f of m.files; let i = index">
                         <app-files-file [file]="f"
                             [displayName]="f.uid !== (profile$ | async)?.uid ? m.displayName : (profile$ | async)?.displayName"

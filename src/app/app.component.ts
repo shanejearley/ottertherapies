@@ -80,7 +80,6 @@ export class AppComponent implements OnInit {
   ios: boolean;
   android: boolean;
   capacitor: boolean;
-  mobile: boolean;
   teams: Team[];
 
   public teamPages = [
@@ -149,7 +148,6 @@ export class AppComponent implements OnInit {
       this.ios = this.platform.is('ios');
       this.android = this.platform.is('android');
       this.capacitor = this.platform.is('capacitor');
-      this.mobile = this.platform.is('mobile');
     });
     App.addListener('appUrlOpen', (data: any) => {
       this.zone.run(() => {

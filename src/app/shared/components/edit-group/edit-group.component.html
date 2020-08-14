@@ -10,8 +10,7 @@
         <ion-title>Group Details</ion-title>
 
         <ion-buttons slot="end">
-            <ion-button color="tertiary" (click)="updateGroup()" [disabled]="!(memberStatus == 'Admin')">Save
-            </ion-button>
+            <ion-button color="tertiary" fill="solid" (click)="updateGroup()" [disabled]="!(memberStatus == 'Admin')">Save</ion-button>
         </ion-buttons>
 
     </ion-toolbar>
@@ -71,7 +70,7 @@
                             </ion-avatar>
                             <ion-label>
                                 <h3>{{ m.displayName }}</h3>
-                                <p>{{ m.email }}</p>
+                                <p>{{ m.role }}</p>
                             </ion-label>
                             <ion-checkbox slot="end" [checked]="m.isChecked" (ionChange)="onChange($event, m)"
                                 [disabled]="m.uid === (profile$ | async)?.uid || !(memberStatus == 'Admin')">

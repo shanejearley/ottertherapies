@@ -54,10 +54,6 @@
                     </ion-note>
                 </ion-col>
 
-                <ion-col size="12" *ngIf="!croppedImage">
-                    <ion-note>(Choose image first)</ion-note>
-                </ion-col>
-
                 <ion-col size="12">
                     <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="true"
                         [aspectRatio]="1 / 1" format="png" (imageCropped)="imageCropped($event)"

@@ -1,8 +1,8 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button *ngIf="!ios && !android && !mobile"></ion-menu-button>
-      <ion-back-button *ngIf="ios || android || mobile" [text]="ios ? 'Teams' : null" routerDirection="backwards"
+      <ion-menu-button *ngIf="!ios && !android"></ion-menu-button>
+      <ion-back-button *ngIf="ios || android" [text]="ios ? 'Teams' : null" routerDirection="backwards"
         [defaultHref]="['/Teams']">
       </ion-back-button>
     </ion-buttons>
@@ -66,20 +66,23 @@
                 </ion-thumbnail>
               </ion-item>
               <ion-item lines="none" class="theme-item member-item">
-                <ion-label class="ion-text-center">
-                  <h2>
+                <ion-label class="ion-text-center admin-label">
+                  <h2 class="admin-header">
                     <strong class="wrap-text">
                       {{ m.displayName }}
                     </strong>
+                    <ion-button *ngIf="m.status == 'Admin'" fill="clear" color="medium" class="admin-button">
+                      <ion-icon slot="icon-only" name="key"></ion-icon>
+                    </ion-button>
                   </h2>
-                  <p>{{ m.status == 'Admin' ? 'Admin' : 'Member' }}</p>
+                  <p>{{ m.role }}</p>
                 </ion-label>
               </ion-item>
             </ion-card-header>
           </ion-card>
         </ion-col>
 
-        <ion-col size="12" size-md="6"
+        <ion-col size="12"
           *ngIf="(member$ | async)?.status === 'Admin' && (member$ | async)?.pending && (member$ | async)?.pending.length">
           <ion-item lines="none" class="theme-item">
             <p>Pending:
@@ -90,6 +93,18 @@
             </p>
           </ion-item>
         </ion-col>
+
+        <ion-col size="12">
+          <ion-item lines="none" class="theme-item">
+            <p class="admin-header">
+              Team admin =
+              <ion-button fill="clear" color="medium" class="admin-button">
+                <ion-icon slot="icon-only" name="key"></ion-icon>
+              </ion-button>
+            </p>
+          </ion-item>
+        </ion-col>
+
       </ion-row>
     </ion-grid>
   </div>
@@ -98,7 +113,8 @@
 
     <div class="profile-section">
       <ion-card class="profile-container">
-        <img class="profile-img" [src]="(dark$ | async) ? '../../../assets/underwater_dark.svg' : '../../../assets/underwater.svg'">
+        <img class="profile-img"
+          [src]="(dark$ | async) ? '../../../assets/underwater_dark.svg' : '../../../assets/underwater.svg'">
       </ion-card>
       <ion-thumbnail class="avatar-thumbnail profile-thumbnail">
         <img *ngIf="(team$ | async)?.url; else elseChildAvatar"
@@ -118,11 +134,6 @@
       <ion-list>
         <ion-list-header>
           Child Info
-          <ion-button *ngIf="(member$ | async)?.status === 'Admin'" class="ion-margin-start" size="small" fill="clear"
-            (click)="editChildModal()">
-            <ion-icon name="create-outline" class="ion-margin-end"></ion-icon>
-            Edit
-          </ion-button>
         </ion-list-header>
         <ion-item lines="none" *ngIf="(team$ | async)">
           <ion-icon slot="start" name="happy-outline"></ion-icon>
@@ -140,6 +151,16 @@
           </ion-label>
         </ion-item>
       </ion-list>
+      <ion-grid>
+        <ion-row class="ion-justify-content-center">
+          <ion-col>
+            <ion-button expand="block" fill="outline" (click)="editChildModal()">
+              <ion-icon name="create-outline" class="ion-margin-end"></ion-icon>
+              Edit Info
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </div>
   </div>
 

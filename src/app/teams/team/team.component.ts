@@ -58,7 +58,6 @@ export class TeamComponent implements OnInit {
   ios: boolean;
   android: boolean;
   capacitor: boolean;
-  mobile: boolean;
 
   open: boolean = false;
 
@@ -90,7 +89,6 @@ export class TeamComponent implements OnInit {
       this.ios = this.platform.is('ios');
       this.android = this.platform.is('android');
       this.capacitor = this.platform.is('capacitor');
-      this.mobile = this.platform.is('mobile');
     })
     this.profile$ = this.store.select<Profile>('profile');
 

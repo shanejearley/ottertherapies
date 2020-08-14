@@ -1,5 +1,5 @@
 <div>
-    <ion-button fill="clear" class="message--file" [class.message--file--height]="file.type !== 'image/png' && file.type !== 'image/jpeg' && file.type !== 'image/jpg' && file.type !== 'image/gif'">
+    <ion-button class="message--file" [class.message--file--height]="file.type !== 'image/png' && file.type !== 'image/jpeg' && file.type !== 'image/jpg' && file.type !== 'image/gif'">
         <img *ngIf="file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/gif'" class="message--image" [src]="file.value">
         <ion-label *ngIf="file.type !== 'image/png' && file.type !== 'image/jpeg' && file.type !== 'image/jpg' && file.type !== 'image/gif'" class="message--file--label">
             <ion-icon size="large" name="document-text-outline"></ion-icon>

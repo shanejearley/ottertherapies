@@ -78,7 +78,6 @@ export class EventsComponent implements OnInit {
   ios: boolean;
   android: boolean;
   capacitor: boolean;
-  mobile: boolean;
 
   private readonly onDestroy = new Subject<void>();
 
@@ -248,7 +247,6 @@ export class EventsComponent implements OnInit {
       this.ios = this.platform.is('ios');
       this.android = this.platform.is('android');
       this.capacitor = this.platform.is('capacitor');
-      this.mobile = this.platform.is('mobile');
     })
     this.profile$ = this.store.select<Profile>('profile');
     this.groups$ = this.store.select<Group[]>('groups');
@@ -331,7 +329,6 @@ export class EventsComponent implements OnInit {
               name: event.name,
               info: event.info,
               location: event.location,
-              type: event.type,
               members: event.members
             }
             allEvents.push(instance);

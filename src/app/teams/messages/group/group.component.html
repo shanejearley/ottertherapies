@@ -5,9 +5,7 @@
     </ion-buttons>
     <ion-title *ngIf="(group$ | async)">{{ (group$ | async)?.name }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="editGroupModal()">
-        <ion-icon name="people"></ion-icon>
-      </ion-button>
+      <ion-button color="primary" (click)="editGroupModal()">Group</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -51,7 +49,7 @@
                   *ngIf="(group$ | async)?.messages[i-1] && m.uid !== (group$ | async)?.messages[i-1].uid || !(group$ | async)?.messages[i-1] || (group$ | async)?.messages[i-1] && (group$ | async)?.messages[i-1].timestamp.toMillis() - m.timestamp.toMillis() > 1800000">
                   {{ (messageProfile | async)?.displayName }}</ion-text>
 
-                <ion-button *ngIf="m.style && m.style !== 'message'; else elseMemberText" fill="clear" class="message--file"
+                <ion-button *ngIf="m.style && m.style !== 'message'; else elseMemberText" class="message--file"
                   [class.message--file--height]="m.style === 'file'" [class.message--file--output]="m.style === 'file'" (click)="previewFile(m)">
                   <img *ngIf="m.style === 'image'" class="message--image" [src]="m.body">
                   <ion-label *ngIf="m.style === 'file'" class="message--file--label">
@@ -77,7 +75,7 @@
               <ion-row class="user--row" slot="end">
                 <ion-col class="user--col">
 
-                  <ion-button *ngIf="m.style && m.style !== 'message'; else elseUserText" fill="clear" class="message--file"
+                  <ion-button *ngIf="m.style && m.style !== 'message'; else elseUserText" class="message--file"
                     [class.message--file--height]="m.style === 'file'" [class.message--file--output]="m.style === 'file'" (click)="previewFile(m)">
                     <img *ngIf="m.style === 'image'" class="message--image" [src]="m.body">
                     <ion-label *ngIf="m.style === 'file'" class="message--file--label">

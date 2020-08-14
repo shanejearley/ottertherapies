@@ -10,7 +10,7 @@
         <ion-title>New Group</ion-title>
 
         <ion-buttons slot="end">
-            <ion-button color="tertiary" (click)="addGroup()" [disabled]="clicked">Create</ion-button>
+            <ion-button color="tertiary" fill="solid" (click)="addGroup()" [disabled]="clicked">Create</ion-button>
         </ion-buttons>
 
     </ion-toolbar>
@@ -67,7 +67,7 @@
                             </ion-avatar>
                             <ion-label>
                                 <h3>{{ m.displayName }}</h3>
-                                <p>{{ m.email }}</p>
+                                <p>{{ m.role }}</p>
                             </ion-label>
                             <ion-checkbox slot="end" [(ngModel)]="m.isChecked" (ionChange)="onChange(m)"
                                 [disabled]="m.uid === (profile$ | async)?.uid"></ion-checkbox>

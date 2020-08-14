@@ -28,7 +28,6 @@ export interface Event {
     name: string,
     info: string,
     location: string,
-    type: string,
     recurrence: string,
     recurrenceId?: string,
     until?: firestore.Timestamp,
@@ -205,7 +204,6 @@ export class EventsService {
             endTime: firestore.Timestamp.fromDate(new Date(event.endTime)),
             name: event.name,
             info: event.info,
-            type: event.type,
             location: event.location,
             recurrence: event.recurrence,
             members: null
@@ -241,7 +239,6 @@ export class EventsService {
             endTime: firestore.Timestamp.fromDate(new Date(event.updateEndTime)),
             name: event.name,
             info: event.info,
-            type: event.type,
             location: event.location,
             recurrence: event.recurrence,
             update: firestore.FieldValue.serverTimestamp()
@@ -258,7 +255,6 @@ export class EventsService {
             endTime: firestore.Timestamp.fromDate(new Date(event.updateEndTime)),
             name: event.name,
             info: event.info,
-            type: event.type,
             location: event.location,
             recurrence: event.recurrence
         }
