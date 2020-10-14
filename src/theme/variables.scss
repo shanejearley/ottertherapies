@@ -29,8 +29,14 @@ $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
 // Ionic Variables and Theming. For more info, please see:
 // http://ionicframework.com/docs/theming/
 
+// @font-face {
+//   font-family: Montserrat;
+//   src: url("../assets/fonts/Montserrat-Medium.ttf"); //change url accordingly
+// }
+
 /** Ionic CSS Variables **/
 :root {
+  // --ion-font-family: 'Montserrat';
   #preview {
     web-photo-filter {
       canvas, img {
