@@ -40,6 +40,7 @@ export interface DayConfig {
   styleUrls: ['./events.component.scss'],
 })
 export class EventsComponent implements OnInit {
+  uid: string;
 
   dark$: Observable<boolean>;
 
@@ -129,10 +130,6 @@ export class EventsComponent implements OnInit {
     this.eventsService.eventsObservable(this.uid, this.teamId, $event.newMonth.dateObj).subscribe();
     this.configCalendar();
     this.today$ = this.getToday(this.date);
-  }
-
-  get uid() {
-    return this.authService.user.uid;
   }
 
   _changeColors(color: string) {
@@ -238,7 +235,8 @@ export class EventsComponent implements OnInit {
     ).subscribe()
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.uid = (await this.authService.user).uid;
 
     this.dark$ = this.store.select('dark');
 

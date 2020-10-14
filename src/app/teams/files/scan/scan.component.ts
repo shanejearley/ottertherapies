@@ -27,7 +27,7 @@ export class Scan {
     styleUrls: ['./scan.component.scss']
 })
 export class ScanComponent {
-
+    uid: string;
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
     random = this.otters[Math.floor(Math.random() * this.otters.length)];
@@ -66,7 +66,8 @@ export class ScanComponent {
         private sanitizer: DomSanitizer
     ) { }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
         this.profile$ = this.store.select<Profile>('profile');
         this.groups$ = this.store.select<Group[]>('groups');
         this.members$ = this.store.select<Member[]>('members');
@@ -81,10 +82,6 @@ export class ScanComponent {
         this.modalController.dismiss({
             response: 'dismissed'
         });
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     async newPage(scan) {

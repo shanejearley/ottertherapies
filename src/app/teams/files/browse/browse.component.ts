@@ -18,7 +18,7 @@ import { Store } from 'src/store';
     styleUrls: ['./browse.component.scss'],
 })
 export class BrowseComponent {
-
+    uid: string;
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
     random = this.otters[Math.floor(Math.random() * this.otters.length)];
@@ -79,7 +79,8 @@ export class BrowseComponent {
         private alertController: AlertController
     ) { }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
         this.profile$ = this.store.select<Profile>('profile');
         this.groups$ = this.store.select<Group[]>('groups');
         this.members$ = this.store.select<Member[]>('members');
@@ -115,10 +116,6 @@ export class BrowseComponent {
         this.modalController.dismiss({
             response: 'dismissed'
         });
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
 }

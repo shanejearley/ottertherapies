@@ -61,6 +61,8 @@ export class GroupComponent implements OnInit {
   @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
   private mutationObserver: MutationObserver;
 
+  uid: string;
+
   ios: boolean;
   android: boolean;
   desktop: boolean;
@@ -82,7 +84,7 @@ export class GroupComponent implements OnInit {
   group: Group;
   watch: boolean;
 
-  newBody: string;
+  newBody: string = '';
   newFiles: any = [];
   sending: boolean;
 
@@ -243,11 +245,9 @@ export class GroupComponent implements OnInit {
     return this.resetSender();
   }
 
-  get uid() {
-    return this.authService.user.uid;
-  }
+  async ngOnInit() {
+    this.uid = (await this.authService.user).uid;
 
-  ngOnInit() {
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
       this.ios = this.platform.is('ios') && this.platform.is('capacitor');

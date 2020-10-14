@@ -25,7 +25,7 @@ import moment from 'moment';
     styleUrls: ['./file-options.component.scss']
 })
 export class FileOptionsComponent implements OnInit {
-
+    uid: string;
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
     random = this.otters[Math.floor(Math.random() * this.otters.length)];
@@ -83,7 +83,9 @@ export class FileOptionsComponent implements OnInit {
         private toastController: ToastController
     ) { }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
+
         this.date = new Date();
         this.time = moment(this.date).startOf('day').toDate().getTime();
 
@@ -112,10 +114,6 @@ export class FileOptionsComponent implements OnInit {
         this.modalController.dismiss({
             response: 'dismissed'
         });
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     async copyModal(file, folder) {

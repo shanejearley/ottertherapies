@@ -14,7 +14,7 @@ import { ActivatedRoute } from '@angular/router';
     styleUrls: ['./edit-child.component.scss']
 })
 export class EditChildComponent {
-
+    uid: string;
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
     random = this.otters[Math.floor(Math.random() * this.otters.length)];
@@ -40,8 +40,8 @@ export class EditChildComponent {
         private teamsService: TeamsService
     ) { }
 
-    ngOnInit() {
-        //
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
     }
 
     ionViewWillEnter() {
@@ -91,10 +91,6 @@ export class EditChildComponent {
         this.modalController.dismiss({
             response: 'dismissed'
         });
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     ngOnDestroy() {

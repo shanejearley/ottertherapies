@@ -69,7 +69,7 @@ export class PresenceService {
 
   async signOut() {
     await this.setPresence('offline');
-    await this.afAuth.auth.signOut();
+    await this.afAuth.signOut();
   }
 
   // User closes the app, case 2 and 5

@@ -23,6 +23,8 @@ export class MessageFileComponent {
     @Input() groupId: string;
     @Input() file;
 
+    uid: string;
+
     scanPreview: SafeResourceUrl;
     task: AngularFireUploadTask;
     fileName: string = null;
@@ -52,16 +54,16 @@ export class MessageFileComponent {
         private membersService: MembersService
     ) { }
 
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
+    }
+
     ionViewWillEnter() {
         //
     }
 
     removeFile(file) {
         return this.remove.emit(file);
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     public async upload() {

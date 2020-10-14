@@ -42,6 +42,8 @@ export class PendingService {
   pending$: Observable<Pending[]>;
   team$: Observable<Pending>;
 
+  uid: string;
+
   constructor(
     private store: Store,
     private db: AngularFirestore,
@@ -62,14 +64,6 @@ export class PendingService {
         shareReplay(1)
       );
     return this.pending$;
-  }
-
-  get uid() {
-    return this.authService.user.uid;
-  }
-
-  get email() {
-    return this.authService.user.email;
   }
 
   async getInfo(team: Pending) {
@@ -100,6 +94,7 @@ export class PendingService {
   }
 
   async joinTeam(team) {
+    this.uid = (await this.authService.user).uid;
     this.teamDoc = this.db.doc<Pending>(`teams/${team.id}`);
     this.pendingCol = this.db.collection<Pending>(`users/${this.uid}/pendingTeams`)
     this.teamMembersCol = this.db.collection(`teams/${team.id}/members`);

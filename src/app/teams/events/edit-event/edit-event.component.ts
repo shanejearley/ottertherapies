@@ -21,7 +21,7 @@ import { EventsService, Event } from 'src/app/shared/services/events/events.serv
     styleUrls: ['./edit-event.component.scss']
 })
 export class EditEventComponent {
-
+    uid: string;
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
     random = this.otters[Math.floor(Math.random() * this.otters.length)];
@@ -80,7 +80,8 @@ export class EditEventComponent {
         private actionSheetController: ActionSheetController
     ) { }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
         this.profile$ = this.store.select<Profile>('profile');
     }
 
@@ -156,10 +157,6 @@ export class EditEventComponent {
 
     async removeEvent() {
         return this.presentActionSheet();
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     nameChange() {

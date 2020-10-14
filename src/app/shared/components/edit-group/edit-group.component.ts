@@ -17,6 +17,7 @@ import { Router } from '@angular/router';
     styleUrls: ['./edit-group.component.scss']
 })
 export class EditGroupComponent {
+    uid: string;
 
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
@@ -50,7 +51,9 @@ export class EditGroupComponent {
         private router: Router
     ) { }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
+
         this.profile$ = this.store.select<Profile>('profile');
     }
 
@@ -84,10 +87,6 @@ export class EditGroupComponent {
         this.modalController.dismiss({
             response: 'dismissed'
         });
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     async presentActionSheet() {

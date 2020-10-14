@@ -26,6 +26,8 @@ export class FilesFileComponent implements OnInit {
     @Input() member;
     @Input() profile;
 
+    uid: string;
+
     scanPreview: SafeResourceUrl;
     task: AngularFireUploadTask;
     fileName: string = null;
@@ -58,7 +60,9 @@ export class FilesFileComponent implements OnInit {
         private membersService: MembersService
     ) { }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
+
         this.date = new Date();
         this.time = moment(this.date).startOf('day').toDate().getTime();
     }
@@ -69,10 +73,6 @@ export class FilesFileComponent implements OnInit {
 
     fileOptions(file) {
         return this.options.emit(file);
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
 }

@@ -28,6 +28,7 @@ import { EditProfileComponent } from './edit-profile/edit-profile.component';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit, AfterViewInit {
+  uid: string;
 
   firstTime: boolean = false;
   open: boolean = false;
@@ -114,7 +115,9 @@ export class ProfileComponent implements OnInit, AfterViewInit {
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.uid = (await this.authService.user).uid;
+
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
       this.ios = this.platform.is('ios');
@@ -181,10 +184,6 @@ export class ProfileComponent implements OnInit, AfterViewInit {
       duration: 2000
     });
     toast.present();
-  }
-
-  get uid() {
-    return this.authService.user.uid;
   }
 
   onToggle(ev) {

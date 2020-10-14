@@ -68,7 +68,7 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
             component: MfaAddComponent,
             componentProps: {
                 'userPhone': this.userPhone,
-                'email': this.authService.user.email,
+                'email': (await this.authService.user).email,
                 'password': this.password
             },
             swipeToClose: true,
@@ -91,7 +91,7 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
             this.error = 'Please enter your password.';
         } else {
             try {
-                await this.authService.loginUser(this.authService.user.email, this.password);
+                await this.authService.loginUser((await this.authService.user).email, this.password);
                 this.error = '';
                 this.request = true;
                 this.verifyDeviceModal();

@@ -27,6 +27,7 @@ import { FileOptionsComponent } from 'src/app/shared/components/file-options/fil
   styleUrls: ['./files.component.scss'],
 })
 export class FilesComponent implements OnInit {
+  uid: string;
   desktop: boolean;
   ios: boolean;
   android: boolean;
@@ -70,7 +71,8 @@ export class FilesComponent implements OnInit {
     private router: Router
   ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.uid = (await this.authService.user).uid;
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
       this.ios = this.platform.is('ios');
@@ -203,10 +205,6 @@ export class FilesComponent implements OnInit {
       duration: 2000
     });
     toast.present();
-  }
-
-  get uid() {
-    return this.authService.user.uid;
   }
 
   showMember(m) {

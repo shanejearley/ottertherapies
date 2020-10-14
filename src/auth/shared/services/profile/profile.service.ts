@@ -29,6 +29,7 @@ export interface Item { name: string; }
 
 @Injectable()
 export class ProfileService {
+    uid: string;
     private getProfileDoc: AngularFirestoreDocument<Profile>;
     profile$: Observable<Profile>;
     profile: Profile;
@@ -81,10 +82,6 @@ export class ProfileService {
         return this.profile$;
     }
 
-    get uid() {
-        return this.authService.user.uid;
-    }
-
     get currentProfile() {
         return this.profile;
     }
@@ -109,7 +106,9 @@ export class ProfileService {
             })).subscribe();
     }
 
-    uploadPicture(picture, profile) {
+    async uploadPicture(picture, profile) {
+        this.uid = (await this.authService.user).uid;
+
         try {
             console.log('tryuploadpicture')
             const fileId = this.db.createId();
@@ -144,13 +143,17 @@ export class ProfileService {
         }
     }
 
-    turnSyncOn() {
+    async turnSyncOn() {
+        this.uid = (await this.authService.user).uid;
+
         return this.db.doc(`users/${this.uid}`).set({
             gcalSync: true
         }, { merge: true });
     }
 
-    turnSyncOff() {
+    async turnSyncOff() {
+        this.uid = (await this.authService.user).uid;
+
         return this.db.doc(`users/${this.uid}`).set({
             gcalSync: false
         }, { merge: true });

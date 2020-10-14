@@ -64,6 +64,8 @@ export class DirectComponent implements OnInit {
   @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
   private mutationObserver: MutationObserver;
 
+  uid: string;
+
   ios: boolean;
   android: boolean;
   desktop: boolean;
@@ -103,10 +105,6 @@ export class DirectComponent implements OnInit {
     private routerOutlet: IonRouterOutlet,
     private toastController: ToastController
   ) { }
-
-  get uid() {
-    return this.authService.user.uid;
-  }
 
   get pathId() {
     return this.uid < this.directId ? this.uid + this.directId : this.directId + this.uid;
@@ -302,7 +300,8 @@ export class DirectComponent implements OnInit {
     return await modal.present();
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.uid = (await this.authService.user).uid;
     this.platform.ready().then(() => {
       this.desktop = this.platform.is('desktop');
       this.ios = this.platform.is('ios') && this.platform.is('capacitor');

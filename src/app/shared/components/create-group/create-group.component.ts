@@ -18,7 +18,7 @@ import { Router } from '@angular/router';
     styleUrls: ['./create-group.component.scss']
 })
 export class CreateGroupComponent {
-
+    uid: string;
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
     random = this.otters[Math.floor(Math.random() * this.otters.length)];
@@ -55,7 +55,9 @@ export class CreateGroupComponent {
         private router: Router
     ) { }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
+
         this.profile$ = this.store.select<Profile>('profile');
     }
 
@@ -82,10 +84,6 @@ export class CreateGroupComponent {
         this.modalController.dismiss({
             response: 'dismissed'
         });
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     nameChange() {

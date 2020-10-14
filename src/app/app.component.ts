@@ -47,7 +47,6 @@ export class AppComponent implements OnInit {
   onDrop($event) {
     $event.preventDefault();
   }
-
   user$: Observable<User>;
   profile$: Observable<Profile>;
   teams$: Observable<Team[]>;
@@ -198,10 +197,6 @@ export class AppComponent implements OnInit {
     return this.darkService.toggle(this.dark);
   }
 
-  get uid() {
-    return this.authService.user.uid;
-  }
-
   get currentProfile() {
     return this.profileService.currentProfile;
   }
@@ -210,7 +205,7 @@ export class AppComponent implements OnInit {
 
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     registerWebPlugin(FileSharer);
     this.swUpdate.available.subscribe(async res => {
       const updateToast = await this.toastController.create({

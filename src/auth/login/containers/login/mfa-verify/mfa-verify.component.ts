@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { NavParams, ModalController, Config, Platform } from '@ionic/angular';
 import firebase from 'firebase/app';
 import { cfaSignIn, cfaSignInPhoneOnCodeSent } from 'capacitor-firebase-auth';
@@ -12,8 +12,8 @@ import { stringify } from 'querystring';
     templateUrl: 'mfa-verify.component.html',
     styleUrls: ['./mfa-verify.component.scss']
 })
-export class MfaVerifyComponent implements AfterViewInit {
-
+export class MfaVerifyComponent implements OnInit, AfterViewInit {
+    uid: string;
     codeFocus: boolean = false;
 
     recaptchaVerifier: any;
@@ -39,6 +39,10 @@ export class MfaVerifyComponent implements AfterViewInit {
         private router: Router,
         private platform: Platform
     ) { }
+
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
+    }
 
     ngAfterViewInit() {
         this.platform.ready().then(() => {
@@ -156,10 +160,6 @@ export class MfaVerifyComponent implements AfterViewInit {
         return this.modalController.dismiss({
             response: this.error
         })
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     loginSuccess() {

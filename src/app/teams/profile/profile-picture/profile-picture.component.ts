@@ -18,7 +18,7 @@ import { ActivatedRoute } from '@angular/router';
     styleUrls: ['./profile-picture.component.scss']
 })
 export class ProfilePictureComponent {
-
+    uid: string;
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
     random = this.otters[Math.floor(Math.random() * this.otters.length)];
@@ -102,7 +102,9 @@ export class ProfilePictureComponent {
         // show message
     }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
+
         this.platform.ready().then(() => {
             this.desktop = this.platform.is('desktop');
             this.ios = this.platform.is('ios') && this.platform.is('capacitor');
@@ -124,10 +126,6 @@ export class ProfilePictureComponent {
     reset() {
         this.imageChangedEvent = null;
         this.croppedImage = null;
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
 }

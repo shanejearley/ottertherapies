@@ -14,7 +14,7 @@ import { Store } from 'src/store';
     styleUrls: ['./delete-user.component.scss']
 })
 export class DeleteUserComponent {
-
+    uid: string;
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
     random = this.otters[Math.floor(Math.random() * this.otters.length)];
@@ -36,7 +36,9 @@ export class DeleteUserComponent {
         private profileService: ProfileService
     ) { }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
+
         this.profile$ = this.store.select<Profile>('profile');
     }
 
@@ -52,10 +54,6 @@ export class DeleteUserComponent {
         this.modalController.dismiss({
             response: 'dismissed'
         });
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     deleteUser() {

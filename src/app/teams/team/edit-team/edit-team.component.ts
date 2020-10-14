@@ -15,7 +15,7 @@ import { Team, TeamsService } from 'src/app/shared/services/teams/teams.service'
     styleUrls: ['./edit-team.component.scss']
 })
 export class EditTeamComponent {
-
+    uid: string;
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
     random = this.otters[Math.floor(Math.random() * this.otters.length)];
@@ -43,7 +43,9 @@ export class EditTeamComponent {
         private teamsService: TeamsService
     ) { }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
+
         this.profile$ = this.store.select<Profile>('profile');
     }
 
@@ -74,10 +76,6 @@ export class EditTeamComponent {
         this.modalController.dismiss({
             response: 'dismissed'
         });
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     async updateMembers() {

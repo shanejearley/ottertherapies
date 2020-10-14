@@ -32,6 +32,8 @@ export class UploadTaskComponent implements OnInit {
     @Output()
     addPage = new EventEmitter();
 
+    uid: string;
+
     scanPreview: SafeResourceUrl;
     task: AngularFireUploadTask;
     percentage: Observable<number>;
@@ -60,7 +62,8 @@ export class UploadTaskComponent implements OnInit {
         private modalController: ModalController
     ) { }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
         if (this.file.name) {
             this.fileName = this.file.name.split('.')[0];
             this.fileExt = '.' + this.file.name.split('.').pop();
@@ -100,10 +103,6 @@ export class UploadTaskComponent implements OnInit {
             presentingElement: await this.modalController.getTop()
         });
         return await modal.present();
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     async onChangeName(ev) {

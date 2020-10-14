@@ -74,6 +74,8 @@ export class MemberComponent implements OnInit, AfterViewInit {
     @ViewChild(IonList, { read: ElementRef, static: false }) scroll: ElementRef;
     private mutationObserver: MutationObserver;
 
+    uid: string;
+
     ios: boolean;
     android: boolean;
     desktop: boolean;
@@ -117,10 +119,6 @@ export class MemberComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
 
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     get pathId() {
@@ -291,7 +289,8 @@ export class MemberComponent implements OnInit, AfterViewInit {
         return item ? item.id : undefined;
     }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
 
         this.dark$ = this.store.select('dark');
 

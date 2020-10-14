@@ -1,6 +1,6 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { NavParams, ModalController, Config, Platform } from '@ionic/angular';
-import firebase from 'firebase/app';
+import firebase, { User } from 'firebase/app';
 import { cfaSignIn, cfaSignInPhoneOnCodeSent } from 'capacitor-firebase-auth';
 
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
@@ -11,7 +11,9 @@ import { Router } from '@angular/router';
     templateUrl: 'mfa-add.component.html',
     styleUrls: ['./mfa-add.component.scss']
 })
-export class MfaAddComponent implements AfterViewInit {
+export class MfaAddComponent implements OnInit, AfterViewInit {
+    uid: string;
+    user: User;
 
     codeFocus: boolean = false;
 
@@ -38,8 +40,9 @@ export class MfaAddComponent implements AfterViewInit {
         private platform: Platform
     ) { }
 
-    get user () {
-        return this.authService.user;
+    async ngOnInit() {
+        this.user = (await this.authService.user);
+        this.uid = (await this.authService.user).uid;
     }
 
     ngAfterViewInit() {
@@ -156,10 +159,6 @@ export class MfaAddComponent implements AfterViewInit {
         return this.modalController.dismiss({
             response: this.error
         })
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     addSuccess() {

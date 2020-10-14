@@ -20,7 +20,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
     styleUrls: ['./create-event.component.scss']
 })
 export class CreateEventComponent {
-
+    uid: string;
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
     random = this.otters[Math.floor(Math.random() * this.otters.length)];
@@ -82,7 +82,8 @@ export class CreateEventComponent {
         private db: AngularFirestore
     ) { }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
         this.profile$ = this.store.select<Profile>('profile');
         this.members$ = this.store.select<Member[]>('members');
         this.members$.pipe(map(members => {
@@ -108,10 +109,6 @@ export class CreateEventComponent {
         this.modalController.dismiss({
             response: 'dismissed'
         });
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     nameChange() {

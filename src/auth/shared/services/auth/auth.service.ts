@@ -8,8 +8,7 @@ import { Subscription } from 'rxjs';
 import { tap, shareReplay } from 'rxjs/operators';
 
 import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
-import * as firebase from 'firebase/app'
+import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireFunctions } from '@angular/fire/functions';
 
 export interface User {
@@ -33,7 +32,6 @@ export interface Profile {
 @Injectable()
 export class AuthService {
   subscription: Subscription;
-  private profileDoc: AngularFirestoreDocument<Profile>;
   profile$: Observable<Profile>;
   auth$ = this.af.authState
     .pipe(
@@ -67,12 +65,12 @@ export class AuthService {
   }
 
   get userAuth() {
-    return this.af.auth;
+    return this.af;
   }
 
 
   get user() {
-    return this.af.auth.currentUser;
+    return this.af.currentUser;
   }
 
   get authState() {
@@ -80,23 +78,23 @@ export class AuthService {
   }
 
   async createUser(email: string, password: string) {
-    await this.af.auth
+    await this.af
       .createUserWithEmailAndPassword(email, password).then(async cred => {
         await cred.user.sendEmailVerification();
       })
   }
 
-  resendVerification() {
-    return this.af.auth.currentUser.sendEmailVerification();
+  async resendVerification() {
+    return (await this.af.currentUser).sendEmailVerification();
   }
 
   async reloadUser() {
-    return this.user.reload();
+    return (await this.user).reload();
   }
 
   async checkClaims() {
     try {
-      const idTokenResult = await this.user.getIdTokenResult(true)
+      const idTokenResult = await (await this.user).getIdTokenResult(true)
       console.log(idTokenResult);
       return idTokenResult;
     } catch (err) {
@@ -106,11 +104,11 @@ export class AuthService {
   }
 
   async loginUser(email: string, password: string) {
-    await this.af.auth.signInWithEmailAndPassword(email, password);
+    await this.af.signInWithEmailAndPassword(email, password);
   }
 
   async logoutUser() {
-    await this.af.auth.signOut();
+    await this.af.signOut();
     this.store.set('user', null);
     this.store.set('profile', null);
     this.store.set('teams', null);
@@ -127,7 +125,7 @@ export class AuthService {
 
   async deleteUser() {
     try {
-      await this.user.delete();
+      await (await this.user).delete();
       this.store.set('user', null);
       this.store.set('profile', null);
       this.store.set('teams', null);
@@ -165,59 +163,6 @@ export class AuthService {
         }),
         shareReplay(1)
       )
-  }
-
-  async linkGoogleAccount() {
-    // const profileDoc = this.db.doc(`users/${this.user.uid}`);
-    // let provider = new firebase.auth.GoogleAuthProvider();
-    // provider.addScope('https://www.googleapis.com/auth/calendar');
-
-    // this.af.auth.currentUser.linkWithPopup(provider).then((result) => {
-    //   // Accounts successfully linked.
-    //   var credential = result.credential;
-    //   var user = result.user;
-    //   console.log(credential, user);
-    //   profileDoc.set({ gcalSync: true }, { merge: true })
-
-    //   // ...
-    // }).catch(function (error) {
-    //   console.log(error.message);
-    //   // Handle Errors here.
-    //   // ...
-    // });
-  }
-
-  async unlinkGoogleAccount() {
-    //get provider data here
-    console.log(this.af.auth.currentUser.providerData)
-    // this.af.auth.currentUser.unlink(providerId).then(function() {
-    //   // Auth provider unlinked from account
-    //   // ...
-    // }).catch(function(error) {
-    //   // An error happened
-    //   // ...
-    // });
-  }
-
-  async linkIosGoogleAccount() {
-    // let provider = new firebase.auth.GoogleAuthProvider();
-    // provider.addScope('https://www.googleapis.com/auth/calendar');
-
-    // this.af.auth.currentUser.linkWithPopup(provider).then((result) => {
-    //   // Accounts successfully linked.
-    //   var credential = result.credential;
-    //   var user = result.user;
-    //   console.log(credential, user);
-    //   // ...
-    // }).catch(function(error) {
-    //   console.log(error.message);
-    //   // Handle Errors here.
-    //   // ...
-    // });
-  }
-
-  async unlinkIosGoogleAccount() {
-    //
   }
 
 }

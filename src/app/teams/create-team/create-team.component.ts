@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
     styleUrls: ['./create-team.component.scss']
 })
 export class CreateTeamComponent {
+    email: string;
 
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
@@ -32,17 +33,10 @@ export class CreateTeamComponent {
         private db: AngularFirestore,
         private router: Router
     ) {}
-    ionViewWillEnter() {
-        //this.newMembers.push(this.email);
-        //this.photo = this.navParams.get('photo');
-    }
 
-    ngOnInit() {
+    async ngOnInit() {
+        this.email = (await this.authService.user).email;
         this.newMembers.push(this.email);
-    }
-
-    get email() {
-        return this.authService.user.email;
     }
 
     addMember() {

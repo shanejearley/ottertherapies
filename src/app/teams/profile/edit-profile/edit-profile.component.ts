@@ -14,7 +14,7 @@ import { Store } from 'src/store';
     styleUrls: ['./edit-profile.component.scss']
 })
 export class EditProfileComponent {
-
+    uid: string;
     // choose random otter to display
     otters = ["wave", "walk", "lay", "float", "hello", "awake", "snooze"]
     random = this.otters[Math.floor(Math.random() * this.otters.length)];
@@ -58,8 +58,8 @@ export class EditProfileComponent {
         private profileService: ProfileService
     ) { }
 
-    ngOnInit() {
-        //
+    async ngOnInit() {
+        this.uid = (await this.authService.user).uid;
     }
 
     ionViewWillEnter() {
@@ -118,10 +118,6 @@ export class EditProfileComponent {
         this.modalController.dismiss({
             response: 'dismissed'
         });
-    }
-
-    get uid() {
-        return this.authService.user.uid;
     }
 
     ngOnDestroy() {

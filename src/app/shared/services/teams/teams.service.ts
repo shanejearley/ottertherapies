@@ -61,6 +61,8 @@ export class TeamsService {
   teams$: Observable<Team[]>;
   team$: Observable<Team>;
   badgeTotal: number;
+  uid: string;
+  email: string;
 
   constructor(
     private storage: AngularFireStorage,
@@ -88,14 +90,6 @@ export class TeamsService {
         shareReplay(1)
       );
     return this.teams$;
-  }
-
-  get uid() {
-    return this.authService.user.uid;
-  }
-
-  get email() {
-    return this.authService.user.email;
   }
 
   async getInfo(team: Team, uid: string) {
@@ -128,7 +122,9 @@ export class TeamsService {
     this.team$.subscribe();
   }
 
-  getUnread(team) {
+  async getUnread(team) {
+    this.uid = (await this.authService.user).uid;
+    this.email = (await this.authService.user).email;
     console.log('UNREAD DOC FOR TEAM', team.unread);
     if (team.unread) {
       team.unreadMessages = 0;
@@ -173,6 +169,9 @@ export class TeamsService {
   }
 
   async addTeam(newTeamId, childName, emails) {
+    this.uid = (await this.authService.user).uid;
+    this.email = (await this.authService.user).email;
+    
     const newGroupId = this.db.createId();
     this.teamDoc = this.db.doc<Team>(`teams/${newTeamId}`);
     this.teamMembersCol = this.db.collection(`teams/${newTeamId}/members`);

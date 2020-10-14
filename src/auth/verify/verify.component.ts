@@ -46,7 +46,7 @@ export class VerifyComponent implements OnInit {
     async continue() {
         try {
             await this.authService.reloadUser();
-            if (this.authService.user.emailVerified) {
+            if ((await this.authService.user).emailVerified) {
                 console.log('verified');
                 this.router.navigate(['/'])
             } else {

@@ -18,7 +18,6 @@ import { EventsService } from './services/events/events.service';
 import { ResourcesService } from './services/resources/resources.service';
 import { UploadTaskComponent } from '../teams/files/upload-task/upload-task.component';
 import { EnlargeThumbnailComponent } from './components/enlarge-thumbnail/enlarge-thumbnail.component';
-import { BadgeService } from './services/badge/badge.service';
 import { MobileMenuComponent } from './components/mobile-menu/mobile-menu.component';
 import { DarkService } from './services/dark/dark.service';
 import { PresenceService } from './services/presence/presence.service';
@@ -90,7 +89,6 @@ export class SharedModule {
         PendingService,
         EventsService,
         ResourcesService,
-        BadgeService,
         Badge,
         DarkService,
         PresenceService
