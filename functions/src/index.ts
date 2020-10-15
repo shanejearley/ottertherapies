@@ -32,14 +32,14 @@ const oauth2Client = new google.auth.OAuth2(
 const addEvent = async (uid: string, event: Event) => {
 
     const tokens: Tokens = (await admin.firestore().doc(`tokens/${uid}`).get()).data() as Tokens;
-    oauth2Client.setCredentials(tokens)
+    oauth2Client.setCredentials(tokens);
 
     const calendar = google.calendar({
         version: 'v3',
         auth: oauth2Client
     });
 
-    const selectDays = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
+    const selectDays = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
     const weekday = selectDays[event.startTime.toDate().getDay()];
     const weekNumber = event.recurrence === 'monthly-last' ? -1 : Math.ceil(event.startTime.toDate().getDate() / 7);
 
@@ -47,7 +47,7 @@ const addEvent = async (uid: string, event: Event) => {
 
     const frequency = event.recurrence === 'daily' ? 'RRULE:FREQ=DAILY;' : event.recurrence === 'weekly' ? `RRULE:FREQ=WEEKLY;BYDAY=${weekday};` : event.recurrence === 'monthly' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'monthly-last' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'annually' ? 'RRULE:FREQ=YEARLY;' : event.recurrence === 'weekdays' ? 'RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR;' : null;
 
-    console.log([frequency])
+    console.log([frequency]);
 
     const otterMessage = '***Modify this event and manage guests in the Otter app!';
 
@@ -82,7 +82,7 @@ const addEvent = async (uid: string, event: Event) => {
                 visbility: 'default',
                 status: 'confirmed'
             }
-        })
+        });
         console.log('New event', newEvent.data.id, newEvent.data.summary);
         return newEvent;
     } catch (err) {
@@ -90,19 +90,19 @@ const addEvent = async (uid: string, event: Event) => {
         return false;
     }
 
-}
+};
 
 const modifyEvent = async (uid: string, event: Event) => {
 
     const tokens: Tokens = (await admin.firestore().doc(`tokens/${uid}`).get()).data() as Tokens;
-    oauth2Client.setCredentials(tokens)
+    oauth2Client.setCredentials(tokens);
 
     const calendar = google.calendar({
         version: 'v3',
         auth: oauth2Client
     });
 
-    const selectDays = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
+    const selectDays = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
     const weekday = selectDays[event.startTime.toDate().getDay()];
     const weekNumber = event.recurrence === 'monthly-last' ? -1 : Math.ceil(event.startTime.toDate().getDate() / 7);
 
@@ -110,7 +110,7 @@ const modifyEvent = async (uid: string, event: Event) => {
 
     const frequency = event.recurrence === 'daily' ? 'RRULE:FREQ=DAILY;' : event.recurrence === 'weekly' ? `RRULE:FREQ=WEEKLY;BYDAY=${weekday};` : event.recurrence === 'monthly' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'monthly-last' ? `RRULE:FREQ=MONTHLY;BYDAY=${weekNumber + weekday};` : event.recurrence === 'annually' ? 'RRULE:FREQ=YEARLY;' : event.recurrence === 'weekdays' ? 'RRULE:FREQ=DAILY;BYDAY=MO,TU,WE,TH,FR;' : null;
 
-    console.log([frequency])
+    console.log([frequency]);
 
     const otterMessage = '***Modify this event and manage guests in the Otter app!';
 
@@ -121,10 +121,10 @@ const modifyEvent = async (uid: string, event: Event) => {
         const getEvent = await calendar.events.get({
             calendarId: 'primary',
             eventId: modifiedId
-        })
+        });
 
         if (!getEvent.data.id) {
-            console.log('Event does not exist!')
+            console.log('Event does not exist!');
             return addEvent(uid, event);
         }
 
@@ -163,12 +163,12 @@ const modifyEvent = async (uid: string, event: Event) => {
         console.log(err.message);
         return false;
     }
-}
+};
 
 const removeEvent = async (uid: string, event: Event) => {
 
     const tokens: Tokens = (await admin.firestore().doc(`tokens/${uid}`).get()).data() as Tokens;
-    oauth2Client.setCredentials(tokens)
+    oauth2Client.setCredentials(tokens);
 
     const calendar = google.calendar({
         version: 'v3',
@@ -182,13 +182,13 @@ const removeEvent = async (uid: string, event: Event) => {
         return calendar.events.delete({
             calendarId: 'primary',
             eventId: modifiedId
-        })
+        });
     } catch (err) {
         console.log(err.message);
         return false;
     }
 
-}
+};
 
 export const resizeAvatar = functions.storage
     .object()
@@ -217,7 +217,7 @@ export const resizeAvatar = functions.storage
 
             if (fileName?.includes('avatar_')) {
                 console.log('posting url and exiting function');
-                const avatarFile = bucket.file(filePath)
+                const avatarFile = bucket.file(filePath);
                 const config = {
                     action: 'read',
                     expires: '01-01-2500'
@@ -282,7 +282,7 @@ export const getAuthURL = functions.https.onCall(async (data, context) => {
 
         console.log(url);
 
-        return { url }
+        return { url };
 
     } catch (err) {
 
@@ -309,15 +309,15 @@ export const createAndSaveTokens = functions.https.onCall(async (data, context) 
     console.log(data);
     try {
         const { tokens } = await oauth2Client.getToken(code);
-        console.log('tokens', tokens)
+        console.log('tokens', tokens);
         const { refresh_token } = tokens;
 
-        await admin.firestore().doc(`tokens/${context.auth.uid}`).set({ refresh_token })
-        await admin.firestore().doc(`users/${context.auth.uid}`).set({ refresh_token: true }, { merge: true })
-        return { response: 'success' }
+        await admin.firestore().doc(`tokens/${context.auth.uid}`).set({ refresh_token });
+        await admin.firestore().doc(`users/${context.auth.uid}`).set({ refresh_token: true }, { merge: true });
+        return { response: 'success' };
     } catch (err) {
         console.log(err.message);
-        return { response: 'fail' }
+        return { response: 'fail' };
     }
 });
 
@@ -344,12 +344,12 @@ const scrapeMetatags = (text: string) => {
             description: getMetatag('description'),
             image: getMetatag('image'),
             author: getMetatag('author'),
-        }
+        };
     });
 
     return Promise.all(requests);
 
-}
+};
 
 export const scraper = functions.https.onCall(async (data, context) => {
     const text = data.text;
@@ -377,7 +377,7 @@ const addTeamClaims = async (uid: string, teamId: string) => {
         console.log(err.message);
         return false;
     }
-}
+};
 
 const removeTeamClaims = async (uid: string, teamId: string) => {
     try {
@@ -390,7 +390,7 @@ const removeTeamClaims = async (uid: string, teamId: string) => {
         console.log(err.message);
         return false;
     }
-}
+};
 
 const addGroupClaims = async (uid: string, groupId: string) => {
     try {
@@ -403,7 +403,7 @@ const addGroupClaims = async (uid: string, groupId: string) => {
         console.log(err.message);
         return false;
     }
-}
+};
 
 const removeGroupClaims = async (uid: string, groupId: string) => {
     try {
@@ -416,14 +416,14 @@ const removeGroupClaims = async (uid: string, groupId: string) => {
         console.log(err.message);
         return false;
     }
-}
+};
 
 const notifyAdmin = async (context: string) => {
     try {
-        const adminUid = 'NWdIuC9hlvSFSzr9MmA9bQsqX8O2'
+        const adminUid = 'NWdIuC9hlvSFSzr9MmA9bQsqX8O2';
         const adminRef = firestore
             .collection('users')
-            .doc(adminUid)
+            .doc(adminUid);
         const snapshot = await adminRef.get();
         const user = snapshot.data();
 
@@ -432,7 +432,7 @@ const notifyAdmin = async (context: string) => {
                 title: `New ${context}!`,
                 body: `Someone has created a new ${context}`,
             }
-        }
+        };
 
         const tokens = user?.fcmTokens ? Object.keys(user.fcmTokens) : [];
         if (!tokens.length) {
@@ -445,15 +445,15 @@ const notifyAdmin = async (context: string) => {
         return console.log(err);
     }
 
-}
+};
 
 const notifyUser = async (uid: string, context: string) => {
 
     try {
-        const userId = uid
+        const userId = uid;
         const userRef = firestore
             .collection('users')
-            .doc(userId)
+            .doc(userId);
         const snapshot = await userRef.get();
         const user = snapshot.data();
 
@@ -462,7 +462,7 @@ const notifyUser = async (uid: string, context: string) => {
                 title: `New ${context}!`,
                 body: `A team member sent you a new ${context}`,
             }
-        }
+        };
 
         const tokens = user?.fcmTokens ? Object.keys(user.fcmTokens) : [];
         if (!tokens.length) {
@@ -474,7 +474,7 @@ const notifyUser = async (uid: string, context: string) => {
     catch (err) {
         return console.log(err);
     }
-}
+};
 
 export const authOnCreate = functions.auth.user().onCreate(async (user) => {
     const uid = user.uid;
@@ -489,7 +489,7 @@ export const authOnCreate = functions.auth.user().onCreate(async (user) => {
             uid: user.uid,
             email,
             createdAt: admin.firestore.FieldValue.serverTimestamp()
-        }, { merge: true })
+        }, { merge: true });
     const teamsSnap = await firestore
         .collection('teams')
         .get();
@@ -502,7 +502,7 @@ export const authOnCreate = functions.auth.user().onCreate(async (user) => {
                 .doc(teamId)
                 .collection('pendingMembers')
                 .where('email', '==', email)
-                .get()
+                .get();
             if (!userTeamsSnap.empty) {
                 return userTeamsSnap.forEach(async (userTeamDoc) => {
                     console.log('Found member in pending for ', teamId);
@@ -512,25 +512,25 @@ export const authOnCreate = functions.auth.user().onCreate(async (user) => {
                         .doc(teamId)
                         .collection('members')
                         .where('status', '==', 'Admin')
-                        .get()
+                        .get();
                     if (!adminSnap.empty) {
                         await adminSnap.forEach(async adminDoc => {
                             const adminUid = adminDoc.data().uid;
-                            console.log('Adding a ', adminUid, ' instance to ', uid)
+                            console.log('Adding a ', adminUid, ' instance to ', uid);
                             await firestore
                                 .collection('users')
                                 .doc(uid)
                                 .collection('teammates')
                                 .doc(adminUid)
                                 .set({ teams: FieldValue.increment(1) }, { merge: true });
-                            console.log('Adding a ', uid, ' instance to ', adminUid)
+                            console.log('Adding a ', uid, ' instance to ', adminUid);
                             await firestore
                                 .collection('users')
                                 .doc(adminUid)
                                 .collection('teammates')
                                 .doc(uid)
                                 .set({ teams: FieldValue.increment(1) }, { merge: true });
-                        })
+                        });
                     } else {
                         await console.log('No admin');
                     }
@@ -543,7 +543,7 @@ export const authOnCreate = functions.auth.user().onCreate(async (user) => {
                             uid,
                             email,
                             status: 'Pending'
-                        }, { merge: true })
+                        }, { merge: true });
                     await firestore
                         .collection('users')
                         .doc(uid)
@@ -551,22 +551,22 @@ export const authOnCreate = functions.auth.user().onCreate(async (user) => {
                         .doc(teamId)
                         .set({
                             id: teamId
-                        }, { merge: true })
+                        }, { merge: true });
                     return firestore
                         .collection('teams')
                         .doc(teamId)
                         .collection('pendingMembers')
                         .doc(pendingDocId)
                         .delete();
-                })
+                });
             } else {
                 return console.log('Member does not exist on this team');
             }
-        })
+        });
     } else {
         return console.log('No teams exist');
     }
-})
+});
 
 export const authOnDelete = functions.auth.user().onDelete(async (user) => {
     try {
@@ -593,7 +593,7 @@ export const authOnDelete = functions.auth.user().onDelete(async (user) => {
                 .delete();
             await bucket.deleteFiles({ prefix: `users/${user.uid}/teams/${t.id}/files/` });
             return console.log(`All the Firebase Storage files in users/${user.uid}/teams/${t.id}/files/ have been deleted`);
-        })
+        });
     } catch (err) {
         return console.log(err.message);
     }
@@ -632,7 +632,7 @@ export const groupOnRemove = functions.firestore
                 .collection('files')
                 .doc(fileId)
                 .delete();
-        })
+        });
 
         const messagesSnapshot = await firestore
             .collection('teams')
@@ -651,7 +651,7 @@ export const groupOnRemove = functions.firestore
                 .collection('messages')
                 .doc(messageId)
                 .delete();
-        })
+        });
 
         const membersSnapshot = await firestore
             .collection('teams')
@@ -687,8 +687,8 @@ export const groupOnRemove = functions.firestore
                 .collection('members')
                 .doc(member.uid)
                 .delete();
-        })
-    })
+        });
+    });
 
 export const eventOnCreate = functions.firestore
     .document('teams/{teamId}/calendar/{eventId}')
@@ -721,14 +721,14 @@ export const eventOnCreate = functions.firestore
                 } else {
                     console.log('member is not syncing events');
                 }
-            })
+            });
             await Promise.all(promises);
             console.log('Done!');
             return true;
         }
 
         return processMembers(members);
-    })
+    });
 
 export const eventOnUpdate = functions.firestore
     .document('teams/{teamId}/calendar/{eventId}')
@@ -761,14 +761,14 @@ export const eventOnUpdate = functions.firestore
                 } else {
                     console.log('member is not syncing events');
                 }
-            })
+            });
             await Promise.all(promises);
             console.log('Done!');
             return true;
         }
 
         return processMembers(members);
-    })
+    });
 
 export const eventOnDelete = functions.firestore
     .document('teams/{teamId}/calendar/{eventId}')
@@ -819,7 +819,7 @@ export const eventOnDelete = functions.firestore
                         console.log(err.message);
                     }
                 } else {
-                    console.log('member is not syncing events')
+                    console.log('member is not syncing events');
                 }
             });
             await Promise.all(promises);
@@ -828,7 +828,7 @@ export const eventOnDelete = functions.firestore
         }
 
         return processMembers(members);
-    })
+    });
 
 export const noteOnRemove = functions.firestore
     .document('teams/{teamId}/notes/{noteId}')
@@ -856,8 +856,8 @@ export const noteOnRemove = functions.firestore
                 .collection('unread')
                 .doc(noteId)
                 .delete();
-        })
-    })
+        });
+    });
 
 export const pendingOnCreate = functions.firestore
     .document('teams/{teamId}/pendingMembers/{pendingMemberUid}')
@@ -891,25 +891,25 @@ export const pendingOnCreate = functions.firestore
                             .doc(teamId)
                             .collection('members')
                             .where('status', '==', 'Admin')
-                            .get()
+                            .get();
                         if (!adminSnapshot.empty) {
                             adminSnapshot.forEach(async adminDoc => {
                                 const adminUid = adminDoc.data().uid;
-                                console.log('Adding a ', adminUid, ' instance to ', uid)
+                                console.log('Adding a ', adminUid, ' instance to ', uid);
                                 await firestore
                                     .collection('users')
                                     .doc(uid)
                                     .collection('teammates')
                                     .doc(adminUid)
                                     .set({ teams: FieldValue.increment(1) }, { merge: true });
-                                console.log('Adding a ', uid, ' instance to ', adminUid)
+                                console.log('Adding a ', uid, ' instance to ', adminUid);
                                 return firestore
                                     .collection('users')
                                     .doc(adminUid)
                                     .collection('teammates')
                                     .doc(uid)
                                     .set({ teams: FieldValue.increment(1) }, { merge: true });
-                            })
+                            });
                         } else {
                             return console.log('No admin');
                         }
@@ -948,7 +948,7 @@ export const pendingOnCreate = functions.firestore
         catch (error) {
             return console.log('error', error);
         }
-    })
+    });
 
 export const memberOnJoin = functions.firestore
     .document('teams/{teamId}/members/{memberUid}')
@@ -958,7 +958,7 @@ export const memberOnJoin = functions.firestore
         const memberUid = context.params.memberUid;
         await addTeamClaims(memberUid, teamId);
         await firestore.collection('teams').doc(teamId).collection('pendingMembers').doc(memberUid).delete();
-        const membersSnapshot = await firestore.collection('teams').doc(teamId).collection('members').get()
+        const membersSnapshot = await firestore.collection('teams').doc(teamId).collection('members').get();
         const members = membersSnapshot.docs.map(doc => doc.data());
         members.forEach(async member => {
             if (member.uid !== memberUid && member.status !== 'Admin') {
@@ -969,7 +969,7 @@ export const memberOnJoin = functions.firestore
                     .collection('teammates')
                     .doc(memberUid)
                     .set({ teams: FieldValue.increment(1) }, { merge: true });
-                console.log('Adding a ', member.uid, ' instance to ', memberUid)
+                console.log('Adding a ', member.uid, ' instance to ', memberUid);
                 return firestore
                     .collection('users')
                     .doc(memberUid)
@@ -979,13 +979,13 @@ export const memberOnJoin = functions.firestore
             } else {
                 return;
             }
-        })
+        });
         const groupsSnapshot = await firestore
             .collection('teams')
             .doc(teamId)
             .collection('groups')
             .where('name', '==', 'Everyone')
-            .get()
+            .get();
         return groupsSnapshot.forEach(async (groupDoc) => {
             const groupId = groupDoc.id;
             const groupAdminUid = groupDoc.data().createdBy;
@@ -1004,7 +1004,7 @@ export const memberOnJoin = functions.firestore
                         status: 'Member'
                     }, { merge: true });
             }
-        })
+        });
     });
 
 export const groupMemberOnJoin = functions.firestore
@@ -1034,7 +1034,7 @@ export const groupMemberOnJoin = functions.firestore
             })
             .catch((error) => {
                 return console.log('error', error);
-            })
+            });
     });
 
 export const groupMemberOnRemove = functions.firestore
@@ -1057,7 +1057,7 @@ export const groupMemberOnRemove = functions.firestore
             })
             .catch((error) => {
                 return console.log('error', error);
-            })
+            });
     });
 
 export const memberOnRemove = functions.firestore
@@ -1071,7 +1071,7 @@ export const memberOnRemove = functions.firestore
         const memberUid = context.params.memberUid;
         try {
             await removeTeamClaims(memberUid, teamId);
-            const membersSnapshot = await firestore.collection('teams').doc(teamId).collection('members').get()
+            const membersSnapshot = await firestore.collection('teams').doc(teamId).collection('members').get();
             const members = membersSnapshot.docs.map(doc => doc.data());
             members.forEach(async member => {
                 if (member.uid !== memberUid) {
@@ -1093,7 +1093,7 @@ export const memberOnRemove = functions.firestore
                             .collection('teammates')
                             .doc(memberUid)
                             .set({ teams: FieldValue.increment(-1) }, { merge: true });
-                        console.log('Subtracting a ', member.uid, ' instance from ', memberUid)
+                        console.log('Subtracting a ', member.uid, ' instance from ', memberUid);
                         return firestore
                             .collection('users')
                             .doc(memberUid)
@@ -1101,12 +1101,12 @@ export const memberOnRemove = functions.firestore
                             .doc(member.uid)
                             .set({ teams: FieldValue.increment(-1) }, { merge: true });
                     } catch (err) {
-                        return console.log('One of the user docs was not found or already deleted.')
+                        return console.log('One of the user docs was not found or already deleted.');
                     }
                 } else {
                     return;
                 }
-            })
+            });
             const groupsSnapshot = await firestore
                 .collection('teams')
                 .doc(teamId)
@@ -1121,7 +1121,7 @@ export const memberOnRemove = functions.firestore
                     .doc(groupId)
                     .collection('members')
                     .where('uid', '==', memberUid)
-                    .get()
+                    .get();
                 if (!groupMembersSnapshot.empty) {
                     await firestore
                         .collection('teams')
@@ -1150,7 +1150,7 @@ export const memberOnRemove = functions.firestore
                 } catch (err) {
                     return console.log('User doc or team doc already deleted');
                 }
-            })
+            });
             const eventsSnapshot = await firestore.collection('teams').doc(teamId).collection('events').get();
             eventsSnapshot.forEach(async (doc) => {
                 const eventId = doc.id;
@@ -1161,7 +1161,7 @@ export const memberOnRemove = functions.firestore
                     .doc(eventId)
                     .collection('members')
                     .where('uid', '==', memberUid)
-                    .get()
+                    .get();
                 if (!eventMembersSnapshot.empty) {
                     return firestore
                         .collection('teams')
@@ -1175,7 +1175,7 @@ export const memberOnRemove = functions.firestore
                 else {
                     return console.log('member not in this group', eventId);
                 }
-            })
+            });
         }
         catch (error) {
             return console.log('error', error);
@@ -1203,14 +1203,14 @@ export const pendingMemberOnRemove = functions.firestore
                                             const members = querySnapshot.docs.map(memberDoc => memberDoc.data());
                                             return members.forEach(async member => {
                                                 if (member.status === 'Admin') {
-                                                    console.log('Subtracting a ', memberUid, ' instance from ', member.uid)
+                                                    console.log('Subtracting a ', memberUid, ' instance from ', member.uid);
                                                     await firestore
                                                         .collection('users')
                                                         .doc(member.uid)
                                                         .collection('teammates')
                                                         .doc(memberUid)
                                                         .set({ teams: FieldValue.increment(-1) }, { merge: true });
-                                                    console.log('Subtracting a ', member.uid, ' instance from ', memberUid)
+                                                    console.log('Subtracting a ', member.uid, ' instance from ', memberUid);
                                                     return firestore
                                                         .collection('users')
                                                         .doc(memberUid)
@@ -1220,8 +1220,8 @@ export const pendingMemberOnRemove = functions.firestore
                                                 } else {
                                                     return;
                                                 }
-                                            })
-                                        })
+                                            });
+                                        });
                                     await firestore.collection('users').doc(memberUid).set({
                                         lastTeam: FieldValue.delete()
                                     }, { merge: true });
@@ -1234,11 +1234,11 @@ export const pendingMemberOnRemove = functions.firestore
                                 } else {
                                     return;
                                 }
-                            })
+                            });
                     } else {
                         return;
                     }
-                })
+                });
         }
         catch (error) {
             return console.log('error', error);
@@ -1260,7 +1260,7 @@ export const updateGroupMessageCount = functions.firestore
             lastMessageId: messageId,
             lastMessageUid: message?.uid
         }, { merge: true });
-        const querySnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('members').get()
+        const querySnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('members').get();
         const members = querySnapshot.docs.map(doc => doc.data());
         return members.forEach((member) => {
             if (member.uid !== userUid) {
@@ -1273,11 +1273,11 @@ export const updateGroupMessageCount = functions.firestore
                             unreadMessages: FieldValue.increment(1)
                         }
                     }
-                }, { merge: true })
+                }, { merge: true });
             } else {
                 return console.log('Not updating user who posted');
             }
-        })
+        });
     });
 
 export const updateGroupFileCount = functions.firestore
@@ -1295,7 +1295,7 @@ export const updateGroupFileCount = functions.firestore
             lastFileId: fileId,
             lastFileUid: file?.uid
         }, { merge: true });
-        const querySnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('members').get()
+        const querySnapshot = await firestore.collection('teams').doc(teamId).collection('groups').doc(groupId).collection('members').get();
         const members = querySnapshot.docs.map(doc => doc.data());
         return members.forEach((member) => {
             if (member.uid !== userUid) {
@@ -1307,11 +1307,11 @@ export const updateGroupFileCount = functions.firestore
                             unreadFiles: FieldValue.increment(1)
                         }
                     }
-                }, { merge: true })
+                }, { merge: true });
             } else {
                 return console.log('Not updating user who posted');
             }
-        })
+        });
     });
 
 export const updateDirectMessageCount = functions.firestore
@@ -1338,7 +1338,7 @@ export const updateDirectMessageCount = functions.firestore
                 }
             }
         }, { merge: true });
-    })
+    });
 
 export const updateDirectFileCount = functions.firestore
     .document('teams/{teamId}/direct/{pathId}/files/{fileId}')
@@ -1372,7 +1372,7 @@ export const teamOnCreate = functions.firestore
         console.log(snap);
         console.log(context);
         return notifyAdmin('team');
-    })
+    });
 
 export const updateNoteCount = functions.firestore
     .document('teams/{teamId}/notes/{noteId}')
@@ -1383,7 +1383,7 @@ export const updateNoteCount = functions.firestore
         const userUid = note?.uid;
         const teamId = context.params.teamId;
         const noteId = context.params.noteId;
-        const querySnapshot = await firestore.collection('teams').doc(teamId).collection('members').get()
+        const querySnapshot = await firestore.collection('teams').doc(teamId).collection('members').get();
         const members = querySnapshot.docs.map(doc => doc.data());
         return members.forEach((member) => {
             if (member.uid !== userUid) {
@@ -1399,7 +1399,7 @@ export const updateNoteCount = functions.firestore
             } else {
                 return console.log('Not updating user who posted');
             }
-        })
+        });
     });
 
 export const updateProfile = functions.firestore
@@ -1423,11 +1423,11 @@ export const updateProfile = functions.firestore
                         role: newP?.role ? newP.role : null,
                         url: newP?.url ? newP.url : null,
                         url_150: newP?.url_150 ? newP.url_150 : null
-                    }, { merge: true })
-                })
+                    }, { merge: true });
+                });
                 console.log('Done teams!');
                 return Promise.all(userTeamsPromises);
-            }
+            };
             await processUserTeams(userTeams);
             const userPendingTeamsSnap = await firestore
                 .collection('users')
@@ -1448,14 +1448,14 @@ export const updateProfile = functions.firestore
                             role: newP?.role ? newP.role : null,
                             url: newP?.url ? newP.url : null,
                             url_150: newP?.url_150 ? newP.url_150 : null
-                        }, { merge: true })
-                })
+                        }, { merge: true });
+                });
                 console.log('Done pending!');
                 return Promise.all(userPendingTeamsPromises);
-            }
+            };
             return processUserPendingTeams(userPendingTeams);
         } else {
-            console.log('Profile items not updated.')
+            console.log('Profile items not updated.');
             return false;
         }
     });
