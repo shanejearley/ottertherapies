@@ -6,7 +6,7 @@
         "serve": "firebase emulators:start --only functions",
         "shell": "firebase functions:shell",
         "start": "npm run shell",
-        "build": "./node_modules/.bin/tslint --project tsconfig.json && ./node_modules/.bin/tsc",
+        "build": "tsc",
         "deploy": "firebase deploy --only functions",
         "logs": "firebase functions:log"
     },
