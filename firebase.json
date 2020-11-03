@@ -31,6 +31,18 @@
         "function": "createAndSaveTokens"
       },
       {
+        "source": "/ottertherapies/us-central1/scraper",
+        "function": "scraper"
+      },
+      {
+        "source": "/ottertherapies/us-central1/getAuthURL",
+        "function": "getAuthURL"
+      },
+      {
+        "source": "/ottertherapies/us-central1/createAndSaveTokens",
+        "function": "createAndSaveTokens"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
