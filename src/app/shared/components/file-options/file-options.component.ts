@@ -1,18 +1,16 @@
-import { Component, OnInit, Input, ChangeDetectorRef, SecurityContext, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
 import { firestore } from 'firebase/app';
-import { PopoverController, NavParams, ModalController, Platform, ToastController } from '@ionic/angular';
-import { MembersService, Member } from '../../services/members/members.service';
-import { GroupsService, Group } from '../../services/groups/groups.service';
+import { NavParams, ModalController, Platform, ToastController } from '@ionic/angular';
 
 import { Store } from 'src/store';
 import { Profile } from 'src/auth/shared/services/profile/profile.service';
 
-import { Plugins, FilesystemDirectory, FilesystemEncoding, Capacitor } from '@capacitor/core';
+import { Plugins, FilesystemDirectory, FilesystemEncoding } from '@capacitor/core';
 const { Browser, Filesystem } = Plugins;
 
 import { CopyFileComponent } from '../copy-file/copy-file.component';
