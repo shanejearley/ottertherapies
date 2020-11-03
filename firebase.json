@@ -5,8 +5,8 @@
   },
   "functions": {
     "predeploy": [
-        "npm --prefix './functions' run lint",
-        "npm --prefix './functions' build"
+      "npm --prefix \"$RESOURCE_DIR\" run lint",
+      "npm --prefix \"$RESOURCE_DIR\" build"
     ],
     "source": "functions"
   },
@@ -28,6 +28,18 @@
       },
       {
         "source": "/ottertherapiesdev/us-central1/createAndSaveTokens",
+        "function": "createAndSaveTokens"
+      },
+      {
+        "source": "/ottertherapies/us-central1/scraper",
+        "function": "scraper"
+      },
+      {
+        "source": "/ottertherapies/us-central1/getAuthURL",
+        "function": "getAuthURL"
+      },
+      {
+        "source": "/ottertherapies/us-central1/createAndSaveTokens",
         "function": "createAndSaveTokens"
       },
       {
