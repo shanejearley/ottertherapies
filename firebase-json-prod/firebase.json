@@ -5,8 +5,8 @@
     },
     "functions": {
         "predeploy": [
-            "npm --prefix '../functions' run lint",
-            "npm --prefix '../functions' build"
+            "npm --prefix '../functions/package.json' run lint",
+            "npm --prefix '../functions/package.json' build"
         ],
         "source": "functions"
     },
