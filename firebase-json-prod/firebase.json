@@ -5,10 +5,10 @@
     },
     "functions": {
         "predeploy": [
-            "npm --prefix '../functions/package.json' run lint",
-            "npm --prefix '../functions/package.json' build"
+            "npm --prefix '../functions' run lint",
+            "npm --prefix '../functions' build"
         ],
-        "source": "../functions"
+        "source": "functions"
     },
     "hosting": {
         "public": "www",
