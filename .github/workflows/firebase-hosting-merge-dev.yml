@@ -34,5 +34,5 @@ jobs:
         with:
           args: deploy --only hosting,functions
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN_DEV }}
           PROJECT_ID: ottertherapiesdev
