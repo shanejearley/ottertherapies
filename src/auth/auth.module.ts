@@ -9,7 +9,7 @@ import { AngularFireModule, FirebaseAppConfig } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireStorageModule } from '@angular/fire/storage';
-import { AngularFireFunctionsModule, ORIGIN as FUNCTIONS_ORIGIN } from '@angular/fire/functions';
+import { AngularFireFunctionsModule, ORIGIN } from '@angular/fire/functions';
 import { AngularFireMessagingModule } from '@angular/fire/messaging';
 import 'firebase/storage';
 // shared modules
@@ -34,7 +34,7 @@ export const ROUTES: Routes = [
 ];
 
 export const firebaseConfig: FirebaseAppConfig = environment.firebaseConfig;
-export const firebaseHosting: string = environment.firebaseHosting;
+export const firebaseHostingUrl: string = environment.firebaseHostingUrl;
 
 @NgModule({
   imports: [
@@ -52,7 +52,7 @@ export const firebaseHosting: string = environment.firebaseHosting;
     SharedModule.forRoot()
   ],
   providers: [
-    { provide: FUNCTIONS_ORIGIN, useValue: firebaseHosting }
+    { provide: ORIGIN, useValue: firebaseHostingUrl }
   ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   exports: [RouterModule]

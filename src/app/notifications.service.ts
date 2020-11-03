@@ -4,7 +4,6 @@ import { firebase } from '@firebase/app';
 import '@firebase/messaging';
 import { environment } from '../environments/environment';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { AuthService } from 'src/auth/shared/services/auth/auth.service';
 import { Profile, ProfileService } from 'src/auth/shared/services/profile/profile.service';
 
 @Injectable({
@@ -37,7 +36,7 @@ export class NotificationsService {
 
         // Initialize your VAPI key
         messaging.usePublicVapidKey(
-          environment.firebase.vapidKey
+          environment.firebaseVapidKey
         );
 
         // Optional and not covered in the article

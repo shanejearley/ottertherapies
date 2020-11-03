@@ -1,0 +1,45 @@
+{
+    "firestore": {
+        "rules": "firestore.rules",
+        "indexes": "firestore.indexes.json"
+    },
+    "functions": {
+        "predeploy": [
+            "npm --prefix ./functions run lint",
+            "npm --prefix ./functions run build"
+        ],
+        "source": "functions"
+    },
+    "hosting": {
+        "public": "www",
+        "ignore": [
+            "firebase.json",
+            "**/.*",
+            "**/node_modules/**"
+        ],
+        "rewrites": [
+            {
+                "source": "/ottertherapies/us-central1/scraper",
+                "function": "scraper"
+            },
+            {
+                "source": "/ottertherapies/us-central1/getAuthURL",
+                "function": "getAuthURL"
+            },
+            {
+                "source": "/ottertherapies/us-central1/createAndSaveTokens",
+                "function": "createAndSaveTokens"
+            },
+            {
+                "source": "**",
+                "destination": "/index.html"
+            }
+        ]
+    },
+    "storage": {
+        "rules": "storage.rules"
+    },
+    "database": {
+        "rules": "database.rules.json"
+    }
+}
