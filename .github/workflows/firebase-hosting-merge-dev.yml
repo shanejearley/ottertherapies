@@ -8,7 +8,7 @@ name: Deploy to development Firebase Hosting on dev branch merge
     branches:
       - dev
 jobs:
-  build_and_deploy_dev:
+  build_and_deploy:
     runs-on: ubuntu-latest
     steps: 
       - name: Checkout Repo
