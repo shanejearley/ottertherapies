@@ -5,14 +5,15 @@
 workflows:
     # Ionic Capacitor workflows
     ionic-capacitor-ios-app:
-        name: Ionic Capacitor iOS App
+        name: Ionic Capacitor iOS App (Dev)
         environment:
             vars:
                 XCODE_WORKSPACE: "ios/App/App.xcworkspace" # <- 'App' is the default workspace name for Capacitor projects
                 XCODE_SCHEME: "App" # <- 'App' is the default Scheme name for Capacitor projects
             node: 12.19.0
         scripts:
-            - npm install     
+            - npm install
+            - npm run build     
             - npx cap sync
             - |
                 # build iOS
@@ -23,11 +24,12 @@ workflows:
             - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
             - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
     ionic-capacitor-android-app:
-        name: Ionic Capacitor Android App
+        name: Ionic Capacitor Android App (Dev)
         environment:
             node: 12.19.0
         scripts:
-            - npm install     
+            - npm install
+            - npm run build     
             - npx cap sync
             - |
                 # build Android
