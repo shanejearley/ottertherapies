@@ -10,7 +10,7 @@ workflows:
             vars:
                 XCODE_WORKSPACE: "ios/App/App.xcworkspace" # <- 'App' is the default workspace name for Capacitor projects
                 XCODE_SCHEME: "App" # <- 'App' is the default Scheme name for Capacitor projects
-            node: latest
+            node: 12.19.0
         scripts:
             - npm install     
             - npx cap sync
@@ -25,7 +25,7 @@ workflows:
     ionic-capacitor-android-app:
         name: Ionic Capacitor Android App
         environment:
-            node: latest
+            node: 12.19.0
         scripts:
             - npm install     
             - npx cap sync
