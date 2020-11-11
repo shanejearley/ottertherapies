@@ -1,11 +1,10 @@
 import { Component, AfterViewInit, OnInit } from '@angular/core';
-import { NavParams, ModalController, Config, Platform } from '@ionic/angular';
+import { NavParams, ModalController, Platform } from '@ionic/angular';
 import firebase from 'firebase/app';
-import { cfaSignIn, cfaSignInPhoneOnCodeSent } from 'capacitor-firebase-auth';
+import { cfaSignIn, cfaSignInPhoneOnCodeSent } from '@shanoinsano10/capacitor-firebase-auth';
 
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
 import { Router } from '@angular/router';
-import { stringify } from 'querystring';
 
 @Component({
     selector: 'app-mfa-verify',
@@ -134,11 +133,10 @@ export class MfaVerifyComponent implements OnInit, AfterViewInit {
                 // Complete sign-in.
                 await this.resolver.resolveSignIn(multiFactorAssertion);
                 this.authService.auth$.subscribe();
-                await this.loginSuccess();
-                return this.router.navigate(['/']);
+                return this.loginSuccess();
             } catch (err) {
                 this.error = err.message;
-                this.loginFailure();
+                return this.loginFailure();
             }
         } else if (this.code.length === 6 && !this.verified && !this.ios) {
             console.log("Verify you are not a robot!")

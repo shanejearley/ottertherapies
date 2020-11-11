@@ -4,7 +4,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
-import { firestore } from 'firebase/app';
+import firebase from 'firebase/app';
 import { NavParams, ModalController, Platform, ToastController } from '@ionic/angular';
 
 import { Store } from 'src/store';
@@ -210,7 +210,7 @@ export class FileOptionsComponent implements OnInit {
                         await this.filesRef.doc(this.copyFileId).set({
                             name: this.currentName + this.fileExt,
                             size: this.metadata.size,
-                            timestamp: firestore.FieldValue.serverTimestamp(),
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                             type: this.file.type,
                             uid: this.uid,
                             url: this.downloadURL

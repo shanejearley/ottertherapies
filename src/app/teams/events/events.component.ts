@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { firestore } from 'firebase/app';
+import firebase from 'firebase/app';
 
 import { Observable, Subject, merge, combineLatest, concat, of, observable } from 'rxjs';
 import { Subscription } from 'rxjs';
@@ -321,8 +321,8 @@ export class EventsComponent implements OnInit {
               id: null,
               recurrenceId: event.id,
               recurrence: 'once',
-              startTime: firestore.Timestamp.fromDate(moment(date).toDate()),
-              endTime: firestore.Timestamp.fromDate(moment(date).add('milliseconds', event.endTime.toMillis() - event.startTime.toMillis()).toDate()),
+              startTime: firebase.firestore.Timestamp.fromDate(moment(date).toDate()),
+              endTime: firebase.firestore.Timestamp.fromDate(moment(date).add('milliseconds', event.endTime.toMillis() - event.startTime.toMillis()).toDate()),
               createdBy: event.createdBy,
               name: event.name,
               info: event.info,

@@ -5,5 +5,5 @@ project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/
 include ':byteowls-capacitor-filesharer'
 project(':byteowls-capacitor-filesharer').projectDir = new File('../node_modules/@byteowls/capacitor-filesharer/android')
 
-include ':capacitor-firebase-auth'
-project(':capacitor-firebase-auth').projectDir = new File('../node_modules/capacitor-firebase-auth/android/capacitor-firebase-auth')
+include ':shanoinsano10-capacitor-firebase-auth'
+project(':shanoinsano10-capacitor-firebase-auth').projectDir = new File('../node_modules/@shanoinsano10/capacitor-firebase-auth/android')

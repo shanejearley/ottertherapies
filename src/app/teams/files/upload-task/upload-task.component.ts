@@ -4,7 +4,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
-import { firestore } from 'firebase/app';
+import firebase from 'firebase/app';
 import { SafeResourceUrl, DomSanitizer, SafeValue } from '@angular/platform-browser';
 import { Scan } from '../scan/scan.component';
 import { EnlargeThumbnailComponent } from 'src/app/shared/components/enlarge-thumbnail/enlarge-thumbnail.component';
@@ -187,7 +187,7 @@ export class UploadTaskComponent implements OnInit {
                         this.filesRef.doc(this.fileId).set({
                             name: this.fileName + this.fileExt,
                             size: this.file.size ? this.file.size : this.metadata.size,
-                            timestamp: firestore.FieldValue.serverTimestamp(),
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                             type: this.file.type,
                             uid: this.uid,
                             url: this.downloadURL,

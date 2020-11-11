@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, OnInit } from '@angular/core';
 import { NavParams, ModalController, Config, Platform } from '@ionic/angular';
-import firebase, { User } from 'firebase/app';
-import { cfaSignIn, cfaSignInPhoneOnCodeSent } from 'capacitor-firebase-auth';
+import firebase from 'firebase/app';
+import { cfaSignIn, cfaSignInPhoneOnCodeSent } from '@shanoinsano10/capacitor-firebase-auth';
 
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
 import { Router } from '@angular/router';
@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 })
 export class MfaAddComponent implements OnInit, AfterViewInit {
     uid: string;
-    user: User;
+    user: firebase.User;
 
     codeFocus: boolean = false;
 
@@ -134,8 +134,7 @@ export class MfaAddComponent implements OnInit, AfterViewInit {
                     firebase.auth.PhoneMultiFactorGenerator.assertion(cred);
                 await this.user.multiFactor.enroll(multiFactorAssertion, mfaDisplayName);
                 this.authService.auth$.subscribe();
-                await this.addSuccess();
-                return this.router.navigate(['/Teams']);
+                return this.addSuccess();
             } catch (err) {
                 this.error = err.message;
                 this.addFailure();

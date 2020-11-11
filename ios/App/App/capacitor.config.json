@@ -14,15 +14,12 @@
       "splashFullScreen": true,
       "splashImmersive": true
     },
-    "CapacitorFirebaseAuth": {
+    "Shanoinsano10CapacitorFirebaseAuth": {
       "providers": [
         "phone"
       ],
       "languageCode": "en",
       "nativeAuth": false
     }
-  },
-  "server": {
-    "url": "http://10.0.0.94:8100"
   }
 }

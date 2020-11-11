@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, DocumentChangeType, DocumentChangeAction, DocumentChange } from '@angular/fire/firestore';
-import { firestore } from 'firebase/app';
+import firebase from 'firebase/app';
 import 'firebase/storage';
 import moment from 'moment';
 
@@ -23,16 +23,16 @@ export interface EventMember {
 export interface Event {
     createdBy: string,
     id: string,
-    startTime: firestore.Timestamp,
-    endTime: firestore.Timestamp,
+    startTime: firebase.firestore.Timestamp,
+    endTime: firebase.firestore.Timestamp,
     name: string,
     info: string,
     location: string,
     recurrence: string,
     recurrenceId?: string,
-    until?: firestore.Timestamp,
+    until?: firebase.firestore.Timestamp,
     members: EventMember[],
-    update?: firestore.FieldValue
+    update?: firebase.firestore.FieldValue
 }
 
 @Injectable()
@@ -47,8 +47,8 @@ export class EventsService {
     events: Event[];
     recurringEvents: Event[];
     date: Date;
-    lastMonthStart: firestore.Timestamp;
-    nextMonthEnd: firestore.Timestamp;
+    lastMonthStart: firebase.firestore.Timestamp;
+    nextMonthEnd: firebase.firestore.Timestamp;
     members$;
 
     constructor(
@@ -67,8 +67,8 @@ export class EventsService {
         this.teamId = teamId;
         this.date = date;
         /// optimization might include only loading the last week of the previous month and first week of the next month
-        this.lastMonthStart = firestore.Timestamp.fromDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
-        this.nextMonthEnd = firestore.Timestamp.fromDate(new Date(date.getFullYear(), date.getMonth() + 2, 0));
+        this.lastMonthStart = firebase.firestore.Timestamp.fromDate(new Date(date.getFullYear(), date.getMonth() - 1, 1));
+        this.nextMonthEnd = firebase.firestore.Timestamp.fromDate(new Date(date.getFullYear(), date.getMonth() + 2, 0));
         const eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`, ref => ref.where('recurrence', '==', 'once').orderBy('startTime').startAt(this.lastMonthStart).endAt(this.nextMonthEnd));
         this.events$ = eventsCol.stateChanges(['added', 'modified', 'removed'])
             .pipe(
@@ -200,8 +200,8 @@ export class EventsService {
         const newEvent = {
             createdBy: this.uid,
             id: eventId,
-            startTime: firestore.Timestamp.fromDate(new Date(event.startTime)),
-            endTime: firestore.Timestamp.fromDate(new Date(event.endTime)),
+            startTime: firebase.firestore.Timestamp.fromDate(new Date(event.startTime)),
+            endTime: firebase.firestore.Timestamp.fromDate(new Date(event.endTime)),
             name: event.name,
             info: event.info,
             location: event.location,
@@ -235,13 +235,13 @@ export class EventsService {
         const updateEvent = {
             createdBy: this.uid,
             id: event.id,
-            startTime: firestore.Timestamp.fromDate(new Date(event.updateStartTime)),
-            endTime: firestore.Timestamp.fromDate(new Date(event.updateEndTime)),
+            startTime: firebase.firestore.Timestamp.fromDate(new Date(event.updateStartTime)),
+            endTime: firebase.firestore.Timestamp.fromDate(new Date(event.updateEndTime)),
             name: event.name,
             info: event.info,
             location: event.location,
             recurrence: event.recurrence,
-            update: firestore.FieldValue.serverTimestamp()
+            update: firebase.firestore.FieldValue.serverTimestamp()
         }
         this.eventsCol = this.db.collection<Event>(`teams/${this.teamId}/calendar`);
         return this.eventsCol.doc(event.id).update(updateEvent);
@@ -251,8 +251,8 @@ export class EventsService {
         const updateEvent = {
             createdBy: this.uid,
             id: event.id,
-            startTime: firestore.Timestamp.fromDate(new Date(event.updateStartTime)),
-            endTime: firestore.Timestamp.fromDate(new Date(event.updateEndTime)),
+            startTime: firebase.firestore.Timestamp.fromDate(new Date(event.updateStartTime)),
+            endTime: firebase.firestore.Timestamp.fromDate(new Date(event.updateEndTime)),
             name: event.name,
             info: event.info,
             location: event.location,

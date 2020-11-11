@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { firestore } from 'firebase/app';
+import firebase from 'firebase/app';
 import 'firebase/storage';
 
 import { Store } from 'src/store';
@@ -15,12 +15,12 @@ import { Unread } from '../teams/teams.service';
 export interface Note {
     body: string,
     id: string,
-    timestamp: firestore.FieldValue,
+    timestamp: firebase.firestore.FieldValue,
     uid: string,
     unread: Unread,
     comments: Comment[],
     isChecked: boolean,
-    commentCount: firestore.FieldValue,
+    commentCount: firebase.firestore.FieldValue,
     flag: boolean,
     profile: Observable<Member>,
     newComment: string
@@ -30,7 +30,7 @@ export interface Comment {
     body: string,
     id: string,
     uid: string,
-    timestamp: firestore.FieldValue,
+    timestamp: firebase.firestore.FieldValue,
     profile: Observable<Member>
 }
 
@@ -154,7 +154,7 @@ export class NotesService {
         const note: Note = {
             body: body,
             id: null,
-            timestamp: firestore.FieldValue.serverTimestamp(),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             uid: this.uid,
             unread: null,
             comments: null,
@@ -172,12 +172,12 @@ export class NotesService {
             body: body,
             id: null,
             uid: this.uid,
-            timestamp: firestore.FieldValue.serverTimestamp(),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             profile: null
         }
         await this.db.collection<Comment>(`teams/${this.teamId}/notes/${noteId}/comments`).add(comment);
         return this.db.doc<Note>(`teams/${this.teamId}/notes/${noteId}`).update({
-            commentCount: firestore.FieldValue.increment(1)
+            commentCount: firebase.firestore.FieldValue.increment(1)
         })
     }
 
@@ -194,7 +194,7 @@ export class NotesService {
     async removeComment(noteId: string, commentId: string) {
         const noteDoc = this.db.doc<Note>(`teams/${this.teamId}/notes/${noteId}`);
         await noteDoc.update({
-            commentCount: firestore.FieldValue.increment(-1)
+            commentCount: firebase.firestore.FieldValue.increment(-1)
         })
         const commentDoc = this.db.doc<Comment>(`teams/${this.teamId}/notes/${noteId}/comments/${commentId}`);
         return commentDoc.delete();

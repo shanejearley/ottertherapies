@@ -14,7 +14,7 @@
       "splashFullScreen": true,
       "splashImmersive": true
     },
-    "CapacitorFirebaseAuth": {
+    "Shanoinsano10CapacitorFirebaseAuth": {
       "providers": [
         "phone"
       ],

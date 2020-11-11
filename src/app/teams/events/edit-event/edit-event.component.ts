@@ -3,7 +3,7 @@ import { NavParams, ModalController, ActionSheetController } from '@ionic/angula
 
 import moment from 'moment';
 
-import { firestore } from 'firebase/app';
+import firebase from 'firebase/app';
 
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';

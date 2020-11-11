@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { firestore } from 'firebase/app';
+import firebase from 'firebase/app';
 
 import { AngularFireStorage } from '@angular/fire/storage';
 import 'firebase/storage';
@@ -208,7 +208,7 @@ export class TeamsService {
       await this.groupDoc.set({
         name: "Everyone",
         createdBy: this.uid,
-        timestamp: firestore.FieldValue.serverTimestamp()
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
       });
       await this.groupMembersCol.doc(this.uid).set({
         uid: this.uid,

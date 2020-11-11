@@ -4,7 +4,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { AuthService } from 'src/auth/shared/services/auth/auth.service';
-import { firestore } from 'firebase/app';
+import firebase from 'firebase/app';
 import { SafeResourceUrl, DomSanitizer, SafeValue } from '@angular/platform-browser';
 import { EnlargeThumbnailComponent } from 'src/app/shared/components/enlarge-thumbnail/enlarge-thumbnail.component';
 import { PopoverController } from '@ionic/angular';

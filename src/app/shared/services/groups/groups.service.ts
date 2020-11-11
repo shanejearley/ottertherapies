@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { Router, RoutesRecognized } from '@angular/router';
-import { firestore } from 'firebase/app';
+import firebase from 'firebase/app';
 import 'firebase/storage';
 
 import { Store } from 'src/store';
@@ -25,7 +25,7 @@ export interface Group {
   lastMessageId?: string,
   lastMessageUid?: string,
   name: string,
-  timestamp: firestore.FieldValue,
+  timestamp: firebase.firestore.FieldValue,
   unread?: Unread,
   files?: File[],
   messages?: Message[],
@@ -43,7 +43,7 @@ export interface File {
   id: string,
   name: string,
   size: number,
-  timestamp: firestore.FieldValue,
+  timestamp: firebase.firestore.FieldValue,
   type: string,
   uid: string,
   url: string,
@@ -57,7 +57,7 @@ export interface Message {
   type?: string,
   id?: string,
   uid: string,
-  timestamp: firestore.FieldValue,
+  timestamp: firebase.firestore.FieldValue,
   profile?: Observable<Member>,
   style?: string,
   fileName?: string
@@ -291,7 +291,7 @@ export class GroupsService {
     const message: Message = {
       body: body,
       uid: this.uid,
-      timestamp: firestore.FieldValue.serverTimestamp(),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       style: style,
       fileName: fileName
     }
@@ -315,7 +315,7 @@ export class GroupsService {
       createdBy: this.uid,
       id: groupId,
       name: group.name,
-      timestamp: firestore.FieldValue.serverTimestamp(),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       isChecked: false,
     }
     this.groupsCol = this.db.collection<Group>(`teams/${this.teamId}/groups`);

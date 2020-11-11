@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>842164942057-hm5d7ji9ajbql08gfmgq2ln42jjpjh7s.apps.googleusercontent.com</string>
+	<string>674073304361-u1kri8c2lvl6dd17n59p6vgmpopd8p79.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.842164942057-hm5d7ji9ajbql08gfmgq2ln42jjpjh7s</string>
+	<string>com.googleusercontent.apps.674073304361-u1kri8c2lvl6dd17n59p6vgmpopd8p79</string>
 	<key>API_KEY</key>
-	<string>AIzaSyAi4ksoBFU9QSC68Z2PHHY8tRY3BgWDQjg</string>
+	<string>AIzaSyAG29AZBAdwb-ejJwOAESNngbCdKFqvJ4Y</string>
 	<key>GCM_SENDER_ID</key>
-	<string>842164942057</string>
+	<string>674073304361</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.ottertherapies.app</string>
 	<key>PROJECT_ID</key>
-	<string>ottertherapies</string>
+	<string>ottertherapiesdev</string>
 	<key>STORAGE_BUCKET</key>
-	<string>ottertherapies.appspot.com</string>
+	<string>ottertherapiesdev.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,8 +29,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:842164942057:ios:873869e7ad6bb76dd3ec78</string>
+	<string>1:674073304361:ios:eaa467df98b7b94af0eb38</string>
 	<key>DATABASE_URL</key>
-	<string>https://ottertherapies.firebaseio.com</string>
+	<string>https://ottertherapiesdev.firebaseio.com</string>
 </dict>
 </plist>
