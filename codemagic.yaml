@@ -26,12 +26,13 @@ workflows:
             npm run build
         - |
             cd ios/App && pod install
+        - |
             npx cap sync
             echo ${GOOGLE_SERVICE_INFO_DEV} | base64 --decode > $FCI_BUILD_DIR/ios/App/App/GoogleService-Info.plist
         - |
             keychain initialize
         - |
-            app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) --type IOS_APP_STORE --create
+            app-store-connect fetch-signing-files "com.ottertherapies.app" --type IOS_APP_STORE --create
         - |
             keychain add-certificates
         - |
@@ -96,12 +97,13 @@ workflows:
             npm run build
         - |
             cd ios/App && pod install
+        - |    
             npx cap sync
             echo ${GOOGLE_SERVICE_INFO_PROD} | base64 --decode > $FCI_BUILD_DIR/ios/App/App/GoogleService-Info.plist
         - |
             keychain initialize
         - |
-            app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) --type IOS_APP_STORE --create
+            app-store-connect fetch-signing-files "com.ottertherapies.app" --type IOS_APP_STORE --create
         - |
             keychain add-certificates
         - |
