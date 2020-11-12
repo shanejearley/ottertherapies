@@ -24,7 +24,7 @@ workflows:
         events:
             - push
         branch_patterns:
-            - pattern: dev
+            - pattern: 'dev'
               include: true
               source: true
         scripts:
@@ -38,7 +38,7 @@ workflows:
         - |
             keychain initialize
         - |
-            app-store-connect fetch-signing-files "com.ottertherapies.app" --type IOS_APP_STORE --create
+            app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) --type IOS_APP_STORE --create
         - |
             keychain add-certificates
         - |
@@ -95,24 +95,38 @@ workflows:
                 CERTIFICATE_PRIVATE_KEY: Encrypted(Z0FBQUFBQmZyS0w2UTc4eWRFV1NHOG1IX1JiRW91RG42eFZzRFRaVkVIY1ZuZUdIaHkwcG91aFBXd1NJVVdjOFNOUzlmcnh4NVhXNUtjc2tIOENuSXFubDRrTWVESmhBZTA2YS1Za21vZllhajBzaHpPZ193QUtQQW1fQjJST2JyZDFTMlkyYWNVR1VHTkkxRTQzbzlMRjB6Nlg4ZHY1THh4X2JyakVpQnVzQ1lJTnRHM2ktbXFUdTRmTUZKTDlJbnFuR1JXYnlMbjhyRzdpMGx3RUhpRXh0aEFEU05jMHo3cklxLWVweS1PTUJvYjNiSjdER29Jdzd4d01qU0Y4N3lYZzd6dEFVV1k0c05wS2R3dllrVnlkZFk2d0Iwb1duS0kybjhrbmhuNG44SlQzdTluNFZGRjZ4UmpuOE5raUJfVzhSUXdDc1Bwa3EwUE1pYkUyeTBfWWNFRXFZMjkybXRlT2dET1VPbFktSjJlM2pycnhVZERpa283dEJVelk0b3JaNl9XSXFxRENlR3k0V1h4MHM0SllaekJjeTFiTHFIcVNQNEZBYXlyak5xVnBxR1Rham1nemZhX2FHX3JIZ01uUTc5cm5MZE1VcG91a0R2bjF5ckw1aWhCTk5sYVBJM2dhT01kOGUzZHNIX1hNRmZjZHNfbnFaYlRFOGFVTWtTZ1FyUzc4dGtpakJVMWhkUHlDSld3cVV6c0xYSXRzNkUwY2MwNkx3Sy1Qd2xjNnZqTW40UlB0VGZEUF9aVmkxaUdRZ1R0SXhyOV9nYjRINVdEMFZyclUwNkdFaHR6SGNhTDVEQzN0WFZFazNBemFTUXRYdGc1ZUgwOW1nU09Uek05SnJWbmYzejdqSEVoaUc1YlMyajFTUlpUUDBkY21xNElaS1hERUNpNENFNmVrUm5DQXdFaTNYZE56OFRGMnZxZTM5MU50T3FJVmcwdGZMbUFqR3B4OXVtVlJ6TFRZNFpobWxQZkhLVjdUaEg5blVWdXRKUkh2dktLdnBpcTRRbDJVcEx5NUJuek9FT3djUzdLZUdDRkhDb2t5ODhzM1RnbjNrV1NncnlUeDJGWmVSMTZoUTE1NXU2bnhIVDByd1VYTGVveHNiMXQ5dzlINUw3QWRRX2pLZzJ1cFN1cl93c0l3U2pjdmxVaGx1NkFZQnRLU3JDd2pnaVgtZlgyUjJlVTVjdG1jeGkxS2dRdlZUSVFpTnFmOFB0SXR2WVljekgycjNERU1WZTVIRk1mNmYxXzR3cFdHbVNBdWswRm9rY3JCMmgtVE8xb09hVk9YUnQ0bmk4Yld1bGl2d0Y0X2h5V1N3Q0tpdmZrRWZNeWRJY1BXb0x6RmZqWERGYlBRczhxZnhPNHRYZG5nVkk1MjRBZTBNbHN0aTlyRDNsOEVEUHRrNGYzbzljOENiSmxLSVplRTFKWnljRmVSZW5wbXRqb3FjYVI0cVAwRjRPUG90NzRudjRmUzdsNkVyWC1zbE1MRnRqVlZsZkRldGlqcXZNd0Z2WmNXQi1HT2FYS1RKZ0ItMV95eE0xaklYY3NfV21Bc2xST25DU3htd0hiQWkxdlo3TjlJWkh5WS1GZEVLQ05jUEo2LTUzMTByVlBXTHBjSVgwNVNnXzNVeTZmb0FlT0h5Y3dRUUdwbmN2ZHExQUx5TVBYYnp3bHZtc092cXZyR3JkSGtuam5GZGhPTTJRb25XT0Q4NkpCaDJ0RmlMNmtDeEdXY1ROclhrRkxmTDIzakVSNVZLU1UzUE5qU0lGSUNnbnhCa3lXLUYtTmFpbllWN081Y3NKNmlDUDhoTTg2NmVqWnZobDN2RHBQdzlIZnBaLVpqOE1Hb1B3VjJKajMwdzJScURaXzRGdHdyR2g1TXk5NktMZ29oRDlSbXdxakx0c0Y1RHdOaEtKRDJiRUlIU01JRGpMTXQtZTd4VVlZU2V2d09LOXFBY25KOWdsdnluRksyV0lsVmZlUW9SbDFRZG15ZzN6dUFIWFlOQU04NHR3SXFWLTlIRW11amFDdzFRaE0ySG5nTGdzZ01va2c4OEpKcjNkNUw0STlnbUZJN2pLWDFkbHlLdE5EV2FFRm9PUFZJX3NURHp0NDl4WkRsVFdlYWVWa2JoVXdDREUtUVJLOFB1NDZBNS1Xa0ZQQk1NMEhjcEdXVC1Gc3pkY1dfN0R3Q1VYNEdyUjZ6eDUydmdkeWlLUVlDaDFPV2JaOEJxRXd4UjNFMTZPOHhRYjJkaG50YVVhU2xWRHVPU0FhdktSa2diSjNwa2xfVGIySF9JdEpVTE41Z2R6TnY2XzgzNXVXUEdnNEhqNGR3S3dibXJYTFRMekJ5NVh3MERrc1drTWFDOWZVNEJrREpiY3IzWEVWRmFSR3hmaW9feDhnb1Q1SGJmc1VxWi1FUDlncHJGSDZ3VDhzYUVUYWhFSkNzZ2k5dEFoZU5ZMW45V3JvMHZ3S1JNNzBFOVlmbmxWQXktR0tpOFVXOFVId1owaVNPZ0ppVUp0QjVCLU9DdS1WYU5IWmMzenVYNEdLclFBbTlMN3F4eXNiMWRFY3JiR3hQTnp0QzdQUm4xQnN6T05HV29wemZzdG9EbXFKSTFsT0tRMTBBcmJzbEhQekNEbGxERG1XLTRUNGJkQWdRbkdZMEZhNmczbjAzdzIyUkdPdEU0TlJiTjZmRHoyd256ODE5bWlFN1A1am04TDlob2w5bU5obzFjV1Z4OUxNRGVEQ3hRRkdKcVdaRXBXd1M1bHZlajNGWnVWWEljOGhzYWx4SDIyWDRZOFNHMl9ORmNMSmxVT0lwV2RWOXdzS1JZVm9jd3pqWlVxUjN5U1dtRjFhbmtvb19ic1lvaUc1LVVsNUN0ZUExQVpMSjItSHdkV1FiVkU1R2xFcUdEcEx6MGVaVm5GRHNWNTB4RGZnYk9QbGZGZ2E5anhnTXhCdm50TVVGNTFhdEZUYkMxOTROdU5fcHh5SnVST2wtT0tsZ0xnTEVHZ1ZaRFZCeXpYRGxDWVcydExMREMteDlnVklYQk1SOUplQnBvQ2dtTWVrY3N1WlVFTzRUZGF3SkRPalpPVURheFlURlQ5dUlMbC1vaDZteGsyUXRqWGJLMXZFdXFqcHBxMHNQTWdkbkNyS3llWHJhQzRnWl9WSW8zTTROY2ctV2pBdklYSXlvZ3FaVWw4NWVWcjkxd0JWMHVBaGVvVlNiNWJtR182U3hHbzAzM0kxUlkydHNNMjQyZ1B0Y2lyX0Fhb19tZG1NQmtyLXdOMDdaWGRPYUxhZjFSOWttcFhpbUVPaHJnTXU4Q1QzSG1sZjczUUtGMEFYZlAtTmZ2czVqeXNtUmJmYTNOeXRsaUtockk0SDVTT3NFbHdvblQxS0U1UjloOC02LW9rbVpad2ZqVnhFRT0=)
                 GOOGLE_SERVICE_INFO_PROD: Encrypted(Z0FBQUFBQmZyQVRvQzRkVGFJaEg1UjNtdWRISkxJQXRMUWxLZFByWFZSRnBHZ043c1JsSGhMZWg0Skl6UWNKWlIxLWVxVXpJaXR4MXFQaVgyVkhLXzg5WGJSZWFWY1ZTcnhUUEJEUEJWeFUyVHhFVDM4eXhha0NCbjdxTmFqMEdHdVBldzhURXRJV0pCZ0E3MzlsRGpIREFkTFRHYVN6U3BZZTR1MUZnaDlrY1BkanYtU3MyTUNKX2xIc0VoQ3BZUVdveDZ1Wlh3VmlFbDYtX3QyMlhMRGJ3UHRFTXVWQW56R3dNb0FZOVk2eTU1OENCZF9zQUp4eDc3OTd6WEpwSngyVFBCQ0RFbC1EcDlWdEVKazNFa1ZFRlN4Zk9lZ05PdGtLNW1PYkVJeG1IVHhzeTRWLUNfRkswM093ZWhIVnB5Yl9rNm1JU2hNVWRrX3JJZ1NmNFJqbkNJdEJGbENVNzhuR3ZJZjdNV0s0YnBLLXE3NWlTM1NSSTB3S0Z5NnlIbzFHQlFoYzMzRVlJM3pNdVl1am5aM0pjTWx2TEFFRVZNcDVrQ0tacFRvdWNmYk5QakdiVXBiUkt3Q25OaWhBM2dLVDcxa3BKbGh3VTJsanBsY0ZhTTNYZWRFak15bmlYLUFmb1RTdUtfbFNCWHVIb1BuNFQ3WUR0REVmZEpOYjZqazVoX0lDWFRQeENZQmRCVDVCZUhFNU55ckxUc1hXeXRyQ29DZ3NWV29OVmJoRU1DXzJDSjJNYWhNUXZ5NGh0NmpUSW9LTUlDZEJtNkFveHNNaFdaOVh1ZkRLbGRUa1JueXIteUo5STZrcGkyZHNReUhvb2xrVVJwWG1pTzZDZWc2MjFROTNEcU5LMEhYbHJJTUxKNHFSUDc0YjhIaGlQd24zekJxbXFPU2RiZU43WXhrb3JzdFRXcENheVRTVW5uTUVLaDI4aHViN19WbjRxTzBqWHZZMjRSZXpJbWxFMGc4RUNzbjkzZDZUZktGR0JweTVUQnVIVkZPYm94Y0lCc0xSNHM3VUo5VWNIcXlQbEtXNUpyRVN1bUcyV01CLUlFaE5Cb3hKT00wR0ZEaHROLWMtUnZfZnhJSTZhaGp4SnlCc1Rsb3dYeFhsT0lDMlBzMXI4dDVZb1dHMFk3eXh1MTItRDJEanhCdEpSVjFYd04wb09YRjZPcjUxX1FhQ0xaaGxYM3BGUl9NRE1aeUlRNHNpM0IxN3F5STZGUm9mVDV5YURmMjdISWZBRFlnOWx5ODM3MWxBYW9lbzAtMmRiR0N5VzctX3hjOEVrSFhtbExqMWtza20ybkpHaG5HaFcwV08zWFNzOWdaUTN0R19IamJjTVVrNTFxaTY3TElKZXNGV2txV0hiQm9RTW5IWVVYcDRxY2JhVlF0Yk51TWR5aWRYSmRBZ2NRMkV2QmFRcmwtSnBvS01FMEt5RjlCbU5qZEF3NmdXdmpzdTdUa3U3S1RBblBBSE5iMUdxX2d4NTM5VFItaHVVaExNWk1xTVBGd2QwelU2cXoyVFV1UGF3X0tOaTlwdGhzSjJ0UjBocGt5c2lnSzNadTZXZ0hNdVFXTWRmb2F6X285aHVKajFGZkpZX3dNOVdXLWlrRzdaZmtBRnRjeGFSdUZWNGxxNVdac3kxMWJtZlpuZmRmYi0wZXVZVFVRUUR0MDNELWJVa2xMdWRtOEQ0eTNxc19FenIxS1gtOHZ4SHFyd1BOUEduU1JvaXVKZklBUkFGb2FXdk9aNHhHTGlmLTAxNUNoQk5aSWRmUDRxckZ3X0QxM1hnYWhrcC1XYkZDM3B5WTJiUXE0VWxKZDBSZXVZUEw0bndYWmtfVDJEMGJ2ejVfcTZBZlpQSldicGlreWJHUGRYSi1SMGtGd3BhSWtTSFFUVVY0QUFCNnRQZUZJSE8yZF9zUFBPS0V1VkViQlNiQUlMVzEzOWhkQmQ0bmdFcjhSVXZIU2d0amxwQUZDdEZuX1dGak1ZZThpaWZ4Y2pWYWR4akFkWmdWVk1CdUxjbUxtWFhIdjFaS3JGeHhSdEVBaF9zakRIamtxODQ0THlNbmtSNkl0bVpoMU51ZGZGdmFYanljc09aVzhiSEtVMHNObUU4NFJnQ0JUb0FXbDkxU3hwR3ZWSjdHMk02ckhINzBseVU5OTB0c3VzZ195T0RMdlR2c0xnd2Z2dlNXeVlwdFVNbWFOSzdyUWd0WFpYZGJZOTRTUDhBbmtOU25KcXlWbkg3MW41X3dxdVdrV3FlLVRtcFF0RHdqUUU3SG54MFBzYjZiMGFYdGRSSmNFdnRsdUFwcTRKWFdiaXY1UE9jTUk3NG1rUDFNVXlPMUFac3FlcXpETmFTb2s4M3h5SGtsYVNfVDJhZXFiXzYtUEpWT0Z5WXpBVVRBelZYZmpUVnZENWg2X2tiLWNOaGNTMzlzTjB3QmZxUV9wblhzZFVIZTdSWHRlY21mV3NLNXBERURaaGdfY3BZXzFqbExjZ202U0pNZ0Q4cGZMZVlTaWJRX0RoTm9UamUtWGVUdWtpd3Q1NHhoZHRZR3ZadGFiTFp1MEJqbXFlR3hHdm01MzllR3NNU3ZHd3lnWElhYXBuMEY3eUFua0ZGd0tma2dXMldaWm1Xam50V1lqN1Z1bEt5U0tnTGdzLWM1bTF5elVWUVZrcWhhNGQ3ZWZZa29HUHpUeHoyU3hjaTA1dFpPdkVwcE5XQjVwZXE4TGpDZ3JWRkhHdnNLd3R0T3VqcGQ5S0hHSjNfMDB2M3RDdlNYTXkxNXVKdl96V2NpUFVnY19FY1h4cE1GRmdxY0RoOURBT1djUlhZRjJMUWNRZDZteXJoN1A4Nldyc2xROFloX1VBcVdPOGhvbjUxeXhIZXROcVV6Ylg0b0ttSzAxTHFoWGh0ZElkVjR1OGpscjdpSzlrY0NKMzhrd3V4c3hyVUw5WEtqWGM0ejhtTVRtaXl4UFQ4UDBOMkVub1ZvOUVqZ185ZnRVZGZFSm9Dbk1ZNVJPOU9xOUNZeVVSLWdia2cyeEUwcUxOY1BDc0lGMGxuUVhmUVFQMDBBcE9XT041a2JPTkdpY0hYel9rOVM5M0pNbzZOaXVJUTFoQ0t4TE9EZ0ROMWxoaFZtWXp1M0ZZLTBXeFgyZGdmdFpnSnVKY3F1ZVRQLUlySGh0WGhaUTA4M1RIa0MybTdWcjBPQzBfV3VjYVkydlY0bUNrTTkzdGYyMmpvcW5Mb2hfTmVlejg9)
             node: 12.19.0
+            xcode: latest
+            cocoapods: default
+        triggering:
+        events:
+            - push
+        branch_patterns:
+            - pattern: 'master'
+              include: true
+              source: true
         scripts:
-            - npm install
-            - npm run build     
-            - npx cap sync
-            - echo ${GOOGLE_SERVICE_INFO_PROD} | base64 --decode > $FCI_BUILD_DIR/ios/App/App/GoogleService-Info.plist
-            - |
-                # build iOS
-                cd $FCI_BUILD_DIR/ios/App
-                pod install
-                keychain initialize
-                app-store-connect fetch-signing-files "com.ottertherapies.app" --type IOS_APP_STORE --create
-                keychain add-certificates
-                set -e
-                set -x
-                cd $FCI_BUILD_DIR/ios/App
-                agvtool new-version -all $(($BUILD_NUMBER +1))  
-                xcode-project use-profiles
-                xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
+        - | 
+            npm install
+            npm run build
+        - |
+            cd ios/App && pod install
+            npx cap sync
+            echo ${GOOGLE_SERVICE_INFO_PROD} | base64 --decode > $FCI_BUILD_DIR/ios/App/App/GoogleService-Info.plist
+        - |
+            keychain initialize
+        - |
+            app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) --type IOS_APP_STORE --create
+        - |
+            keychain add-certificates
+        - |
+            #!/bin/sh
+            set -e
+            set -x
+            cd $FCI_BUILD_DIR/ios/App
+            agvtool new-version -all $(($BUILD_NUMBER +1))  
+        - |
+            xcode-project use-profiles
+            xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
         artifacts:
             - build/ios/ipa/*.ipa
             - /tmp/xcodebuild_logs/*.log
