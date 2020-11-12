@@ -32,10 +32,11 @@ workflows:
             npm install
             npm run build
         - |
-            cd ios/App && pod install
-        - |
             npx cap sync
             echo ${GOOGLE_SERVICE_INFO_DEV} | base64 --decode > $FCI_BUILD_DIR/ios/App/App/GoogleService-Info.plist
+        - |
+            cd $FCI_BUILD_DIR/ios/App
+            pod install
         - |
             keychain initialize
         - |
@@ -109,11 +110,12 @@ workflows:
         - | 
             npm install
             npm run build
-        - |
-            cd ios/App && pod install
         - |    
             npx cap sync
             echo ${GOOGLE_SERVICE_INFO_PROD} | base64 --decode > $FCI_BUILD_DIR/ios/App/App/GoogleService-Info.plist
+        - |
+            cd $FCI_BUILD_DIR/ios/App
+            pod install
         - |
             keychain initialize
         - |
