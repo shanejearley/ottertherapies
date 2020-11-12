@@ -1,8 +1,6 @@
 workflows:
     ionic-capacitor-ios-app-dev:
         name: Ionic Capacitor iOS App Dev
-        max_build_duration: 120
-        instance_type: mac_mini
         environment:
             vars:
                 XCODE_WORKSPACE: "ios/App/App.xcworkspace"
@@ -15,43 +13,39 @@ workflows:
             node: 12.19.0
             xcode: latest
             cocoapods: default
+        triggering:
+            events:
+            - push
+            branch_patterns:
+            - pattern: 'dev'
+                include: true
+                source: true
         scripts:
             - name: Install npm dependencies for Ionic project
-            script: |
-                    npm install
+            script: npm install
             - name: Build web assets for Ionic project
-            script: |
-                    npm run build   
+            script: npm run build   
             - name: Cocoapods installation
-            script: |
-                    cd ios/App && pod install  
-            - name: Place firebase config
-            script: |
-                    echo ${GOOGLE_SERVICE_INFO_DEV} | base64 --decode > $FCI_BUILD_DIR/ios/App/App/GoogleService-Info.plist
+            script: cd ios/App && pod install  
+            - echo ${GOOGLE_SERVICE_INFO_DEV} | base64 --decode > $FCI_BUILD_DIR/ios/App/App/GoogleService-Info.plist
             - name: Update dependencies and copy web assets to native project
-            script: |
-                    npx cap sync         
+            script: npx cap sync         
             - name: Set up keychain to be used for codesigning using Codemagic CLI 'keychain' command
-            script: |
-                    keychain initialize
+            script: keychain initialize
             - name: Fetch signing files
-            script: |
-                    app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) --type IOS_APP_STORE --create          
+            script: app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) --type IOS_APP_STORE --create          
             - name: Add certificates to keychain
-            script: |
-                    keychain add-certificates
+            script: keychain add-certificates
             - name: Increment build number
             script: |
-                    set -e
-                    set -x
-                    cd $FCI_BUILD_DIR/ios/App
-                    agvtool new-version -all $(($BUILD_NUMBER +1))        
+                set -e
+                set -x
+                cd $FCI_BUILD_DIR/ios/App
+                agvtool new-version -all $(($BUILD_NUMBER +1))        
             - name: Set up code signing settings on Xcode project
-            script: |
-                    xcode-project use-profiles
+            script: xcode-project use-profiles
             - name: Build ipa for distribution
-            script: |
-                    xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
+            script: xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
         artifacts:
             - build/ios/ipa/*.ipa
             - /tmp/xcodebuild_logs/*.log
