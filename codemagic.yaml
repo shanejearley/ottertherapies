@@ -42,7 +42,6 @@ workflows:
                     keychain add-certificates
             - name: Increment build number
             script: |
-                    #!/bin/sh
                     set -e
                     set -x
                     cd $FCI_BUILD_DIR/ios/App
