@@ -8,6 +8,7 @@ import { Plugins } from '@capacitor/core';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { Store } from 'src/store';
+import { Router } from '@angular/router';
 const { Browser } = Plugins;
 
 @Component({
@@ -38,7 +39,8 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
         private authService: AuthService,
         private store: Store,
         private modalController: ModalController,
-        private routerOutlet: IonRouterOutlet
+        private routerOutlet: IonRouterOutlet,
+        private router: Router
     ) { }
 
     ngOnInit() {
@@ -78,6 +80,8 @@ export class TwoFactorComponent implements OnInit, AfterViewInit {
             this.data = data.data;
             if (this.data.response !== 'dismissed' && this.data.response !== 'success') {
                 this.error = this.data.response;
+            } else if (this.data.response === 'success') {
+                this.router.navigate(['/Teams']);
             }
             console.log('dismissed');
         });

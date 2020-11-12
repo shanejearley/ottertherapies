@@ -65,6 +65,9 @@ export class LoginComponent {
       this.data = data.data;
       if (this.data.response !== 'dismissed' && this.data.response !== 'success') {
         this.error = this.data.response;
+      } else if (this.data.response === 'success') {
+        console.log('auth success')
+        return this.router.navigate(['/Teams']);
       }
       console.log('dismissed');
     });

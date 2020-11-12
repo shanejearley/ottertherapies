@@ -10,7 +10,7 @@ android {
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
     implementation project(':byteowls-capacitor-filesharer')
-    implementation project(':capacitor-firebase-auth')
+    implementation project(':shanoinsano10-capacitor-firebase-auth')
 
 }
 apply from: "../../node_modules/cordova-plugin-badge/src/android/badge.gradle"

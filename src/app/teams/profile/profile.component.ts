@@ -1,20 +1,18 @@
 import { Component, OnInit, AfterViewInit, NgZone } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { Plugins } from '@capacitor/core';
 const { App, Browser } = Plugins;
 
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
-import { HostListener } from '@angular/core';
-
 import { Observable, Subject } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { switchMap, tap, takeUntil, filter } from 'rxjs/operators'
+import { tap, takeUntil, filter } from 'rxjs/operators'
 
 import { AuthService, User } from '../../../auth/shared/services/auth/auth.service';
 import { ProfileService, Profile } from '../../../auth/shared/services/profile/profile.service';
-import { TeamsService, Team } from '../../shared/services/teams/teams.service';
+import { Team } from '../../shared/services/teams/teams.service';
 import { ProfilePictureComponent } from './profile-picture/profile-picture.component';
 import { DeleteUserComponent } from './delete-user/delete-user.component';
 

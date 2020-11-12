@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { Router, RoutesRecognized } from '@angular/router';
-import { firestore } from 'firebase/app';
+import firebase from 'firebase/app';
 
 import { Store } from 'src/store';
 import { ProfileService, Profile } from '../../../../auth/shared/services/profile/profile.service'
@@ -49,7 +49,7 @@ export interface File {
   id: string,
   name: string,
   size: number,
-  timestamp: firestore.FieldValue,
+  timestamp: firebase.firestore.FieldValue,
   type: string,
   uid: string,
   url: string,
@@ -63,7 +63,7 @@ export interface Message {
   type?: string,
   id?: string,
   uid: string,
-  timestamp: firestore.FieldValue,
+  timestamp: firebase.firestore.FieldValue,
   profile?: Observable<Member>,
   style?: string,
   fileName?: string
@@ -277,7 +277,7 @@ export class MembersService {
     const message: Message = {
       body: body,
       uid: this.uid,
-      timestamp: firestore.FieldValue.serverTimestamp(),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       style: style,
       fileName: fileName
     }

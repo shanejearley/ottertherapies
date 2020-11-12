@@ -40,7 +40,6 @@ export class AuthService {
           this.store.set('user', null);
           return;
         }
-        console.log('AUTH CALLED');
         const user: User = {
           email: next.email,
           uid: next.uid,

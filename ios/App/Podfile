@@ -11,7 +11,7 @@ def capacitor_pods
   pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'
   pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/ios'
   pod 'ByteowlsCapacitorFilesharer', :path => '../../node_modules/@byteowls/capacitor-filesharer'
-  pod 'CapacitorFirebaseAuth', :path => '../../node_modules/capacitor-firebase-auth'
+  pod 'Shanoinsano10CapacitorFirebaseAuth', :path => '../../node_modules/@shanoinsano10/capacitor-firebase-auth'
   pod 'CordovaPlugins', :path => '../capacitor-cordova-ios-plugins'
   # Do not delete
 end
@@ -19,6 +19,7 @@ end
 target 'App' do
   capacitor_pods
   # Add your Pods here
+  pod 'FirebaseCore' # Add this line
+  pod 'Firebase/Messaging' # Add this line
   pod 'Firebase/Auth'
-  pod 'Firebase/Messaging'
 end
