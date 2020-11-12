@@ -112,7 +112,9 @@ workflows:
             xcode: latest
             cocoapods: default
         scripts:
-            - npm install
+            - name: Install npm dependencies for Ionic project
+            script: |
+                        npm install
             - npm run build     
             - npx cap sync
             - echo ${GOOGLE_SERVICE_INFO_DEV} | base64 --decode > $FCI_BUILD_DIR/ios/App/App/GoogleService-Info.plist
