@@ -6,6 +6,8 @@ workflows:
     # Ionic Capacitor dev workflows
     ionic-capacitor-ios-app-dev:
         name: Ionic Capacitor iOS App Dev
+        max_build_duration: 120
+        instance_type: mac_mini
         environment:
             vars:
                 # Ionic Capacitor Xcode worskspace and scheme
@@ -23,13 +25,6 @@ workflows:
             node: 12.19.0
             xcode: latest
             cocoapods: default
-        triggering:
-            events:
-                - push
-            branch_patterns:
-                - pattern: dev
-                  include: true
-                  source: true
         scripts:
             - name: Install npm dependencies for Ionic project
             script: |
@@ -43,12 +38,10 @@ workflows:
             - echo ${GOOGLE_SERVICE_INFO_DEV} | base64 --decode > $FCI_BUILD_DIR/ios/App/App/GoogleService-Info.plist
             - name: Update dependencies and copy web assets to native project
             script: |
-                # npx cap copy # <- use this is you don't need to update native dependencies
                 npx cap sync # <- update native dependencies and copy web assets to native project          
             - name: Set up keychain to be used for codesigning using Codemagic CLI 'keychain' command
             - name: Fetch signing files
             script: |
-                # app-store-connect fetch-signing-files "com.ottertherapies.app" --type IOS_APP_STORE --create
                 app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) --type IOS_APP_STORE --create          
             - name: Add certificates to keychain
             script: |
@@ -59,7 +52,7 @@ workflows:
                 set -e
                 set -x
                 cd $FCI_BUILD_DIR/ios/App
-                agvtool new-version -all $(($BUILD_NUMBER +1))          
+                agvtool new-version -all $(($BUILD_NUMBER +1))        
             - name: Set up code signing settings on Xcode project
             script: |
                         xcode-project use-profiles
@@ -83,6 +76,8 @@ workflows:
                     failure: true     # To not receive a notification when a build fails  
     ionic-capacitor-android-app-dev:
         name: Ionic Capacitor Android App Dev
+        max_build_duration: 120
+        instance_type: mac_mini
         environment:
             vars:
                 GOOGLE_SERVICES_DEV: Encrypted(Z0FBQUFBQmZyQUpRRUpKYVItNHFwandJaVVydkJvZ2E1anpqRWVHWnNCODlLNzE4bkRndENXTl9YWWNPVThMazlSTEQ0ZDBUYkNGbGhvbnYxVzZQa3ZkWndCTzhDdUZJem1vbDBHc21KdDYzMXgwRW9vVkt5Y3RqU3R4bm8wMUpQVEFMaGp0N3I4UnVLbGZDeUMxUVJ5bURsS011a2pNS3pMakktbk02bGxBY096U2JLSHAzV2VpYndLTFFRZk9MMGZiWlFBalhSX1B3bE5HQkdJTkdwZGpsek9ZQXdxaVdjSXdGXzVsQjFpM0Q4Y3NtN0ZvR0RFTUFqcGhjN2NnSVBNVVcyN1JtVVZkN2FIZVdxZHpvLTQxdmZRZkVBeEVFQjY5WnNFSEYwTTJ1OEkya3o1WEpqLXdEa0F1Ti1YZ0hkaUY1cmpGQTlOZFR2RUdORHZ5aHROaVBtMk91ckR1QnFPQ0twYThBTHJiMHBFZFZ2WVR0WEVsa09Mc0czQmFacUV6aEktaVdJX1l4ZUtRNklCS0lER3d4RXhjdTdPZVdkT1BpTXgwLUhzeDIyQkFmRWtqdzF2cWpVMENvSUFiNmtmZEhScHpRMnNGZUZxbFBoS1c1RFJYN0NvdkVwelIycHoyX0puSnFQeEJBTUN3STdmU0NOSEdtSDFWV3o4NUhKb19aSlJtV0ZmeFZNZWlsYmJPQXlBWWhRVTctaHJ4M196c3I3MmFCeXMxYzI4ZDJqNDJfYVRLR0FhQW5KTDNQZm1CRzRvY0tnU0RIdEFQLVhabGExRDdiVGRPQmhpOFdSaXJkTDZjN0ZqWHFIV3o0eXJ6M3gzUExadnhuWGg0T2JZWDJTc09jeEViZm12TGdtOW5IRXVBbFpCa3dNX3l1MHduRzJoYnNoRmVVd0NjTXdMNU81dklZajV1cjQyM3oyZzJxbF9keFp3VnVHVjJ2YllKalo1djdGSFkybFB0Qm9TQ2N6d2ZwSmc1ZjNaeGhXYW5KYlE3VGlfRTBUNzBNVTVMWUZUYWZLUFlXaXdyVmx1UzZKVDNycXBwLTltV2xIOFZqcjJqZVA0ZVlXd1AyRnVyLWpTVjZQaTgyeGk5aVkyOXhtZnpWUkx1VlJqVTctUHRnb29vQVQ5anhGcnBGaUFXWmdFTENvaVRKb1JQNTdxdHFhN2JIY2U1aUhzeXAtc3o2NWFZd0tabUI1SUl1T0xhZnVYNFdNcWdIT2dscC1ud3VhNk5nWTV2bjU2OXZJR1ltTzZWZWVaUXJnV3Z4cG5zSTZ1X0s2UzFXS0VpTmRxLTlkV0l2Qkd0d0FkWHdSdVdJbFFGbzFPVUl1OG5SWmtSQlFJelB6OXNuS0NKbHN2Sl81V1Z4YlVyVjNYRVR2VDJpVlNUVlU0ZVlKZ0dmcTBVRlZyeGRhMHBjak9Oc05ETGVFYUJkYmt6QjVhV2M2bjhzd2k2V2MyTkFOWUlwb29jQVFpVmJTa05lenBhTWo3ZnpjZkY3WDdLbksyOGFyWW1IQV82QzlhaENSS1VSZjk3SVBocElUYzRranBLekZFWHFuZXZyekZ5eW1saEQ4OWpKc2NkeUtaMnpUY1VmZW1Ra29TT18wWmFKQVdvVXFTZVlld1BGUzMwUzUyZkowdGZJQWV0aS1qT3NOS3FZc1FYb1dMZW5CMjB3QkYzT29kbkZDUV9OWEdVRDR5U3dPV2hReHpnaWtHMC15TzdjdVlkRjRETVhFSWVPMUhReVotQXQ4OWlNbk0yb2ZuQTQ5a3F6ZFNiSnNjSnp5Mzd3MDc1anRfRDNOR3pBNEp4Z0FmMGM3TzI2RFJpR0FfQnRzRGpIYThtSW9iYlZudE9rQkNzU0RSd2JqWnU2aHRNOXpvOF9oMVUzMzNyYXJHWnhfc0lQZlY0WEpJc1o5blU0Q2owZTNiVWJ0VFlrY1FWWGNvR0RzNjlWRnFQbUtuYVRrWTlwSmV1Qzg5UUNWQXZ2OFBiNi1zT2lwSS0yQ1VfUlVkSDg4UnlNS2hiTmVvS2tyT2VqX1NhdG5uLVhLV05wUUwxeUU2NWtGS3FxRVY1XzY3aENEOGVIdGZ4YXVybWppNnNLVUxuR3piMjJwMGx4bnpONG5nRlpsY3dJUmloTEJyY0hoaXIxNFBGYnZockk5Y01QdHJmM2thTkJVM0ZFQzBQQUUxRmhFQ0MtUDlzZ0IycXpJdV9DcFhHd0FGUEZ3aFQxdnY0QVdvdXFndHhqVDAyYmJqbUFudEFYT0ppb0NReHpKNmMwU1djbm5meW8tM2JES1lFd1hYSHQ2QmpXZkE5ZW8wMURkcGc0cEtSNGZmaFJ3dzZVYnZWXzhHZjJFS2dIbHVneHJjOVJ4NHpZRmw1T2xMWDlhS09RdENGcndQTUxOd0pNV2dTaFlLZmR0T09rajhFQi1fMFBiQUVhQ1lyNW94NHlwcGpEZHh3Z1ljQUdnZzNlci16SjFSc2lsS0lGU1drRWZLUXA4cW9RWk5HS09nVkNUMk81bnJ1VEgzVEk2VGxBVWtKa1NCTVhoMVNxakR0a1ZoUlpReS10R1JLWFFzenctZVJkRlQ4cDE3dTJTc0pCN0VqUzNRMk1jT19UZGtlLXJjaDhCTEhxNnpwRUtjdWZxSDRveHl3R1lvNFo5VEczcGRGbFdDR3RpUk90YTJZTVctRTdqdE9Ob0taOW9Kem1MTkJUQm85SUlLRHYxMHh5VzlCMEt5dlFOb3hIaGVEXzRGUXJfOUd0Q3UyUXJfdGdQcnNwU2Y1d1d2QW9KdjRoamZ6VTROM2RMal8waHJRRE5QMUxKSXZydGNDVVg3Q1JYSTRLLXJseXEycDJhYXJSMDU1UnYtTkZXN0V4R3I1ZU9MRjBhZEdiWmNvRmEwV2xUNEdoQzNZeFdQbnFyNm56bnUyZnFrSWkzeHdsM0JkVC1obHpSYzFEVllfQXhqZFJlVnFfa1pXT1dFZmVaQWJwUk40SnpMTWNfRTBlY3MzemRlS0ZDSWpkY3lmc0JDb1FPR2ZwdUJQWlpxVXRyZkZxQWZGNFM1bDZfT0ZycnhrMWlvTFc2MndmY2I4emhZSWhxUnNJaVNDbVJ6TDZzZHBRXzNwNlJIWmJLbTZUSjdiUnU3dHFjbUZvRjE5WFFLWEJJeVYtTkN5eUE5aFF4VzBaUmlIdGJobWFwTXBXZGt2dTZjTTZRNk92T3RuUXZZX0hjdzBnQ01PQ00teUF5a3VqTldCa1RBRjFSeFJHLUdyNmFYVTJkZU1LczJnWmlldTJGWnRrSGoyRFF3PT0=)
@@ -101,6 +96,8 @@ workflows:
     # Ionic Capacitor prod workflow
     ionic-capacitor-ios-app-prod:
         name: Ionic Capacitor iOS App Prod
+        max_build_duration: 120
+        instance_type: mac_mini
         environment:
             vars:
                 # Ionic Capacitor Xcode worskspace and scheme
@@ -118,13 +115,6 @@ workflows:
             node: 12.19.0
             xcode: latest
             cocoapods: default
-        triggering:
-            events:
-                - push
-            branch_patterns:
-                - pattern: master
-                  include: true
-                  source: true
         scripts:
             - name: Install npm dependencies for Ionic project
             script: |
@@ -138,12 +128,10 @@ workflows:
             - echo ${GOOGLE_SERVICE_INFO_PROD} | base64 --decode > $FCI_BUILD_DIR/ios/App/App/GoogleService-Info.plist
             - name: Update dependencies and copy web assets to native project
             script: |
-                # npx cap copy # <- use this is you don't need to update native dependencies
                 npx cap sync # <- update native dependencies and copy web assets to native project          
             - name: Set up keychain to be used for codesigning using Codemagic CLI 'keychain' command
             - name: Fetch signing files
             script: |
-                # app-store-connect fetch-signing-files "com.ottertherapies.app" --type IOS_APP_STORE --create
                 app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) --type IOS_APP_STORE --create          
             - name: Add certificates to keychain
             script: |
@@ -178,6 +166,8 @@ workflows:
                     failure: true     # To not receive a notification when a build fails    
     ionic-capacitor-android-app-prod:
         name: Ionic Capacitor Android App Prod
+        max_build_duration: 120
+        instance_type: mac_mini
         environment:
             vars:
                 GOOGLE_SERVICES_PROD: Encrypted(Z0FBQUFBQmZyQVJIdHN3bDZPT3hwQlZNQUVWWGVQNkNMUTRtbUNhUGJQSG5ZYjg0Y3JuMEdIaGJLQUN0LV9yeWlnWGZaMnUwY0ZLcmM0cDZsbDc0aFJTSmJoelJfOHBYVlhIODJQTFJBdVNWRzNXd3lZUzVNYkp1bC1aWldoNlg2ckZ0NHYwbVFPemE5VGZnMUk2eWdQUUpEeVFVcXRzbEwteU8xdHEyYjg5ZzhKZDB5cms3VVUwMVk1ZjlnQlFhUXctUElrWHlNZnJZVGhQaG02ajF6Q3VacmxvV0t5Sm1vd05nRFRsa18yZUJ4QkppMVRLM19GVm5BUThCRzQ4bnlEeFpQSEJVU2RVZDk2RUdIRl9aZXNXOTg4TUtyVzNGZFpraldZRUJZME5rd29KN243MzlaelBQbk4tcTN2RVMwUTJvaEx0aF95VW8zOVNTVFNBRm1taThSUjNDSFk5RkZ5N29PUTlPX0QxWXNFX2tfVFh5a0p6d0hFYkZGWk94X19rTGw2Y3dsaFhhMmEybFc3OGRTZ3JOUWt0bzludkJnRHItNFhaT3pNdlJZN1Via3R4UlI5SjNvck1uZmJWcXdtdU11M2swNGt5WEphSTBJQWlqQnRjTTRldGQyQ0tvdnBwdWJYOGpvQXllV2pFdE1vRTNPM2V1OXJvbC1IZkpmeFpKdWt0RDdLSTVmUGxwd1ZsUnVMaUpvS3VGUjY0Q0FROTdlXy1mbXZOY05MX3VQUzMzT1RqWl9TMzJ3a3M5ZGc2YnVlRlNPOU5pNnVzR0p1OFo5QjhuaXE0MnZveWFITEQwek5qUWhlWHY5MFBEME1qb0NDQkJpZTVsTkc5bS1kRmNkWDdiN0QzMU56S3RIWkowUXFMMFZuS2xlOU5KWERDRVp1ZXBPUUxLbV9jbnNXWGdGbTRBeVhiX0lsbWx1VU1GdzFsRVVpVWF6c1dVMTlMMEdQaHhnRlNuOWlFb0p0OWJ1Z2E3dTJtMXVGRzZucmdDU1RNSzRPdWR1NXpjbGJHaEtvVktwcjJiU3dsNzR1N3J6aTg2a014UFFyR1h1aE5DbHl0YjNnMFgyZEpWdGdqWWxuZWk1SXpFNE1mdWhDN3N0MGg5RklRQlRFam02SnlOTXlmWFkzVG5rYnFPaTFLSkNiYmJObXdRN3N2VGhtaHhCVm14LTQ1MHA4UmhVd2k1YnphRURFNmcwRDhydmJ3RXM2a2xqTmxBUEZiLWFleVNxUWJ4bTJOVDZzTjVwZWhnd3dsQ0JZV3hJeGg4S0FpamdZRXZOVmRuSzFVbWwxallidFJ0aUtVc2hfOGFidTdBb04tam1WNG9wMC1kUkxrMnA3S29NcWJRcGJIbFUxOEFBUE1QLWxORXFfU3Zib1JMVjZXUjFyRTdleDZneGFkM082VUI2eHlqWm9BSWx4cV9aNDVydDd4cFRtWHhlN29PM19UdUZsRlN0S05ILUtxOTdWOTBUR3N6UDZ2M1RxcUw0ejVWMzM2NnhvODdHazZ3ZkZmV25hOEhGUWNjQkZ0VWFlWXZ1QXVRR0xXMlRYWVdocWYwSXNwQUF1clhpem8wM2ZkUldqZklDQXJmN2lOS1M2YzJWdnBBUTdTMFZZME9IMWdENl9hb1NvZGdFWmtwM3pHeVVCakxoVmZ5TmJQT0NlMFJqRTNYMHJXWUo0ZEkwbm4wdkNrZWozSi1yb0w0RUxXRkVXMk96aUNwazEzYlZ5eHZOQ2o4cWdoQ3pZLURZRFQ2MmNQTDNGZjZLZ1NhRjR6NW1CV3FUVnV1Nmd3a01DdlFXX3FuN0xHX2VWU3hydHAyZEsyOXo1ZXBfd0N5SklEN1ZLNHl6NTBKeUhrLS1EOWNUWFdxRk9raVc2djlBbzJabk1CT3I2Y2dqMURjeEdXNWVTaWs0eFZhTmlkdXlxWjNvLTg0WjJwY2RPUVBxdkx4YXczNE5kZVdaZmZKeHJXTFpIeHc2ZEFkWVdkTEpfa290TGJWcTlsMUF0YjV2c2xGblU2dE10Y2hrUFZvRVRNMFBfejBTNTg0Y2pyTXJxUDBCM2ZVdXBVZ21vX2phZDhJQmF4d2UwMy12M3puRnZvUEplX1oyZGlVTDhRQ0hYWjZmSTgtUWFxSkZpYTVDdWpmQ1pJYkRUTzVGdm55dktZZjQ2TnB0Ulo5QWU4dE5PZnlEbjlLM01XdllPRW80ZkZvRUYtTDZjLTE3TVhhbUJzOENYRmg0Ri1hWVlIY2J5OEttZGZqLVFFeG9lUXYycEJoWlRfem9JbWRtTTlwdzl3YnN0cndnQnRJV1h3emZva09QbTlYU3JVVllyNTlWOUFHblh0ZU9kR2d4cGRBTDNWcnZob2FIbzRfaVdvb2pod0hKS0k4akhkMXZCVS0yblBjd3dsVXhhVFVMOWR1N3NlZzNldU80WXd4ZGlkd3BHNUZDZ1ZzSEZFUGNtZlNkZTVZbFVEVWlfYTZaRTVJemtTOERjQ3ZVNE5URElMNXZHM1U3dlhiRU01RkdWRURZMXFrQkZ2aExnUlRzaXFwTTdqSjJ3QU5mLTZOaG5VSHRFblp5WnA5d1ZlVmJKOEZLS1RNREk5Rm1Gb0ZQSENoeFdXT2s5ZG1vS0U1Q2xKc3VMUFZtWjU1cFY2bDJZRC1NUVdKaWw0VDFPaWloSTAzTU5fNExlMzcyREJZcWxiTHRNamQxS1V0b1otdHRqOVE1ZFZnc1l6eUxSNHo2WTJtRVlHZWZ1S2dwSC1vOFYwbGp0TUptblpaTUFMeWlLdlJ1X3lUUkNCU3dWMHFMNGhVT0ltU0FnWEFvekp6ZVF4d0cwaDEwZlFGRDRBV0NJS3lnOXFKYVBXMm5oNl9EdVVRMmhPU3k0Vk1uZnhsVWQ5TFZ6MjVyY0RuUXpsb21uMlhQUFNqcmN0T0NfQ2c4a3NiMjhGSTBPM2tQTzQtb2N5VmQ5SzRVUzVtVjVWdTVRMmM2a2JldThiSXptenJDSWtta01EbUtZSzFxTEhyazZmNTUwZlRiZW1KeHI4TDZiRlpNY2ZrT0tFUXpzcG9MM0o3NnZrMjJTSXQ1VTM1VXFZRDQwMHFSSlhBNUxneWhabTMwSmd5b05Ba2lwRnVNQmV3UzdhWDZLZDlhN3hBT0Q4bFRiMkVuZW1CYnN4dWstODJKM0FaLVpUbW80Q05UR0s3MHU4cnJZNzJRSVh2anZ1blpicV9FcmlINzcydUNXaldhUjluV3Vjbncwemh3OXVkclFfZ09qa1BrOEdSVzhKSGR0bFdXVGtnV1I2dnBCQzA2eVk0cTNFTkMzNC1FMnhaVjI2MzhvR2I1dThBcG4ydDJJNWVhMlNKaTNXcWNvc3NyYi1WbmRNYTh3SUswZEpqOEp2bUZUaEdDOVFpaEdXc0RCaDZhdnpyUWNkZFpCb1lZb2R1amxBY2paQzd0U0E1anRUMEo1SFRUa2ZDd1hVOHhCd0xyRXFNWFVIMzk0bFpnbDh3dS1pS2VLeDk3X0o5NThISU43ZmVxVlZVbUZXY3pBd3lWbGxjelpJTTd3YjAzaTduTFJ1SkV1VmlrTXB0VUthSzhzeTlJSHBDcjh0YjEyNW9PSnptYUdnWW5nRmJHOWlhbUxEdDE0am1xakx4dFFCekg5N0dld1hjaU5feFdhNVRhdmo0YnotbG1SbVp3VW4yOWxaM2RHT083d0lGekJGeXptVHBjalhTRUIwWE5KU3YzZHdyQVRfeFBDdnFaRnhGN2wzRWk0T2ZSN2N2RGlpYUUtSkc2MHZMQjd1VUhIbHM0RDhPYUozVjlZcmxhRVRDVXZRTGcwcUhkX3piYlNHdEdoNEZMNjZsdV9fcEN4UUNsWVY0U0t5cG9tTExEUTBOUEpBWnVmaUFVSzZBc1ZhSHZ4ZzZUWHZhcGVGcW1BV01jUXdYb2RRM3NER1FtNTNSZVAwVFEtSGpzVXQyR1VkSEFmMGpvTkFNNlA0N05OVUxySjJNVWQ5bnNWT3MzZzNGb1BZLU1qTV8xbUd1V0VBYVQySEg2c3B2OHA1VEV0ZkdqcGxQbmcyNWUxQy15Ny1CQ241Mm5KMGIzVHJ3amVRZmlPZlBRcmpJNkRXZUdlMVNmYWlSbV9XY0pseVRaODBXdE1XNmlTbXo0ZlVDRTN1ODlzdG5LRzRFRnM0RmMtWW81NU5RN2lnb3QxeklRU0ZkN0FkTV9mRjVMTmNHRTRMU2dXbi1lNFIyVWNHdGEzdVNELS1JaGZ6YlU1NXR3T3l6bmZCeEM2YmpRV18yNVRaajNOVXQ5QUY1a0VxbmFUeTN5eG0xYURNVWZ5UWJidkVydFh4bkJpcVBxOUFOS1JnYi1iVkhhSFFCdUtqMEROU1ZqYXBqOGh1WWk5V2NsbWRaWVpPQmhGVGNMR3Q4S3Q4T2NfRG5ULUtMR3FRMTNsd3RkMHh5cGphcjgtRXBxMW5jSjNnRjl5X3FPdGM2bWQxZUlKUDFQSWo4Mlp4ODh4MnEtNzZfZW55Z0hrOGU0b3BnMURKNllaUzdaU1lmSTB0dW15YmVnbVdaRnRuT2poazZZbkVtR3dkMEJKRDRILS01VVl1QWxUal9YaUIyaDV6YzVsc2k1MXRRemJUNEc5YUc1QnlxeXhGcFZYSzFZcjNsNF9Xb1A1QjA2SGRyMXp0Z256ZjRObUZFNWZqbEtsMHdzaVZjMlhObjBMRHljd1BFbFJIYnFmSlJrbFl6bDVCMUNYTWJGUEFmUjNIUUJGOHFMWXd2cWFXOWhKMFhlVFk9)
