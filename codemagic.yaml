@@ -1,7 +1,6 @@
 # Check out https://docs.codemagic.io/getting-started/building-an-ionic-app/ for more information
 # Please review and update values in curly braces
 # Remove or comment out the workflows you don't require
-
 workflows:
     # Ionic Capacitor dev workflows
     ionic-capacitor-ios-app-dev:
