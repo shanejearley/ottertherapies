@@ -158,7 +158,7 @@ workflows:
             set -e
             set -x
             cd $FCI_BUILD_DIR/ios/App
-            agvtool new-version -all $(($BUILD_NUMBER +1))  
+            agvtool new-version -all $((24))  
         - |
             xcode-project use-profiles
             xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME"
