@@ -33,3 +33,4 @@ src/environments/firebase.environment.ts
 
 android/app/google-services.json
 ios/App/App/GoogleService-Info.plist
+ios/App/App/Info.plist
