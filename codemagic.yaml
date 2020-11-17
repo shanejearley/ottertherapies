@@ -1,3 +1,4 @@
+# Codemagic workflows
 workflows:
     # Ionic Capacitor iOS dev workflow
     ionic-capacitor-ios-app-dev:
