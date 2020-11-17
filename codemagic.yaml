@@ -1,4 +1,5 @@
-# Codemagic workflows
+# Codemagic workflows for ionic mobile deployment
+# Docs at https://docs.codemagic.io/getting-started/building-an-ionic-app/
 workflows:
     # Ionic Capacitor iOS dev workflow
     ionic-capacitor-ios-app-dev:
