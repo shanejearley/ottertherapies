@@ -26,13 +26,13 @@ workflows:
             node: 12.19.0
             xcode: latest
             cocoapods: default
-        # triggering:
-        #     events:
-        #         - push
-        #     branch_patterns:
-        #         - pattern: dev
-        #           include: true
-        #           source: true
+        triggering:
+            events:
+                - push
+            branch_patterns:
+                - pattern: dev
+                  include: true
+                  source: true
         scripts:
         - | 
             npm install
@@ -228,13 +228,13 @@ workflows:
                 FIREBASE_VAPID_KEY: Encrypted(Z0FBQUFBQmZyWWtGbVZ6TWFzMFpSLW02S1hjRDdFYm1LT2ZzUUQybkc1X29MTUNIWWVicGpoMmstcGd4RkwtUDlpbF9BZUNQY2EzM0tVaFhFX0VUZGtTTWxMUS1EeTdmTmswNzJSRkFwbDdtUTJESWZkWnItUmNQRXpIc2hqdTZ6eF9VWWctVXdIYUF1U2ZKNE02SjVOalk0T0w2ZXlsLTRMaGEtNVQtS0ZqNlhvNHlPeUdGQ1FjX1c3S0dkaGNHOWJjUW52N3hsdy1S)
                 FIREBASE_HOSTING_URL: https://ottertherapies.web.app
             node: 12.19.0
-        # triggering:
-        #     events:
-        #         - push
-        #     branch_patterns:
-        #         - pattern: master
-        #           include: true
-        #           source: true
+        triggering:
+            events:
+                - push
+            branch_patterns:
+                - pattern: master
+                  include: true
+                  source: true
         scripts:
         - |
             npm install
