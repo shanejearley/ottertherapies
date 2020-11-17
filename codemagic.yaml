@@ -1,9 +1,5 @@
-# Check out https://docs.codemagic.io/getting-started/building-an-ionic-app/ for more information
-# Please review and update values in curly braces
-# Remove or comment out the workflows you don't require
-
 workflows:
-    # Ionic Capacitor dev workflows
+    # Ionic Capacitor iOS dev workflow
     ionic-capacitor-ios-app-dev:
         name: Ionic Capacitor iOS App Dev
         max_build_duration: 120
@@ -78,6 +74,7 @@ workflows:
                 notify:
                     success: true     # To not receive a notification when a build succeeds
                     failure: true     # To not receive a notification when a build fails  
+    # Ionic Capacitor android dev workflow
     ionic-capacitor-android-app-dev:
         name: Ionic Capacitor Android App Dev
         environment:
@@ -137,7 +134,7 @@ workflows:
             notify:
                 success: true     # To not receive a notification when a build succeeds
                 failure: true     # To not receive a notification when a build fails
-    # Ionic Capacitor prod workflows
+    # Ionic Capacitor iOS prod workflow
     ionic-capacitor-ios-app-prod:
         name: Ionic Capacitor iOS App Prod
         environment:
@@ -210,6 +207,7 @@ workflows:
                 notify:
                     success: true     # To not receive a notification when a build succeeds
                     failure: true     # To not receive a notification when a build fails    
+    # Ionic Capacitor android prod workflow
     ionic-capacitor-android-app-prod:
         name: Ionic Capacitor Android App Prod
         environment:
