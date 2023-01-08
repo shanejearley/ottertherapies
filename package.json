@@ -1,8 +1,7 @@
 {
-  "name": "ottertherapies_ionic",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "name": "ottertherapies",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -13,7 +12,6 @@
     "e2e": "ng e2e",
     "resources": "cordova-res ios && node scripts/resources.js"
   },
-  "private": true,
   "dependencies": {
     "@angular/animations": "~10.1.5",
     "@angular/cdk": "^10.2.4",
@@ -101,6 +99,5 @@
     "ts-node": "~7.0.0",
     "tslint": "~6.1.0",
     "typescript": "^3.9.7"
-  },
-  "description": "An Ionic project"
+  }
 }
