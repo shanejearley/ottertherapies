@@ -1,4 +1,4 @@
-<img width="50px" alt="Otter Therapies logo" src="src/assets/img/otter_logo.png">
+<img width="50px" alt="Otter Therapies character" src="src/assets/img/otter_wave.svg">
 
 # Otter Therapies
 
